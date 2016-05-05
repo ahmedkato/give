@@ -25,7 +25,7 @@ Utils = {
    * @method http_get_donortools
    * @param {String} getQuery - The query string that should be attached to this request
    */
-  http_get_donortools:                                        function ( getQuery ) {
+  http_get_donortools( getQuery ) {
     logger.info( "Started http_get_donortools" );
     logger.info( "getQuery: " + getQuery );
     let config = ConfigDoc();
@@ -50,7 +50,7 @@ Utils = {
       throw new Meteor.Error( 400, 'No DonorTools url setup' );
     }
   },
-  get_stripe_customer: function ( stripe_customer_id ) {
+  get_stripe_customer( stripe_customer_id ) {
     logger.info( "Started get_stripe_customer" );
     logger.info( "Stripe customer id: " + stripe_customer_id );
     let stripe_customer = StripeFunctions.stripe_retrieve( 'customers',
@@ -60,7 +60,7 @@ Utils = {
     return stripe_customer;
   },
   // Check donation form entries
-  check_update_customer_form:                                 function ( form, dt_persona_id ) {
+  check_update_customer_form ( form, dt_persona_id ) {
     check( form, {
       'address': {
         'address_line1': String,
@@ -74,7 +74,7 @@ Utils = {
     check( dt_persona_id, Number );
   },
   // Check donation form entries
-  checkFormFields:                                            function ( form ) {
+  checkFormFields(form) {
     // Check all the form fields from the donation forms
     check( form, {
       paymentInformation: {
@@ -118,13 +118,13 @@ Utils = {
       sessionId:          String
     } );
   },
-  checkLoginForm:                                             function ( form ) {
+  checkLoginForm( form ) {
     check( form, {
       username: String,
       password: String
     } );
   },
-  GetDTData:                                                  function ( fundsList, dateStart, dateEnd ) {
+  GetDTData( fundsList, dateStart, dateEnd ) {
     logger.info( "Started GetDTData method (not method call)" );
 
     check( fundsList, [Number] );
@@ -136,7 +136,7 @@ Utils = {
     console.log( "Got all funds history" );
     return;
   },
-  update_dt_account:                                          function ( form, dt_persona_id ) {
+  update_dt_account( form, dt_persona_id ) {
     logger.info( "Inside update_dt_account." );
 
     let get_dt_persona = Utils.http_get_donortools(
@@ -184,7 +184,7 @@ Utils = {
         }
       } );
   },
-  getFundHistory: function ( fundId, dateStart, dateEnd ) {
+  getFundHistory( fundId, dateStart, dateEnd ) {
     logger.info( "Got to getFundHistory with fund_id: " + fundId );
 
     var totalPages = 3;
@@ -208,14 +208,14 @@ Utils = {
       }
     }
   },
-  store_splits: function ( donations ) {
+  store_splits( donations ) {
     donations.forEach( function ( split ) {
       //console.log(split.split);
       DT_splits.upsert( { _id: split.split.id }, { $set: split.split } );
     } );
 
   },
-  update_dt_donation_status: function ( event_object ) {
+  update_dt_donation_status( event_object ) {
     logger.info( "Started update_dt_donation_status" );
 
     let transaction_id, get_dt_donation, update_donation, dt_donation_id;
@@ -251,7 +251,7 @@ Utils = {
     logger.info( update_donation );
     DT_donations.upsert( { _id: dt_donation_id }, update_donation.data.donation );
   },
-  find_dt_persona_flow:                                       function ( email, customer_id ) {
+  find_dt_persona_flow( email, customer_id ) {
     logger.info( "Started find_dt_persona_flow" );
 
     let personResult, matched_id, metadata, orgMatch, personMatch;
@@ -321,7 +321,7 @@ Utils = {
       return null;
     }
   },
-  check_for_dt_user:                                          function ( email, checkThisDTID, use_id, customer_id ) {
+  check_for_dt_user(email, checkThisDTID, use_id, customer_id) {
     console.log( email );
 
     // TODO: remove use_id part of this, I'm not using it
@@ -374,7 +374,7 @@ Utils = {
       throw new Meteor.Error( error, e._id );
     }
   },
-  find_dt_account_or_make_a_new_one:                          function ( customer, user_id, skip_audit ) {
+  find_dt_account_or_make_a_new_one(customer, user_id, skip_audit) {
     logger.info( "Started find_dt_account_or_make_a_new_one" );
 
     var dt_persona_match_id;
@@ -404,7 +404,7 @@ Utils = {
 
     }
   },
-  create_dt_account:                                          function ( customer, user_id ) {
+  create_dt_account(customer, user_id) {
     console.log( "Started create_dt_account" );
 
     let metadata, newDTPerson, recognition_name, address_line2, is_company;
@@ -469,7 +469,7 @@ Utils = {
 
     return newDTPerson.data.persona.id;
   },
-  insert_gift_into_donor_tools:                               function ( charge_id, customer_id ) {
+  insert_gift_into_donor_tools(charge_id, customer_id) {
     logger.info( "Started insert_gift_into_donor_tools" );
     logger.info( "Config Settings: " );
     logger.info( config.Settings );
@@ -615,7 +615,7 @@ Utils = {
       throw new Meteor.Error( "Couldn't get the persona_id for some reason" );
     }
   },
-  insert_manual_gift_into_donor_tools:                        function ( donation_id, customer_id, dt_persona_id ) {
+  insert_manual_gift_into_donor_tools(donation_id, customer_id, dt_persona_id) {
     logger.info( "Started insert_gift_into_donor_tools" );
 
     console.log( "Donation_id: ", donation_id, " Customer_id: ", customer_id );
@@ -730,7 +730,7 @@ Utils = {
       throw new Meteor.Error( "Couldn't get the persona_id for some reason" );
     }
   },
-  checkForDTFundID:                                           function ( id ) {
+  checkForDTFundID( id ) {
     logger.info( "checkForDTFundID with id: " + id );
 
     let dtFund = DT_funds.findOne( { id: id } );
@@ -739,7 +739,7 @@ Utils = {
     }
     return;
   },
-  checkForDTFundName:                                         function ( name ) {
+  checkForDTFundName(name) {
     logger.info( "checkForDTFundName with name: " + name );
 
     let dtFund = DT_funds.findOne( { name: name } );
@@ -748,7 +748,7 @@ Utils = {
     }
     return;
   },
-  getDonateTo:                                                function ( donateTo ) {
+  getDonateTo(donateTo) {
     logger.info( "Get Donate To with: " );
     logger.info( donateTo );
     logger.info( "Is not a number? " + isNaN( donateTo ) );
@@ -769,7 +769,7 @@ Utils = {
       }
     }
   },
-  getDonateToName:                                            function ( donateTo ) {
+  getDonateToName(donateTo) {
     logger.info( "Get Donate To with: " );
     logger.info( donateTo );
     logger.info( "Is not a number? " + isNaN( donateTo ) );
@@ -790,7 +790,7 @@ Utils = {
       }
     }
   },
-  getDonateTo:                                                function ( donateTo ) {
+  getDonateTo(donateTo) {
     logger.info( "Get Donate To with: " );
     logger.info( donateTo );
     logger.info( "Is not a number? " + isNaN( donateTo ) );
@@ -811,7 +811,7 @@ Utils = {
       }
     }
   },
-  create_customer:                                            function ( paymentDevice, customerInfo ) {
+  create_customer(paymentDevice, customerInfo) {
     logger.info( "Inside create_customer." );
 
     let stripeCustomerObject = {
@@ -848,7 +848,7 @@ Utils = {
     logger.info( "Customer_id: " + customer_id );
     return stripeCustomer;
   },
-  charge:                                                     function ( total, donation_id, customer_id, payment_id, metadata ) {
+  charge(total, donation_id, customer_id, payment_id, metadata) {
     logger.info( "Inside charge." );
 
     let stripeCharge = StripeFunctions.stripe_create( 'charges',
@@ -866,7 +866,7 @@ Utils = {
     logger.info( "Finished Stripe charge. Charges ID: " + stripeCharge._id );
     return stripeCharge;
   },
-  charge_plan:                                                function ( total, donation_id, customer_id, payment_id, frequency, start_date, metadata ) {
+  charge_plan(total, donation_id, customer_id, payment_id, frequency, start_date, metadata) {
     logger.info( "Inside charge_plan." );
     logger.info( "Start date: " + start_date );
 
@@ -918,7 +918,7 @@ Utils = {
       return 'scheduled';
     }
   },
-  audit_email:                                                function ( id, type, failure_message, failure_code ) {
+  audit_email(id, type, failure_message, failure_code) {
     logger.info( "Inside audit_email." );
 
     switch( type ) {
@@ -1009,7 +1009,7 @@ Utils = {
     }
     ;
   },
-  update_card:                                                function ( customer_id, card_id, saved ) {
+  update_card(customer_id, card_id, saved) {
     logger.info( "Started update_card" );
     logger.info( "Customer: " + customer_id + " card_id: " + card_id + " saved: " + saved );
 
@@ -1022,7 +1022,7 @@ Utils = {
     stripeUpdatedCard._id = stripeUpdatedCard.id;
     return stripeUpdatedCard;
   },
-  add_meta_from_subscription_to_charge:                       function ( stripeEvent ) {
+  add_meta_from_subscription_to_charge(stripeEvent) {
     logger.info( "Started add_meta_from_subscription_to_charge" );
 
     // setup a cursor for this subscription
@@ -1041,11 +1041,11 @@ Utils = {
     // Now send these changes off to Stripe to update the record there.
     Utils.update_invoice_metadata( stripeEvent );
   },
-  stripe_get_subscription:                                    function ( invoice_id ) {
+  stripe_get_subscription( invoice_id ) {
     logger.info( "Started stripe_get_subscription" );
 
   },
-  update_stripe_customer:                                     function ( form, dt_persona_id ) {
+  update_stripe_customer(form, dt_persona_id) {
     logger.info( "Inside update_stripe_customer." );
 
     let customers = Customers.find( {
@@ -1076,7 +1076,7 @@ Utils = {
       );
     } );
   },
-  update_stripe_customer_subscription:                        function ( customer_id, subscription_id, token_id, donateWith ) {
+  update_stripe_customer_subscription(customer_id, subscription_id, token_id, donateWith) {
     logger.info( "Inside update_stripe_customer_subscription." );
 
     let stripeSubscriptionUpdate = StripeFunctions.stripe_update( 'customers', 'updateSubscription', customer_id, subscription_id, {
@@ -1086,7 +1086,7 @@ Utils = {
 
     return stripeSubscriptionUpdate;
   },
-  update_stripe_customer_card:                                function ( data ) {
+  update_stripe_customer_card(data) {
     logger.info( "Inside update_stripe_customer_card." );
     let stripeCardUpdate = StripeFunctions.stripe_update( 'customers', 'updateCard', data.customer_id, data.card, {
       exp_month: data.exp_month,
@@ -1094,14 +1094,14 @@ Utils = {
     } );
     return stripeCardUpdate;
   },
-  update_stripe_customer_bank:                                function ( customer_id, bank ) {
+  update_stripe_customer_bank(customer_id, bank) {
     logger.info( "Inside update_stripe_customer_bank." );
     console.log( customer_id, bank );
 
     let stripeBankUpdate = StripeFunctions.stripe_update( 'customers', 'createSource', customer_id, '', { source: bank } );
     return stripeBankUpdate;
   },
-  update_stripe_bank_metadata:                                function ( customer_id, bank_id, saved ) {
+  update_stripe_bank_metadata(customer_id, bank_id, saved) {
     logger.info( "Inside update_stripe_bank_metadata." );
     logger.info( customer_id, bank_id, saved );
     if( saved ) {
@@ -1113,14 +1113,14 @@ Utils = {
     let stripeBankUpdate = StripeFunctions.stripe_update( 'customers', 'updateCard', customer_id, bank_id, { metadata: { saved: saved } } )
 
   },
-  update_stripe_customer_default_source:                      function ( customer_id, device_id ) {
+  update_stripe_customer_default_source(customer_id, device_id) {
     logger.info( "Inside update_stripe_customer_default_source." );
     logger.info( customer_id, device_id );
 
     let sourceUpdate = StripeFunctions.stripe_update( 'customers', 'update', customer_id, '', { default_source: device_id } );
     return sourceUpdate;
   },
-  update_invoice_metadata:                                    function ( event_body ) {
+  update_invoice_metadata(event_body) {
     logger.info( "Inside update_invoice_metadata" );
 
     // Get the subscription cursor
@@ -1135,7 +1135,7 @@ Utils = {
       return;
     }
   },
-  update_charge_metadata:                                     function ( event_body ) {
+  update_charge_metadata(event_body) {
     logger.info( "Inside update_charge_metadata" );
 
     // Get the subscription cursor
@@ -1162,7 +1162,7 @@ Utils = {
       Charges.update( { _id: event_body.data.object.id }, { $set: { metadata: subscription_cursor.metadata } } );
     }
   },
-  cancel_stripe_subscription:                                 function ( customer_id, subscription_id, reason ) {
+  cancel_stripe_subscription ( customer_id, subscription_id, reason ) {
     logger.info( "Inside cancel_stripe_subscription" );
     logger.info( customer_id + " " + " " + subscription_id + " " + reason );
 
@@ -1186,7 +1186,7 @@ Utils = {
     console.dir( stripe_cancel );
     return stripe_cancel;
   },
-  stripe_create_subscription:                                 function ( customer_id, source_id, plan, quantity, metadata ) {
+  stripe_create_subscription ( customer_id, source_id, plan, quantity, metadata ) {
     logger.info( "Inside stripe_create_subscription." );
     logger.info( customer_id );
 
@@ -1207,7 +1207,7 @@ Utils = {
 
     return stripeCreateSubscription;
   },
-  stripe_set_transfer_posted_metadata:                        function ( transfer_id, set_to ) {
+  stripe_set_transfer_posted_metadata( transfer_id, set_to ) {
     logger.info( "Inside stripe_set_transfer_posted_metadata with transfer id: " +
       transfer_id + "and set_to: " + set_to );
 
@@ -1218,7 +1218,7 @@ Utils = {
     } );
     return stripeTransfer;
   },
-  stripe_get_refund:                                          function ( refund_id ) {
+  stripe_get_refund( refund_id ) {
     logger.info( "Started stripe_get_refund. Refund id: " + refund_id );
 
     let stripeRefund = StripeFunctions.stripe_retrieve( 'refunds', 'retrieve', refund_id, {
@@ -1227,13 +1227,13 @@ Utils = {
 
     return stripeRefund;
   },
-  get_all_stripe_refunds:                                     function () {
+  get_all_stripe_refunds() {
     logger.info( "Inside get_all_stripe_refunds." );
 
     let allRefunds = StripeFunctions.stripe_retrieve( 'refunds', 'list', { limit: 100 }, '' );
     return allRefunds;
   },
-  update_stripe_customer_dt_persona_id:                       function ( customer_id, new_persona_id ) {
+  update_stripe_customer_dt_persona_id(customer_id, new_persona_id) {
     logger.info( "Inside update_stripe_customer_dt_persona_id." );
     logger.info( new_persona_id );
 
@@ -1244,7 +1244,7 @@ Utils = {
     } );
     return stripeCustomerUpdate;
   },
-  update_stripe_subscription_amount_or_designation_or_date:   function ( subscription_id, customer_id, fields ) {
+  update_stripe_subscription_amount_or_designation_or_date(subscription_id, customer_id, fields) {
 
     let stripeSubscriptionUpdate = StripeFunctions.stripe_update( 'customers',
       'updateSubscription',
@@ -1254,7 +1254,7 @@ Utils = {
 
     return stripeSubscriptionUpdate;
   },
-  send_new_dt_account_added_email_to_support_email_contact:   function ( email, user_id, personaID ) {
+  send_new_dt_account_added_email_to_support_email_contact(email, user_id, personaID) {
 
     logger.info( "Started send_new_dt_account_added_email_to_support_email_contact" );
     if( Audit_trail.findOne( { persona_id: personaID } ) &&
@@ -1301,7 +1301,7 @@ Utils = {
    * @param {String} user_id - _id of the user who has just been created
    * @param {String} personaID - id from Donor Tools identifying this user
    */
-  send_new_give_account_added_email_to_support_email_contact: function ( email, user_id, personaID ) {
+  send_new_give_account_added_email_to_support_email_contact( email, user_id, personaID ) {
     logger.info( "Started send_new_give_account_added_email_to_support_email_contact" );
     let config = ConfigDoc();
 
@@ -1345,7 +1345,7 @@ Utils = {
    *
    * @method send_change_email_notice_to_admins
    */
-  send_change_email_notice_to_admins:                         function ( changeMadeBy, changeIn ) {
+  send_change_email_notice_to_admins(changeMadeBy, changeIn) {
     logger.info( "Started send_change_email_notice_to_admins" );
     let config = Config.findOne( {
       'OrgInfo.web.domain_name': Meteor.settings.public.org_domain
@@ -1386,7 +1386,7 @@ Utils = {
    * @param {String} userId - _id of user who's state is being updated
    * @param {String} state - OneOf the values, 'disabled', 'enabled', or 'invited'
    */
-  set_user_state:                                             function ( userId, state ) {
+  set_user_state(userId, state) {
     logger.info( "Started set_user_state method" );
 
     check( userId, String );
@@ -1425,7 +1425,7 @@ Utils = {
    * @param {String} email - the email address used to give on the donation_form
    * @param {String} customer_id - the customer id generated by Stripe when the customer gave
    */
-  create_user:                                                function ( email, customer_id ) {
+  create_user(email, customer_id) {
     try {
       logger.info( "Started create_user." );
 
@@ -1484,7 +1484,7 @@ Utils = {
    * This function creates the Stripe plans that are needed for Give to work
    * @method create_stripe_plans
    */
-  create_stripe_plans:                                        function () {
+  create_stripe_plans() {
     try {
       logger.info( "Started create_stripe_plans." );
       let stripe_plans = [
@@ -1515,7 +1515,7 @@ Utils = {
    * @method retrieve_stripe_plan
    * @param {String} name - The name of the plan to retrieve from Stripe
    */
-  retrieve_stripe_plan:                                       function ( name ) {
+  retrieve_stripe_plan(name) {
     logger.info( "Started retrieve_stripe_plan with name: " + name );
 
     try {
@@ -1536,7 +1536,7 @@ Utils = {
    * @param {String} plan.name - The name of the plan
    * @param {String} plan.interval - The interval of the plan
    */
-  create_stripe_plan:                                         function ( plan ) {
+  create_stripe_plan(plan) {
     logger.info( "Started create_stripe_plan with name: " + plan.name );
     let createdPlan = StripeFunctions.stripe_create( 'plans', {
       amount:   1,
@@ -1548,7 +1548,7 @@ Utils = {
     return createdPlan;
   },
   // Below here was moved from post_donations.js
-  post_donation_operation:                                    function ( customer_id, charge_id ) {
+  post_donation_operation(customer_id, charge_id) {
 
     logger.info( "Started post_donation_operation." );
     let inserted_now, matchedId, findAnyMatchedDTaccount;
@@ -1652,7 +1652,7 @@ Utils = {
       }
     }
   },
-  for_each_persona_insert:                                    function ( id_or_info, user_id ) {
+  for_each_persona_insert(id_or_info, user_id) {
     logger.info( "Started for_each_persona_insert." );
     console.log( id_or_info );
 
@@ -1690,7 +1690,7 @@ Utils = {
     }
     return;
   },
-  get_fund_id:                                                function ( donateTo ) {
+  get_fund_id(donateTo) {
     logger.info( "Started get_fund_id" );
     // Take the text of donateTo and associate that with a fund id
     // don't delete any cases below, simply add new ones. If the name
@@ -1919,7 +1919,7 @@ Utils = {
         break;
     }
   },
-  insert_donation_and_donor_into_dt:                          function ( customer_id, user_id, charge_id ) {
+  insert_donation_and_donor_into_dt(customer_id, user_id, charge_id) {
     /*try {*/
     logger.info( "Started insert_donation_and_donor_into_dt" );
 
@@ -2029,7 +2029,7 @@ Utils = {
      throw new Meteor.Error(error, e._id);
      }*/
   },
-  separate_donations:                                         function ( serverResponse ) {
+  separate_donations(serverResponse) {
     logger.info( "Inside separate_donations" );
 
     //Pull each donation from the array and send them to be inserted
@@ -2037,10 +2037,10 @@ Utils = {
       Utils.insert_each_dt_donation( element.donation );
     } );
   },
-  insert_each_dt_donation:                                    function ( donation ) {
+  insert_each_dt_donation( donation ) {
     DT_donations.upsert( { _id: donation.id }, donation );
   },
-  separate_funds:                                             function ( fundResults ) {
+  separate_funds( fundResults ) {
     logger.info( "Inside separate_funds" );
 
     //Pull each donation from the array and send them to be inserted
@@ -2048,7 +2048,7 @@ Utils = {
       Utils.insert_each_dt_fund( element.fund );
     } );
   },
-  separate_sources:                                           function ( sourceResults ) {
+  separate_sources( sourceResults ) {
     logger.info( "Inside separate_sources" );
 
     //Pull each donation from the array and send them to be inserted
@@ -2056,7 +2056,7 @@ Utils = {
       Utils.insert_each_dt_source( element.source );
     } );
   },
-  insert_each_dt_fund:                                        function ( fund ) {
+  insert_each_dt_fund( fund ) {
     logger.info( "Inside insert_each_dt_fund with " + fund.id );
 
     fund.id = fund.id.toString();
@@ -2064,7 +2064,7 @@ Utils = {
     fund._id = fund.id;
     DT_funds.upsert( { _id: fund._id }, fund );
   },
-  insert_each_dt_source:                                      function ( source ) {
+  insert_each_dt_source(source) {
     logger.info( "Inside insert_each_dt_source with " + source.id );
 
     source.id = source.id.toString();
@@ -2073,7 +2073,7 @@ Utils = {
     source._id = source.id;
     DT_sources.upsert( { _id: source._id }, source );
   },
-  get_all_dt_donations:                                       function ( persona_ids ) {
+  get_all_dt_donations(persona_ids) {
     logger.info( "Started get_all_dt_donations" );
     logger.info( "persona_ids: " + persona_ids );
 
@@ -2089,7 +2089,7 @@ Utils = {
       Utils.separate_donations( responseData.data );
     } );
   },
-  insert_persona_info_into_user:                              function ( user_id, persona_info ) {
+  insert_persona_info_into_user(user_id, persona_info) {
     // Insert the donor tools persona id into the user record
     logger.info( "Started insert_persona_info_into_user" );
     console.log( persona_info );
@@ -2107,7 +2107,7 @@ Utils = {
     }
     return;
   },
-  remove_persona_info_from_user:                              function ( user_id, persona_info ) {
+  remove_persona_info_from_user(user_id, persona_info) {
     //Remove an old donor tools persona id from the user record
     logger.info( "Started remove_persona_info_from_user" );
     logger.info( "ID: " );
@@ -2121,7 +2121,7 @@ Utils = {
     }
     return;
   },
-  insert_donation_into_dt:                                    function ( customer_id, user_id, persona_info, charge_id, persona_id ) {
+  insert_donation_into_dt(customer_id, user_id, persona_info, charge_id, persona_id) {
     try {
       logger.info( "Started insert_donation_into_dt" );
 
@@ -2222,7 +2222,7 @@ Utils = {
       throw new Meteor.Error( error, e._id );
     }
   },
-  get_business_persona:                                       function ( persona_info, is_business ) {
+  get_business_persona(persona_info, is_business) {
     logger.info( "Started get_business_persona" );
 
     if( is_business ) {
@@ -2240,7 +2240,7 @@ Utils = {
     // Return the persona id for the company persona
     return result.id;
   },
-  update_charge_with_dt_donation_id:                          function ( charge_id, dt_donation_id ) {
+  update_charge_with_dt_donation_id(charge_id, dt_donation_id) {
     logger.info( "Started update_charge_with_dt_donation_id" );
 
     let stripeUpdate = StripeFunctions.stripe_update( 'charges',
@@ -2251,7 +2251,7 @@ Utils = {
       } );
     return stripeUpdate;
   },
-  split_dt_persona_info:                                      function ( email, personResultInSplit ) {
+  split_dt_persona_info(email, personResultInSplit) {
     logger.info( "Started split_dt_persona_info" );
 
     if( !personResultInSplit || personResultInSplit.data === '' || personResultInSplit.data === [] ) {
@@ -2287,7 +2287,7 @@ Utils = {
       return return_to_called;
     }
   },
-  processDTFund:                                              function ( donateTo ) {
+  processDTFund(donateTo) {
     logger.info( "Started processDTFund" );
 
     let dt_fund;
@@ -2349,17 +2349,6 @@ Utils = {
   },
   sendScheduledEmails(frequency){
     logger.info("Started sendScheduledEmails.");
-
-    // forEach of these get all of the objects (since each user might have many active email subscriptions
-    // forEach of those check the associated id fund:
-
-    // get a list of the funds used in all the trips (without duplicates)
-    // then fetch the splits for all of these using the Utils.getFundHistory("fundId")
-
-    // then go through the sending below, once for each fund
-    // create an unsubscribe link for the email
-    // When the trip goes inactive, stop any connected email subscriptions
-    
     
     let emailSubscribers = Meteor.users.find({'emailSubscriptions.frequency': frequency});
 
@@ -2401,14 +2390,6 @@ Utils = {
     }
 
     if (emailSubscribers && emailSubscribers.count() > 0) {
-      // map the emailSubscribers.emailSubscriptions objects to a unique list
-      // of funds, then
-      // Utils.getFundHistory("fundId") for each of those funds
-      // wait till this is complete, then
-      // map the emailSubscriptions to a lit of [{trip: '', fundraiser: ''}]
-      // count these and store that number
-      // forEach send an email using the SSR below
-      // use the count to report to the log how many emails were sent
       let subscriptions = _.flatten(emailSubscribers.map((user)=>{
         let returnNewSubscriptionObject = user.emailSubscriptions.map((eachSubscription) =>{
           let composeSubscriptions = eachSubscription;
@@ -2575,9 +2556,7 @@ Utils = {
           },
           orgURL() {
             let config = ConfigDoc();
-            console.log(config.OrgInfo.web.subdomain );
-            console.log(config.OrgInfo.web.domain_name);
-            let domain = 'https://' + config.OrgInfo.web.subdomain + "." + config.OrgInfo.web.domain_name;
+            let domain = 'https://' + config.OrgInfo.web.subdomain ? config.OrgInfo.web.subdomain + "." : "" + config.OrgInfo.web.domain_name;
             return domain;
           }
         });
