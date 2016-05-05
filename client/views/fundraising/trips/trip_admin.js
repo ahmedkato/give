@@ -27,10 +27,8 @@ function onFormSuccess() {
   });
 }
 
-function getAdjustmentAmount(id) {
+function getAdjustmentAmount(id, parent, parentParent) {
 
-  let parent = Template.parentData(1);
-  let parentParent = Template.parentData(2);
   let trip_id = parent._id;
   let deadline_id = id;
 
@@ -86,11 +84,15 @@ Template.TripAdmin.onCreated(function () {
 
 Template.TripAdmin.helpers({
   trip() {
-    let trip = Trips.findOne();
     return Trips.findOne();
   },
-  subscribed: function () {
-    if (this && this.metadata && this.metadata.subscribed && this.metadata.subscribed === "true") {
+  subscribed() {
+    let tripId = Router.current().params._id;
+    let fundId = Trips.findOne({_id: tripId}) && Trips.findOne({_id: tripId}).fundId;
+
+    if( Meteor.users.findOne( { _id: Meteor.userId(),
+        emailSubscriptions: fundId
+      } ) ) {
       return 'subscribed';
     } else {
       return 'not-subscribed';
@@ -110,15 +112,15 @@ Template.TripAdmin.helpers({
     }
     return;
   },
-  participantName(){
+  participantName() {
     let name = this.fname + " " + this.lname;
     return name;
   },
-  amountRaised(){
+  amountRaised() {
     let raised = getAmountRaised(this.fname + " " + this.lname);
     return raised;
   },
-  amountRaisedPercent(amountRaised){
+  amountRaisedPercent(amountRaised) {
     let deadlines = Trips.findOne().deadlines;
 
     let deadlinesTotal = deadlines.reduce( function(previousVal, deadline){
@@ -126,7 +128,6 @@ Template.TripAdmin.helpers({
     }, 0);
 
     if (deadlinesTotal && amountRaised) {
-      console.log(amountRaised, " / ", deadlinesTotal);
       return Math.ceil(100*(amountRaised/deadlinesTotal));
     }
     return 0;
@@ -141,38 +142,46 @@ Template.TripAdmin.helpers({
   },
   percentageOfDeadline() {
     let parent = Template.parentData(1);
+    let parentParent = Template.parentData(2);
 
     // Sort the deadlines in case the user entered them out of order,
     let deadlinesSorted = parent.deadlines
       .sort(function(item, nextItem){return item.dueDate - nextItem.dueDate;});
+    console.log(deadlinesSorted);
 
     // Get the index position of this deadline
     let elementPosition = deadlinesSorted
       .map(function(item) {return item.id; }).indexOf(this.id);
 
-    let deadlinesTotal = parent.deadlines
-      .reduce( function(previousVal, deadline, index){
-      if (elementPosition > index) {
-        return previousVal + deadline.amount;
-      } else {
-        return previousVal;
-      }
-    }, this.amount);
 
+    let totalOfDeadlinesToThisDeadline = deadlinesSorted
+      .reduce(function ( total, deadline, index ) {
+        console.log(total, deadline, index);
+        if (elementPosition >= index) {
+          return total += deadline.amount;
+        } else {
+          return total;
+        }
+      }, 0);
 
-    let raised = getAmountRaised(parent.fname + " " + parent.lname);
-    let percentOfDeadline = 100*(raised/deadlinesTotal);
+    let totalOfAdjustmentsToThisDeadline = deadlinesSorted
+      .reduce(function ( total, deadline, index ) {
+        console.log(total, deadline, index);
+        if (elementPosition >= index) {
+          return total += Number(getAdjustmentAmount(deadline.id, parent, parentParent));
+        } else {
+          return total;
+        }
+      }, 0);
 
-    if (elementPosition === 0 ){
-      return percentOfDeadline;
+    let raised = getAmountRaised(parentParent.fname + " " + parentParent.lname);
+
+    let deadlineAmountAfterAdjustments = totalOfDeadlinesToThisDeadline + totalOfAdjustmentsToThisDeadline;
+
+    if (raised > deadlineAmountAfterAdjustments) {
+      return 100;
     } else {
-      if (deadlinesSorted[elementPosition - 1].amount > raised) {
-        return 0;
-      } else {
-        return 100*((raised-deadlinesSorted[elementPosition - 1]
-            .amount)/(deadlinesTotal-deadlinesSorted[elementPosition - 1]
-            .amount));
-      }
+      return ((100*(raised/deadlineAmountAfterAdjustments).toFixed(2)));
     }
   },
   donationForThisFundraiser() {
@@ -185,7 +194,7 @@ Template.TripAdmin.helpers({
     }
     return;
   },
-  donorName(){
+  donorName() {
     // inside split
     let donation = DT_donations.findOne({_id: this.donation_id});
     if (donation) {
@@ -204,24 +213,36 @@ Template.TripAdmin.helpers({
     }
     return;    
   },
-  splitAmount(){
+  splitAmount() {
     return this.amount_in_cents ? (this.amount_in_cents/100) : "";
   },
   adjustedAmount() {
+    let parent = Template.parentData(1);
+    let parentParent = Template.parentData(2);
+
     let deadlineAmount = this.amount;
-    let adjustment = getAdjustmentAmount(this.id);
+    let adjustment = getAdjustmentAmount(this.id, parent, parentParent);
     return Number(deadlineAmount) + Number(adjustment);
   },
   deadlineAdjustmentValue() {
-    let adjustmentValue = getAdjustmentAmount(this.id);
+    let parent = Template.parentData(1);
+    let parentParent = Template.parentData(2);
+
+    let adjustmentValue = getAdjustmentAmount(this.id, parent, parentParent);
     return adjustmentValue;
+  },
+  deadlineDue() {
+    let tripId = Router.current().params._id;
+    let deadlineId = this.id;
+    let trip = Trips.findOne({_id: tripId});
+    let tripDeadline = _.findWhere(trip.deadlines, {id: deadlineId});
+    return tripDeadline && tripDeadline.dueDate;
   }
 });
 
 Template.TripAdmin.events({
   'click .remove-participant'(){
     let self = this;
-
     console.log("remove participant clicked");
     swal({
       title: "Are you sure you want to remove this participant?",

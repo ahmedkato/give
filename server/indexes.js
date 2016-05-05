@@ -80,6 +80,8 @@ Invoices._ensureIndex(
 Meteor.users._ensureIndex(
   {'emails.address': 1},
   {'primary_customer_id': 1},
+  {'emailSubscriptions.id': 1},
+  {'emailSubscriptions.isActive': 1},
   {background: true});
 
 Subscriptions._ensureIndex(

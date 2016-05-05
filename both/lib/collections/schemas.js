@@ -309,9 +309,9 @@ Schema.Services = new SimpleSchema({
     label: "Mandrill key",
     optional: true
   },
-  "Email.adminAlerts": {
+  "Email.notices": {
     type: String,
-    label: "The template name used for admin alerts.",
+    label: "Generic email notice template.",
     optional: true
   },
   "Email.enrollmentName": {
@@ -1004,6 +1004,49 @@ Schema.User = new SimpleSchema({
     }
   },
   primary_customer_id: {
+    type: String,
+    optional: true,
+    autoform: {
+      afFieldInput: {
+        type: "hidden"
+      },
+      afFormGroup: {
+        label: false
+      }
+    }
+  },
+  emailSubscriptions: {
+    type: Array,
+    optional: true,
+    autoform: {
+      omit: true
+    }
+  },
+  "emailSubscriptions.$": {
+    type: Object,
+    optional: true,
+    autoform: {
+      afFieldInput: {
+        type: "hidden"
+      },
+      afFormGroup: {
+        label: false
+      }
+    }
+  },
+  "emailSubscriptions.$.id": {
+    type: String,
+    optional: true,
+    autoform: {
+      afFieldInput: {
+        type: "hidden"
+      },
+      afFormGroup: {
+        label: false
+      }
+    }
+  },
+  "emailSubscriptions.$.frequency": {
     type: String,
     optional: true,
     autoform: {

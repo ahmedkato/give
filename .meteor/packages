@@ -68,3 +68,6 @@ mystor:device-detection
 matb33:collection-hooks
 standard-minifier-css
 standard-minifier-js
+percolate:synced-cron
+meteorhacks:ssr
+mdg:validated-method

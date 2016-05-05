@@ -237,10 +237,11 @@ Meteor.publishComposite('ach', function () {
 Meteor.publishComposite("travelDTSplits", function (tripId) {
   check(tripId, Match.Optional(String));
 
-  if (Roles.userIsInRole(this.userId, ['admin', 'trips-manager'])) {
+  if (Roles.userIsInRole(this.userId, ['admin', 'trips-manager', 'trips-member'])) {
     var funds = [];
     if (tripId) {
       let fundId = Trips.findOne({_id: tripId}) && Trips.findOne({_id: tripId}).fundId;
+      console.log(fundId);
       funds[0] = Number(fundId);
     } else {
       funds = Trips.find().map(function ( item ) {
@@ -295,17 +296,17 @@ Meteor.publishComposite("subscriptions", function () {
       children: [
         {
           find: function ( customers ) {
-            // Find the person associated with this donation
+            // Find the charges associated with this customer
             return Charges.find( { 'customer': customers._id } );
           }
         }, {
             find: function ( customers ) {
-              // Find the person associated with this donation
+              // Find the subscriptions associated with this customer
               return Subscriptions.find({$and: [{'customer': customers._id}, {'metadata.replaced': {$ne: true}}]});
             }
         }, {
           find: function ( customers ) {
-            // Find the person associated with this donation
+            // Find the devices used (payment methods) and saved with this customer
             return Devices.find({ $and: [{
                 'customer': customers._id
                 }, {
@@ -322,7 +323,8 @@ Meteor.publishComposite("subscriptions", function () {
           }
         }, {
           find: function ( customers ) {
-            // Find the person associated with this donation
+            // Find the donation document for any manualACH transactions
+            // only show the pending status since that is what shows the next months gift
             return Donations.find({ $and: [{
                 'customer_id': customers._id
                 }, {
@@ -340,11 +342,32 @@ Meteor.publishComposite("subscriptions", function () {
   }
 });
 
-Meteor.publishComposite("tripsMember", function () {
+Meteor.publishComposite("tripsMember", function (id) {
   logger.info( "Started publish function, tripsMember" );
+  check(id, Match.Optional(String));
+
   if( this.userId ) {
     console.log(this.userId);
     let user = Meteor.users.findOne({_id: this.userId});
+    return {
+      find: function () {
+        return Fundraisers.find( { email: user.emails[0].address } );
+      },
+      children: [
+        {
+          find: function (fundraiser) {
+            if (fundraiser && fundraiser.trips) {
+              // Find the person associated with this donation
+              return Trips.find( { _id: {$in: fundraiser.trips.map(function(item){return item.id}) }} );
+            }
+            return;
+          }
+        }
+      ]
+    }
+  } else if (id && Roles.userIsInRole(this.userId, ['admin', 'trips-manager'])) {
+    console.log(id);
+    let user = Meteor.users.findOne({_id: id});
     return {
       find: function () {
         return Fundraisers.find( { email: user.emails[0].address } );

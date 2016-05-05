@@ -1209,8 +1209,8 @@ Meteor.methods({
   updateTripFunds: function (dateStart, dateEnd) {
     logger.info("Started updateTripFunds method");
 
-    check(dateStart, String);
-    check(dateEnd, String);
+    check(dateStart, Match.Optional(String));
+    check(dateEnd, Match.Optional(String));
     if( Roles.userIsInRole( this.userId, ['admin', 'trips-manager'] ) ) {
       this.unblock();
       try {
@@ -1220,7 +1220,9 @@ Meteor.methods({
         logger.info( "Trips funds list: " + fundsList );
 
         fundsList.forEach( function ( fundId ) {
-          var funds = Utils.getFundHistory( fundId, dateStart, dateEnd );
+          var funds = Utils.getFundHistory( fundId,
+            dateStart ? dateStart : "",
+            dateEnd ? dateEnd : "" );
 
           let dtSplits = DT_splits.find({fund_id: Number(fundId)});
           console.log(dtSplits.fetch());
@@ -1329,5 +1331,82 @@ Meteor.methods({
       return "Got it";
     }
     return;
+  },
+  /**
+   * Toggle the email subscription for this fund by adding to the
+   * emailSubscriptions array, or taking away from it
+   *
+   * @method toggleEmailSubscription
+   * @param {String} fundId - The Donor Tools fund ID that is being subscribed to
+   * @param {String} fundraiserId - The fundraiser's _id
+   */
+  toggleEmailSubscription (fundId, fundraiserId) {
+    console.log(fundId, fundraiserId);
+    check (fundId, String);
+    check (fundraiserId, String);
+      
+    let fundraiserEmail = Fundraisers.findOne({_id: fundraiserId}) &&
+        Fundraisers.findOne({_id: fundraiserId}).email;
+    let userEmail = Meteor.users.findOne({_id: this.userId}).emails[0].address;
+    console.log(userEmail);
+
+    var updateTo;
+    // Make sure that this user can update the email subscription for this fundraiser
+    // by checking that they both have the same email address
+    if (fundraiserEmail && fundraiserEmail === userEmail) {
+
+      if( Meteor.users.findOne( { _id: this.userId,
+          'emailSubscriptions.id': fundId
+        } ) ) {
+        Meteor.users.update( { _id: this.userId}, {
+          $pull: {
+            emailSubscriptions: {id: fundId}
+          }
+        } );
+        updateTo = 'unsubscribed';
+      } else {
+        let updateUser = Meteor.users.update( { _id: this.userId }, {
+          $addToSet: {
+            emailSubscriptions: {id: fundId, frequency: 'monthly'}
+          }
+        } );
+        updateTo = 'subscribed';
+      }
+    } else {
+      logger.error("Email of fundraiser and the email address in the user account didn't match");
+      return;
+    }
+    return updateTo;
+  },
+  /**
+   * Update the reports frequency
+   * @method updateReportFrequency
+   * @param {String} fundId - The Donor Tools fund ID that is being update
+   * @param {String} fundraiserId - The fundraiser's _id
+   * @param {('monthly'|'weekly'|'daily')} frequency - The frequency at which the fundraiser wants to receive the reports
+   */
+  updateReportFrequency(fundId, fundraiserId, frequency){
+    logger.info("Started updateReportFrequency");
+    check(fundId, String);
+    check(fundraiserId, String);
+    check(frequency, Match.OneOf('monthly','weekly','daily'));
+    let fundraiserEmail = Fundraisers.findOne({_id: fundraiserId}) &&
+      Fundraisers.findOne({_id: fundraiserId}).email;
+    let userEmail = Meteor.users.findOne({_id: this.userId}).emails[0].address;
+    console.log(userEmail);
+
+    // Make sure that this user can update the email subscription for this fundraiser
+    // by checking that they both have the same email address
+    if (fundraiserEmail && fundraiserEmail === userEmail) {
+      Meteor.users.update( { _id: this.userId, 'emailSubscriptions.id': fundId }, {
+        $set: {
+          'emailSubscriptions.$.frequency': frequency
+        }
+      } );
+    } else {
+      logger.error("Email of fundraiser and the email address in the user account didn't match");
+      return;
+    }
+    return 'finished';
   }
 });

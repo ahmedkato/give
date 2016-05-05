@@ -67,6 +67,7 @@ livedata@1.0.18
 localstorage@1.0.9
 logging@1.0.12
 matb33:collection-hooks@0.8.1
+mdg:validated-method@1.1.0
 mdg:validation-error@0.4.0
 meteor@1.1.14
 meteor-base@1.0.4
@@ -76,6 +77,7 @@ meteorhacks:kadira@2.28.5
 meteorhacks:kadira-binary-deps@1.4.0
 meteorhacks:kadira-profiler@1.2.1
 meteorhacks:meteorx@1.4.1
+meteorhacks:ssr@2.2.0
 meteortoys:toykit@2.2.1
 minifier-css@1.1.11
 minifier-js@1.1.11
@@ -97,6 +99,7 @@ npm-mongo@1.4.43
 observe-sequence@1.0.11
 ongoworks:security@1.3.0
 ordered-dict@1.0.7
+percolate:synced-cron@1.3.2
 pfafman:font-awesome-4@4.6.1
 promise@0.6.7
 raix:eventemitter@0.1.3

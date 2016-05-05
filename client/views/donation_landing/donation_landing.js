@@ -70,7 +70,6 @@ Template.DonationLanding.helpers({
             let itemName = '#dd-' + item.groupId;
             $( itemName ).ddslick( {
               onSelected: function ( selectedData ) {
-                console.log("value: " + selectedData.selectedData.value);
                 $("[name='donateTo']").val( selectedData.selectedData.value );
               }
             } );

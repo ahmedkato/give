@@ -9,7 +9,7 @@ Router.configure({
 Router.plugin('ensureSignedIn', {
   except: ['donation.form', 'donation.landing', 'donation.thanks',
            'donation.gift', 'donation.scheduled', 'enrollAccount',
-           'forgotPwd', 'resetPwd', 'stripe_webhooks', 'signIn', 'TripsPublic']
+           'forgotPwd', 'resetPwd', 'stripe_webhooks', 'signIn']
 });
 
 Router.onAfterAction(function() {
@@ -17,7 +17,7 @@ Router.onAfterAction(function() {
     let config = ConfigDoc();
 
     if (!(config && config.Settings && config.Settings.showDonatePage)){
-      if (!Meteor.user() && !Meteor.loggingIn() ) {
+      if (!Meteor.user() && !Meteor.loggingIn() && !(Router.current().route.getName() === 'signIn')) {
         this.render("SetupNotComplete");
       }
     }
@@ -57,7 +57,7 @@ Router.onBeforeAction(function() {
 });
 
 Router.onBeforeAction(function() {
-  if (!Roles.userIsInRole(Meteor.user(), ['admin', 'trips-manager', 'trips-member']) ) {
+  if (!Roles.userIsInRole(Meteor.user(), ['admin', 'trips-manager']) ) {
     this.render("NotFound");
   } else {
     this.next();
@@ -73,7 +73,7 @@ Router.onBeforeAction(function() {
     this.next();
   }
 }, {
-  only: ['MemberTrips', 'MemberTrip']
+  only: ['MemberTrips', 'MemberTrip', 'Trips']
 });
 
 Router.route('', {
@@ -314,39 +314,49 @@ Router.route('/scheduled', {
   }
 });
 
-Router.route('/webhooks/stripe', function() {
-  // Receive an event, check that it contains a data.object object and send along to appropriate function
-  var request = this.request.body;
-  var dtStatus;
+if (Meteor.isServer) {
 
-  if (request.data && request.data.object) {
-    Meteor.call("checkDonorTools", function(err, res) {
-      if (res && res === true) {
-        dtStatus = true;
+  Router.route( '/webhooks/stripe', function () {
+    // Receive an event, check that it contains a data.object object and send along to appropriate function
+    var request = this.request.body;
+    var dtStatus;
+
+    // This shouldn't be considered a security precaution since anyone can forge these headers
+    // we just use it here to weed out any traffic that hits the URL without trying to forge
+    // a strip origin header
+    // Every request here always gets verified by Stripe and we use the verified
+    // response inside the app
+    this.response.setHeader( 'access-control-allow-origin', 'https://stripe.com' );
+
+    if( request.data && request.data.object ) {
+      Meteor.call( "checkDonorTools", function ( err, res ) {
+        if( res && res === true ) {
+          dtStatus = true;
+        } else {
+          logger.info( "DT connection is down" );
+          dtStatus = false;
+        }
+      } );
+      if( dtStatus ) {
+        // Got it, let the Stripe server go
+        this.response.statusCode = 200;
+        this.response.end( 'Oh hai Stripe!\n' );
+
+        // Process this event, but first check that it actually came from Stripe
+        StripeFunctions.control_flow_of_stripe_event_processing( request );
       } else {
-        logger.info("DT connection is down");
-        dtStatus = false;
+        this.response.statusCode = 500;
+        this.response.end( 'Sorry, no connection to DonorTools available!' );
       }
-    });
-    if (dtStatus) {
-      // Got it, let the Stripe server go
-      this.response.statusCode = 200;
-      this.response.end('Oh hai Stripe!\n');
-
-      // Process this event, but first check that it actually came from Stripe
-      StripeFunctions.control_flow_of_stripe_event_processing( request );
     } else {
-      this.response.statusCode = 500;
-      this.response.end('Sorry, no connection to DonorTools available!');
+      this.response.statusCode = 400;
+      this.response.end( 'Oh hai Stripe!\n\n' );
     }
-  } else {
-    this.response.statusCode = 400;
-    this.response.end('Oh hai Stripe!\n\n');
-  }
-}, {
-  where: 'server',
-  name: 'stripe_webhooks'
-});
+  }, {
+    where: 'server',
+    name:  'stripe_webhooks'
+  } );
+}
 
 Router.route('FixCardSubscription', {
   layoutTemplate: 'UserLayout',
@@ -500,6 +510,13 @@ Router.route('/dashboard/logos', {
   template: 'Logos'
 });
 
+Router.route('/trips', {
+  layoutTemplate: 'AdminLayout',
+  name: 'Trips',
+  where: 'client',
+  template: 'TripsDashboard'
+});
+
 Router.route('/trips/admin', {
   layoutTemplate: 'AdminLayout',
   name: 'TripsAdmin',
@@ -546,10 +563,4 @@ Router.route('/trips/member/:_id', function() {
   }
 }, {
   name: 'TripMember'
-});
-
-Router.route('/trips', {
-  name: 'TripsPublic',
-  where: 'client',
-  template: 'TripsPublic'
 });

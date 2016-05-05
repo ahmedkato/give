@@ -4,10 +4,74 @@ Meteor.startup( function() {
   if (config &&
     config.Services &&
     config.Services.Kadira &&
-    config.Services.Kadira.appId && 
+    config.Services.Kadira.appId &&
     config.Services.Kadira.appSecret) {
     Kadira.connect(
       config.Services.Kadira.appId, config.Services.Kadira.appSecret
     );
   }
+  let jobs = [
+    {
+      name: 'Send monthly report emails',
+      frequency: "recur().first().dayOfMonth().on('18:00:00').time()"
+    },
+    {
+      name: 'Send weekly report emails',
+      frequency: "recur().first().dayOfMonth().on('18:00:00').time()"
+    },
+    {
+      name: 'Send daily report emails',
+      frequency: "recur().first().dayOfMonth().on('18:00:00').time()"
+    }
+  ];
+
+  // TODO: convert the time entry below to something that is pulled in from
+  // a admin entered settings
+
+  // TODO: when asking the user what time they would like this daily task to run
+  // show them what time the server says it is right now. This way they can
+  // make the time adjustment for themselves
+
+  // TODO: connect the below job to an on/off switch in the setting panel
+  // Then default it to off and wrap the below function in an if statement that
+  // looks for that setting to be true
+  // then run the same job as below so that it is started for the first time
+  // before any server restart happens
+  SyncedCron.remove('Send monthly report emails');
+  SyncedCron.add({
+    name: 'Send monthly report emails',
+    schedule: (parser)=> {
+      return parser.recur().first().dayOfMonth().on('18:00:00').time();
+    },
+    job: ()=> {
+      let sendScheduledEmails = Utils.sendScheduledEmails('monthly');
+      return sendScheduledEmails;
+    }
+  });
+
+  SyncedCron.remove('Send weekly report emails');
+  SyncedCron.add({
+    name: 'Send weekly report emails',
+    schedule: (parser)=> {
+      return parser.recur().on(6).dayOfWeek().on('18:00:00').time();
+    },
+    job: ()=> {
+      let sendScheduledEmails = Utils.sendScheduledEmails('weekly');
+      return sendScheduledEmails;
+    }
+  });
+
+  SyncedCron.remove('Send daily report emails');
+  SyncedCron.add({
+    name: 'Send daily report emails',
+    schedule: (parser)=> {
+      return parser.recur().on('18:00:00').time();
+    },
+    job: ()=> {
+      let sendScheduledEmails = Utils.sendScheduledEmails('daily');
+      return sendScheduledEmails;
+    }
+  });
+
+  SyncedCron.start();
 });

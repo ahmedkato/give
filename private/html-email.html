@@ -1,0 +1,43 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>HTML email test</title>
+    <link href="styles.css" media="all" rel="stylesheet" type="text/css" />
+</head>
+
+<body itemscope itemtype="http://schema.org/EmailMessage">
+    <table class="table no-margin no-border">
+        <tbody class="trips">
+            <td colspan="12">
+                <table class="table no-border">
+                    {{#if donationForThisFundraiser}}
+                        <thead>
+                            <tr>
+                                <th>Donor Name</th>
+                                <th>Date</th>
+                                <th>Gift Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each donationForThisFundraiser}}
+                                <tr>
+                                    <td>{{donorName}}</td>
+                                    <td>{{formatDateUTC received_on}}</td>
+                                    <td>{{splitAmount}}</td>
+                                </tr>
+                            {{/each}}
+                        </tbody>
+                    {{else}}
+                        <tr>
+                            <td colspan="4" class="text-center">
+                                <strong>No donations found</strong>
+                            </td>
+                        </tr>
+                    {{/if}}
+                </table>
+            </td>
+        </tbody>
+    </table>
+</body>
+</html>

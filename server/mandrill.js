@@ -28,28 +28,29 @@ _.extend(Utils,{
       if (typeof to === 'string') {
         logger.info("Single email address");
         logger.info(to);
-        dataSlugWithTo.message.to = [{email:to}];
+        dataSlugWithTo.message.to = [{email:to, type: "bcc"}];
       } else {
         logger.info("Array of email addresses");
-        dataSlugWithTo.message.to = to.map(function(item){return {"email": item}});
+        dataSlugWithTo.message.to = to.map(function(item){return {email: item, type: "bcc"}});
       }
     }
     logger.info(dataSlugWithTo);
     return dataSlugWithTo;
   },
   /**
-   * Construct an admin email notice
+   * Constructs an email notice
    *
-   * @method sendAdminEmailNotice
+   * @method sendEmailNotice
    * @param {Object} emailObject - Email Object
-   * @param {String|Array} emailObject.to - Email addresses to send to
+   * @param {String|Array} emailObject.to - Email addresses to send to (sent as BCC)
+   * @param {String} emailObject.previewLine - The text that will appear in the email preview line
    * @param {String} emailObject.type - Email type
    * @param {String} emailObject.message - Main email message
    * @param {String} emailObject.buttonText - Button text
    * @param {String} emailObject.buttonURL - Button URL
    */
-  sendAdminEmailNotice(emailObject){
-    logger.info("Started sendAdminEmailNotice");
+  sendEmailNotice(emailObject){
+    logger.info("Started sendEmailNotice");
     let config = ConfigDoc();
 
     if (!(config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.support)) {
@@ -58,13 +59,13 @@ _.extend(Utils,{
     }
 
     if (!(config && config.Services &&
-      config.Services.Email && config.Services.Email.adminAlerts)) {
-      logger.warn("No admin alert template setup, can't send the failed to add DT email.");
+      config.Services.Email && config.Services.Email.notices)) {
+      logger.warn("No alert template setup.");
       return;
     }
 
       let data_slug = {
-      "template_name": config.Services.Email.adminAlerts,
+      "template_name": config.Services.Email.notices,
       "template_content": [
         {}
       ],
@@ -75,7 +76,7 @@ _.extend(Utils,{
                 "content": Meteor.settings.dev
               },{
                 "name": "PreviewLine",
-                "content": "Admin Notice - "
+                "content": emailObject.previewLine
               },{
                 "name": "EmailType",
                 "content": emailObject.type
@@ -89,14 +90,14 @@ _.extend(Utils,{
                 "name": "ButtonURL",
                 "content": emailObject.buttonURL
               }, {
-                "name": "DashboardURL",
-                "content": Meteor.absoluteUrl("dashboard")
+                "name": "AppURL",
+                "content": Meteor.absoluteUrl()
               }
         ]
       }
     };
 
-    Utils.send_mandrill_email(data_slug, config.Services.Email.adminAlerts, emailObject.to, 'Admin Notice');
+    Utils.send_mandrill_email(data_slug, config.Services.Email.notices, emailObject.to, 'Admin Notice');
   },
   /**
    * Push the image vars to the Mandrill data_slug
@@ -241,6 +242,7 @@ _.extend(Utils,{
     
     let emailObject = {
       to: config.OrgInfo.emails.canceledGift,
+      previewLine: "Canceled Recurring Gift",
       type: 'Canceled Recurring Gift',
       message: donor_name + " or the admin stopped a recurring (every " +
          stripeEvent.data.object.plan.interval + ") gift (amount: " +
@@ -253,7 +255,7 @@ _.extend(Utils,{
       buttonURL: config.Settings.DonorTools.url + '/people/' + customer_cursor.metadata.dt_persona_id
     };
 
-    Utils.sendAdminEmailNotice(emailObject);
+    Utils.sendEmailNotice(emailObject);
   },
   send_donation_email: function (recurring, id, amount, type, body, frequency, subscription) {
     try {
@@ -586,13 +588,14 @@ _.extend(Utils,{
 
         let emailObject = {
           to: config.OrgInfo.emails.largeGift,
+          previewLine: 'Large Gift',
           type: 'Large Gift',
           message: 'A Partner just Gave $' + (amount/ 100).toFixed(2),
           buttonText: 'Receipt Link',
           buttonURL: 'https://trashmountain.donortools.com/donations?transaction_id=' + charge_cursor._id
         };
 
-        Utils.sendAdminEmailNotice(emailObject);
+        Utils.sendEmailNotice(emailObject);
       }
     }  catch (e) {
       logger.error('Mandril sendEmailOutAPI Method error: ' + e);
@@ -656,6 +659,10 @@ _.extend(Utils,{
     Utils.send_mandrill_email(data_slug, 'charge.pending', customer_cursor.email, 'Donation');
   },
 	send_mandrill_email: function(data_slug, type, to, subject){
+    // TODO: for initial, successful and manually processed send to the subscribers function
+    // which should return [bcc_addresses]
+    // which should be used to send to the notices email  
+
     try{
       logger.info("Started send_mandrill_email type: " + type);
       let config = ConfigDoc();

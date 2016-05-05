@@ -12,7 +12,6 @@ function getAmountRaised(name) {
 }
 
 function getAdjustmentAmount(id) {
-
   let parent = Template.parentData(1);
   let parentParent = Template.parentData(2);
   let trip_id = parent._id;
@@ -35,12 +34,16 @@ function getAdjustmentAmount(id) {
 }
 
 Template.TripMember.onRendered(function () {
-  $('[data-toggle="popover"]').popover({html: true});
+  Meteor.setTimeout(()=> {
+    $('[data-toggle="popover"]').popover({html: true});
+  }, 1000);
 });
+
 Template.TripMember.onCreated(function () {
   let tripId = Router.current().params._id;
   // TODO: need to also pass this user's fundraiser id so that only those splits are passed back
   this.autorun(()=> {
+    this.subscribe("emailSubscriptions");
     this.subscribe("userDTFunds");
     this.subscribe("tripsMember");
     this.subscribe("travelDTSplits", tripId);
@@ -49,15 +52,36 @@ Template.TripMember.onCreated(function () {
 
 Template.TripMember.helpers({
   trip() {
-    let trip = Trips.findOne();
     return Trips.findOne();
   },
-  subscribed: function () {
-    if (this && this.metadata && this.metadata.subscribed && this.metadata.subscribed === "true") {
+  subscribed() {
+    let tripId = Router.current().params._id;
+    let fundId = Trips.findOne({_id: tripId}) && Trips.findOne({_id: tripId}).fundId;
+
+    if( Meteor.users.findOne( { _id: Meteor.userId(),
+        'emailSubscriptions.id': fundId
+      } ) ) {
       return 'subscribed';
     } else {
       return 'not-subscribed';
     }
+  },
+  frequencyChecked(val){
+    let tripId = Router.current().params._id;
+    let fundId = Trips.findOne({_id: tripId}) && Trips.findOne({_id: tripId}).fundId;
+
+    if( Meteor.users.findOne( { _id: Meteor.userId(),
+        'emailSubscriptions.id': fundId
+      } ) ) {
+      let user = Meteor.users.findOne( { _id: Meteor.userId(),
+        'emailSubscriptions.id': fundId
+      } );
+      let subscriptionObject = _.findWhere( user.emailSubscriptions, { id: fundId } );
+      if( subscriptionObject.frequency === val ) {
+        return 'checked';
+      }
+    }
+    return;
   },
   name() {
     let DTFund = DT_funds.findOne({_id: this.fundId});
@@ -88,7 +112,6 @@ Template.TripMember.helpers({
     }, 0);
 
     if (deadlinesTotal && amountRaised) {
-      console.log(amountRaised, " / ", deadlinesTotal);
       return Math.ceil(100*(amountRaised/deadlinesTotal));
     }
     return 0;
@@ -103,6 +126,7 @@ Template.TripMember.helpers({
   },
   percentageOfDeadline() {
     let parent = Template.parentData(1);
+    let parentParent = Template.parentData(2);
 
     // Sort the deadlines in case the user entered them out of order,
     let deadlinesSorted = parent.deadlines
@@ -112,38 +136,45 @@ Template.TripMember.helpers({
     let elementPosition = deadlinesSorted
       .map(function(item) {return item.id; }).indexOf(this.id);
 
-    let deadlinesTotal = parent.deadlines
-      .reduce( function(previousVal, deadline, index){
-        if (elementPosition > index) {
-          return previousVal + deadline.amount;
+    let totalOfDeadlinesToThisDeadline = deadlinesSorted
+      .reduce(function ( total, deadline, index ) {
+        if (elementPosition >= index) {
+          return total += deadline.amount;
         } else {
-          return previousVal;
+          return total;
         }
-      }, this.amount);
+      }, 0);
 
+    let totalOfAdjustmentsToThisDeadline = deadlinesSorted
+      .reduce(function ( total, deadline, index ) {
+        if (elementPosition >= index) {
+          return total += Number(getAdjustmentAmount(deadline.id, parent, parentParent));
+        } else {
+          return total;
+        }
+      }, 0);
 
-    let raised = getAmountRaised(parent.fname + " " + parent.lname);
-    let percentOfDeadline = 100*(raised/deadlinesTotal);
+    let raised = getAmountRaised(parentParent.fname + " " + parentParent.lname);
 
-    if (elementPosition === 0 ){
-      return percentOfDeadline;
+    let deadlineAmountAfterAdjustments = totalOfDeadlinesToThisDeadline + totalOfAdjustmentsToThisDeadline;
+
+    if (raised > deadlineAmountAfterAdjustments) {
+      return 100;
     } else {
-      if (deadlinesSorted[elementPosition - 1].amount > raised) {
-        return 0;
-      } else {
-        return 100*((raised-deadlinesSorted[elementPosition - 1]
-            .amount)/(deadlinesTotal-deadlinesSorted[elementPosition - 1]
-            .amount));
-      }
+      return ((100*(raised/deadlineAmountAfterAdjustments)).toFixed(2));
     }
   },
   donationForThisFundraiser() {
-    let name = this.fname + " " + this.lname;
-    let dtSplits = DT_splits.find( { 'memo': {
-      $regex: name, $options: 'i'
-    } } );
-    if (dtSplits && dtSplits.count() > 0) {
-      return dtSplits;
+    let tripId = Router.current().params._id;
+    let fundId = Trips.findOne({_id: tripId}) && Trips.findOne({_id: tripId}).fundId;
+    if (fundId) {
+      let name = this.fname + " " + this.lname;
+      let dtSplits = DT_splits.find( {$and: [{ 'memo': {
+        $regex: name, $options: 'i'
+      } }, {fund_id: Number(fundId)}]} );
+      if (dtSplits && dtSplits.count() > 0) {
+        return dtSplits;
+      }  
     }
     return;
   },
@@ -177,14 +208,56 @@ Template.TripMember.helpers({
   deadlineAdjustmentValue() {
     let adjustmentValue = getAdjustmentAmount(this.id);
     return adjustmentValue;
+  },
+  deadlineDue() {
+    let tripId = Router.current().params._id;
+    let deadlineId = this.id;
+    let trip = Trips.findOne({_id: tripId});
+    let tripDeadline = _.findWhere(trip.deadlines, {id: deadlineId});
+    return tripDeadline && tripDeadline.dueDate;
   }
 });
 
 Template.TripMember.events({
   'click .subscribed-span'() {
-    // TODO: subscribe this fundraiser to email alerts (or unsubscribe)
-    // depending on whether they were already subscribed or unsubscribed
+    let tripId = Router.current().params._id;
 
-    
+    let fundraiserId = this._id;
+    let fundId = Trips.findOne({_id: tripId}) && Trips.findOne({_id: tripId}).fundId;
+
+    Meteor.call("toggleEmailSubscription", fundId, fundraiserId, ( error, response ) => {
+      if( error ) {
+        console.log("error: " + error );
+        Bert.alert({
+          message: error.reason,
+          type: 'danger',
+          icon: 'fa-frown-o'
+        });
+      } else {
+        Bert.alert(response, 'success');
+      }
+    } );
+
+  },
+  'click [name="frequency"]'(e){
+    let tripId = Router.current().params._id;
+
+    let fundraiserId = this._id;
+    let fundId = Trips.findOne({_id: tripId}) && Trips.findOne({_id: tripId}).fundId;
+
+    let frequency = $(e.currentTarget).val();
+
+    Meteor.call("updateReportFrequency", fundId, fundraiserId, frequency, ( error, response ) => {
+      if( error ) {
+        console.log("error: " + error );
+        Bert.alert({
+          message: error.reason,
+          type: 'danger',
+          icon: 'fa-frown-o'
+        });
+      } else {
+        Bert.alert(response, 'success');
+      }
+    } );
   }
 });

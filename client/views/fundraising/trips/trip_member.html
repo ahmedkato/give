@@ -1,91 +1,142 @@
 <template name="TripMember">
-    <div class="trip-member-details">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-3">
-                    <span id="subscribed-span" class="status {{subscribed}} mouseover"
-                          data-loading-text="<i class='fa fa-spinner fa-pulse'></i>">
-                        <em>{{subscribed}}</em>
-                    </span>
-                    <i class='fa fa-question-circle'
-                       data-toggle='popover' data-trigger='hover focus'
-                       data-container='body' data-content="Click to subscribed
-                       or un-subscribe from donation alerts for this trip. If you
-                        subscribe you'll get an email each time someone gives toward your trip
-                        (through the online giving system)">
-                    </i>
+    {{#if Template.subscriptionsReady}}
+        <div class="trip-member-details">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-3">
+                        {{#with participant}}
+                            <h3>Email: {{email}}</h3>
+                            <span data-fundraiser-id="{{_id}}"
+                                  class="status {{subscribed}} mouseover subscribed-span"
+                                  data-loading-text="<i class='fa fa-spinner fa-pulse'></i>">
+                                <em>{{subscribed}}</em>
+                            </span>
+                            <i class='fa fa-question-circle'
+                               data-toggle='popover' data-trigger='hover focus'
+                               data-container='body' data-content="Click to subscribe
+                                   or un-subscribe.<br> If you subscribe you will
+                                   get an email report of your fundraising.<br>
+                                    You will also be able to set the email schedule.<br>">
+                            </i>
+                            {{#if $eq subscribed 'subscribed'}}
+                                <br>
+                                <label class="radio-inline">
+                                    <input type="radio"
+                                           name="frequency"
+                                           value="monthly"
+                                           {{frequencyChecked 'monthly'}}>Monthly (1st)
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio"
+                                           name="frequency"
+                                           value="weekly"
+                                           {{frequencyChecked 'weekly'}}>Weekly (Friday)
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio"
+                                           name="frequency"
+                                           value="daily"
+                                           {{frequencyChecked 'daily'}}>Daily
+                                </label>
+                            {{/if}}
+                        {{/with}}
+                    </div>
+                    <div class="col-md-6">
+                        <h2 class="text-center">{{#with trip}}<strong>{{name}}</strong>{{/with}}</h2>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <h2 class="text-center">{{#with trip}}<strong>{{name}}</strong>{{/with}}</h2>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    {{#with participant}}
-                        <div class="text-center">
-                            <h3>Amount Raised: ${{amountRaised}}</h3>
-                        </div>
-                        <div class="progress progress-bar-info">
-                            <div class="progress-bar progress-bar-success"
-                                 role="progressbar"
-                                 aria-valuemin="0"
-                                 aria-valuemax="100"
-                                 style="width: {{amountRaisedPercent amountRaised}}%;">
+                <div class="row">
+                    <div class="col-md-12">
+                        {{#with participant}}
+                            <div class="text-center">
+                                <h3>Amount Raised: ${{amountRaised}}</h3>
                             </div>
-                        </div>
-                        <table class="table no-margin no-border">
-                            <tbody class="trips">
-                                <tr>
-                                    <td colspan="12">
-                                        <div class="accordian-body">
-                                            <table class="table no-border">
-                                                <thead>
-                                                {{#with trip}}
-                                                    {{#each deadlines}}
+                            <div class="progress progress-bar-info">
+                                <div class="progress-bar progress-bar-success"
+                                     role="progressbar"
+                                     aria-valuemin="0"
+                                     aria-valuemax="100"
+                                     style="width: {{amountRaisedPercent amountRaised}}%;">
+                                </div>
+                            </div>
+                            <table class="table no-margin no-border">
+                                <tbody class="trips">
+                                    <tr>
+                                        <td colspan="12">
+                                            <div class="accordian-body">
+                                                <table class="table no-border">
+                                                    <thead>
                                                         <tr>
-                                                            <td>
-                                                                {{this.name}}: <span class="pull-right">${{adjustedAmount}}</span>
-                                                            </td>
-                                                            <td colspan="5">
-                                                                <div class="progress progress-bar-info">
-                                                                    <div class="progress-bar progress-bar-success" style="width: {{percentageOfDeadline}}%;"></div>
-                                                                </div>
+                                                            <th>
+                                                                Deadline Name
+                                                            </th>
+                                                            <th>
+                                                                Due on
+                                                            </th>
+                                                            <th class="text-left">
+                                                                Deadline Amount
+                                                            </th>
+                                                            <th>
+                                                                Progress
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {{#with trip}}
+                                                        {{#each deadlines}}
+                                                            <tr>
+                                                                <td>
+                                                                    {{this.name}}
+                                                                </td>
+                                                                <td>
+                                                                    {{formatDateUTC deadlineDue}}
+                                                                </td>
+                                                                <td>
+                                                                    ${{adjustedAmount}}
+                                                                </td>
+                                                                <td data-deadline-id="{{this.id}}" title="{{percentageOfDeadline}}%" value="{{percentageOfDeadline}}">
+                                                                    <div class="progress progress-bar-info">
+                                                                        <div class="progress-bar progress-bar-success" style="width: {{percentageOfDeadline}}%;"></div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        {{/each}}
+                                                    {{/with}}
+                                                    </tbody>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Donor Name</th>
+                                                            <th>Date</th>
+                                                            <th>Gift Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {{#if donationForThisFundraiser}}
+                                                        {{#each donationForThisFundraiser}}
+                                                            <tr>
+                                                                <td>{{donorName}}</td>
+                                                                <td>{{formatDateUTC received_on}}</td>
+                                                                <td>${{splitAmount}}</td>
+                                                            </tr>
+                                                        {{/each}}
+                                                    {{else}}
+                                                        <tr>
+                                                            <td colspan="4" class="text-center">
+                                                                <strong>No donations found</strong>
                                                             </td>
                                                         </tr>
-                                                    {{/each}}
-                                                {{/with}}
-                                                <tr>
-                                                    <th>Donor Name</th>
-                                                    <th>Gift Amount</th>
-                                                    <th>Date</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                {{#if donationForThisFundraiser}}
-                                                    {{#each donationForThisFundraiser}}
-                                                        <tr>
-                                                            <td>{{donorName}}</td>
-                                                            <td>{{splitAmount}}</td>
-                                                            <td>{{formatDateUTC received_on}}</td>
-                                                        </tr>
-                                                    {{/each}}
-                                                {{else}}
-                                                    <tr>
-                                                        <td colspan="4" class="text-center">
-                                                            <strong>No donations found</strong>
-                                                        </td>
-                                                    </tr>
-                                                {{/if}}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    {{/with}}
+                                                    {{/if}}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        {{/with}}
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    {{/if}}
 </template>

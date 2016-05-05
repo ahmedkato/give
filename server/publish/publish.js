@@ -470,3 +470,13 @@ Meteor.publish("fundraisersPublic", function (id) {
     email: 0
   }});
 });
+
+Meteor.publish("emailSubscriptions", function () {
+  if( this.userId ) {
+    return Meteor.users.find( { _id: this.userId }, {
+      fields: {
+        emailSubscriptions: 1
+      }
+    } );
+  }
+});

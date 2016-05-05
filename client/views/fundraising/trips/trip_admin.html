@@ -15,10 +15,10 @@
                     </span>
                 <i class='fa fa-question-circle'
                    data-toggle='popover' data-trigger='hover focus'
-                   data-container='body' data-content="Click to subscribed
-                       or un-subscribe from donation alerts for this trip. If you
-                        subscribe you'll get an email each time someone gives toward your trip
-                        (through the online giving system)">
+                   data-container='body' data-content="Click to subscribe
+                       or un-subscribe. If you subscribe you'll get an email
+                       each day at around 5pm with a report of the gift
+                       associated with your fundraising.">
                 </i>
             </div>
             <h2 class="text-center">{{#with trip}}<strong>{{name}}</strong>{{/with}}</h2>
@@ -86,13 +86,35 @@
                                     <div class="accordian-body collapse" id="collapse-{{_id}}">
                                         <table class="table no-border">
                                             <thead>
+                                            <tr>
+                                                <th>
+                                                    Deadline Name
+                                                </th>
+                                                <th>
+                                                    Due on
+                                                </th>
+                                                <th class="text-left">
+                                                    Deadline Amount
+                                                </th>
+                                                <th>
+                                                    Progress
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
                                                 {{#with trip}}
                                                     {{#each deadlines}}
                                                     <tr>
                                                         <td>
-                                                            {{this.name}}: <span class="pull-right">${{adjustedAmount}}</span>
+                                                            {{this.name}}
                                                         </td>
-                                                        <td colspan="5">
+                                                        <td>
+                                                            {{formatDateUTC deadlineDue}}
+                                                        </td>
+                                                        <td>
+                                                            ${{adjustedAmount}}
+                                                        </td>
+                                                        <td title="{{percentageOfDeadline}}%">
                                                             <div class="progress progress-bar-info">
                                                                 <div class="progress-bar progress-bar-success" style="width: {{percentageOfDeadline}}%;"></div>
                                                             </div>
@@ -100,10 +122,12 @@
                                                     </tr>
                                                     {{/each}}
                                                 {{/with}}
+                                            </tbody>
+                                            <thead>
                                                 <tr>
                                                     <th>Donor Name</th>
-                                                    <th>Gift Amount</th>
                                                     <th>Date</th>
+                                                    <th>Gift Amount</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -111,8 +135,8 @@
                                                     {{#each donationForThisFundraiser}}
                                                         <tr>
                                                             <td>{{donorName}}</td>
-                                                            <td>{{splitAmount}}</td>
                                                             <td>{{formatDateUTC received_on}}</td>
+                                                            <td>${{splitAmount}}</td>
                                                         </tr>
                                                     {{/each}}
                                                 {{else}}
