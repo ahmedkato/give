@@ -32,38 +32,39 @@ Template.registerHelper('writeInValue', function() {
 });
 
 Template.registerHelper('logged_in', function(context) {
-  if (Meteor.user()) {
+  let user = Meteor.user();
+  if (user && user.profile) {
     switch (context) {
       case "fname":
-        return Meteor.user().profile.fname;
+        return user.profile.fname;
         break;
       case "lname":
-        return Meteor.user().profile.lname;
+        return user.profile.lname;
         break;
       case "email":
-        return Meteor.user().emails[0].address;
+        return user.emails[0].address;
         break;
       case "line1":
-        return Meteor.user().profile.address.line1;
+        return user.profile.address && user.profile.address.line1;
         break;
       case "line2":
-        return Meteor.user().profile.address.line2;
+        return user.profile.address && user.profile.address.line2;
         break;
       case "city":
-        return Meteor.user().profile.address.city;
+        return user.profile.address && user.profile.address.city;
         break;
       case "state":
-        return Meteor.user().profile.address.state;
+        return user.profile.address && user.profile.address.state;
         break;
       case "postal_code":
-        return Meteor.user().profile.address.postal_code;
+        return user.profile.address && user.profile.address.postal_code;
         break;
       case "phone":
-        return Meteor.user().profile.phone;
+        return user.profile.address && user.profile.phone;
         break;
       case "business_name":
-        if (Meteor.user().profile.business_name) {
-          return  Meteor.user().profile.business_name;
+        if (user.profile.business_name) {
+          return  user.profile.business_name;
         }
         break;
       default:

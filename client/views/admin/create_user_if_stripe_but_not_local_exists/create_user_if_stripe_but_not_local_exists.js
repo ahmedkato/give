@@ -4,7 +4,6 @@
 Template.CreateUserIfStripeButNotLocalExists.events({
   'submit form': function (e) {
     e.preventDefault();
-
     console.log("Form Submitted");
     console.log($('#customer-id').val());
     console.log($('#customer-email').val());
@@ -16,6 +15,7 @@ Template.CreateUserIfStripeButNotLocalExists.events({
         console.log(result);
         $('#fix_no_local')[0].reset();
         Bert.alert("Got it", "success");
+        Session.set("showFixNoUser", false);
       }
     })
   }

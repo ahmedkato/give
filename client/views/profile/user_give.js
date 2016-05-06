@@ -20,6 +20,9 @@ var giveTutorialSteps = [
 ];
 
 Template.UserGive.helpers({
+  notDTUser() {
+   return Session.get("NotDTUser");
+  },
   paymentWithCard: function() {
     return Session.equals("UserPaymentMethod", "Card");
   },
@@ -160,8 +163,31 @@ Template.UserGive.onRendered(function () {
     });
   }
 
+  let selectedUser = Meteor.user();
+
+  let selectedPersonaInfo = selectedUser && selectedUser.persona_info;
+  let selectedPersonaIds = selectedUser && selectedUser.persona_ids;
+  if (!selectedPersonaInfo ||
+    ( selectedPersonaInfo && selectedPersonaInfo.length < 1 ) ||
+    ( selectedPersonaInfo && selectedPersonaInfo.length <
+    ( selectedPersonaIds && selectedPersonaIds.length ) ) ||
+    ( selectedPersonaInfo && selectedPersonaInfo.length <
+    ( selectedUser && selectedUser.persona_id && selectedUser.persona_id.length ) ) ) {
+    Meteor.call( 'update_user_document_by_adding_persona_details_for_each_persona_id', function ( error, result ) {
+      if( result ) {
+        if(result === 'Not a DT user'){
+          Session.set("NotDTUser", true);
+          return;
+        }
+      } else {
+        console.error(error);
+        throw new Meteor.Error("400", "Couldn't retrieve any Donor Tools information for this user.");
+      }
+    } );
+  }
 });
 
 Template.UserGive.onDestroyed( function() {
   $(window).unbind('beforeunload');
+  Session.delete("NotDTUser");
 });

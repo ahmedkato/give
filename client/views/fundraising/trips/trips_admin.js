@@ -7,6 +7,7 @@ AutoForm.hooks({
         icon: 'fa-smile-o',
         style: 'growl-bottom-right'
       });
+      $("html, body").animate({ scrollTop: 0 }, "slow");
     },
     onError: function(formType, error) {
       console.error(error);

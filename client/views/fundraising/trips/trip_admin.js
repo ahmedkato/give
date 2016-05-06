@@ -38,7 +38,7 @@ function getAdjustmentAmount(id, parent, parentParent) {
   let tripElementPosition = parentParent.trips
     .map(function(item) {return item.id; }).indexOf(trip_id);
 
-  if (parentParent &&
+  if (parentParent && tripElementPosition &&
     parentParent.trips[tripElementPosition] &&
     parentParent.trips[tripElementPosition].deadlines[deadlineElementPosition] &&
     parentParent.trips[tripElementPosition].deadlines[deadlineElementPosition].amount) {
@@ -63,7 +63,7 @@ AutoForm.hooks({
           onFormError();
         } else {
           AutoForm.resetForm('fundraisers-form');
-          $("[type='submit']").prop("disalbed", false);
+          $("[type='submit']").prop("disabled", false);
           $("[type='submit']").removeAttr("disabled");
           onFormSuccess();
         }
@@ -147,7 +147,6 @@ Template.TripAdmin.helpers({
     // Sort the deadlines in case the user entered them out of order,
     let deadlinesSorted = parent.deadlines
       .sort(function(item, nextItem){return item.dueDate - nextItem.dueDate;});
-    console.log(deadlinesSorted);
 
     // Get the index position of this deadline
     let elementPosition = deadlinesSorted
@@ -156,7 +155,6 @@ Template.TripAdmin.helpers({
 
     let totalOfDeadlinesToThisDeadline = deadlinesSorted
       .reduce(function ( total, deadline, index ) {
-        console.log(total, deadline, index);
         if (elementPosition >= index) {
           return total += deadline.amount;
         } else {
@@ -166,7 +164,6 @@ Template.TripAdmin.helpers({
 
     let totalOfAdjustmentsToThisDeadline = deadlinesSorted
       .reduce(function ( total, deadline, index ) {
-        console.log(total, deadline, index);
         if (elementPosition >= index) {
           return total += Number(getAdjustmentAmount(deadline.id, parent, parentParent));
         } else {

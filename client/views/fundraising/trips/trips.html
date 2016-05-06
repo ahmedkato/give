@@ -9,8 +9,11 @@
                 <div class="panel-body">
                     <div class="row">
                         {{#if isInRole 'admin, trips-manager'}}
-                            <div class="col-sm-2">
-                                <a id="org-info" class="quick-button backgroundColor primary"
+                            <div class="col-sm-2"
+                                 data-toggle="tooltip"
+                                 title="Manage trips here.">
+                                <a id="org-info"
+                                   class="quick-button backgroundColor primary"
                                    href="{{pathFor 'TripsAdmin'}}">
                                     <span class="fa-stack fa-lg">
                                         <i class="fa fa-bullhorn"></i>
@@ -19,8 +22,11 @@
                                 </a>
                             </div>
                         {{/if}}
-                        <div class="col-sm-2">
-                            <a id="settings-dashboard-button" class="quick-button backgroundColor primary"
+                        <div class="col-sm-2"
+                             data-toggle="tooltip"
+                             title="If you are also a trip member, see those details here.">
+                            <a id="settings-dashboard-button"
+                               class="quick-button backgroundColor primary"
                                href="{{pathFor 'TripsMember'}}">
                                 <span class="fa-stack fa-lg">
                                     <i class="fa fa-plane"></i>

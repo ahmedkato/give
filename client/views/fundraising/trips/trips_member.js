@@ -33,5 +33,8 @@ Template.TripsMember.events({
     console.log("CLicked row" );
     let tripId = $(e.currentTarget).attr("data-id");
     Router.go('TripMember', {_id: tripId});
+  },
+  'click #give-to-trip'() {
+    Router.go("/user/give/?donateTo=trips");
   }
 });

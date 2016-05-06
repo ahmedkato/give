@@ -53,10 +53,16 @@ Template.Dashboard.events({
     } else {
       Session.set("showGetStripeEvent", true);
     }
+    $("html, body").animate({ scrollTop: $(document).height() }, "slow");
   },
   'click #show-fix-no-user': function(evt) {
     evt.preventDefault();
-    Session.set("showFixNoUser", true);
+    if (Session.equals("showFixNoUser", true)) {
+      Session.set("showFixNoUser", false);
+    } else {
+      Session.set("showFixNoUser", true);
+    }
+    $("html, body").animate({ scrollTop: $(document).height() }, "slow");
   },
   'click #get-dt-funds': function(e) {
     // prevent the default reaction to submitting this form
@@ -121,4 +127,5 @@ Template.Dashboard.onRendered(function() {
   this.autorun(() => {
     this.subscribe("config");
   });
+  $( "[data-toggle='tooltip']" ).tooltip();
 });

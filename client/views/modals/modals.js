@@ -52,10 +52,13 @@ Template.Modals.events({
       return;
     }
     $("#donateTo").val($("#tripSelect").val());
+
+    let urlText = '?note=' + $('#participantSelect').val() +
+    '&donateTo=' + $("#tripSelect").val();
     $('#modal_for_trips').modal('hide');
-    Router.go(Meteor.absoluteUrl() +
-      '?note=' + $('#participantSelect').val() +
-      '&donateTo=' + $("#tripSelect").val());
+    Meteor.setTimeout(()=>{
+      Router.go(Meteor.absoluteUrl() + urlText);
+    },500);
   },
   'change #tripSelect'(){
     let trip = Trips.findOne({fundId: $("#tripSelect").val()});

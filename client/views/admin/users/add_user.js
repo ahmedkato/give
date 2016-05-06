@@ -1,4 +1,3 @@
-
 AutoForm.hooks({
   'new-user-form': {
     onSuccess: function (operation, result, template) {
@@ -17,7 +16,6 @@ AutoForm.hooks({
     }
   }
 });
-
 
 Template.AddUser.helpers({
   schema: function () {
@@ -39,6 +37,7 @@ Template.AddUser.helpers({
     }
   }
 });
+
 Template.AddUser.events({
   'click .cancel-button': function () {
     console.log("Clicked cancel");
@@ -50,7 +49,6 @@ Template.AddUser.events({
     $("[type='submit']").button('loading');
   }
 });
-
 
 Template.AddUser.onRendered(function () {
   $("[name='profile.phone']").mask("(999) 999-9999");

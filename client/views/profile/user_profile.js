@@ -218,7 +218,7 @@ Template.UserProfile.onRendered(function() {
 
   let selectedPersonaInfo = selectedUser && selectedUser.persona_info;
   let selectedPersonaIds = selectedUser && selectedUser.persona_ids;
-  if(!selectedPersonaInfo ||
+  if (!selectedPersonaInfo ||
     ( selectedPersonaInfo && selectedPersonaInfo.length < 1 ) ||
     ( selectedPersonaInfo && selectedPersonaInfo.length <
     ( selectedPersonaIds && selectedPersonaIds.length ) ) ||

@@ -923,16 +923,15 @@ Meteor.methods({
     check( form, Schema.CreateUserFormSchema );
 
     /*try {*/
-      if (Roles.userIsInRole(this.userId, ['admin'])) {
+      if (Roles.userIsInRole(this.userId, ['admin', 'trips-manager'])) {
         SimpleSchema.debug = true;
-        let user_id;
 
         // Create a new user
-        user_id = Accounts.createUser( {
+        let user_id = Accounts.createUser( {
           email:   form.email,
           profile: form.profile
         } );
-        console.log( user_id );
+        logger.info("New user created _id is: " + user_id );
 
         // Add some details to the new user account
         Meteor.users.update( user_id, {
@@ -1100,7 +1099,6 @@ Meteor.methods({
             config.Settings.DonorTools.usernameExists && config.Settings.DonorTools.passwordExists) {
             // TODO: write the function that will go out to DT and setup the necessary funds, types,
             // and sources
-
           }
         }
       } else {
@@ -1193,9 +1191,40 @@ Meteor.methods({
       this.unblock();
       doc.addedBy = this.userId;
       if (Fundraisers.findOne({email: doc.email})) {
-        Fundraisers.update({email: doc.email}, {$push: {trips: doc.trips[0]}});
+        let updatedFundraiser = Fundraisers.update({email: doc.email}, {$push: {trips: doc.trips[0]}});
+        return updatedFundraiser;
       } else {
         Fundraisers.insert(doc);
+        let existingUser = Meteor.users.findOne({'emails.address': doc.email});
+        if (!existingUser) {
+          let user = {
+            email: doc.email,
+            profile: {
+              fname: doc.fname,
+              lname: doc.lname
+            },
+            roles: ['trips-member'],
+            state: {
+              status: 'invited'
+            }
+          };
+          Meteor.call("createUserMethod", user, function( err, res ) {
+            if(err) {
+              logger.error(err);
+              return err;
+            } else {
+              logger.info("createUserMethod returned successful with this message:");
+              logger.info(res);
+              return res;
+            }
+          });
+        } else {
+          if (!(Roles.userIsInRole(existingUser._id, 'super-admin') ||
+            Roles.userIsInRole(existingUser._id, 'admin') ||
+            Roles.userIsInRole(existingUser._id, 'trips-manager') )) {
+            Roles.addUsersToRoles(existingUser._id, 'trips-member');
+          }
+        }
       }
     }
   },

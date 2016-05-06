@@ -9,7 +9,9 @@
                     </div>
                     <div class="panel-body">
                         <div class="row">
-                            <div class="col-sm-2">
+                            <div class="col-sm-2"
+                                 data-toggle="tooltip"
+                                 title="Enter information about your organization here">
                                 {{#if $not configExists}}
                                     <span style="" class="badge alert-badge backgroundColor indianred">Start Here!</span>
                                 {{/if}}
@@ -22,7 +24,10 @@
                                 </a>
                             </div>
                             {{#if configExists}}
-                                <div class="col-sm-2">
+                                <div class="col-sm-2"
+                                     data-toggle="tooltip"
+                                     title="ACH method, DonorTools settings,
+                                     Public access setting and more">
                                     {{#if $not completedDonorTools}}
                                         <span style="" class="badge alert-badge backgroundColor indianred">Needs a Donor Tools URL!</span>
                                     {{/if}}
@@ -34,7 +39,13 @@
                                         <h5>Settings</h5>
                                     </a>
                                 </div>
-                                <div class="col-sm-2">
+                                <div class="col-sm-2"
+                                     data-toggle="tooltip"
+                                     title="Configure your giving options menus.
+                                     Two sets of menus exist, one on the
+                                     donation form and the other is on the
+                                     /landing page. Both of them are configured
+                                     here.">
                                     {{#if $not givingOptions}}
                                         <span style="" class="badge alert-badge backgroundColor indianred">Setup After Donor Tools URL</span>
                                     {{/if}}
@@ -46,7 +57,11 @@
                                         <h5>Giving Options</h5>
                                     </a>
                                 </div>
-                                <div class="col-sm-2">
+                                <div class="col-sm-2"
+                                     data-toggle="tooltip"
+                                     title="The Giving Guide appears on the /landing page
+                                     and is intended to assist the donor while they
+                                     choose what they would like to support.">
                                     {{#if $not givingOptions}}
                                         <span style="" class="badge alert-badge backgroundColor indianred">Setup After Giving Options</span>
                                     {{/if}}
@@ -58,7 +73,11 @@
                                         <h5>Giving Guide</h5>
                                     </a>
                                 </div>
-                                <div class="col-sm-2">
+                                <div class="col-sm-2"
+                                     data-toggle="tooltip"
+                                     title="Email service (for receipting and
+                                     new user notices), Analytics, Error
+                                     tracking and logging">
                                     <a id="services-dashboard-button" class="quick-button backgroundColor primary"
                                        href="/dashboard/services">
                                     <span class="fa-stack fa-lg">
@@ -67,7 +86,9 @@
                                         <h5>Services</h5>
                                     </a>
                                 </div>
-                                <div class="col-sm-2">
+                                <div class="col-sm-2"
+                                     data-toggle="tooltip"
+                                     title="Upload your logos here.">
                                     <a id="services-dashboard-button" class="quick-button backgroundColor primary"
                                        href="/dashboard/logos">
                                     <span class="fa-stack fa-lg">
@@ -86,7 +107,11 @@
                     </div>
                     <div class="panel-body">
                         <div class="row">
-                            <div class="col-sm-2">
+                            <div class="col-sm-2"
+                                 data-toggle="tooltip"
+                                 title="Stripe transfer reports formated with
+                                 Donor Tools information. This section is intended to assist an
+                                 accountant in reconciling gifts between Stripe and DonorTools.">
                                 <a id="transfers" class="quick-button backgroundColor primary" href="/transfers">
                                     <span class="fa-stack fa-lg">
                                         <i class="fa fa-exchange"></i>
@@ -94,26 +119,22 @@
                                     <h5>Stripe Transfers</h5>
                                 </a>
                             </div>
-                    {{#if isInRole 'super-admin'}}
-                        <div class="col-sm-2">
-                                <a class="quick-button backgroundColor primary" href="expiring">
-                                    <span class="fa-stack fa-lg">
-                                        <i class="fa fa-credit-card"></i>
-                                    </span>
-                                    <h5>Expiring Cards</h5>
-                                </a>
-                            </div>
-                    {{/if}}
+                            {{#if isInRole 'super-admin'}}
+                                <div class="col-sm-2"
+                                     data-toggle="tooltip"
+                                     title="This section shows expired or soon
+                                     to be expired Credit Cards">
+                                    <span style="" class="badge alert-badge backgroundColor indianred">BETA</span>
+                                    <a class="quick-button backgroundColor primary" href="expiring">
+                                            <span class="fa-stack fa-lg">
+                                                <i class="fa fa-credit-card"></i>
+                                            </span>
+                                            <h5>Expiring Cards</h5>
+                                        </a>
+                                    </div>
+                            {{/if}}
                         </div>
                     </div>
-                {{#if showGetStripeEvent}}
-                    <div class="row">
-                        <div class="col col-lg-2"></div>
-                        <div class="col-lg-8">
-                            {{> GetStripeEvent}}
-                        </div>
-                    </div>
-                {{/if}}
                 <div class="panel-heading">
                     <h2><i class="fa fa-wrench"></i>
                         <span class="break">
@@ -125,7 +146,9 @@
                     {{#if isInRole 'admin'}}
                         <div class="row">
                             {{#if $eq stripe_ach_verification_type 'manual'}}
-                                <div class="col-sm-2">
+                                <div class="col-sm-2"
+                                     data-toggle="tooltip"
+                                     title="Manual ACH transactions listing">
                                     <a id="manual-ach" class="quick-button backgroundColor primary" href="/dashboard/ach">
                                 <span class="fa-stack fa-lg">
                                     <i class="fa fa-bank"></i>
@@ -134,7 +157,10 @@
                                     </a>
                                 </div>
                             {{/if}}
-                            <div class="col-sm-2">
+                            <div class="col-sm-2"
+                                 data-toggle="tooltip"
+                                 title="Add new users; change roles,
+                                 send password reset email or disable access">
                                 <a id="users-and-roles" class="quick-button backgroundColor primary" href="/dashboard/users">
                                 <span class="fa-stack fa-lg">
                                     <i class="fa fa-user"></i>
@@ -143,7 +169,11 @@
                                 </a>
                             </div>
                             {{#if isInRole 'super-admin'}}
-                                <div class="col-sm-2">
+                                <div class="col-sm-2"
+                                     data-toggle="tooltip"
+                                     title="Manually give a one-time or recurring
+                                     gift with an existing Stripe payment device.">
+                                    <span style="" class="badge alert-badge backgroundColor indianred">BETA</span>
                                     <a id="new-gift" class="quick-button backgroundColor primary" href="">
                                     <span class="fa-stack fa-lg">
                                         <i class="fa fa-gift"></i>
@@ -151,8 +181,12 @@
                                         <h5>New Gift</h5>
                                     </a>
                                 </div>
-                                <div class="col-sm-2">
+                                <div class="col-sm-2"
+                                     data-toggle="tooltip"
+                                     title="Get DonorTools splits for a time period.
+                                     This feature is only setup for Trash Mountain at this point.">
                                     <a id="get-dt-split" class="quick-button backgroundColor primary" href="{{pathFor 'DtReport'}}">
+                                        <span style="" class="badge alert-badge backgroundColor indianred">BETA</span>
                                         <span class="fa-stack fa-lg">
                                             <i class="fa fa-code-fork"></i>
                                         </span>
@@ -160,7 +194,10 @@
                                     </a>
                                 </div>
                             {{/if}}
-                            <div class="col-sm-2">
+                            <div class="col-sm-2"
+                                 data-toggle="tooltip"
+                                 title="Click to retrieve and store a list of
+                                 DonorTools Funds">
                                 <a id="get-dt-funds"
                                    class="quick-button backgroundColor primary"
                                    href=""
@@ -175,11 +212,14 @@
                                         <i class="fa fa-money"></i>
                                     </span>
                                     <h5>
-                                        Get DT Funds
+                                        Get DonorTools Funds
                                     </h5>
                                 </a>
                             </div>
-                            <div class="col-sm-2">
+                            <div class="col-sm-2"
+                                 data-toggle="tooltip"
+                                 title="Click to retrieve and store a list of
+                                 DonorTools Sources">
                                 <a id="get-dt-sources"
                                    class="quick-button backgroundColor primary"
                                    href=""
@@ -193,23 +233,32 @@
                                     <span class="fa-stack fa-lg">
                                         <i class="fa fa-code"></i>
                                     </span>
-                                    <h5>Get DT Sources</h5>
+                                    <h5>Get DonorTools Sources</h5>
                                 </a>
                             </div>
                         </div>
                     {{/if}}
                     <br>
                     <div class="row">
-                        <div class="col-sm-2">
+                        <div class="col-sm-2"
+                             data-toggle="tooltip"
+                             title="Manager recurring gifts. Includes; view details, change
+                             payment (method, recurring date, designation),
+                             add/remove note and stop recurring gift">
                             <a id="get-dt-split" class="quick-button backgroundColor primary"
                                href="{{pathFor 'AdminSubscriptions'}}">
                                 <span class="fa-stack fa-lg">
                                     <i class="fa fa-columns"></i>
                                 </span>
-                                <h5>Show Recurring Gifts</h5>
+                                <h5>Recurring Gifts</h5>
                             </a>
                         </div>
-                        <div class="col-sm-2">
+                        <div class="col-sm-2"
+                             data-toggle="tooltip"
+                             title="If you find that Give created a duplicate
+                             account in DonorTools, use this tool to merge the
+                             accounts. You will also need to merge the accounts
+                             in DonorTools after doing so here.">
                             <a id="merge-dt-persona" class="quick-button backgroundColor primary" href="">
                             <span class="fa-stack fa-lg">
                                 <i class="fa fa-compress"></i>
@@ -217,7 +266,12 @@
                                 <h5>Merge DT accounts</h5>
                             </a>
                         </div>
-                        <div class="col-sm-2">
+                        <div class="col-sm-2"
+                             data-toggle="tooltip"
+                             title="If you find that Give created a gift under the
+                             wrong DonorTools account you can use this tool to
+                             move that gift to the right donor. (don't move the
+                             gift in DonorTools, this tool takes care of it)">
                             <a id="move-gift" class="quick-button backgroundColor primary" href="">
                                 <span class="fa-stack fa-lg">
                                     <i class="fa fa-arrows"></i>
@@ -226,7 +280,11 @@
                             </a>
                         </div>
                         {{#if isInRole 'super-admin'}}
-                            <div class="col-sm-2">
+                            <div class="col-sm-2"
+                                 data-toggle="tooltip"
+                                 title="Sometimes a Stripe event doesn't
+                                 process correctly in Give. Use this tool to try
+                                 it again.">
                                 <a id="show-get-stripe-event" class="quick-button backgroundColor primary" href="">
                                     <span class="fa-stack fa-lg">
                                         <i class="fa fa-search"></i>
@@ -234,7 +292,11 @@
                                     <h5>Get Stripe Event</h5>
                                 </a>
                             </div>
-                            <div class="col-sm-2">
+                            <div class="col-sm-2"
+                                 data-toggle="tooltip"
+                                 title="If no local user was created, but you see
+                                 that the user's gift processed in Stripe use this
+                                  tool to fix the problem.">
                                 <a id="show-fix-no-user" class="quick-button backgroundColor primary" href="">
                                     <span class="fa-stack fa-lg">
                                         <i class="fa fa-wrench"></i>
@@ -244,7 +306,9 @@
                             </div>
                         {{/if}}
                         {{#if isInRole 'admin, trips-manager'}}
-                            <div class="col-sm-2">
+                            <div class="col-sm-2"
+                                 data-toggle="tooltip"
+                                 title="View & manage trips, trip members and deadlines">
                                 <span style="" class="badge alert-badge backgroundColor indianred">BETA</span>
                                 <a class="quick-button backgroundColor primary" href="{{pathFor 'Trips'}}">
                                     <span class="fa-stack fa-lg">
@@ -262,9 +326,17 @@
 	</div><!--/row-->
     {{#if showFixNoUser}}
         <div class="row">
-            <div class="col col-lg-2"></div>
-            <div class="col-lg-8">
+            <div class="jumbotron">
                 {{> CreateUserIfStripeButNotLocalExists}}
+                <br>
+            </div>
+        </div>
+    {{/if}}
+
+    {{#if showGetStripeEvent}}
+        <div class="row">
+            <div class="jumbotron">
+                {{> GetStripeEvent}}
             </div>
         </div>
     {{/if}}

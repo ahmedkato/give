@@ -1,5 +1,6 @@
 <template name="CreateUserIfStripeButNotLocalExists">
-    <div class="create-user-if-stripe-but-not-local-exists">
+    <div class="create-user-if-stripe-but-not-local-exists text-center">
+        <h2>If there is no Donor Tools user, but you have a customer in Stripe you can fix that with this form.</h2>
         <form class="form-inline" id="fix_no_local">
             <div class="form-group">
                 <label class="sr-only" for="customer-id">Email address</label>
@@ -9,7 +10,7 @@
                 <label class="sr-only" for="customer-email">Email</label>
                 <input type="text" class="form-control" id="customer-email" placeholder="Email">
             </div>
-            <button type="submit" class="btn btn-default">Fix user</button>
+            <button type="submit" class="btn btn-primary btn-lg">Fix user</button>
         </form>
     </div>
 </template>

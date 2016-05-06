@@ -16,7 +16,6 @@ Template.RequestAddress.events({
     }
   },
   'click #show_business_name': function () {
-    console.log("clicked");
     $("#org").val('');
     $( "#org_form_group" ).toggle();
   }

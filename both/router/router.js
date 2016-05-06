@@ -87,12 +87,6 @@ Router.route('', {
   },
   action: function() {
     var params = this.params;
-
-    if (Meteor.user()) {
-      Router.go('user.give');
-    }
-    this.render('DonationForm');
-
     Session.set('params.amount', params.query.amount);
     Session.set('params.campaign', params.query.campaign);
     Session.set('params.donateTo', params.query.donateTo);
@@ -108,6 +102,12 @@ Router.route('', {
     Session.set('params.locked_frequency', params.query.locked_frequency);
     Session.set('params.recurring', params.query.recurring);
     Session.set('params.writeIn', params.query.writeIn);
+
+    if (Meteor.user()) {
+      //Router.go('user.give');
+      this.render('user.give');
+    }
+    this.render('DonationForm');
   }
 });
 

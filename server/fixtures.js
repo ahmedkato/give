@@ -13,7 +13,7 @@ Meteor.startup(function() {
     let email = 'test@example.com';
     let tempPassword = 'sdie3030s,,@isS;';
     
-    let initRoles = ['admin', 'admin-only', 'manager'];
+    let initRoles = ['admin', 'manager', 'trips-manager'];
 
     let allRoles = Roles.getAllRoles().map(function(item) {
       return item.name;
@@ -39,7 +39,7 @@ Meteor.startup(function() {
       Meteor.users.update({'emails.address': email}, {$set: {'emails.$.verified': true, profile: {}}});
 
       // Add roles to this account
-      Roles.addUsersToRoles(user_id, ["admin", "admin-only"]);
+      Roles.addUsersToRoles(user_id, ["admin"]);
     }, 1000);
   }
 });
