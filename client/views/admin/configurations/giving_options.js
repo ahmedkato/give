@@ -381,6 +381,9 @@ Template.GivingOptions.helpers({
   configId: function() {
     let config = ConfigDoc();
     return config && config._id;
+  },
+  twoDDSlickOptions() {
+    return Session.get("showSecondLabel");
   }
 });
 
@@ -447,6 +450,9 @@ Template.GivingOptions.onRendered(function () {
               if( selectedData.selectedData.value !== item.groupId) {
                 if ($("#dd-" + selectedData.selectedData.value + " ul li").length > 1) {
                   $("#dd-" + selectedData.selectedData.value).show();
+                  Session.set("showSecondLabel", true);
+                } else {
+                  Session.set("showSecondLabel", false);
                 }
                 $( itemName ).prop('disabled', true);
                 $( itemName ).hide();

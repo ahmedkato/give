@@ -64,36 +64,6 @@ Template.DonationLanding.helpers({
           return item && item.groupId;
         } );
 
-        /*Meteor.setTimeout( function () {
-          groups.forEach( function ( item ) {
-            let itemName = '#dd-' + item.groupId;
-            $( itemName ).ddslick( {
-              onSelected: function ( selectedData ) {
-                $("[name='donateTo']").val( selectedData.selectedData.value );
-              }
-            } );
-            $( itemName ).hide();
-          } );
-
-          if( $( "#mainDD" ) ) {
-            $( "#mainDD" ).ddslick( {
-              onSelected: _.debounce( function ( selectedData ) {
-                $( "#dd-" + selectedData.selectedData.value ).show();
-
-                groups.forEach( function ( item ) {
-                  let itemName = '#dd-' + item.groupId;
-                  if( selectedData.selectedData.value !== item.groupId ) {
-                    $( itemName ).prop( 'disabled', true );
-                    $( itemName ).hide();
-                  } else {
-                    $("[name='donateTo']").val( $( itemName ).find( ":input" ).val() );
-                  }
-                } );
-              }, 300 )
-            } );
-          }
-        }, 0 );*/
-
         // Setup the DD-Slick version of the individual select elements
         Meteor.setTimeout(function() {
           groups.forEach(function(item){
@@ -118,6 +88,9 @@ Template.DonationLanding.helpers({
                   if( selectedData.selectedData.value !== item.groupId) {
                     if ($("#dd-" + selectedData.selectedData.value + " ul li").length > 1) {
                       $("#dd-" + selectedData.selectedData.value).show();
+                      Session.set("showSecondLabel", true);
+                    } else {
+                      Session.set("showSecondLabel", false);
                     }
                     $( itemName ).prop('disabled', true);
                     $( itemName ).hide();
@@ -180,12 +153,7 @@ Template.DonationLanding.helpers({
     return;
   },
   twoDDSlickOptions() {
-    let numberOfDDSlick = $.map( $(".dd-container"), function( n ) {
-      return $(n).is(":visible") ? true : null;
-    }).length;
-    if (numberOfDDSlick >= 2) {
-      return true;
-    }
+    return Session.get("showSecondLabel");
   }
 });
 

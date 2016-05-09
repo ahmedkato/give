@@ -154,9 +154,11 @@
                           </select>
                           <br>
 
-                          <label>
-                              Select an option from the main menu to see the sub-options
-                          </label>
+                          {{#if twoDDSlickOptions}}
+                              <label>
+                                  Select an option from the main menu to see the sub-options
+                              </label>
+                          {{/if}}
                           {{#each donationGroups}}
                               <select id="dd-{{groupId}}" class="form-control select select-primary mbl">
                                   <optgroup label="{{text}}">{{text}}</optgroup>
