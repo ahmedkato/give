@@ -64,8 +64,7 @@ Template.DonationLanding.helpers({
           return item && item.groupId;
         } );
 
-        // Setup the DD-Slick version of the individual select elements
-        Meteor.setTimeout( function () {
+        /*Meteor.setTimeout( function () {
           groups.forEach( function ( item ) {
             let itemName = '#dd-' + item.groupId;
             $( itemName ).ddslick( {
@@ -93,7 +92,44 @@ Template.DonationLanding.helpers({
               }, 300 )
             } );
           }
-        }, 0 );
+        }, 0 );*/
+
+        // Setup the DD-Slick version of the individual select elements
+        Meteor.setTimeout(function() {
+          groups.forEach(function(item){
+            let itemName = '#dd-' + item.groupId;
+            $(itemName).ddslick({
+              onSelected: function(selectedData) {
+                $('#donateTo').val(selectedData.selectedData.value);
+                if ($("#dd-" + selectedData.selectedData.value + " ul li").length === 1) {
+                  // select the first option in the second dropdown if there is only 1 option
+                  $( "#dd-" + selectedData.selectedData.value ).ddslick( 'select', { index: 1 } );
+                }
+              }
+            });
+            $(itemName).hide();
+          });
+
+          if ($("#mainDD")) {
+            $("#mainDD").ddslick({
+              onSelected: _.debounce(function(selectedData){
+                groups.forEach(function(item){
+                  let itemName = '#dd-' + item.groupId;
+                  if( selectedData.selectedData.value !== item.groupId) {
+                    if ($("#dd-" + selectedData.selectedData.value + " ul li").length > 1) {
+                      $("#dd-" + selectedData.selectedData.value).show();
+                    }
+                    $( itemName ).prop('disabled', true);
+                    $( itemName ).hide();
+                  } else {
+                    $("[name='donateTo']").val( $( itemName ).find( ":input" ).val() );
+                  }
+                });
+              }, 300)
+            });
+          }
+        }, 0);
+
       }
         return config._id;
       }
@@ -142,6 +178,14 @@ Template.DonationLanding.helpers({
       }
     }
     return;
+  },
+  twoDDSlickOptions() {
+    let numberOfDDSlick = $.map( $(".dd-container"), function( n ) {
+      return $(n).is(":visible") ? true : null;
+    }).length;
+    if (numberOfDDSlick >= 2) {
+      return true;
+    }
   }
 });
 

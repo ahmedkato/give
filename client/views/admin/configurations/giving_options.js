@@ -430,6 +430,10 @@ Template.GivingOptions.onRendered(function () {
         $(itemName).ddslick({
           onSelected: function(selectedData) {
             $('#donateTo').val(selectedData.selectedData.value);
+            if ($("#dd-" + selectedData.selectedData.value + " ul li").length === 1) {
+              // select the first option in the second dropdown if there is only 1 option
+              $( "#dd-" + selectedData.selectedData.value ).ddslick( 'select', { index: 1 } );
+            }
           }
         });
         $(itemName).hide();
@@ -438,15 +442,16 @@ Template.GivingOptions.onRendered(function () {
       if ($("#mainDD")) {
         $("#mainDD").ddslick({
           onSelected: _.debounce(function(selectedData){
-            $("#dd-" + selectedData.selectedData.value).show();
-
             groups.forEach(function(item){
               let itemName = '#dd-' + item.groupId;
               if( selectedData.selectedData.value !== item.groupId) {
+                if ($("#dd-" + selectedData.selectedData.value + " ul li").length > 1) {
+                  $("#dd-" + selectedData.selectedData.value).show();
+                }
                 $( itemName ).prop('disabled', true);
                 $( itemName ).hide();
               } else {
-                $('#donateTo').val($(itemName).find(":input").val());
+                $("[name='donateTo']").val( $( itemName ).find( ":input" ).val() );
               }
             });
           }, 300)
