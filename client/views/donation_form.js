@@ -43,6 +43,12 @@ Template.DonationForm.events({
       $("html, body").animate({ scrollTop: 0 }, "slow");
       return;
     }
+    if ($("#donateTo").val() === '') {
+      $("#s2id_donateTo").children().addClass("redText");
+
+      $("html, body").animate({ scrollTop: 0 }, "slow");
+      return;
+    }
     $("html, body").animate({ scrollTop: 0 }, "slow");
     Session.set("loading", true);
     $('[name="submitThisForm"]').button('loading');
@@ -117,6 +123,10 @@ Template.DonationForm.events({
         backdrop: 'static'
       }, function(e) {
       });
+    }
+
+    if ($("#donateTo").val() !== '') {
+      $("#s2id_donateTo").children().removeClass("redText");
     }
   },
   // keypress input detection for autofilling form with test data

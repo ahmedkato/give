@@ -261,7 +261,8 @@ function OrgInfoCheck(name, namePart2) {
             address_city:        profile.address.city,
             address_state:       profile.address.state,
             address_zip:         profile.address.postal_code,
-            country:             profile.address.country ? profile.address.country : "US"
+            country:             profile.address.country ? profile.address.country : "US",
+            currency:            'usd'
           };
         } else {
           bankInfo = {
@@ -275,12 +276,13 @@ function OrgInfoCheck(name, namePart2) {
             address_city:        Give.getCleanValue( '#city' ),
             address_state:       Give.getCleanValue( '#region' ),
             address_zip:         Give.getCleanValue( '#postal_code' ),
-            country:             Give.getCleanValue( '#country' )
+            country:             Give.getCleanValue( '#country' ),
+            currency:            'usd'
           };
         }
         // We need to check our configuration to see how Stripe is setup to
         // process our ACH type gifts.
-        // If it is setup to take gifts manually then don't tokenize the bank info
+        // If it is setup to take gifts 'manually' then don't tokenize the bank info
         let config = ConfigDoc();
 
         if( config && config.Settings &&
@@ -406,7 +408,7 @@ function OrgInfoCheck(name, namePart2) {
           // Call your backend
           if( form ) {
             form.paymentInformation.source_id = response.bank_account.id;
-            form.paymentInformation.method = 'stripeACH'; // TODO: be more specific
+            form.paymentInformation.method = 'stripeACH';
             Give.handleCalls( response, form );
           } else {
             return response;
