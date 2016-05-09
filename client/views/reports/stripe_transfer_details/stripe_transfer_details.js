@@ -197,9 +197,6 @@ Template.StripeTransferDetails.helpers({
     }
   },
   total_fees: function () {
-    // TODO: need to probably write a method call that gets each of the charges associated with this transfer,
-    // then totals them and sends that total back here. Or, you could do this when the
-    // transfer is inserted into the collection and then put that total into the metadata of the transfer
     let transactions = Transactions.find().fetch();
     let total = 0;
     transactions.forEach(function (each_transactions){

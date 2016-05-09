@@ -129,7 +129,7 @@ function OrgInfoCheck(name, namePart2) {
             businessName = '';
           }
 
-          if( profile.address.address_line2 ) {
+          if( profile && profile.address && profile.address.address_line2 ) {
             addressLine2 = profile.address.address_line2;
           } else {
             addressLine2 = '';

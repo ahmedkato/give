@@ -258,7 +258,7 @@ _.extend(StripeFunctions, {
       event = Stripe_Events[STRIPE_REQUEST.type]( STRIPE_REQUEST );
 
       if(STRIPE_REQUEST.data.object.object === 'charge'){
-        console.log("Sending to DT");
+        logger.info("Sending to DT");
         if (DT_donations.findOne({transaction_id: STRIPE_REQUEST.data.object.id})) {
           // Send the donation change to Donor Tools. This function has a retry built
           // in, so also pass 1 for the interval
@@ -415,8 +415,9 @@ _.extend(StripeFunctions, {
     }
   },
   'find_user_account_or_make_a_new_one': function (customer){
-    console.log("Started find_dt_account_or_make_a_new_one");
-    console.log(customer);
+    logger.info("Started find_dt_account_or_make_a_new_one");
+    logger.info("customer: ");
+    logger.info(customer);
 
     let email_address, user, user_id, add_user_id_to_customer_metadata;
 
@@ -429,7 +430,8 @@ _.extend(StripeFunctions, {
     // if not then create a user and then assign the same as above
     if( user ){
       user_id = user._id;
-    } else{
+      Utils.check_for_profile_info_add_if_none(user_id, customer.id);
+    } else {
       user_id = Utils.create_user(email_address, customer.id);
       // Set the new user flag
       Meteor.users.update({_id: user_id}, {$set: {newUser: true}});

@@ -21,7 +21,11 @@ var giveTutorialSteps = [
 
 Template.UserGive.helpers({
   notDTUser() {
-   return Session.get("NotDTUser");
+    if(Meteor.user() && Meteor.user().profile && Meteor.user().profile.address) {
+      return Session.get("NotDTUser");
+    } else {
+      return true;
+    }
   },
   paymentWithCard: function() {
     return Session.equals("UserPaymentMethod", "Card");

@@ -41,7 +41,6 @@ Template.TripMember.onRendered(function () {
 
 Template.TripMember.onCreated(function () {
   let tripId = Router.current().params._id;
-  // TODO: need to also pass this user's fundraiser id so that only those splits are passed back
   this.autorun(()=> {
     this.subscribe("emailSubscriptions");
     this.subscribe("userDTFunds");

@@ -324,7 +324,6 @@ Utils = {
   check_for_dt_user(email, checkThisDTID, use_id, customer_id) {
     console.log( email );
 
-    // TODO: remove use_id part of this, I'm not using it
     try {
       // This function is used to get all of the persona_id (there might be many)
       // from DT if they exist or return false if none do
@@ -668,9 +667,6 @@ Utils = {
     } else {
       source_id = DONORTOOLSINDVSOURCEID;
     }
-
-    // TODO: check that this line below works
-    console.log( "Persona ID is: ", dt_persona_id );
 
     try {
       logger.info( "Started checking for this person in DT" );
@@ -1557,25 +1553,18 @@ Utils = {
       logger.info( "There is already a DT donation with that charge_id in the collection or there is a current operation on that DT donation" );
       return;
     } else {
-      // TODO: Check the connection to DT before starting, if it isn't good then schedule this to happen in an hour Meteor.setTimeout({ function here }, 3600000);
-      // Don't see how to do this yet
-
       // create an email_address variable to be reused below
       var email_address = Customers.findOne( customer_id ) && Customers.findOne( customer_id ).email;
 
       // check that there was a customer record and that record had an email address
       if( email_address ) {
         //create user
-        //TODO: when looking to create the user, does it meet the main account criteria? If so, create normally
-        //TODO: if it doesn't, create an account for the main email, or check if one is already created.
-        //TODO: Does this cover the case where a main exists one month and not the next?
-        //TODO: Does this cover the case where an email isn't a main one month, but is the next?
         var user_id = Utils.create_user( email_address, customer_id );
         var persona_result = {};
 
         //Check for existing id array
         if( user_id.persona_id && !user_id.persona_info ) {
-          console.log( "Line 29 post_donation.js: This is the persona_id : ", user_id.persona_id );
+          console.log( "post_donation.js: This is the persona_id : ", user_id.persona_id );
           //check dt for user, persona_ids will be an array of 0 to many persona_ids
           persona_result = Utils.check_for_dt_user( email_address, user_id.persona_id, true );
         } else {
@@ -1586,15 +1575,13 @@ Utils = {
           }
           persona_result = findAnyMatchedDTaccount;
           matchedId = findAnyMatchedDTaccount.matched_id;
-          console.log( matchedId );
-          console.dir( persona_result );
+          logger.info( "matchedId: " + matchedId + " persona_result: ");
+          logger.info( persona_result );
         }
 
         if( !persona_result ) {
           return;
         }
-        //TODO: fix this area, doesn't work with the change I've made to personIDs, since a user account shouldn't
-        // be made if the user doesn't match the main email criteria
 
         var audit_item = Audit_trail.findOne( { _id: charge_id } );
 
@@ -1642,9 +1629,6 @@ Utils = {
         Utils.get_all_dt_donations( persona_result.persona_ids );
 
         Utils.for_each_persona_insert( persona_result.persona_info, user_id );
-
-        //TODO: Get persona info here, only an id right now.
-        //Meteor.users.update(user_id, {$set: {'persona_info': persona_result}});
 
       } else {
         logger.error( "Didn't find the customer record, exiting." );
@@ -2573,5 +2557,48 @@ Utils = {
     }
     
     return "No " + frequency + " reports were sent.";
+  },
+  /**
+   * Check the user profile, if address info exists return;
+   * Else add the info to the user profile
+   * @method check_for_profile_info_add_if_none
+   * @param {String} user_id - The user._id
+   * @param {String} customer_id - The Stripe customer.id (also the document _id of this
+   * customer from the customers collection)
+   */
+  check_for_profile_info_add_if_none(user_id, customer_id){
+    logger.info("Started check_for_profile_info_add_if_none with user: " + user_id + "and customer_id: " + customer_id);
+
+    if (Meteor.users.findOne({_id: user_id}) &&
+      Meteor.users.findOne({_id: user_id}).profile && 
+      Meteor.users.findOne({_id: user_id}).profile.address) {
+      logger.info("This user already has an address object in their profile.");
+      return;
+    } else {
+      logger.info("This user doesn't have an address object in their profile.");
+      logger.info("Updating the profile with this customer info: " + customer_id);
+
+      let customer_cursor = Customers.findOne( { _id: customer_id } );
+      // Construct the user's profile object from the customer metadata
+      let fname = customer_cursor && customer_cursor.metadata.fname;
+      let lname = customer_cursor && customer_cursor.metadata.lname;
+      let profile = {
+        fname:         fname,
+        lname:         lname,
+        address:       {
+          address_line1: customer_cursor.metadata.address_line1,
+          address_line2: customer_cursor.metadata && customer_cursor.metadata.address_line2,
+          city:          customer_cursor.metadata.city,
+          state:         customer_cursor.metadata.state,
+          postal_code:   customer_cursor.metadata.postal_code,
+          country:       customer_cursor.metadata.country
+        },
+        phone:         customer_cursor.metadata.phone,
+        business_name: customer_cursor.metadata.business_name
+      };
+      Meteor.users.update({_id: user_id}, {$set: {
+        profile: profile
+      }});
+    }
   }
 };

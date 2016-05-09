@@ -91,7 +91,6 @@ Template.ACH.helpers({
     }
   },
   'showSingleRecord': function() {
-    // TODO Return the below text unless we have selected a single record to view
     return false;
   }
 });

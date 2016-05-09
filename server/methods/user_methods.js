@@ -115,8 +115,6 @@ Meteor.methods({
               message: updated_bank.message
             };
           } else {
-            // TODO: metadata: {saved: saved} add this to the newly created bank_account
-
             var created_subscription = Utils.stripe_create_subscription( customer_id, bank, subscription_plan, subscription_amount, subscription_metadata );
             if( !created_subscription.object ) {
               return {

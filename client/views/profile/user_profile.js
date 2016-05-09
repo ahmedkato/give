@@ -252,8 +252,6 @@ Template.UserProfile.onRendered(function() {
     } );
 
     if( Meteor.user() && Meteor.user().profile && !Meteor.user().profile.address ) {
-      // TODO: setup method call to fix the missing address info
-      // Use something like the below to get the right address info in.
       let activeTab = Session.get( 'activeTab' );
       Meteor.call( "putProfileAddress", activeTab ? activeTab : '', function ( err, res ) {
         if( err ) {

@@ -99,7 +99,6 @@ Stripe_Events = {
       console.log(refund_object);
       Refunds.upsert({_id: refund_object.id}, refund_object);
     }
-    // TODO: send failed email
     if(stripeEvent.data.object.invoice) {
       let wait_for_metadata_update = Utils.update_charge_metadata( stripeEvent );
 
@@ -129,12 +128,10 @@ Stripe_Events = {
     return;
   },
   'charge.updated': function (stripeEvent) {
-    // TODO: Need to handle this
     logEvent(stripeEvent.type);
     return;
   },
   'charge.dispute.created': function (stripeEvent) {
-    //TODO: need to send me an email so I can check into this
     logEvent(stripeEvent.type);
     return;
   },
@@ -226,6 +223,7 @@ Stripe_Events = {
 
     // TODO: setup an email for sending to the user as well
     // TODO: include a link to resubscribe
+    // This is so that at any time they can click that link and get their gift going again
 
     logEvent(stripeEvent.type);
     return;

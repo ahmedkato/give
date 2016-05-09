@@ -1,4 +1,4 @@
-// TODO: Need to rewrite this, but without the buggy afer taste :-)
+// TODO: Need to rewrite this, but without the buggy after taste :-)
 /*
 if (Meteor.isServer) {
     // configure ThrottleAccounts.login - Accounts.validateLoginAttempt()
