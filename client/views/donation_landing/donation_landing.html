@@ -20,34 +20,32 @@
                                     </div>
                                     <label for="mainDD">What would you like to give to?</label>
                                     <br>
-                                    {{#if $and givingOptions showDD}}
-                                        <select id="mainDD" class="form-control select select-primary mbl" >
-                                            {{#each givingOptions}}
-                                                {{#if groupId}}
-                                                    <option value="{{groupId}}">{{text}}</option>
-                                                {{/if}}
+                                    <select id="mainDD" class="form-control select select-primary mbl" >
+                                        {{#each givingOptions}}
+                                            {{#if groupId}}
+                                                <option value="{{groupId}}">{{text}}</option>
+                                            {{/if}}
+                                        {{/each}}
+                                    </select>
+                                    <br>
+
+                                    {{#if twoDDSlickOptions}}
+                                        <label>
+                                            Select an option
+                                        </label>
+                                    {{/if}}
+                                    {{#each donationGroups}}
+                                        <select id="dd-{{groupId}}" class="form-control select select-primary mbl">
+                                            <optgroup label="{{text}}">{{text}}</optgroup>
+                                            {{#each children}}
+                                                <option value="{{id}}"
+                                                        data-description="{{description}}"
+                                                        data-imagesrc="{{imageSrc}}">
+                                                    {{text}}
+                                                </option>
                                             {{/each}}
                                         </select>
-                                        <br>
-
-                                        {{#if twoDDSlickOptions}}
-                                            <label>
-                                                Select an option
-                                            </label>
-                                        {{/if}}
-                                        {{#each donationGroups}}
-                                            <select id="dd-{{groupId}}" class="form-control select select-primary mbl">
-                                                <optgroup label="{{text}}">{{text}}</optgroup>
-                                                {{#each children}}
-                                                    <option value="{{id}}"
-                                                            data-description="{{description}}"
-                                                            data-imagesrc="{{imageSrc}}">
-                                                        {{text}}
-                                                    </option>
-                                                {{/each}}
-                                            </select>
-                                        {{/each}}
-                                    {{/if}}
+                                    {{/each}}
                                     <p id="depends-on-WriteIn"></p><input name="to" type="hidden" value="">
 
                                     <p class="">
