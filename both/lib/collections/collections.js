@@ -62,8 +62,6 @@ Donate = new Mongo.Collection('donate');
 
 Donations = new Mongo.Collection('donations');
 
-DT_splits = new Mongo.Collection('dt_splits');
-
 DT_donations = new Mongo.Collection('dt_donations');
 
 DT_funds = new Mongo.Collection('dt_funds');
@@ -71,6 +69,10 @@ DT_funds = new Mongo.Collection('dt_funds');
 DT_personas = new Mongo.Collection('dt_personas');
 
 DT_sources = new Mongo.Collection('dt_sources');
+
+DT_splits = new Mongo.Collection('dt_splits');
+
+Fundraisers = new Mongo.Collection('fundraisers');
 
 Invoices = new Mongo.Collection('invoices');
 
@@ -96,5 +98,3 @@ Uploads.before.insert(function (userId, doc, fieldNames, modifier) {
   doc.url = doc.url.replace( /[*_\s]/g, '' );
   return true;
 });
-
-Fundraisers = new Mongo.Collection('fundraisers');

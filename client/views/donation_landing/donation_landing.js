@@ -14,9 +14,8 @@ function groupIndex (config, id) {
 }
 
 Template.DonationLanding.onCreated(function () {
-  let self = this;
-  self.autorun(function() {
-    self.subscribe("uploaded");
+  this.autorun(()=>{
+    this.subscribe("uploaded");
   });
 });
 
@@ -52,6 +51,9 @@ Template.DonationLanding.helpers({
     });
     return donationGroups;
   },
+  showDD: function() {
+    return Session.get("showDD");
+  },
   configId: function() {
     let config = ConfigDoc();
 
@@ -70,7 +72,7 @@ Template.DonationLanding.helpers({
             let itemName = '#dd-' + item.groupId;
             $(itemName).ddslick({
               onSelected: function(selectedData) {
-                $('#donateTo').val(selectedData.selectedData.value);
+                $("[name='donateTo']").val(selectedData.selectedData.value);
                 if ($("#dd-" + selectedData.selectedData.value + " ul li").length === 1) {
                   // select the first option in the second dropdown if there is only 1 option
                   $( "#dd-" + selectedData.selectedData.value ).ddslick( 'select', { index: 1 } );
@@ -104,9 +106,8 @@ Template.DonationLanding.helpers({
         }, 0);
 
       }
-        return config._id;
+        return config && config._id;
       }
-    return;
   },
   givingGuide: function() {
     let config = ConfigDoc();
@@ -143,15 +144,6 @@ Template.DonationLanding.helpers({
     }
     return;
   },
-  description: function () {
-    let config = ConfigDoc();
-    if (guideExists()) {
-      if (groupIndex(config, this.groupId) !== -1 && config.Giving.guide[groupIndex(config, this.groupId)].description) {
-        return config.Giving.guide[groupIndex(config, this.groupId)].description;
-      }
-    }
-    return;
-  },
   twoDDSlickOptions() {
     return Session.get("showSecondLabel");
   }
@@ -161,11 +153,13 @@ Template.DonationLanding.events({
   'click .guide-item': function (e) {
     e.preventDefault();
     let config = ConfigDoc();
-    console.log("Clicked guide item");
     let ddslick = $("#mainDD").data('ddslick');
     let index = groupIndex(config, this.groupId);
-    console.log(ddslick.settings.data[index]);
     $('#mainDD').ddslick('select', {index: index.toString() });
+    $(".guide-item").addClass("dim-area");
+    $(e.currentTarget).removeClass("dim-area");
+    $(".guide-item").removeClass("highlight-area");
+    $(e.currentTarget).addClass("highlight-area");
   },
   'click #other_ways_to_give': function (e) {
     e.preventDefault();

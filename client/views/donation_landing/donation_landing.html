@@ -6,58 +6,61 @@
                     <h1 class="text-center uppercase-this">Donate Here</h1>
 
                     <div class="well well1 text-center">
-                        {{#if configId}}
-                            <form method="GET" id="landing_form">
-                                <input type="hidden" name="donateTo">
-                                <input type="hidden" name="donateWith">
-                                <input type="hidden" id="placeholder_donate_input">
-                                <div class="input-group">
-                                    <span class="input-group-addon">$</span>
-                                    <input class="form-control" min="1"
-                                           name="amount" placeholder="45"
-                                           step="any" type="number">
-                                </div>
-                                <label for="selectTestMain">What would you like to give to?</label>
-                                <br>
-                                <select id="mainDD" class="form-control select select-primary mbl" >
-                                    {{#each givingOptions}}
-                                        {{#if groupId}}
-                                            <option value="{{groupId}}">{{text}}</option>
+                        {{#if Template.subscriptionsReady}}
+                            {{#if configId}}
+                                <form method="GET" id="landing_form">
+                                    <input type="hidden" name="donateTo">
+                                    <input type="hidden" name="donateWith">
+                                    <input type="hidden" id="placeholder_donate_input">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">$</span>
+                                        <input class="form-control" min="1"
+                                               name="amount" placeholder="45"
+                                               step="any" type="number">
+                                    </div>
+                                    <label for="mainDD">What would you like to give to?</label>
+                                    <br>
+                                    {{#if $and givingOptions showDD}}
+                                        <select id="mainDD" class="form-control select select-primary mbl" >
+                                            {{#each givingOptions}}
+                                                {{#if groupId}}
+                                                    <option value="{{groupId}}">{{text}}</option>
+                                                {{/if}}
+                                            {{/each}}
+                                        </select>
+                                        <br>
+
+                                        {{#if twoDDSlickOptions}}
+                                            <label>
+                                                Select an option
+                                            </label>
                                         {{/if}}
-                                    {{/each}}
-                                </select>
-                                <br>
-
-                                {{#if twoDDSlickOptions}}
-                                    <label>
-                                        Select an option
-                                    </label>
-                                {{/if}}
-                                {{#each donationGroups}}
-                                    <select id="dd-{{groupId}}" class="form-control select select-primary mbl">
-                                        <optgroup label="{{text}}">{{text}}</optgroup>
-                                        {{#each children}}
-                                            <option value="{{id}}"
-                                                    data-description="{{description}}"
-                                                    data-imagesrc="{{imageSrc}}">
-                                                {{text}}
-                                            </option>
+                                        {{#each donationGroups}}
+                                            <select id="dd-{{groupId}}" class="form-control select select-primary mbl">
+                                                <optgroup label="{{text}}">{{text}}</optgroup>
+                                                {{#each children}}
+                                                    <option value="{{id}}"
+                                                            data-description="{{description}}"
+                                                            data-imagesrc="{{imageSrc}}">
+                                                        {{text}}
+                                                    </option>
+                                                {{/each}}
+                                            </select>
                                         {{/each}}
-                                    </select>
-                                {{/each}}
-                                <p id="depends-on-WriteIn"></p><input name="to" type="hidden" value="">
+                                    {{/if}}
+                                    <p id="depends-on-WriteIn"></p><input name="to" type="hidden" value="">
 
-                                <p class="">
-                                    <button class="btn btn-success btn-success-color btn-sm gradiant-button" id="cardButton"
-                                            title="Donate by card">Donate by <img alt="Credit Card" src="/images/icons/icon-cc.png" title="Donate by card">
-                                    </button>
-                                    <button class="btn btn-success btn-success-color btn-sm gradiant-button" id="checkButton"
-                                            title="Donate by check">Donate by <img alt="Check" src="/images/icons/icon-check-reduced.png" title="Donate by check">
-                                    </button>
-                                </p>
-                            </form>
+                                    <p class="">
+                                        <button class="btn btn-success btn-success-color btn-sm gradiant-button" id="cardButton"
+                                                title="Donate by card">Donate by <img alt="Credit Card" src="/images/icons/icon-cc.png" title="Donate by card">
+                                        </button>
+                                        <button class="btn btn-success btn-success-color btn-sm gradiant-button" id="checkButton"
+                                                title="Donate by check">Donate by <img alt="Check" src="/images/icons/icon-check-reduced.png" title="Donate by check">
+                                        </button>
+                                    </p>
+                                </form>
+                            {{/if}}
                         {{/if}}
-
                     </div>
                     <br>
 

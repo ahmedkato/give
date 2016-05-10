@@ -1,8 +1,8 @@
 {
   "name": "Give",
-  "Version": "0.9.5",
+  "Version": "0.9.6",
   "engines": {
-    "node": "0.10.40"
+    "node": "0.10.43"
   },
   "scripts": {
     "start": "node server"
@@ -11,7 +11,6 @@
     "undef": true,
     "unused": true,
     "predef": [
-      "Give",
       "Meteor",
       "AllErrors",
       "Audit_trail",
@@ -19,25 +18,33 @@
       "Config",
       "Customers",
       "Devices",
+      "Donate",
       "Donations",
       "DT_donations",
       "DT_funds",
+      "DT_personas",
+      "DT_sources",
       "DT_splits",
+      "Fundraisers",
+      "Give",
       "Invoices",
+      "Payments",
+      "Refunds",
       "Roles",
+      "Router",
+      "Session",
       "Subscriptions",
       "Transactions",
       "Transfers",
+      "Trips",
       "Uploads",
-      "Users",
-      "Router",
-      "Session"
+      "Users"
     ]
   },
   "dependencies": {
     "cron": "^1.1.0",
     "fs": "0.0.2",
-    "jquery": "^2.2.2",
+    "jquery": "^2.2.3",
     "later": "^1.2.0"
   }
 }

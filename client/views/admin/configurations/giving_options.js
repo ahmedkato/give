@@ -209,12 +209,11 @@ Template.GivingOptions.events({
       location.reload();
     }
   },
-  'keyup .editable-content': _.debounce(function(e){
+  'change .editable-content': _.debounce(function(e){
     let text;
     let description;
     let id;
     let config = ConfigDoc();
-
 
     if ($(e.currentTarget).hasClass("group-option")) {
       text = $(e.currentTarget).val();
@@ -252,7 +251,7 @@ Template.GivingOptions.events({
         'Giving.options': configOptions
       }
     });
-  },1000),
+  },100),
   'click .remove-item': function(e) {
     e.preventDefault();
     let dtId = $(e.currentTarget).attr('data-el-id');
