@@ -144,20 +144,19 @@ Template.Modals.helpers({
 
 Template.Modals.onRendered( function() {
   $('select').select2({dropdownCssClass: 'dropdown-inverse'});
-
-  $('#options').chosen({width: "95%"});
-
   Meteor.setTimeout(function(){
     $('#tripSelect').select2('destroy');
     $('#participantSelect').select2('destroy');
+    $('#options').select2('destroy');
     Meteor.setTimeout(function () {
       $('#tripSelect').chosen({width: "95%"});
       $("#participantSelect").hide();
+      $('#options').chosen({width: "95%"});
     }, 250);
   }, 250);
 
   $('#modal_for_serve1000').on('hidden.bs.modal', function() {
-    var currentServed = 577;
+    var currentServed = 593;
     Meteor.call("ShowDTSplits", function(err, result) {
       if(!err) {
         // Going with a static number

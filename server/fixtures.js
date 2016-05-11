@@ -13,7 +13,7 @@ Meteor.startup(function() {
     let email = 'test@example.com';
     let tempPassword = 'sdie3030s,,@isS;';
     
-    let initRoles = ['admin', 'manager', 'trips-manager'];
+    let initRoles = ['admin', 'manager', 'trips-manager', 'trips-member'];
 
     let allRoles = Roles.getAllRoles().map(function(item) {
       return item.name;

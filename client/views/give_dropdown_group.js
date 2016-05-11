@@ -23,8 +23,9 @@ Template.GiveDropdownGroup.onRendered(function() {
       Session.set("savedDevice", "Check");
       Session.set("paymentMethod", $('#donateWith option').eq(2).val());
     }
-  } else if(Session.get('params.donateWith')){
+  } else if (Session.get('params.donateWith')) {
     Session.set("paymentMethod", Session.get('params.donateWith'));
+    $('#donateWith').val(Session.get('paymentMethod'));
   }
   if ($('#donateWith').val() === 'Card') {
     Session.set("paymentMethod", "Card");
@@ -37,9 +38,6 @@ Template.GiveDropdownGroup.onRendered(function() {
   _.each(_.uniq(_.pluck($("select[name='donateWith'] > option")
     .get(), 'text')), function(name) { $("select[name='donateWith'] > option:contains(" + name + ")")
     .not(":first").remove(); });
-
-  $('#donateWith').change();
-
 });
 
 Template.GiveDropdownGroup.helpers({

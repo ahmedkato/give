@@ -557,7 +557,7 @@ function OrgInfoCheck(name, namePart2) {
   });
 
   Template.registerHelper('org_state_short', function() {
-    return OrgInfoCheck('address', 'state');
+    return OrgInfoCheck('address', 'state_short');
   });
 
   Template.registerHelper('org_zip', function() {

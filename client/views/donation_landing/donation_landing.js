@@ -211,3 +211,7 @@ Template.DonationLanding.events({
   }
 });
 
+Template.DonationLanding.onRendered(function () {
+  $('[name="donateTo"]').change();
+});
+

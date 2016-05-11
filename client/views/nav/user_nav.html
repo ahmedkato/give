@@ -49,7 +49,7 @@
 
 
                 {{#if MeteorUser}}
-                {{#unless $or dismissedNewStuff (isInRole 'admin-only')}}
+                {{#unless dismissedNewStuff}}
                     <div class="contain-peek" style="overflow: hidden;
                              position: relative;
                              top: 21px;
@@ -91,17 +91,15 @@
                             <a id="nav-dashboard" class="nav-bar-links" href="{{pathFor 'TripsMember'}}"><span class="fa fa-plane"></span> Trips</a>
                         </li>
                     {{/if}}
-                    {{#unless isInRole 'no-dt-person, admin-only'}}
-                        <li class="">
-                            <a id="nav-profile" class="nav-bar-links" href="{{pathFor 'user.profile'}}"><span class="fa fa-history"></span> Profile & Giving History</a>
-                        </li>
-                        <li class="">
-                            <a id="nav-subscriptions" class="nav-bar-links" href="{{pathFor 'subscriptions'}}"><span class="fa fa-refresh"></span> Recurring Gifts</a>
-                        </li>
-                        <li class="">
-                            <a id="nav-give" class="nav-bar-links" href="{{pathFor 'user.give'}}"><span class="fa fa-plus-circle"></span> Give</a>
-                        </li>
-                    {{/unless}}
+                    <li class="">
+                        <a id="nav-profile" class="nav-bar-links" href="{{pathFor 'user.profile'}}"><span class="fa fa-history"></span> Profile & Giving History</a>
+                    </li>
+                    <li class="">
+                        <a id="nav-subscriptions" class="nav-bar-links" href="{{pathFor 'subscriptions'}}"><span class="fa fa-refresh"></span> Recurring Gifts</a>
+                    </li>
+                    <li class="">
+                        <a id="nav-give" class="nav-bar-links" href="{{pathFor 'user.give'}}"><span class="fa fa-plus-circle"></span> Give</a>
+                    </li>
                     <li class="">
                         <a id="nav-password" class="nav-bar-links" href=""><span class="fa fa-unlock-alt"></span> Change Password</a>
                     </li>

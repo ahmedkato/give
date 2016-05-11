@@ -210,10 +210,6 @@ Template.UserProfile.events({
 });
 
 Template.UserProfile.onRendered(function() {
-  if (Roles.userIsInRole(Meteor.userId(), ['no-dt-person', 'admin-only'])) {
-    Router.go("Dashboard");
-    return;
-  }
   let selectedUser = Meteor.user();
 
   let selectedPersonaInfo = selectedUser && selectedUser.persona_info;

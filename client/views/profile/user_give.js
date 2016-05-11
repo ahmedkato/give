@@ -133,10 +133,6 @@ Template.UserGive.events({
 });
 
 Template.UserGive.onRendered(function () {
-  if(Roles.userIsInRole(Meteor.userId(), 'admin-only')) {
-    Router.go("Dashboard");
-    return;
-  }
   let config = ConfigDoc();
   let writeIn = config.Settings.DonorTools.writeInDonationTypeId.toString();
 
@@ -189,6 +185,9 @@ Template.UserGive.onRendered(function () {
       }
     } );
   }
+
+  $('#donateWith').change();
+  $("[name='donateTo']").change();
 });
 
 Template.UserGive.onDestroyed( function() {

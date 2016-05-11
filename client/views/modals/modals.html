@@ -64,7 +64,7 @@
                         campaign?">
                         <option></option>
                         {{#each churchSources}}
-                            <option value="{{name}} {{city}}"><strong>{{name}}</strong>  <i>{{city}}</i></option>
+                            <option value="{{this.name}} {{this.city}}"><strong>{{this.name}}</strong>  <i>{{this.city}}</i></option>
                         {{/each}}
                     </select>
                     <p>

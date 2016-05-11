@@ -21,7 +21,7 @@ Router.onAfterAction(function() {
         this.render("SetupNotComplete");
       }
     }
-  }, 1000);
+  }, 3000);
 }, {
   only: ['donation.form', 'donation.landing']
 });
@@ -104,8 +104,7 @@ Router.route('', {
     Session.set('params.writeIn', params.query.writeIn);
 
     if (Meteor.user()) {
-      //Router.go('user.give');
-      this.render('user.give');
+      Router.go('user.give', {}, {query: params.query});
     }
     this.render('DonationForm');
   }
@@ -164,7 +163,7 @@ Router.route('/gift/:_id', function() {
 Router.route('/dashboard', function() {
   this.layout('AdminLayout');
 
-  this.wait(Meteor.subscribe('publish_for_admin_give_form'));
+  //this.subscribe('publish_for_admin_give_form');
   this.render('Dashboard');
 }, {
   name: 'Dashboard'

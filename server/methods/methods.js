@@ -565,7 +565,7 @@ Meteor.methods({
     logger.info("Started GetDTData method");
 
     check(fundsList, [Number]);
-    check(dateEnd, String);
+    check(dateStart, String);
     check(dateEnd, String);
 
     if (Roles.userIsInRole(this.userId, ['admin', 'trips-manager'])) {
@@ -1003,7 +1003,7 @@ Meteor.methods({
   update_user_roles: function(roles, user_id) {
     logger.info("Started update_user_roles method");
 
-    check(roles, Array);
+    check(roles, Match.Optional([String]));
     check(user_id, String);
 
     try {
