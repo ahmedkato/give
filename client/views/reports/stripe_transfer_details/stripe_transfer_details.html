@@ -1,7 +1,6 @@
 <template name="StripeTransferDetails">
   <div class="stripe-transfer-details">
-    <div id="" class="col-md-12">
-
+    <div class="col-md-12">
         {{#with transfer}}
             <p class="text-left">
                 <span id="posted-span" class="status {{posted}} mouseover" title="Click to toggle the 'posted' status"
@@ -56,7 +55,7 @@
           </tr>
           {{#each transactions}}
             <tr class="responsiveFont
-            {{#if $eq type "charge"}}
+            {{#if ($or $eq type "payment" $eq type "charge")}}
                 {{#with charges}}
                     {{refunded}} {{failed}}
                 {{/with}}
@@ -64,8 +63,8 @@
                 {{#if $eq type "refund"}}
                     {{refund_type}}
                 {{/if}}
-            {{/if}}" data-href="" >
-              {{#if $eq type "charge"}}
+            {{/if}}">
+              {{#if ($or $eq type "payment" $eq type "charge")}}
                   {{#with charges}}
                     <td style="width: 50px;">
                       <a href="{{donor_tools_site}}donations?transaction_id={{_id}}" target="_blank">
@@ -108,7 +107,7 @@
                                 id="feesCovered" data-toggle="checkbox"
                                 class="cover-fees" {{fees_covered}} disabled>
                         </td>
-                      <td class="change-td-padding">{{metadata.donateTo}}</td>
+                      <td class="change-td-padding">{{getFundName metadata.donateTo}}</td>
                       <td class="change-td-padding">{{dt_source}}</td>
                       <td class="change-td-padding">{{metadata.frequency}}</td>
                   {{/with}}

@@ -662,16 +662,14 @@ Meteor.methods({
   },
   get_dt_name: function (id) {
     logger.info("Started get_dt_name method");
-
     check(id, Number);
-    console.log(id);
+    
     if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
       this.unblock();
       try {
         // Get the persona from DT
-        let persona_result = HTTP.call("GET", Meteor.settings.public.donor_tools_site + '/people/' + id + '.json', {
-          auth: Meteor.settings.donor_tools_user + ':' + Meteor.settings.donor_tools_password
-        });
+        let persona_result = Utils.http_get_donortools( '/people/' + id + '.json' );
+
         if( persona_result && persona_result.data && persona_result.data.persona ) {
           return persona_result.data.persona;
         } else {

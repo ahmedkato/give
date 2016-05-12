@@ -214,9 +214,8 @@ Template.StripeTransferDetails.helpers({
     }
   },
   retrieve_dt_names: function () {
-    let self = this;
-    if(self.object === 'charge'){
-      let dt_donation = DT_donations.findOne({'transaction_id': self._id});
+    if (this.object === 'charge') {
+      let dt_donation = DT_donations.findOne({'transaction_id': this._id});
       if(dt_donation && dt_donation.persona_id){
         if(!Session.get(dt_donation.persona_id)) {
           Meteor.call( "get_dt_name", dt_donation.persona_id, function ( err, result ) {
@@ -234,7 +233,7 @@ Template.StripeTransferDetails.helpers({
         }
       }
     } else {
-      let dt_donation = DT_donations.findOne({'transaction_id': self.charge.id});
+      let dt_donation = DT_donations.findOne({'transaction_id': this.charge.id});
 
       if(dt_donation && dt_donation.persona_id){
         if(!Session.get(dt_donation.persona_id)) {
@@ -253,11 +252,9 @@ Template.StripeTransferDetails.helpers({
         }
       }
     }
-
   },
   dt_names: function () {
-
-    if(this.object === 'charge') {
+    if(this.type === 'charge' || this.type === 'payment') {
       let dt_donation = DT_donations.findOne( { 'transaction_id': this._id } );
       if( dt_donation && dt_donation.persona_id ) {
         let persona_name = Session.get( dt_donation.persona_id );
@@ -270,7 +267,7 @@ Template.StripeTransferDetails.helpers({
         return;
       }
     } else {
-      let dt_donation = DT_donations.findOne( { 'transaction_id': this.charge.id } );
+      let dt_donation = DT_donations.findOne( { 'transaction_id': this._id } );
       if( dt_donation && dt_donation.persona_id ) {
         let persona_name = Session.get( dt_donation.persona_id );
         if( persona_name ) {
@@ -321,5 +318,18 @@ Template.StripeTransferDetails.helpers({
     } else {
       return;
     }
+  },
+  getFundName(fundId){
+    let dTFund = DT_funds.findOne({_id: fundId.toString()});
+    if (dTFund && dTFund.name) {
+      return dTFund.name;
+    }
   }
+});
+
+
+Template.StripeTransferDetails.onCreated(function () {
+  this.autorun(()=>{
+    this.subscribe("fundNames");
+  });
 });

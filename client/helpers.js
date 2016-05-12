@@ -347,7 +347,6 @@ Template.registerHelper( 'stripe_ach_verification_type', () => {
 
 Template.registerHelper('donor_tools_site', function() {
   let config = ConfigDoc();
-
   if (config && config.Settings && config.Settings.DonorTools && config.Settings.DonorTools.url) {
     return config.Settings.DonorTools.url;
   }

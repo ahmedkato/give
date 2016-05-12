@@ -480,3 +480,13 @@ Meteor.publish("emailSubscriptions", function () {
     } );
   }
 });
+
+Meteor.publish("fundNames", function () {
+  if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
+    return DT_funds.find( {} , {
+      fields: {
+        name: 1
+      }
+    } );
+  }
+});
