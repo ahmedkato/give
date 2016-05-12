@@ -197,7 +197,7 @@ Meteor.publish("publish_for_admin_give_form", function () {
 
     var customers = Customers.find({});
     var devices = Devices.find({});
-    return[customers, devices];
+    return [customers, devices];
 
   } else {
     // user not authorized. do not publish

@@ -63,7 +63,7 @@ Router.onBeforeAction(function() {
     this.next();
   }
 }, {
-  only: ['AdminTrips', 'AdminTrip']
+  only: ['TripsAdmin', 'TripAdmin']
 });
 
 Router.onBeforeAction(function() {
@@ -73,7 +73,7 @@ Router.onBeforeAction(function() {
     this.next();
   }
 }, {
-  only: ['MemberTrips', 'MemberTrip', 'Trips']
+  only: ['TripsMember', 'TripMember', 'Trips']
 });
 
 Router.route('', {
@@ -524,10 +524,10 @@ Router.route('/trips/admin', {
 });
 
 Router.route('/trips/admin/:_id', function() {
-  var params = this.params;
-
-  this.subscribe('trips', params._id);
   this.layoutTemplate = 'AdminLayout';
+
+  var params = this.params;
+  this.subscribe('trips', params._id);
 
   if (this.ready()) {
     this.render('TripAdmin');

@@ -95,6 +95,32 @@ function checkForDuplicateGroupNames(givingOptions) {
   return dupArr;
 }
 
+function updateText( id, type, value ) {
+  let config = ConfigDoc();
+  $("#" + id).removeClass("backgroundColor");
+  $("#" + id).removeClass("indianred");
+  // Store all the current options
+  let configOptions = config && config.Giving && config.Giving.options;
+  // Find the indexOf this particular option
+  let elementPos = configOptions.map(function(x) {
+    return x.id ? x.id : x.groupId;
+  }).indexOf(id);
+  
+  // Update the matching object
+  if (type === 'text') {
+    configOptions[elementPos].text = value;
+  } else if (type === 'description') {
+    configOptions[elementPos].description = value;
+  }
+
+  // Store the new version of the configOptions
+  Config.update({_id: config._id}, {
+    $set: {
+      'Giving.options': configOptions
+    }
+  });
+}
+
 Template.GivingOptions.events({
   'click #addGroupButton': function () {
     let config = ConfigDoc();
@@ -104,6 +130,23 @@ Template.GivingOptions.events({
         "Giving.options": {
           groupId: Random.id([8]),
           type: 'group',
+          position: $(".selected-options").length
+        }
+      }
+    });
+  },
+  'click #addTripsOption': function (e) {
+    e.preventDefault();
+    console.log('Clicked addTripsOption');
+    let config = ConfigDoc();
+
+    Config.update({_id: config._id}, {
+      $addToSet: {
+        "Giving.options": {
+          id: 'trips',
+          text: 'trips',
+          description: '',
+          type: 'option',
           position: $(".selected-options").length
         }
       }
@@ -209,49 +252,22 @@ Template.GivingOptions.events({
       location.reload();
     }
   },
-  'change .editable-content': _.debounce(function(e){
-    let text;
-    let description;
-    let id;
-    let config = ConfigDoc();
-
-    if ($(e.currentTarget).hasClass("group-option")) {
-      text = $(e.currentTarget).val();
-      id = $(e.currentTarget).attr("data-el-id");
-      $("#" + id).removeClass("backgroundColor");
-      $("#" + id).removeClass("indianred");
-    } else {
-      let type = $(e.currentTarget).attr("data-text-type");
-      id = $(e.currentTarget).attr("data-el-id");
-      if (type === "text") {
-        text = $(e.currentTarget).val();
-        $("#" + id).removeClass("backgroundColor");
-        $("#" + id).removeClass("indianred");
-      } else {
-        description = $(e.currentTarget).val();
-      }
-    }
-
-
-    // Store all the current options
-    let configOptions = config && config.Giving && config.Giving.options;
-    // Find the indexOf this particular option
-    let elementPos = configOptions.map(function(x) {return x.id ? x.id : x.groupId; }).indexOf(id);
-    // Update the matching object
-    if (text) {
-      configOptions[elementPos].text = text;
-    } else if (description) {
-      configOptions[elementPos].description = description;
-    } else {
-      configOptions[elementPos].text = text;
-    }
-    // Store the new version of the configOptions
-    Config.update({_id: config._id}, {
-      $set: {
-        'Giving.options': configOptions
-      }
-    });
-  },100),
+  'keyup .group-input': _.debounce(function(e) {
+    let id = $(e.currentTarget).attr("data-el-id");
+    let text = $(e.currentTarget).val();
+    console.log(id, text);
+    updateText(id, 'text', text);
+  }, 500),
+  'keyup .option-text': _.debounce(function(e) {
+    let id = $(e.currentTarget).attr("data-el-id");
+    let text = $(e.currentTarget).val();
+    updateText(id, 'text', text);
+  }, 500),
+  'keyup .option-description': _.debounce(function(e) {
+    let id = $(e.currentTarget).attr("data-el-id");
+    let description = $(e.currentTarget).val();
+    updateText(id, 'description', description);
+  }, 500),
   'click .remove-item': function(e) {
     e.preventDefault();
     let dtId = $(e.currentTarget).attr('data-el-id');
@@ -305,7 +321,6 @@ Template.GivingOptions.events({
     });
   },
   'click .clear-image': function() {
-
     if (!confirm( "Are you sure you want to delete that image?" )) {
       return;
     }
@@ -465,4 +480,5 @@ Template.GivingOptions.onRendered(function () {
       $(".dd-container").addClass("text-center");
     }, 1000);
   }
+  $( "[data-toggle='tooltip']" ).tooltip();
 });

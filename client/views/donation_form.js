@@ -245,9 +245,6 @@ Template.DonationForm.helpers({
   dt_source: function() {
     return Session.get('params.dt_source');
   },
-  donation_note: function() {
-    return Session.get('params.note');
-  },
   today: function() {
     return moment().format('D MMM, YYYY');
   },

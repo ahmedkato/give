@@ -31,6 +31,10 @@ Template.registerHelper('writeInValue', function() {
   return Session.get('params.enteredWriteInValue');
 });
 
+Template.registerHelper('donation_note', function() {
+  return Session.get('params.note');
+});
+
 Template.registerHelper('logged_in', function(context) {
   let user = Meteor.user();
   if (user && user.profile) {

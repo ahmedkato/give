@@ -188,6 +188,14 @@ Template.UserGive.onRendered(function () {
 
   $('#donateWith').change();
   $("[name='donateTo']").change();
+
+  // setup modal for entering give toward information
+  if (Session.equals('params.donateTo', 'trips')) {
+    $('#modal_for_trips').modal({
+      show: true,
+      backdrop: 'static'
+    });
+  }
 });
 
 Template.UserGive.onDestroyed( function() {

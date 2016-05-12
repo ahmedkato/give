@@ -22,6 +22,14 @@
                           </h3>
                       {{/if}}
                     <button id="addGroupButton" class="btn btn-primary">+ Add Group</button>
+                    <button
+                        id="addTripsOption"
+                        class="btn btn-primary"
+                        data-toggle="tooltip"
+                        title="This will create a special 'Trips' option which
+                        will prompt the donor to select the trip and participant
+                        they would like to support (setup Trips using that module
+                        in the Dashboard).">+ Add a Trips Option</button>
                     {{#if givingOptions}}
                         <!-- TODO: use this button to create a dropdown option for allowing users to write in a different option
                         Basically if you clicked this button you'd be adding a group that doesn't connect to a fund, but instead uses
@@ -61,7 +69,9 @@
                                  id="selectedGivingOptionsDiv">
                                 {{#each givingOptions}}
                                     {{#if $eq type "option"}}
-                                        <div id="{{id}}" class="row selected-options">
+                                        <div id="{{id}}"
+                                            class="row selected-options"
+                                            title="Fund ID: {{id}}">
                                             <div class="col-md-1">
                                                 <div class="">
                                                     <i class="fa fa-2x fa-arrows"></i>
@@ -96,14 +106,12 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-7">
-                                                <input class="editable-content"
+                                                <input class="option-text"
                                                     data-el-id="{{id}}"
-                                                    data-text-type="text"
                                                     value="{{text}}"
                                                     placeholder="name">
-                                                <input class="editable-content"
+                                                <input class="option-description"
                                                     data-el-id="{{id}}"
-                                                    data-text-type="description"
                                                     value="{{description}}"
                                                     placeholder="description">
                                             </div>
@@ -120,7 +128,7 @@
                                         <div id="{{groupId}}" class="row selected-options group-option">
                                             <div class='input-group margin-bottom-sm select-group'>
                                                 <span class="input-group-addon"><i class="fa fa-arrows fa-fw"></i></span>
-                                                <input type='text' class='form-control slim-borders editable-content group-option'
+                                                <input type='text' class='form-control slim-borders group-option group-input'
                                                        value="{{text}}"
                                                        data-el-id="{{groupId}}">
                                                 <span class="input-group-addon remove-item stop-this pointer-mouse"

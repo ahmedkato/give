@@ -42,11 +42,14 @@
                 </div>
             </div>
             <div class="text-center">
-                <div class="">
-                    <label id="giftDesignationText" style="display: none;">
-                        <strong>Your gift is designated to "{{writeInValue}}"</strong>
+                <label id="giftDesignationText" style="display: none;">
+                    <strong>Your gift is designated to "{{writeInValue}}"</strong>
+                </label>
+                {{#if donation_note}}
+                    <label id="giftNoteText">
+                        <h5><strong>Gift note: {{donation_note}}</strong></h5>
                     </label>
-                </div>
+                {{/if}}
             </div>
         </div>
     </div>
