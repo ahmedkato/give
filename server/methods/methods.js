@@ -660,13 +660,20 @@ Meteor.methods({
 
     return total_kids;
   },
-  get_dt_name: function (id) {
+  get_dt_name: function (id, dtDonationId) {
     logger.info("Started get_dt_name method");
     check(id, Number);
-    
+    check(dtDonationId, Match.Optional(String));
+
     if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
       this.unblock();
       try {
+        if (dtDonationId && !DT_donations.findOne({_id: Number(dtDonationId)})) {
+          // Get the donation from DT
+          let donation = Utils.http_get_donortools( '/donations/' + dtDonationId + '.json' );
+          console.log(donation);
+        }
+
         // Get the persona from DT
         let persona_result = Utils.http_get_donortools( '/people/' + id + '.json' );
 
@@ -674,6 +681,29 @@ Meteor.methods({
           return persona_result.data.persona;
         } else {
           return null;
+        }
+      } catch( e ) {
+        // Got a network error, time-out or HTTP error in the 400 or 500 range.
+        return false;
+      }
+    } else {
+      return;
+    }
+  },
+  get_dt_donation: function (dtDonationId) {
+    logger.info("Started get_dt_donation method");
+    check(dtDonationId, String);
+    console.log(dtDonationId);
+
+    if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
+      this.unblock();
+      try {
+        if (dtDonationId && !DT_donations.findOne({_id: Number(dtDonationId)})) {
+          // Get the donation from DT
+          let donation = Utils.http_get_donortools( '/donations/' + dtDonationId + '.json' );
+          console.log(donation);
+          DT_donations.upsert({_id: Number(dtDonationId)}, {$set: donation.data.donation});
+          return donation.data.donation.id;
         }
       } catch( e ) {
         // Got a network error, time-out or HTTP error in the 400 or 500 range.

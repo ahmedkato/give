@@ -216,9 +216,10 @@ Template.StripeTransferDetails.helpers({
   retrieve_dt_names: function () {
     if (this.object === 'charge') {
       let dt_donation = DT_donations.findOne({'transaction_id': this._id});
-      if(dt_donation && dt_donation.persona_id){
-        if(!Session.get(dt_donation.persona_id)) {
-          Meteor.call( "get_dt_name", dt_donation.persona_id, function ( err, result ) {
+      if (dt_donation && dt_donation.persona_id) {
+        if (!Session.get(dt_donation.persona_id)) {
+
+          Meteor.call( "get_dt_name", dt_donation.persona_id, this.metadata && this.metadata.dt_donation_id ? this.metadata.dt_donation_id : '', function ( err, result ) {
             if( err ) {
               console.error( err );
               // TODO: need to query DT for the latest version of this dt_donation record
@@ -231,13 +232,35 @@ Template.StripeTransferDetails.helpers({
         } else {
           return;
         }
+      } else if (!Session.equals(this.metadata && this.metadata.dt_donation_id, true)) {
+        Meteor.call( "get_dt_donation",
+          this.metadata &&
+          this.metadata.dt_donation_id ?
+            this.metadata.dt_donation_id :
+            '',
+          function ( err, result ) {
+            if( err ) {
+              console.error( err );
+              // TODO: need to query DT for the latest version of this dt_donation record
+              // it may be that the person was merged and their persona_id in this dt_donation
+              // doesn't match any longer
+            } else {
+              Session.set( result, true );
+            }
+          }
+        );
       }
     } else {
       let dt_donation = DT_donations.findOne({'transaction_id': this.charge.id});
 
       if(dt_donation && dt_donation.persona_id){
         if(!Session.get(dt_donation.persona_id)) {
-          Meteor.call( "get_dt_name", dt_donation.persona_id, function ( err, result ) {
+          Meteor.call( "get_dt_name",
+            dt_donation.persona_id, this.charge &&
+            this.charge.metadata && this.charge.metadata.dt_donation_id ?
+              this.charge.metadata.dt_donation_id :
+              '',
+            function ( err, result ) {
             if( err ) {
               console.error( err );
               // TODO: need to query DT for the latest version of this dt_donation record
@@ -320,13 +343,15 @@ Template.StripeTransferDetails.helpers({
     }
   },
   getFundName(fundId){
+    if (isNaN(fundId)) {
+      return fundId;
+    }
     let dTFund = DT_funds.findOne({_id: fundId.toString()});
     if (dTFund && dTFund.name) {
       return dTFund.name;
     }
   }
 });
-
 
 Template.StripeTransferDetails.onCreated(function () {
   this.autorun(()=>{

@@ -67,7 +67,7 @@
               {{#if ($or $eq type "payment" $eq type "charge")}}
                   {{#with charges}}
                     <td style="width: 50px;">
-                      <a href="{{donor_tools_site}}donations?transaction_id={{_id}}" target="_blank">
+                      <a href="{{donor_tools_site}}/donations?transaction_id={{_id}}" target="_blank">
                         <div class="elipsis">
                           <i class="fa fa-link"></i>
                         </div>
@@ -127,7 +127,7 @@
                                  id="feesCovered" data-toggle="checkbox"
                                  class="cover-fees" {{fees_covered}} disabled>
                       </td>
-                      <td class="change-td-padding">{{charge.metadata.donateTo}}</td>
+                      <td class="change-td-padding">{{getFundName charge.metadata.donateTo}}</td>
                       <td class="change-td-padding">{{dt_source}}</td>
                       <td class="change-td-padding">{{charge.metadata.frequency}}</td>
                   {{/with}}
