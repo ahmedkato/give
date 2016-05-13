@@ -231,7 +231,6 @@ Template.registerHelper('forceACHDay', function() {
 });
 
 Template.registerHelper('onlyOnSpecificDay', function() {
-  let config = ConfigDoc();
   return "<i class='makeRightOfInput fa fa-question-circle' data-toggle='popover' " +
     "data-trigger='hover focus' data-container='body' " +
     "data-content='When giving by Check we can only accept monthly gifts for the day of the month shown in the box. Please allow 3 business days to process your gift.'>" +

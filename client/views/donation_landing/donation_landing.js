@@ -153,7 +153,6 @@ Template.DonationLanding.events({
   'click .guide-item': function (e) {
     e.preventDefault();
     let config = ConfigDoc();
-    let ddslick = $("#mainDD").data('ddslick');
     let index = groupIndex(config, this.groupId);
     $('#mainDD').ddslick('select', {index: index.toString() });
     $(".guide-item").addClass("dim-area");

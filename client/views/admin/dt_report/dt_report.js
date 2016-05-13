@@ -24,7 +24,7 @@ Template.DtReport.events({
     });
 
   },
-  'click #show-dt-split': function ( e ) {
+  'click #show-dt-split': function () {
     var showDataButton   = $("#show-dt-split").button('loading');
     // use these to total the groups a-c for sub-results base on 1 month.
 

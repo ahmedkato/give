@@ -602,67 +602,7 @@ _.extend(Utils,{
       throw new Meteor.Error(e);
     }
   },
-  send_manually_processed_initial_email: function(donation_id, customer_id) {
-    logger.info("Started send_manually_processed_initial_email");
-    if (!(config && config.Services && config.Services.Email && config.Services.Email.pending)) {
-      logger.warn("No initial template specified, so no initial email will be sent.");
-      return;
-    }
-
-    let audit_trail_id = Audit_trail.upsert({donation_id: donation_id}, {
-      $set: {
-        'charge.pending.sent': true,
-        'charge.pending.time': new Date()
-      }
-    });
-    let audit_trail_cursor = Audit_trail.findOne({_id: audit_trail_id});
-    let donation_cursor = Donations.findOne({_id: donation_id});
-
-    var customer_cursor = Customers.findOne({_id: customer_id});
-    if (!customer_cursor) {
-      logger.error("No customer found here, exiting.");
-      return;
-    }
-
-    let name;
-    if (customer_cursor && customer_cursor.metadata && customer_cursor.metadata.business_name) {
-      name = customer_cursor.metadata.business_name + "<br>" +
-        customer_cursor.metadata.fname + " " + customer_cursor.metadata.lname;
-    } else {
-      name = customer_cursor.metadata.fname + " " + customer_cursor.metadata.lname;
-    }
-
-    let data_slug = {
-      "template_name": config.Services.Email.pending,
-      "template_content": [
-        {}
-      ],
-      "message": {
-        "global_merge_vars":  [
-          {
-            "name":    "CreatedAt",
-            "content": moment(donation_cursor.created_at).format("MM/DD/YYYY hh:mm a")
-          }, {
-            "name":    "DEV",
-            "content": Meteor.settings.dev
-          }, {
-            "name":    "TotalGiftAmount",
-            "content": (donation_cursor.total_amount / 100).toFixed( 2 )
-          }, {
-            "name": "FULLNAME",
-            "content": name
-          }
-        ]
-      }
-    };
-
-    Utils.send_mandrill_email(data_slug, 'charge.pending', customer_cursor.email, 'Donation');
-  },
 	send_mandrill_email: function(data_slug, type, to, subject){
-    // TODO: for initial, successful and manually processed send to the subscribers function
-    // which should return [bcc_addresses]
-    // which should be used to send to the notices email  
-
     try{
       logger.info("Started send_mandrill_email type: " + type);
       let config = ConfigDoc();

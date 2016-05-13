@@ -52,7 +52,8 @@ AutoForm.hooks({
     onSuccess: function () {
       onFormSuccess();
     },
-    onError: function(formType, error) {
+    onError: function(error) {
+      console.error(error);
       onFormError();
     },
     onSubmit: function (insertDoc) {
@@ -62,6 +63,7 @@ AutoForm.hooks({
           console.error(err);
           onFormError();
         } else {
+          console.log(res);
           AutoForm.resetForm('fundraisers-form');
           $("[type='submit']").prop("disabled", false);
           $("[type='submit']").removeAttr("disabled");

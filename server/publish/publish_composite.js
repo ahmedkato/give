@@ -2,14 +2,14 @@ Meteor.publishComposite('transactions', function (transfer_id) {
   check(transfer_id, Match.Optional(String));
   if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
     return {
-      find:     function () {
+      find: function () {
         return Transactions.find( {
           $and: [{ transfer_id: transfer_id }, { type: { $ne: 'transfer' } }]
         } );
       },
       children: [
         {
-          find:     function ( transactions ) {
+          find: function ( transactions ) {
             if(transactions.source.slice(0,3) === 'pyr' || transactions.source.slice(0,3) === 're_'){
               return Refunds.find(
                 { _id: transactions.source },
@@ -54,17 +54,7 @@ Meteor.publishComposite('transactions', function (transfer_id) {
           children: [
             {
               find: function ( charges ) {
-                if(charges.object === 'refund'){
-                  let customer = Customers.find(
-                    { _id: charges.charge.customer },
-                    {
-                      limit:  1,
-                      fields: {
-                        id: 1,
-                        email:    1,
-                        metadata: 1
-                      }
-                    } ).fetch();
+                if (charges.object === 'refund') {
                   return Customers.find(
                     { _id: charges.charge.customer },
                     {

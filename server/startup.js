@@ -10,20 +10,6 @@ Meteor.startup( function() {
       config.Services.Kadira.appId, config.Services.Kadira.appSecret
     );
   }
-  let jobs = [
-    {
-      name: 'Send monthly report emails',
-      frequency: "recur().first().dayOfMonth().on('18:00:00').time()"
-    },
-    {
-      name: 'Send weekly report emails',
-      frequency: "recur().first().dayOfMonth().on('18:00:00').time()"
-    },
-    {
-      name: 'Send daily report emails',
-      frequency: "recur().first().dayOfMonth().on('18:00:00').time()"
-    }
-  ];
 
   // TODO: convert the time entry below to something that is pulled in from
   // a admin entered settings

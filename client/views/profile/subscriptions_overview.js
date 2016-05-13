@@ -94,10 +94,6 @@ Template.SubscriptionsOverview.helpers({
   canceled_reason: function () {
     return this.metadata && this.metadata.canceled_reason;
   },
-  bank: function() {
-    var id = this._id;
-    var subscription = Subscriptions.findOne({id: _id});
-  },
   donateTo: function() {
     if (this.metadata && this.metadata.donateTo) {
       if (! isNaN(this.metadata.donateTo)) {

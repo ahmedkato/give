@@ -121,7 +121,6 @@ Template.DonationForm.events({
       $('#modal_for_write_in').modal({
         show: true,
         backdrop: 'static'
-      }, function(e) {
       });
     }
 

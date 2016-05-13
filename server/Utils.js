@@ -175,17 +175,17 @@ Utils = {
       } );
 
     var insertedPersonaInfo = Meteor.users.update( {
-        _id:               Meteor.userId(),
+        _id: Meteor.userId(),
         'persona_info.id': dt_persona_id
-      },
-      {
-        $set: {
+      },{ $set: {
           'persona_info.$': update_persona.data.persona
         }
-      } );
+      }
+    );
   },
   getFundHistory( fundId, dateStart, dateEnd ) {
-    logger.info( "Got to getFundHistory with fund_id: " + fundId );
+    logger.info( "Got to getFundHistory with fund_id: " + fundId +
+      "Start Date: " + dateStart + " End Date: " + dateEnd);
 
     var totalPages = 3;
     for( i = 1; i <= totalPages; i++ ) {
@@ -197,23 +197,18 @@ Utils = {
 
         Utils.store_splits( dataResults.data );
         totalPages = dataResults.headers['pagination-total-pages'];
-        console.dir( dataResults );
       } else {
         dataResults = Utils.http_get_donortools( '/splits.json?basis=cash&fund_id=' +
           fundId + '&page=' + i + '&per_page=1000' );
-
         Utils.store_splits( dataResults.data );
         totalPages = dataResults.headers['pagination-total-pages'];
-        console.dir( dataResults );
       }
     }
   },
   store_splits( donations ) {
     donations.forEach( function ( split ) {
-      //console.log(split.split);
       DT_splits.upsert( { _id: split.split.id }, { $set: split.split } );
     } );
-
   },
   update_dt_donation_status( event_object ) {
     logger.info( "Started update_dt_donation_status" );
@@ -1037,10 +1032,6 @@ Utils = {
     // Now send these changes off to Stripe to update the record there.
     Utils.update_invoice_metadata( stripeEvent );
   },
-  stripe_get_subscription( invoice_id ) {
-    logger.info( "Started stripe_get_subscription" );
-
-  },
   update_stripe_customer(form, dt_persona_id) {
     logger.info( "Inside update_stripe_customer." );
 
@@ -1058,8 +1049,8 @@ Utils = {
     customers.forEach( function ( customer_id ) {
       console.log( customer_id );
 
-      let stripeCustomerUpdate = StripeFunctions.stripe_update( 'customers', 'update',
-        customer_id, '', {
+      let stripeCustomerUpdate = StripeFunctions.stripe_update( 'customers',
+        'update', customer_id, '', {
           "metadata": {
             "city":          form.address.city,
             "state":         form.address.state,
@@ -1471,7 +1462,6 @@ Utils = {
       return user_id;
     } catch( e ) {
       logger.info( e );
-      //e._id = AllErrors.insert(e.response);
       var error = (e.response);
       throw new Meteor.Error( error, e._id );
     }
@@ -1490,18 +1480,17 @@ Utils = {
         { name: 'giveYearly', interval: 'year' }
       ];
 
-      stripe_plans.forEach( function ( plan ) {
+      stripe_plans.forEach( function (plan) {
         // for each of the plans run the Stripe get function (to see if the plan exists)
         // then run the create function if it does not exist
-        let stripePlan = Utils.retrieve_stripe_plan( plan.name );
-        console.log( stripePlan );
-        if( !stripePlan ) {
-          let newStripePlan = Utils.create_stripe_plan( plan );
+        let stripePlan = Utils.retrieve_stripe_plan(plan.name);
+        logger.info(stripePlan);
+        if (!stripePlan) {
+          let newStripePlan = Utils.create_stripe_plan(plan);
         }
       } );
-    } catch( e ) {
-      logger.error( e );
-      //e._id = AllErrors.insert(e.response);
+    } catch(e) {
+      logger.error(e);
       var error = (e.response);
       throw new Meteor.Error( error, e._id );
     }
@@ -1518,10 +1507,8 @@ Utils = {
       let stripePlan = StripeFunctions.stripe_retrieve( 'plans', 'retrieve', name, '' );
 
       return stripePlan;
-    } catch( e ) {
+    } catch(e) {
       logger.error( e );
-      //e._id = AllErrors.insert(e.response);
-      var error = (e.response);
       return;
     }
   },

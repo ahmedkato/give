@@ -94,12 +94,12 @@ Template.UserGive.events({
   }, 300),
     // disable mousewheel on a input number field when in focus
     // (to prevent Chromium browsers change of the value when scrolling)
-  'focus #amount': function(e) {
+  'focus #amount': function() {
     $('#amount').on('mousewheel.disableScroll', function(e) {
       e.preventDefault();
     });
   },
-  'blur #amount': function(e) {
+  'blur #amount': function() {
     $('#amount').on('mousewheel.disableScroll', function(e) {
       e.preventDefault();
     });

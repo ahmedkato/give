@@ -162,7 +162,6 @@ Meteor.publish("userStripeDataWithSubscriptions", function () {
   if (this.userId) {
       var customers = Customers.find({'metadata.user_id': this.userId});
       var customer_ids = [];
-      var subscription_ids = [];
 
       customers.forEach(function(element) {
           customer_ids.push(element.id);

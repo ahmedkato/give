@@ -535,7 +535,6 @@ Meteor.methods({
 
     if (Roles.userIsInRole(this.userId, ['admin'])) {
       try {
-        //Check the form to make sure nothing malicious is being submitted to the server
         check(id, String);
         check(process, Boolean);
 
@@ -545,11 +544,9 @@ Meteor.methods({
           return "Sent to control_flow_of_stripe_event_processing for processing";
         } else {
           let stripeEvent = StripeFunctions.stripe_retrieve('events', 'retrieve', id, '');
-
-          var event = Stripe_Events[stripeEvent.type]( stripeEvent );
+          Stripe_Events[stripeEvent.type]( stripeEvent );
           return stripeEvent;
         }
-
       } catch (e) {
         logger.info(e);
         //e._id = AllErrors.insert(e.response);
@@ -1286,9 +1283,7 @@ Meteor.methods({
           let amount = dtSplits.fetch().reduce(function ( prevValue, item ) {
             return prevValue + item.amount_in_cents;
           }, 0);
-
-          console.log("AMOUNT: " + amount);
-
+          
           Trips.update({fundId: fundId}, {$set: {
             fundTotal: amount/100
           }});

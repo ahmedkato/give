@@ -114,7 +114,7 @@ Template.SubscriptionModal.events({
     Session.set("yes_change_designation", false);
     $('#designationSection').hide();
   },
-  'click .close': function (e) {
+  'click .close': function () {
     Session.set("yes_change_date", false);
     Session.set("yes_change_designation", false);
     $('#calendarSection').hide();

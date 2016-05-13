@@ -59,11 +59,11 @@ function sortableFunction () {
         ui.sender.data('copied', true);
         sortableIn = 1;
       },
-      over: function( e, ui ) {
+      over: function() {
         sortableIn = 1;
         $('.sorting' ).removeClass("out-sortable");
       },
-      out: function( e, ui ) {
+      out: function() {
         sortableIn = 0;
         $('.sorting' ).addClass("out-sortable");
       },

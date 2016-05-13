@@ -11,7 +11,6 @@ function setupDonateTo(){
   var givingOptions = config && config.Giving && config.Giving.options;
 
   let donateTo = Session.get("params.donateTo");
-  let note = Session.get("params.note");
   let fund = DT_funds.findOne({_id: donateTo});
 
   if( givingOptions && givingOptions.length > 0 ) {
@@ -60,7 +59,6 @@ Template.DonationTo.events({
       $('#modal_for_write_in').modal({
         show: true,
         backdrop: 'static'
-      }, function(e) {
       });
     }
     Session.set('params.donateTo', $('#donateTo').val());
@@ -85,4 +83,3 @@ Template.DonationTo.onRendered(function() {
     $("#is_recurring").val(Session.get('params.recurring'));
   }
 });
-

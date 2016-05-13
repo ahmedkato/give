@@ -438,6 +438,7 @@ _.extend(StripeFunctions, {
     }
     // Add the user_id to the Stripe customer metadata
     add_user_id_to_customer_metadata = StripeFunctions.add_user_id_to_customer_metadata(user_id, customer.id);
+    logger.info(add_user_id_to_customer_metadata);
 
     // Send the user_id back to the calling function
     return user_id;

@@ -73,7 +73,7 @@ Template.Settings.helpers({
 Template.Settings.events({
   // check to see if the ACH verification type is set to manual
   // if it is then change the dependant values by removing their disabled state
-  'change [name="Settings.ach_verification_type"]': function(e) {
+  'change [name="Settings.ach_verification_type"]': function() {
     checkDependantStates();
   }
 });

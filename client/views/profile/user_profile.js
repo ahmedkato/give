@@ -158,7 +158,7 @@ Template.UserProfile.events({
     //setup modal for entering give toward information
     $('#modal_for_address_change').modal({show: true, static: true});
   },
-  'submit form': function (evt, tmpl) {
+  'submit form': function (evt) {
     evt.preventDefault();
     evt.stopPropagation();
     var fields = {
@@ -188,14 +188,14 @@ Template.UserProfile.events({
      }
     });
   },
-  'click .previous': function(evt, tmpl){
+  'click .previous': function(evt){
     evt.preventDefault();
     evt.stopPropagation();
     if(Number(Session.get('dt_donations_cursor')> 9)){
       Session.set('dt_donations_cursor', Number(Session.get('dt_donations_cursor')-10));
     }
   },
-  'click .next': function(evt, tmpl){
+  'click .next': function(evt){
     evt.preventDefault();
     evt.stopPropagation();
     Session.set('dt_donations_cursor', Number(Session.get('dt_donations_cursor')+10));
