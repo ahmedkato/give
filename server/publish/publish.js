@@ -225,8 +225,14 @@ Meteor.publish("userDT", function (id) {
   var userID;
 
   if (this.userId) {
-    if(id){
-      userID = id;
+    if (id) {
+      if (Roles.userIsInRole(this.userId, ['super-admin', 'admin'])) {
+        userID = id;
+      } else {
+        logger.warn('This user: ' + this.userId + ' attempted to use an id to ' +
+          'view Donor Tools data inside the userDT publication');
+        this.ready();
+      }
     } else {
       userID = this.userId;
     }
@@ -234,7 +240,7 @@ Meteor.publish("userDT", function (id) {
     this.ready();
   }
 
-  if(Meteor.users.findOne({_id: userID}) && Meteor.users.findOne({_id: userID}).persona_ids) {
+  if (Meteor.users.findOne({_id: userID}) && Meteor.users.findOne({_id: userID}).persona_ids) {
     var persona_ids = Meteor.users.findOne({_id: userID}).persona_ids;
     console.log(persona_ids);
     return DT_donations.find({persona_id: {$in: persona_ids}});

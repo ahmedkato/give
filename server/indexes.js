@@ -25,6 +25,7 @@ Meteor.startup(function () {
   Customers._ensureIndex( { 'id': 1 } );
   Customers._ensureIndex( { 'customer': 1 } );
   Customers._ensureIndex( { 'metadata.dt_persona_id': 1 } );
+  Customers._ensureIndex( { 'metadata.user_id': 1 } );
 
   Devices._ensureIndex( { 'id': 1 } );
   Devices._ensureIndex( { 'customer': 1 } );
