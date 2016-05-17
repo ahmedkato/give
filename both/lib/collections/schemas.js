@@ -15,9 +15,8 @@ function configBasicsSetup() {
     config.Settings.Stripe.keysSecretExists &&
     config.Giving && config.Giving.options) {
     return true;
-  } else {
-    return false;
   }
+  return false;
 }
 
 Schema = {};
@@ -677,7 +676,6 @@ Schema.Trips = new SimpleSchema({
     type: String,
     autoValue: function() {
       if( this.isInsert ) {
-        console.log( this.userId );
         return Random.id([6]);
       }
     },
