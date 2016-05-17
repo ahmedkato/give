@@ -2,7 +2,6 @@
 Security.permit(['insert', 'update', 'remove'])
   .collections(
   [
-    AllErrors,
     Audit_trail,
     BankAccounts,
     Charges,

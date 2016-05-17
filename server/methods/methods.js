@@ -97,7 +97,6 @@ Meteor.methods({
       }
     } catch (e) {
       logger.info(e);
-      //e._id = AllErrors.insert(e.response);
       var error = (e.response);
       throw new Meteor.Error(error, e._id);
     }
@@ -549,7 +548,6 @@ Meteor.methods({
         }
       } catch (e) {
         logger.info(e);
-        //e._id = AllErrors.insert(e.response);
         var error = (e.response);
         throw new Meteor.Error(error, e._id);
       }

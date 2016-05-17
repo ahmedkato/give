@@ -12,7 +12,6 @@
     "unused": true,
     "predef": [
       "Meteor",
-      "AllErrors",
       "Audit_trail",
       "Charges",
       "Config",
