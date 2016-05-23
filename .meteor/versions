@@ -72,7 +72,7 @@ meteor@1.1.14
 meteor-base@1.0.4
 meteorhacks:aggregate@1.3.0
 meteorhacks:collection-utils@1.2.0
-meteorhacks:kadira@2.28.6
+meteorhacks:kadira@2.28.7
 meteorhacks:kadira-binary-deps@1.4.0
 meteorhacks:kadira-profiler@1.2.1
 meteorhacks:meteorx@1.4.1
@@ -100,11 +100,6 @@ ongoworks:security@1.3.0
 ordered-dict@1.0.7
 percolate:synced-cron@1.3.2
 pfafman:font-awesome-4@4.6.1
-practicalmeteor:chai@2.1.0_1
-practicalmeteor:loglevel@1.2.0_2
-practicalmeteor:mocha@2.4.5_2
-practicalmeteor:mocha-core@0.1.4
-practicalmeteor:sinon@1.14.1_2
 promise@0.6.7
 raix:eventemitter@0.1.3
 raix:handlebar-helpers@0.2.5
@@ -132,7 +127,6 @@ templating@1.1.9
 templating-tools@1.0.4
 themeteorchef:bert@2.1.0
 themeteorchef:jquery-validation@1.14.0
-tmeasday:test-reporter-helpers@0.2.1
 tomi:upload-jquery@2.4.0
 tomi:upload-server@1.3.4
 tracker@1.0.13

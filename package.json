@@ -41,9 +41,11 @@
     ]
   },
   "dependencies": {
+    "chai": "^3.5.0",
     "cron": "^1.1.0",
     "fs": "0.0.2",
     "jquery": "^2.2.3",
-    "later": "^1.2.0"
+    "later": "^1.2.0",
+    "meteor-node-stubs": "^0.2.3"
   }
 }

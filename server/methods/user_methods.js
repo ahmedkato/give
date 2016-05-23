@@ -269,9 +269,9 @@ Meteor.methods({
       address_city: String,
       address_state: String,
       address_zip: String,
-      country: Match.Optional(String)
+      country: Match.Optional(String),
+      currency: String
     });
-    console.log("Got past check");
     let bank = BankAccounts.insert(bankInfo);
     return bank;
   },

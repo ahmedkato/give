@@ -859,7 +859,7 @@ Meteor.methods({
     quantity && quantity !== 0 ? fields.prorate = false : trial_end ? fields.prorate = false : null;
     trial_end ? fields.trial_end = trial_end : null;
     donateTo ? fields.metadata ? fields.metadata.donateTo = donateTo: fields.metadata = {donateTo: donateTo} : null;
-    console.log(fields);
+    logger.info(fields);
     this.unblock();
 
     if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
@@ -1141,11 +1141,9 @@ Meteor.methods({
     try {
       this.unblock();
       if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
-        console.log("Sending");
         let customer_id = Donations.findOne({_id: donation_id}).customer_id;
         let email = Customers.findOne({_id: customer_id}).email;
         let dt_persona_match_id = Utils.find_dt_persona_flow( email, customer_id );
-        console.log(dt_persona_match_id);
 
         Utils.update_stripe_customer_dt_persona_id(customer_id, dt_persona_match_id);
 
@@ -1443,7 +1441,7 @@ Meteor.methods({
     let fundraiserEmail = Fundraisers.findOne({_id: fundraiserId}) &&
       Fundraisers.findOne({_id: fundraiserId}).email;
     let userEmail = Meteor.users.findOne({_id: this.userId}).emails[0].address;
-    console.log(userEmail);
+    logger.info(userEmail);
 
     // Make sure that this user can update the email subscription for this fundraiser
     // by checking that they both have the same email address

@@ -67,7 +67,7 @@ Template.ACH.helpers({
     return (this.total_amount / 100).toFixed(2);
   },
   'donationDate': function() {
-    return moment(this.start_date * 1000).format("MM/DD/YYYY");
+    return moment(this.start_date === 'today' ? (this.created_at * 1000): (this.start_date * 1000)).format("MM/DD/YYYY");
   },
   'disabledIfBeforeToday': function() {
     return (this.start_date > (new Date().getTime() / 1000 | 0)) ? 'disabled': '';
@@ -99,7 +99,6 @@ Template.ACH.events({
   'click .pending-setup': function() {
     let self = this;
 
-    console.log("pending setup clicked");
     swal({
       title: "Have you manually setup this ACH?",
       type: "info",

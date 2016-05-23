@@ -174,6 +174,9 @@ _.extend(Utils,{
           "name": "OrgName",
           "content": config.OrgInfo.name
         }, {
+          "name": "OrgFullName",
+          "content": config.OrgInfo.full_name
+        }, {
           "name": "OrgPhone",
           "content": config.OrgInfo.phone
         }, {
@@ -193,13 +196,16 @@ _.extend(Utils,{
           "content": config.OrgInfo.address.city
         }, {
           "name": "OrgState",
-          "content": config.OrgInfo.address.state
+          "content": config.OrgInfo.address.state_short
         }, {
           "name": "OrgZip",
           "content": config.OrgInfo.address.zip
         }, {
           "name": "OrgMissionStatement",
           "content": config.OrgInfo.mission_statement
+        }, {
+          "name": "OrgIs501c3",
+          "content": config.OrgInfo.is_501c3
         }
       );
     }
@@ -257,7 +263,8 @@ _.extend(Utils,{
 
     Utils.sendEmailNotice(emailObject);
   },
-  send_donation_email: function (recurring, id, amount, type, body, frequency, subscription) {
+  send_donation_email: function (recurring, id, amount, type, body,
+                                 frequency, subscription) {
     try {
       logger.info("Started send_donation_email with ID: " + id);
       let config = ConfigDoc();
@@ -588,11 +595,11 @@ _.extend(Utils,{
 
         let emailObject = {
           to: config.OrgInfo.emails.largeGift,
-          previewLine: 'Large Gift',
+          previewLine: 'A Partner just Gave $' + (amount/ 100).toFixed(2),
           type: 'Large Gift',
           message: 'A Partner just Gave $' + (amount/ 100).toFixed(2),
           buttonText: 'Receipt Link',
-          buttonURL: 'https://trashmountain.donortools.com/donations?transaction_id=' + charge_cursor._id
+          buttonURL: config.Settings.DonorTools.url + '/donations?transaction_id=' + charge_cursor._id
         };
 
         Utils.sendEmailNotice(emailObject);

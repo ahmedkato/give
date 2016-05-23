@@ -110,8 +110,8 @@ _.extend(StripeFunctions, {
    * @param {Object|String} stripeArgs - One or many arguments to be passed to the Stripe task
    */
   stripe_update: function ( stripeObject, stripeTask, stripeID, stripeSupportingID, stripeArgs ) {
-    logger.info("Started stripe_update");
-    console.log(stripeObject, stripeTask, stripeID, stripeSupportingID, stripeArgs);
+    logger.info("Started stripe_update with these parameters: ");
+    logger.info(stripeObject, stripeTask, stripeID, stripeSupportingID, stripeArgs);
 
     if (!stripeSupportingID) {
       let stripeResource = new Promise(function (resolve, reject) {

@@ -138,6 +138,7 @@ Utils = {
   },
   update_dt_account( form, dt_persona_id ) {
     logger.info( "Inside update_dt_account." );
+    let config = ConfigDoc();
 
     let get_dt_persona = Utils.http_get_donortools(
       '/people/' + dt_persona_id + '.json' );
@@ -212,6 +213,7 @@ Utils = {
   },
   update_dt_donation_status( event_object ) {
     logger.info( "Started update_dt_donation_status" );
+    let config = ConfigDoc();
 
     let transaction_id, get_dt_donation, update_donation, dt_donation_id;
 
@@ -399,7 +401,8 @@ Utils = {
     }
   },
   create_dt_account(customer, user_id) {
-    console.log( "Started create_dt_account" );
+    logger.info( "Started create_dt_account" );
+    let config = ConfigDoc();
 
     let metadata, newDTPerson, recognition_name, address_line2, is_company;
 
@@ -466,9 +469,10 @@ Utils = {
   insert_gift_into_donor_tools(charge_id, customer_id) {
     logger.info( "Started insert_gift_into_donor_tools" );
     logger.info( "Config Settings: " );
+    let config = ConfigDoc();
     logger.info( config.Settings );
 
-    console.log( "Charge_id: ", charge_id, " Customer_id: ", customer_id );
+    logger.info( "Charge_id: ", charge_id, " Customer_id: ", customer_id );
     let chargeCursor, dt_fund, donateTo, invoice_cursor,
       fund_id, memo, source_id, newDonationResult;
     var metadata;
@@ -543,7 +547,7 @@ Utils = {
       source_id = DONORTOOLSINDVSOURCEID;
     }
 
-    console.log( "Persona ID is: ", customerCursor.metadata.dt_persona_id );
+    logger.info( "Persona ID is: ", customerCursor.metadata.dt_persona_id );
 
     try {
       logger.info( "Started checking for this person in DT" );
@@ -611,10 +615,10 @@ Utils = {
   },
   insert_manual_gift_into_donor_tools(donation_id, customer_id, dt_persona_id) {
     logger.info( "Started insert_gift_into_donor_tools" );
-
-    console.log( "Donation_id: ", donation_id, " Customer_id: ", customer_id );
-    let donationCursor, dt_fund, donateTo, invoice_cursor,
-      fund_id, memo, source_id, newDonationResult, metadata;
+    logger.info( "Donation_id: ", donation_id, " Customer_id: ", customer_id );
+    let config = ConfigDoc();
+    let donationCursor, dt_fund, donateTo, fund_id, memo, source_id,
+      newDonationResult, metadata;
 
     donationCursor = Donations.findOne( { _id: donation_id } );
 
@@ -700,7 +704,7 @@ Utils = {
             "fund_id":         fund_id,
             "memo":            memo
           }],
-          "donation_type_id": config.Settings.DonorTools.customDataTypeId,
+          "donation_type_id": config.Settings.DonorTools.achFundIDForNonStripe,
           "received_on":      moment( new Date( donationCursor.created_at * 1000 ) ).format( "YYYY/MM/DD hh:mma" ),
           "source_id":        source_id,
           "payment_status":   'succeeded',
@@ -892,7 +896,7 @@ Utils = {
 
     stripeChargePlan._id = stripeChargePlan.id;
     logger.info( "Stripe charge Plan information" );
-    console.dir( stripeChargePlan );
+    logger.info( stripeChargePlan );
     // Add charge response from Stripe to the collection
     Subscriptions.insert( stripeChargePlan );
     Donations.update( { _id: donation_id }, { $set: { subscription_id: stripeChargePlan.id } } );
@@ -997,8 +1001,7 @@ Utils = {
         break;
       default:
         logger.info( "No case matched" );
-    }
-    ;
+    };
   },
   update_card(customer_id, card_id, saved) {
     logger.info( "Started update_card" );
@@ -1242,7 +1245,6 @@ Utils = {
     return stripeSubscriptionUpdate;
   },
   send_new_dt_account_added_email_to_support_email_contact(email, user_id, personaID) {
-
     logger.info( "Started send_new_dt_account_added_email_to_support_email_contact" );
     if( Audit_trail.findOne( { persona_id: personaID } ) &&
       Audit_trail.findOne( { persona_id: personaID } ).dt_account_created ) {
@@ -1250,9 +1252,7 @@ Utils = {
       return;
     }
     let wait_for_audit = Utils.audit_email( personaID, 'dt.account.created' );
-    let config = Config.findOne( {
-      'OrgInfo.web.domain_name': Meteor.settings.public.org_domain
-    } );
+    let config = ConfigDoc();
 
     //Create the HTML content for the email.
     //Create the link to go to the new person that was just created.
@@ -1334,9 +1334,7 @@ Utils = {
    */
   send_change_email_notice_to_admins(changeMadeBy, changeIn) {
     logger.info( "Started send_change_email_notice_to_admins" );
-    let config = Config.findOne( {
-      'OrgInfo.web.domain_name': Meteor.settings.public.org_domain
-    } );
+    let config = ConfigDoc();
 
     if( !(config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.support) ) {
       logger.warn( "No support email to send from." );
@@ -1625,7 +1623,7 @@ Utils = {
   },
   for_each_persona_insert(id_or_info, user_id) {
     logger.info( "Started for_each_persona_insert." );
-    console.log( id_or_info );
+    let config = ConfigDoc();
 
     if( id_or_info && id_or_info.length ) {
       if( id_or_info[0].id ) {
@@ -1893,6 +1891,7 @@ Utils = {
   insert_donation_and_donor_into_dt(customer_id, user_id, charge_id) {
     /*try {*/
     logger.info( "Started insert_donation_and_donor_into_dt" );
+    let config = ConfigDoc();
 
     var customer = Customers.findOne( customer_id );
     var charge = Charges.findOne( charge_id );
@@ -2094,6 +2093,7 @@ Utils = {
   insert_donation_into_dt(customer_id, user_id, persona_info, charge_id, persona_id) {
     try {
       logger.info( "Started insert_donation_into_dt" );
+      let config = ConfigDoc();
 
       //TODO: still need to fix the below for any time when the charge isn't being passed here, like for scheduled gifts
       if( Audit_trail.findOne( { _id: charge_id } ) && Audit_trail.findOne( { _id: charge_id } ).dt_donation_inserted ) {
@@ -2280,6 +2280,7 @@ Utils = {
    */
   configMandrill(){
     logger.info( "Started configMandrill" );
+    let config = ConfigDoc();
 
     Mandrill.config( {
       username: config.Services.Email.mandrillUsername,
@@ -2383,6 +2384,7 @@ Utils = {
           return;
         }
         let thisFundraiserId = item.fundraiserId;
+        let config = ConfigDoc();
 
         Template.SSRTripMember.helpers({
           trip() {

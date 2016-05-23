@@ -518,6 +518,14 @@ Schema.Settings = new SimpleSchema({
       placeholder: "Go to your Donor Tools page and then to /settings/donation_type to find or create the ID"
     }
   },
+  "DonorTools.achFundIDForNonStripe": {
+    type: Number,
+    label: "If not using Stripe for ACH, enter the data type ID for ACH",
+    optional: true,
+    autoform: {
+      placeholder: "The data type ID for manual ACH"
+    }
+  },
   "DonorTools.defaultFundId": {
     type: Number,
     label: "Default Fund ID",
