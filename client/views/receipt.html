@@ -37,7 +37,7 @@
         <!-- e: invoice header -->
 
         <section id="parties">
-            <div class="col-md-8 col-sm-6 col-xs-12">
+            <div class="col-md-8 col-sm-6 col-xs-6">
                 <h2>Donation To:</h2>
                 <div id="hcard" class="vcard">
                     <a class="url fn" href={{org_homepage_url}}>{{org_name}}</a><br>
@@ -54,7 +54,7 @@
                 </div><!-- e: vcard -->
                 <br>
             </div>
-            <div class="col-md-4 col-sm-6 col-xs-12">
+            <div class="col-md-4 col-sm-6 col-sm-offset-2 col-xs-4 col-xs-offset-2">
                 {{#with customer_data}}
                     <h2>Donation From:</h2>
                     <div id="hcard-{{fname}}-{{lname}}" class="vcard">

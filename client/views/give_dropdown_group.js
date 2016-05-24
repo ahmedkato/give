@@ -83,5 +83,8 @@ Template.GiveDropdownGroup.events({
   'change #donateWith': function() {
     var selectedValue = $("#donateWith").val();
     Session.set("UserPaymentMethod", selectedValue);
+  },
+  'click #start_date_button'(){
+    $("#start_date").select();
   }
 });

@@ -255,8 +255,8 @@ _.extend(Utils,{
          (stripeEvent.data.object.quantity / 100).toFixed(2) + ") that was using " +
          donateWith + ". The gift start date was " + start_date +
          ". The last time this recurring gift ran was " + last_gift +
-         ". The gift was canceled on " + canceled_date + ". The reason they gave was " +
-         stripeEvent.data.object.metadata.canceled_reason,
+         ". The gift was canceled on " + canceled_date + '. The reason they gave was "' +
+         stripeEvent.data.object.metadata.canceled_reason ? stripeEvent.data.object.metadata.canceled_reason + '"' : "None Given",
       buttonText: 'Donor Tools Person',
       buttonURL: config.Settings.DonorTools.url + '/people/' + customer_cursor.metadata.dt_persona_id
     };
@@ -595,9 +595,9 @@ _.extend(Utils,{
 
         let emailObject = {
           to: config.OrgInfo.emails.largeGift,
-          previewLine: 'A Partner just Gave $' + (amount/ 100).toFixed(2),
+          previewLine: 'A Partner Just Gave $' + (amount/ 100).toFixed(2),
           type: 'Large Gift',
-          message: 'A Partner just Gave $' + (amount/ 100).toFixed(2),
+          message: 'A Partner Just Gave $' + (amount/ 100).toFixed(2),
           buttonText: 'Receipt Link',
           buttonURL: config.Settings.DonorTools.url + '/donations?transaction_id=' + charge_cursor._id
         };

@@ -27,7 +27,7 @@
                                     <![endif]-->
                                     <span class="input-group-addon">$</span>
                                         <input {{attributes_Input_Amount}} type="digits" value="{{amount}}" class="form-control slim-borders"
-                                   required data-parsley-error-message="Please enter an amount with no commas." data-parsley-errors-container="#show-amount-error-here" />
+                                   required data-parsley-error-message="Please only use numbers in the amount." data-parsley-errors-container="#show-amount-error-here" />
                                 </div>
                                 <div id="show-amount-error-here"></div>
                             {{else}}
@@ -98,10 +98,9 @@
                             <div class="form-group">
                                 <label>{{#if forceACHDay}}{{else}}Choose {{/if}}Your Donation Start Date {{#if forceACHDay}}<span style="font-size: .8em;">{{{onlyOnSpecificDay}}}</span> {{/if}}</label>
                                 <div class="input-group">
-
-                                <span class="input-group-btn">
-                                    <button class="btn" type="button"><span class="fui-calendar"></span></button>
-                                </span>
+                                    <span class="input-group-btn">
+                                        <button class="btn" type="button" id="start_date_button"><span class="fui-calendar"></span></button>
+                                    </span>
                                     <input type="text"  class="form-control" {{forceACHDay}} value="{{today}}" id="start_date" />
                                 </div>
                             </div>

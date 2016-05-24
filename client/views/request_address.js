@@ -4,20 +4,21 @@
 Template.RequestAddress.events({
   'change #country': function(e, tmpl) {
     if($('#country').val() !== "US") {
-      $('#phone').hide().find('input, textarea').prop('disabled', true);
-      $('#phone, text').val("");
-      $('#phoneDiv').hide().find('input, textarea').prop('disabled', true);
+      $("#phone").unmask();
       $('#city').attr("placeholder", "City / Town");
       $('#region').attr("placeholder", "State / Province / Region");
       $('#postal_code').attr("placeholder", "ZIP / Postal Code");
+      $("#postal_code").attr("pattern", "");
+      $("#postal_code").attr("required", false);
     } else {
-      $('#phoneDiv').show().find('input, textarea').prop('disabled', false);
-      $('#phone').show().find('input, textarea').prop('disabled', false);
+      $("#phone").mask("(999) 999-9999");
+      $("#postal_code").attr("pattern", "(\d{5}([\-]\d{4})?)");
+      $("#postal_code").attr("required", true);
     }
   },
   'click #show_business_name': function () {
     $("#org").val('');
-    $( "#org_form_group" ).toggle();
+    $("#org_form_group").toggle();
   }
 });
 
@@ -107,13 +108,6 @@ Template.RequestAddress.helpers({
         name: "postal_code",
         id: "postal_code",
         placeholder: "Zip or Postal Code",
-        required: true
-      };
-    },
-    attributes_Select_Country: function() {
-      return {
-        name: "country",
-        id: "country",
         required: true
       };
     }

@@ -35,6 +35,7 @@ Template.DonationForm.events({
     e.preventDefault();
     // Stop propagation prevents the form from being submitted more than once.
     e.stopPropagation();
+
     let new_error;
 
     if ($("#is_recurring").val() === '') {
@@ -177,6 +178,9 @@ Template.DonationForm.events({
     // Stop propagation prevents the form from being submitted more than once.
     e.stopPropagation();
     Router.go('user.profile');
+  },
+  'click #start_date_button'(){
+    $("#start_date").select();
   }
 });
 
