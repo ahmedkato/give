@@ -111,7 +111,12 @@
                 {{/each}}
             </div>
             {{else}}
-                <h3>No Gifts Found</h3>
+                <div class="text-center">
+                    <h3>No Gifts Found</h3>
+                    <a type="button"
+                       class="btn btn-primary"
+                       href="{{pathFor 'user.give'}}">Setup a Gift</a>
+                </div>
             {{/unless}}
         </div>
     </div>

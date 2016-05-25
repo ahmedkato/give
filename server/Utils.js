@@ -291,7 +291,8 @@ Utils = {
 
             if( el.persona.names.some( function ( value ) {
                 if( value.first_name.toLowerCase() === metadata.fname.toLowerCase() && value.last_name.toLowerCase() === metadata.lname.toLowerCase() ) {
-                  console.log( value );
+                  logger.info( "Person who's name matches: " );
+                  logger.info( value );
                   // returning true here tells the function that this is the record inside which the correct name is found
                   return true;
                 }

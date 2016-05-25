@@ -1,4 +1,5 @@
 <template name="SubscriptionsOverview">
+    {{#if Template.subscriptionsReady}}
     {{#if tutorialEnabled}}
         {{> tutorial options}}
     {{/if}}
@@ -8,12 +9,7 @@
         {{#if subscriptions}}
             {{#each subscriptions}}
                 <div class="col col-lg-3">
-                <ul class="list-group">
-                    <!--
-                      We just map out each type here so we don't have a bunch of tangled state.
-                      Wire this up as you see fit. Just make sure to account for each status type you need :)
-                      See: https://stripe.com/docs/api#subscription_object.
-                    -->
+                    <ul class="list-group">
                     {{#if equals status "trialing"}}
                         <li class="list-group-item list-group-item-info" data-subscription-id="{{id}}">
                             <p>This gift is schedule for {{epochToString trial_end}}. <!--<a href="#" class="cancel-subscription">Cancel Subscription</a>--></p>
@@ -105,9 +101,12 @@
                 </div>
             {{/each}}
         {{else}}
-            <div class="col col-lg-6 col-lg-offset-3">
-                <a href="{{pathFor 'user.give'}}?recurring=monthly" class="btn btn-primary btn-block">Setup a recurring gift</a>
-            </div>
+            {{#if donations}}
+            {{else}}
+                <div class="col col-lg-6 col-lg-offset-3">
+                    <a href="{{pathFor 'user.give'}}?recurring=monthly" class="btn btn-primary btn-block">Setup a recurring gift</a>
+                </div>
+            {{/if}}
         {{/if}}
         {{#if donations}}
             {{#each donations}}
@@ -150,4 +149,5 @@
     </div>
     {{> Modals}}
     {{> SubscriptionModal}}
+    {{/if}}
 </template>

@@ -6,7 +6,13 @@
             </div>
             <div class="text-center col-lg-4 col-md-4 col-sm-4">
                 <label for="is_recurring" id="frequency_label">Donation Frequency</label>
-                <select type="text" name="is_recurring" id="is_recurring" class="form-control select select-primary mbl" required data-placeholder="Select an Option" data-parsley-error-message="  Choose one ^" >
+                <select type="text"
+                        name="is_recurring"
+                        id="is_recurring"
+                        class="form-control select select-primary mbl"
+                        required
+                        data-placeholder="Select an Option"
+                        data-parsley-error-message="  Choose one ^" >
                     {{#unless doNotShowOneTime}}
                         <option selected></option>
                     {{/unless}}

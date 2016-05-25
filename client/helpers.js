@@ -86,6 +86,9 @@ Template.registerHelper('logged_in', function(context) {
  */
 
 Template.registerHelper('epochToString', function(timestamp) {
+  if (timestamp === 'today') {
+    return moment().format('MM/DD/YY');
+  }
   if (timestamp) {
     var length = timestamp.toString().length;
     if ( length === 10 ) {
@@ -190,16 +193,19 @@ Template.registerHelper('locked_frequency', function() {
 });
 
 Template.registerHelper('doNotShowOneTime', function() {
-  if (Session.equals("paymentMethod", "Card")) {
-    return false;
-  } else {
-    let config = ConfigDoc();
+  let paymentMethod = Session.get("paymentMethod");
+  if (paymentMethod) {
+    if( paymentMethod === "Card" || paymentMethod.slice( 0, 4 ) === 'card' ) {
+      return false;
+    } else {
+      let config = ConfigDoc();
 
-    if (config && config.Settings && config.Settings.doNotAllowOneTimeACH) {
-      // set monthly
-      $("#is_recurring").val("monthly");
-      $("#is_recurring").change();
-      return true;
+      if( config && config.Settings && config.Settings.doNotAllowOneTimeACH ) {
+        // set monthly
+        $( "#is_recurring" ).val( "monthly" );
+        $( "#is_recurring" ).change();
+        return true;
+      }
     }
   }
 });
@@ -207,27 +213,33 @@ Template.registerHelper('doNotShowOneTime', function() {
 Template.registerHelper('forceACHDay', function() {
   let newRecurringDate;
   let config = ConfigDoc();
+  let paymentMethod = Session.get("paymentMethod");
 
-  if (Session.equals("paymentMethod", "Card") ||
-    (config && config.Settings && config.Settings.forceACHDay === 'any')) {
-    newRecurringDate =  moment().format('D MMM, YYYY');
-    $("#start_date").val(newRecurringDate);
-    return '';
-  } else {
-    if (config && config.Settings && config.Settings.forceACHDay) {
-      // set monthly
-      $("#is_recurring").val("monthly");
-      $("#is_recurring").change();
-      let thisDay = Number(moment().format("D"));
-      if(thisDay > Number(config.Settings.forceACHDay)) {
-        newRecurringDate = moment().add(1, 'months').format(Number(config.Settings.forceACHDay) + " MMM, YYYY");
-      } else {
-        newRecurringDate = moment().format(Number(config.Settings.forceACHDay) + " MMM, YYYY");
-      }
+  if (paymentMethod) {
+    if (paymentMethod === "Card" || paymentMethod.slice(0,4) === 'card' ||
+      (config && config.Settings && config.Settings.forceACHDay === 'any')) {
+      newRecurringDate =  moment().format('D MMM, YYYY');
       $("#start_date").val(newRecurringDate);
-      return 'disabled';
+      return '';
+    } else {
+      if (config && config.Settings &&
+        config.Settings.ach_verification_type === 'manual' &&
+        config.Settings.forceACHDay) {
+        // set monthly
+        $("#is_recurring").val("monthly");
+        $("#is_recurring").change();
+        let thisDay = Number(moment().format("D"));
+        if(thisDay > Number(config.Settings.forceACHDay)) {
+          newRecurringDate = moment().add(1, 'months').format(Number(config.Settings.forceACHDay) + " MMM, YYYY");
+        } else {
+          newRecurringDate = moment().format(Number(config.Settings.forceACHDay) + " MMM, YYYY");
+        }
+        $("#start_date").val(newRecurringDate);
+        return 'disabled';
+      }
     }
   }
+  return;
 });
 
 Template.registerHelper('onlyOnSpecificDay', function() {
@@ -304,11 +316,11 @@ Template.registerHelper( 'tutorialEnabled', ( ) => {
   return Session.get('tutorialEnabled');
 });
 
-Template.registerHelper( 'contact_us', ( ) => {
+Template.registerHelper( 'contact_us', () => {
   let config = ConfigDoc();
 
-  return '<a class="email" href="mailto:' +  config.OrgInfo.emails.contact && + '">' +
-    config.OrgInfo.emails.support + '</a><div class="tel">' +
+  return '<a class="email" href="mailto:' +  config.OrgInfo.emails.contact + '">' +
+    config.OrgInfo.emails.contact + '</a><div class="tel">' +
     config.OrgInfo.phone + '</div>';
 });
 

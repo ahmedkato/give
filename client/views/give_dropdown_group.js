@@ -9,7 +9,7 @@ Template.GiveDropdownGroup.onRendered(function() {
   var datepickerSelector = $('#start_date');
   datepickerSelector.datepicker( {
     format: 'd MM, yyyy',
-    startDate: '+1d',
+    startDate: '+0d',
     endDate: '+40d',
     autoclose: true
   });
