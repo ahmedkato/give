@@ -15,11 +15,15 @@
                             <!-- Amount of donation -->
                             <div class="donation_amount text-center well well-lg form-group">
                                 <div id='amount_width' class="{{amountWidth}}">
-                                    <label class="control-label" for="amount">Donation Amount</label>
+                                    <label class="control-label"
+                                           for="amount">Donation Amount</label>
 
                                     <div class="input-group">
                                         <span class="input-group-addon">$</span>
-                                        <input {{attributes_Input_Amount}} type="digits" value="{{amount}}" class="form-control slim-borders"
+                                        <input {{attributes_Input_Amount}}
+                                                type="digits"
+                                                value="{{amount}}"
+                                                class="form-control slim-borders"
                                            required data-parsley-error-message="Please enter an amount with no commas."
                                            data-parsley-errors-container="#show-amount-error-here" />
                                     </div>
@@ -112,10 +116,18 @@
                             </div>
                         </fieldset>
                     </div>
-                    <input type="hidden" id="enteredWriteInValue" value="{{writeInValue}}" />
+                    <input
+                        type="hidden"
+                        id="enteredWriteInValue"
+                        value="{{writeInValue}}" />
                 </form>
             </div>
             {{> Modals}}
         {{/if}}
+    {{/if}}
+    {{#if loading}}
+        <div id="spinDiv" class="fadeMe">
+        </div>
+        {{> spinner}}
     {{/if}}
 </template>

@@ -72,7 +72,6 @@ Template.UserGive.events({
     e.preventDefault();
     // Stop propagation prevents the form from being submitted more than once.
     e.stopPropagation();
-    console.log("Got here");
 
     $("[name='submitQuickGive']").button('loading');
     Session.set("loading", true);
