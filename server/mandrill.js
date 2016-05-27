@@ -51,6 +51,8 @@ _.extend(Utils,{
    */
   sendEmailNotice(emailObject){
     logger.info("Started sendEmailNotice");
+    logger.info("Here is the emailObject info: ");
+    logger.info(emailObject);
     let config = ConfigDoc();
 
     if (!(config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.support)) {
@@ -190,7 +192,7 @@ _.extend(Utils,{
           "content": config.OrgInfo.address.line_1
         }, {
           "name": "OrgAddressLine2",
-          "content": config.OrgInfo.address.line_2
+          "content": config.OrgInfo.address.line_2 ? config.OrgInfo.address.line_2 : ''
         }, {
           "name": "OrgCity",
           "content": config.OrgInfo.address.city
@@ -213,9 +215,14 @@ _.extend(Utils,{
     return newDataSlug;
   },
   send_cancelled_email_to_admin: function (subscription_id, stripeEvent) {
+    logger.info("Started send_cancelled_email_to_admin");
     var audit_trail_cursor = Audit_trail.findOne({subscription_id: subscription_id});
 
     let config = ConfigDoc();
+    if (!(config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.canceledGift)) {
+      logger.warn("There aren't any email addresses in the canceled gift notice field.");
+      return;
+    }
     // Check to see if the deleted subscription email has already been sent for this charge
     if (audit_trail_cursor && audit_trail_cursor.subscription_deleted && audit_trail_cursor.subscription_deleted.sent_to_admin) {
       logger.info("A 'subscription deleted' email has already been sent, exiting email send function.");
@@ -227,10 +234,6 @@ _.extend(Utils,{
           'subscription_deleted.time': new Date()
         }
       });
-    }
-    if (!(config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.canceledGift)) {
-      logger.warn("There is no canceled gift email to send to.");
-      return;
     }
 
     let start_date = moment( new Date(stripeEvent.data.object.start * 1000) ).format('DD MMM, YYYY');
@@ -245,18 +248,21 @@ _.extend(Utils,{
     let donor_name = customer_cursor && customer_cursor.metadata && customer_cursor.metadata.fname + " " + customer_cursor.metadata.lname;
 
     let donateWith = stripeEvent.data.object.metadata && stripeEvent.data.object.metadata.donateWith;
+
+    let canceledReason = stripeEvent.data.object.metadata &&
+      stripeEvent.data.object.metadata.canceled_reason;
     
     let emailObject = {
       to: config.OrgInfo.emails.canceledGift,
-      previewLine: "Canceled Recurring Gift",
+      previewLine: donor_name + " or the admin canceled a recurring gift.",
       type: 'Canceled Recurring Gift',
       message: donor_name + " or the admin stopped a recurring (every " +
          stripeEvent.data.object.plan.interval + ") gift (amount: " +
          (stripeEvent.data.object.quantity / 100).toFixed(2) + ") that was using " +
          donateWith + ". The gift start date was " + start_date +
          ". The last time this recurring gift ran was " + last_gift +
-         ". The gift was canceled on " + canceled_date + '. The reason they gave was "' +
-         stripeEvent.data.object.metadata.canceled_reason ? stripeEvent.data.object.metadata.canceled_reason + '"' : "None Given",
+         ". The gift was canceled on " + canceled_date + '. The reason they gave was ' +
+               canceledReason ? canceledReason : "None Given",
       buttonText: 'Donor Tools Person',
       buttonURL: config.Settings.DonorTools.url + '/people/' + customer_cursor.metadata.dt_persona_id
     };

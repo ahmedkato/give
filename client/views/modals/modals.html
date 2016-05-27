@@ -29,14 +29,19 @@
                     <h4 class="modal-title"><strong>Enter</strong> a designation below.</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Please enter the name of the trip participant you'd like to support 
-                    (or the specific place you'd like the funds to be directed). 
+                    <p>Please enter the specific place you'd like the funds to be directed.
                     If you have any questions please click 
                     <a href="mailto:{{contact_address}}?Subject=Donation Question">
                         this link</a> to email us.</p>
+                    <p>You can also call us at <a href="tel:{{org_phone}}">
+                        {{org_phone}}</a>
+                    </p>
                     <p>
-                        <input id="writeIn" data-parsley-type="text" class="form-control slim-borders"
-                               placeholder="Name or other designation." value="{{writeInValue}}"/>
+                        <input id="writeIn"
+                               data-parsley-type="text"
+                               class="form-control slim-borders"
+                               placeholder="Name or other designation."
+                               value="{{writeInValue}}"/>
                     </p>
                 </div>
                 <div class="modal-footer">
