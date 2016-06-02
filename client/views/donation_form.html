@@ -107,14 +107,9 @@
                         </div>
                     </div>
                     <div class="text-center">
-                        <label id="giftDesignationText" style="display: none;">
-                            <strong>Your gift is designated to "{{writeInValue}}"</strong>
+                        <label id="giftNoteText" style="display: none;">
+                            <strong>Your gift is designated to "{{noteValue}}"</strong>
                         </label>
-                        {{#if donation_note}}
-                            <label id="giftNoteText">
-                                <h5><strong>Gift note: {{donation_note}}</strong></h5>
-                            </label>
-                        {{/if}}
                     </div>
 
                     <!--call the address portion of the form -->
@@ -138,9 +133,8 @@
                     </div>
                 </fieldset>
             </div>
-            <input type="hidden" id="enteredWriteInValue" value="{{writeInValue}}" />
+            <input type="hidden" id="note" value="{{noteValue}}" />
             <input type="hidden" id="dt_source" value="{{dt_source}}" />
-            <input type="hidden" id="donation_note" value="{{donation_note}}" />
         </form>
     </div>
     {{#if loading}}

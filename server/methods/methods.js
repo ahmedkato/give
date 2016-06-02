@@ -160,6 +160,10 @@ Meteor.methods({
   stripeDonation: function(data) {
     logger.info("Started stripeDonation");
     try {
+
+      let config = ConfigDoc();
+      let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId.toString();
+
       // Check the form to make sure nothing malicious is being submitted to the server
       Utils.checkFormFields(data);
       if (data.paymentInformation.coverTheFees === false) {
@@ -172,9 +176,11 @@ Meteor.methods({
       // Get the fund reference for this donation
       donateTo = Utils.getDonateTo(data.paymentInformation.donateTo);
 
-      if (donateTo === 'Write In') {
-          donateTo = data.paymentInformation.writeIn;
-      }
+      // Shouldn't be needed anymore since this write in id isn't a placeholder
+      // rather the id for that write-in fund is already there
+      /*if (donateTo === writeInDonationTypeId) {
+        donateTo = data.paymentInformation.note;
+      }*/
       if (!data.customer.id) {
         customerData = Utils.create_customer(data.paymentInformation.token_id ? 
           data.paymentInformation.token_id : '',

@@ -133,20 +133,20 @@ Template.UserGive.events({
 
 Template.UserGive.onRendered(function () {
   let config = ConfigDoc();
-  let writeIn = config.Settings.DonorTools.writeInDonationTypeId.toString();
+  let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId.toString();
 
   $('[data-toggle="popover"]').popover();
 
   // setup modal for entering give toward information
-  if (Session.equals('params.donateTo', writeIn) && !(Session.equals('showWriteIn', 'no'))) {
+  if (Session.equals('params.donateTo', writeInDonationTypeId) && !(Session.equals('showWriteIn', 'no'))) {
     $('#modal_for_write_in').modal({
       show: true,
       backdrop: 'static'
     });
   }
 
-  if (Session.get("params.enteredWriteInValue")) {
-    $('#giftDesignationText').show();
+  if (Session.get("params.note")) {
+    $('#giftNoteText').show();
   }
   // setup modal for entering serve1000 church information
   var campaignSession = Session.get('params.campaign');

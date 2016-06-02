@@ -112,12 +112,12 @@ Template.DonationForm.events({
   },
   'change #donateTo': function() {
     let config = ConfigDoc();
-    let writeIn = config.Settings.DonorTools.writeInDonationTypeId.toString();
-    if ($('#donateTo').val() !== writeIn) {
-      $('#giftDesignationText').hide();
+    let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId.toString();
+    if ($('#donateTo').val() !== writeInDonationTypeId) {
+      $('#giftNoteText').hide();
     } else {
       Session.set('showWriteIn', 'yes');
-      Session.set('params.donateTo', writeIn);
+      Session.set('params.donateTo', writeInDonationTypeId);
       // setup modal for entering give toward information
       $('#modal_for_write_in').modal({
         show: true,
@@ -146,17 +146,17 @@ Template.DonationForm.events({
     $('#card_number').on('mousewheel.disableScroll', function(e) {
       e.preventDefault();
     });
-  },
+  },/*
   'click #write_in_save': function() {
     $('#modal_for_write_in').modal('hide');
 
-    var goHere = removeParam('enteredWriteInValue', window.location.href);
+    var goHere = removeParam('note', window.location.href);
     console.log(goHere);
     Session.set('showWriteIn', 'no');
-    goHere = goHere + '&enteredWriteInValue=' + $('#writeIn').val();
+    goHere = goHere + '&note=' + Give.getCleanValue('#writeIn');
     Router.go(goHere);
-    $('#giftDesignationText').show();
-  },
+    $('#giftNoteText').show();
+  },*/
   'click #serve1000_save': function() {
     if ($('#options').val() === "") {
       return;
@@ -261,7 +261,7 @@ Template.DonationForm.helpers({
 
 Template.DonationForm.onRendered(function() {
   let config = ConfigDoc();
-  let writeIn = config.Settings.DonorTools.writeInDonationTypeId.toString();
+  let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId.toString();
 
   // Setup parsley form validation
   $('#donation_form').parsley();
@@ -276,7 +276,7 @@ Template.DonationForm.onRendered(function() {
     $('#calendarSection').show();
   }
   // setup modal for entering give toward information
-  if (Session.equals('params.donateTo', writeIn) && !(Session.equals('showWriteIn', 'no'))) {
+  if (Session.equals('params.donateTo', writeInDonationTypeId) && !(Session.equals('showWriteIn', 'no'))) {
     $('#modal_for_write_in').modal({
       show: true,
       backdrop: 'static'

@@ -4,6 +4,11 @@ Template.Receipt.events({
   }
 });
 Template.Receipt.helpers({
+  note(){
+    if (this.metadata && this.metadata.note) {
+      return this.metadata.note;
+    }
+  },
   customer_data: function() {
     return Customers.findOne().metadata;
   },

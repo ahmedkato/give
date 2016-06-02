@@ -27,11 +27,7 @@ Template.registerHelper('formatDateUTC', function(date) {
   return moment.utc(new Date(date)).format('MMM DD, YYYY');
 });
 
-Template.registerHelper('writeInValue', function() {
-  return Session.get('params.enteredWriteInValue');
-});
-
-Template.registerHelper('donation_note', function() {
+Template.registerHelper('noteValue', function() {
   return Session.get('params.note');
 });
 

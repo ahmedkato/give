@@ -33,19 +33,19 @@ Template.Modals.onCreated(function () {
 Template.Modals.events({
   'click #write_in_save': function() {
     let config = ConfigDoc();
-    let writeIn = config.Settings.DonorTools.writeInDonationTypeId.toString();
+    let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId.toString();
     
     $('#modal_for_write_in').modal('hide');
 
-    removeParam('enteredWriteInValue', window.location.href);
+    removeParam('note', window.location.href);
     var goHere = removeParam('donateTo', window.location.href);
     console.log(goHere);
     Session.set('showWriteIn', 'no');
-    goHere = goHere + '&enteredWriteInValue=' + $('#writeIn').val() + '&donateTo=' + writeIn;
+    goHere = goHere + '&note=' + Give.getCleanValue("#writeIn") + '&donateTo=' + writeInDonationTypeId;
     Router.go(goHere);
-    $('#giftDesignationText').show();
+    $('#giftNoteText').show();
     
-    $('[name="donateTo"]').val(writeIn);
+    $('[name="donateTo"]').val(writeInDonationTypeId);
   },
   'click #tripsSave'() {
     if ($('#tripSelect').val() === "" || $('#participantSelect').val() === "") {

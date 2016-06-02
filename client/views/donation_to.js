@@ -50,8 +50,12 @@ Template.DonationTo.helpers({
 
 Template.DonationTo.events({
   'change #donateTo': function() {
-    if ($('#donateTo').val() !== 'WriteIn') {
-      $('#giftDesignationText').hide();
+
+    let config = ConfigDoc();
+    let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId.toString();
+
+    if ($('#donateTo').val() !== writeInDonationTypeId) {
+      $('#giftNoteText').hide();
       Session.set('showWriteIn', 'no');
     } else {
       Session.set('showWriteIn', 'yes');

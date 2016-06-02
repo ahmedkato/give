@@ -90,14 +90,18 @@
                         </thead>
                         <tbody>
                         {{#with charges}}
-                        <tr>
-                            <th>{{donateTo}}</th>
-                            <td class="donateWith text-left">
-                                {{donateWith}}
-                            </td>
-                            <td>${{amount}}</td>
-                        </tr>
-                        {{{fees}}}
+                            <tr>
+                                <th>{{donateTo}}{{#if note}} -- <strong>
+                                    Gift Note: {{note}}
+                                    </strong>
+                                    {{/if}}
+                                </th>
+                                <td class="donateWith text-left">
+                                    {{donateWith}}
+                                </td>
+                                <td>${{amount}}</td>
+                            </tr>
+                            {{{fees}}}
                         {{/with}}
                         </tbody>
                     </table>

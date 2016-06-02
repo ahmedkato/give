@@ -94,14 +94,12 @@ Router.route('', {
     Session.set('params.dt_source', params.query.dt_source);
     Session.set('params.start_date', params.query.start_date);
     Session.set('params.note', params.query.note);
-    Session.set('params.enteredWriteInValue', params.query.enteredWriteInValue);
     Session.set('params.enteredCampaignValue', params.query.enteredCampaignValue);
     Session.set('params.exp_month', params.query.exp_month);
     Session.set('params.exp_year', params.query.exp_year);
     Session.set('params.locked_amount', params.query.locked_amount);
     Session.set('params.locked_frequency', params.query.locked_frequency);
     Session.set('params.recurring', params.query.recurring);
-    Session.set('params.writeIn', params.query.writeIn);
 
     if (Meteor.user()) {
       Router.go('user.give', {}, {query: params.query});
@@ -270,14 +268,12 @@ Router.route('/user/give', {
     Session.set('params.dt_source', params.query.dt_source);
     Session.set('params.start_date', params.query.start_date);
     Session.set('params.note', params.query.note);
-    Session.set('params.enteredWriteInValue', params.query.enteredWriteInValue);
     Session.set('params.enteredCampaignValue', params.query.enteredCampaignValue);
     Session.set('params.exp_month', params.query.exp_month);
     Session.set('params.exp_year', params.query.exp_year);
     Session.set('params.locked_amount', params.query.locked_amount);
     Session.set('params.locked_frequency', params.query.locked_frequency);
     Session.set('params.recurring', params.query.recurring);
-    Session.set('params.writeIn', params.query.writeIn);
 
     this.render('UserGive');
 

@@ -98,7 +98,6 @@ Utils = {
         token_id:             Match.Optional( String ),
         total_amount:         Match.Integer,
         type:                 String,
-        writeIn:              Match.Optional( String )
       },
       customer:           {
         fname:         String,
@@ -469,10 +468,9 @@ Utils = {
   },
   insert_gift_into_donor_tools(charge_id, customer_id) {
     logger.info( "Started insert_gift_into_donor_tools" );
-    logger.info( "Config Settings: " );
     let config = ConfigDoc();
+    logger.info( "Config Settings: " );
     logger.info( config.Settings );
-
     logger.info( "Charge_id: ", charge_id, " Customer_id: ", customer_id );
     let chargeCursor, dt_fund, donateTo, invoice_cursor,
       fund_id, memo, source_id, newDonationResult;

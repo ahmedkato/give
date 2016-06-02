@@ -60,7 +60,7 @@ function OrgInfoCheck(name, namePart2) {
               "amount":               parseInt( ((Give.getCleanValue( '#amount' ).replace( /[^\d\.\-\ ]/g, '' )) * 100).toFixed( 0 ), 10 ),
               "total_amount":         parseInt( (Give.getCleanValue( '#total_amount' ) * 100).toFixed( 0 ), 10 ),
               "donateTo":             Give.getCleanValue( "#donateTo" ),
-              "writeIn":              Give.getCleanValue( "#enteredWriteInValue" ),
+              "note":                 Give.getCleanValue( "#note" ),
               "donateWith":           Give.getCleanValue( '#donateWith' ),
               "is_recurring":         Give.getCleanValue( '#is_recurring' ),
               "coverTheFees":         $( '#coverTheFees' ).is( ":checked" ),
@@ -140,13 +140,12 @@ function OrgInfoCheck(name, namePart2) {
               "amount":       parseInt( ((Give.getCleanValue( '#amount' ).replace( /[^\d\.\-\ ]/g, '' )) * 100).toFixed( 0 ), 10 ),
               "total_amount": parseInt( (Give.getCleanValue( '#total_amount' ) * 100).toFixed( 0 ), 10 ),
               "donateTo":     Give.getCleanValue( "#donateTo" ),
-              "writeIn":      Give.getCleanValue( "#enteredWriteInValue" ),
+              "note":         Give.getCleanValue( "#note" ),
               "donateWith":   Give.getCleanValue( '#donateWith' ),
               "is_recurring": Give.getCleanValue( '#is_recurring' ),
               "coverTheFees": $( '#coverTheFees' ).is( ":checked" ),
               "created_at":   new Date().getTime() / 1000 | 0,
               "dt_source":    Give.getCleanValue( '#dt_source' ),
-              "note":         Give.getCleanValue( '#donation_note' ),
               "start_date":   moment( new Date( Give.getCleanValue( '#start_date' ) ) ).format( 'X' ),
               "saved":        $( '#save_payment' ).is( ":checked" )
             },
@@ -176,12 +175,11 @@ function OrgInfoCheck(name, namePart2) {
             "donateTo":     Give.getCleanValue( "#donateTo" ),
             "donateWith":   Give.getCleanValue( "#donateWith" ),
             "dt_source":    Give.getCleanValue( '#dt_source' ),
-            "note":         Give.getCleanValue( '#donation_note' ),
             "is_recurring": Give.getCleanValue( '#is_recurring' ),
             "saved":        $( '#save_payment' ).is( ":checked" ),
             "start_date":   moment( new Date( Give.getCleanValue( '#start_date' ) ) ).format( 'X' ),
             "total_amount": parseInt( (Give.getCleanValue( '#total_amount' ) * 100).toFixed( 0 ), 10 ),
-            "writeIn":      Give.getCleanValue( "#enteredWriteInValue" )
+            "note":      Give.getCleanValue( "#note" )
           },
           "customer":           {
             "fname":         Give.getCleanValue( '#fname' ),
