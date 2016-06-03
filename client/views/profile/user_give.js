@@ -148,19 +148,6 @@ Template.UserGive.onRendered(function () {
   if (Session.get("params.note")) {
     $('#giftNoteText').show();
   }
-  // setup modal for entering serve1000 church information
-  var campaignSession = Session.get('params.campaign');
-
-  // Regex for "Serve 1000 - "
-  var re = /^Serve\s1000/;
-
-  if (re.exec(campaignSession) && !(Session.equals('showserve1000', 'no')) &&
-    !Session.get("params.note")) {
-    $('#modal_for_serve1000').modal({
-      show: true,
-      backdrop: 'static'
-    });
-  }
 
   let selectedUser = Meteor.user();
 

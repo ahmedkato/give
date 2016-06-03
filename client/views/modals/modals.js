@@ -154,41 +154,4 @@ Template.Modals.onRendered( function() {
       $('#options').chosen({width: "95%"});
     }, 250);
   }, 250);
-
-  $('#modal_for_serve1000').on('hidden.bs.modal', function() {
-    var currentServed = 593;
-    Meteor.call("ShowDTSplits", function(err, result) {
-      if(!err) {
-        // Going with a static number
-        // currentServed = result.toFixed(0);
-        console.log("Got a result from the server: " + result);
-      } else {
-        console.log("Error in meteor call");
-      }
-    });
-    var clock = $('.serve1000-counter').FlipClock('000', {
-      clockFace: 'Counter',
-      autoStart: false
-    });
-
-    var max = 1000,
-      time = (2500 / max) * 5,
-      value = 0;
-    clock.setTime( 0 );
-
-    var loading = function() {
-      value += 1;
-
-      clock.increment();
-
-      if ( value >= currentServed ) {
-        clearInterval( animate );
-      }
-    };
-
-    var animate = setInterval( function () {
-      loading();
-    }, time );
-
-  });
 });

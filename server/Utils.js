@@ -385,7 +385,6 @@ Utils = {
       // Run the necessary checks to find which DT account this customer should
       // be associated with (if any)
       dt_persona_match_id = Utils.find_dt_persona_flow( customer.email, customer.id );
-      console.log( dt_persona_match_id );
 
       if( !dt_persona_match_id ) {
         // Create a new Donor Tools account and assign the id to the dt_persona_match_id let
@@ -393,6 +392,7 @@ Utils = {
 
         // Send an email to the support users telling them that a new DT account was added
         Utils.send_new_dt_account_added_email_to_support_email_contact( customer.email, user_id, dt_persona_match_id );
+        Utils.send_welcome_email(customer.email);
       }
 
       logger.info( "The donor Tools ID for this customer is ", dt_persona_match_id );
@@ -998,6 +998,14 @@ Utils = {
           }
         } );
         break;
+      case 'welcome.email.sent':
+        Audit_trail.upsert( { email: id }, {
+          $set: {
+            'welcome.sent': true,
+            'welcome.time': new Date()
+          }
+        } );
+        break;
       default:
         logger.info( "No case matched" );
     };
@@ -1277,6 +1285,51 @@ Utils = {
       html:    html
     };
     Utils.sendHTMLEmail( sendObject );
+  },
+  /**
+   * Send an email to new users, welcoming them
+   *
+   * @method send_welcome_email
+   * @param {String} email - email of the user who has just been created
+   */
+  send_welcome_email( email ) {
+    logger.info( "Started send_welcome_email" );
+    let config = ConfigDoc();
+
+    if( !(config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.support) ) {
+      logger.warn( "No support email to send to/from." );
+      return;
+    }
+
+    if( !(config && config.Services.Email && config.Services.Email && config.Services.Email.welcome) ) {
+      logger.info( "There is no welcome email name setup so we aren't sending a welcome email." );
+      return;
+    }
+
+    if( Audit_trail.findOne( { email: email } ) &&
+      Audit_trail.findOne( { email: email } ).welcome && Audit_trail.findOne( { email: email } ).welcome.sent ) {
+      logger.info( "Already sent a welcome email" );
+      return;
+    }
+    let wait_for_audit = Utils.audit_email( email, 'welcome.email.sent' );
+
+    let data_slug = {
+      "template_name": config.Services.Email.welcome,
+      "template_content": [
+        {}
+      ],
+      "message": {
+        "global_merge_vars": [
+          {
+            "name": "DEV",
+            "content": Meteor.settings.dev
+          }
+        ]
+      }
+    };
+
+    Utils.send_mandrill_email( data_slug, config.Services.Email.welcome, email, 'Welcome' );
+
   },
   /**
    * Send an email to the support email contact alerting.

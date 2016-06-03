@@ -51,43 +51,6 @@
         </div>
     </div>
 
-    <!--This area is the modal that takes the 1000children campaign information from the user when they first get to the donation page.
-    It only appears if the campaign param has a value of 1000children -->
-    <div class="modal fade" id="modal_for_serve1000">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title text-center"><strong>Serve
-                        1,000</strong></h4>
-                </div>
-                <div class="modal-body">
-                    <p>We’re excited to have you join us for Serve 1,000 as we
-                        bring hope to 1,000 children living in trash
-                        dumps communities worldwide.</p>
-                    <select id="options" data-placeholder="How did you hear about the
-                        campaign?">
-                        <option></option>
-                        {{#each churchSources}}
-                            <option value="{{this.name}} {{this.city}}"><strong>{{this.name}}</strong>  <i>{{this.city}}</i></option>
-                        {{/each}}
-                    </select>
-                    <p>
-                        If you have questions please <a
-                            href="mailto:{{contact_address}}?Subject=Donation
-                             Question - serve 1000 event">email,
-                        {{contact_address}}.</a>
-                    </p>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary"
-                            id="serve1000_save">Done</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- This modal is for getting the trip and the participant from a donor
     who wants to give toward a trip participant-->
     <div class="modal fade" id="modal_for_trips">

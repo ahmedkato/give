@@ -269,8 +269,7 @@ _.extend(Utils,{
 
     Utils.sendEmailNotice(emailObject);
   },
-  send_donation_email: function (recurring, id, amount, type, body,
-                                 frequency, subscription) {
+  send_donation_email: function (recurring, id, amount, type, body, frequency, subscription) {
     try {
       logger.info("Started send_donation_email with ID: " + id);
       let config = ConfigDoc();

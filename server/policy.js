@@ -19,8 +19,6 @@ var trusted = [
   'cdn.heapanalytics.com',
   'heapanalytics.com',
   'd2zah9y47r7bi2.cloudfront.net',
-  'capture.trackjs.com',
-  'usage.trackjs.com'
 ];
 
 

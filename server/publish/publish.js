@@ -278,10 +278,6 @@ Meteor.publish("DTSources", function () {
     return DT_sources.find();
 });
 
-Meteor.publish("Serve1000Sources2015", function () {
-  return DT_sources.find({'name': {$regex : /^Serve\s1000\s-\s/}});
-});
-
 Meteor.publish("DTSplits", function () {
   if (Roles.userIsInRole(this.userId, 'admin')) {
     return DT_splits.find();
@@ -407,7 +403,6 @@ Meteor.publish("config", function () {
       'OrgInfo.emails.contact': 1,
       'OrgInfo.emails.support': 1,
       'Services.Analytics.heapId': 1,
-      'Services.Analytics.trackjs': 1,
       'Settings.Stripe.keysPublishableExists': 1,
       'Settings.Stripe.keysSecretExists': 1,
       'Settings.DonorTools.usernameExists': 1,

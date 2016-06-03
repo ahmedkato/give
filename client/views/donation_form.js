@@ -1,4 +1,4 @@
-function removeParam(key, sourceURL) {
+/*function removeParam(key, sourceURL) {
   // check that the query string contains a '?', if it doesn't then the router
   // will try to take the user to a different page.
   if (sourceURL.split("?").length < 2) {
@@ -19,7 +19,7 @@ function removeParam(key, sourceURL) {
     rtn = rtn + "?" + params_arr.join("&");
   }
   return rtn;
-}
+}*/
 
 $.fn.scrollView = function() {
   return this.each(function() {
@@ -146,24 +146,6 @@ Template.DonationForm.events({
     $('#card_number').on('mousewheel.disableScroll', function(e) {
       e.preventDefault();
     });
-  },/*
-  'click #write_in_save': function() {
-    $('#modal_for_write_in').modal('hide');
-
-    var goHere = removeParam('note', window.location.href);
-    console.log(goHere);
-    Session.set('showWriteIn', 'no');
-    goHere = goHere + '&note=' + Give.getCleanValue('#writeIn');
-    Router.go(goHere);
-    $('#giftNoteText').show();
-  },*/
-  'click #serve1000_save': function() {
-    if ($('#options').val() === "") {
-      return;
-    }
-    $('#modal_for_serve1000').modal('hide');
-    Session.set('showserve1000', 'no');
-    Router.go(window.location.href + '&note=' + $('#options').val() + '&dt_source=' + 46583); // 46583 is for Serve 1000
   },
   'blur #donation_form input': function() {
     if (window.location.pathname !== "/give/user") {
@@ -285,20 +267,6 @@ Template.DonationForm.onRendered(function() {
   // setup modal for entering give toward information
   if (Session.equals('params.donateTo', 'trips')) {
     $('#modal_for_trips').modal({
-      show: true,
-      backdrop: 'static'
-    });
-  }
-
-  // setup modal for entering serve1000 church information
-  var campaignSession = Session.get('params.campaign');
-
-  // Regex for "Serve 1000 - "
-  var re = /^Serve\s1000/;
-
-  if (re.exec(campaignSession) && !(Session.equals('showserve1000', 'no')) &&
-  !Session.get("params.note")) {
-    $('#modal_for_serve1000').modal({
       show: true,
       backdrop: 'static'
     });

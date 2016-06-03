@@ -79,12 +79,6 @@ Router.onBeforeAction(function() {
 Router.route('', {
   name: 'donation.form',
   path: '',
-  subscriptions: function() {
-    this.subscribe('Serve1000Sources2015').wait();
-  },
-  waitOn: function() {
-    return Meteor.subscribe('Serve1000Sources2015');
-  },
   action: function() {
     var params = this.params;
     Session.set('params.amount', params.query.amount);
@@ -447,24 +441,12 @@ Router.route('/dashboard/services', {
   }
 });
 
-Router.route('/dashboard/getdtdata', {
-  name: 'DtReport',
-  where: 'client',
-  waitOn: function() {
-    return Meteor.subscribe( 'DTSplits' );
-  },
-  data: function() {
-    return DT_splits.find();
-  }
-});
-
 Router.route('/dashboard/subscriptions', {
   layoutTemplate: 'UserLayout',
   name: 'AdminSubscriptions',
   where: 'client',
   template: 'AdminSubscriptions'
 });
-
 
 Router.route('/dashboard/users', {
   layoutTemplate: 'AdminLayout',

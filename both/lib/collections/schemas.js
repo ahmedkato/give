@@ -313,6 +313,11 @@ Schema.Services = new SimpleSchema({
     label: "Generic email notice template.",
     optional: true
   },
+  "Email.welcome": {
+    type: String,
+    label: "New giver welcome email. Entering name here activates this email for new givers.",
+    optional: true
+  },
   "Email.enrollmentName": {
     type: String,
     label: "The template name of the new user email.",
@@ -398,11 +403,6 @@ Schema.Services = new SimpleSchema({
   "Analytics.heapId": {
     type: String,
     label: "Heap ID",
-    optional: true
-  },
-  "Analytics.trackjs": {
-    type: String,
-    label: "TrackJS Token",
     optional: true
   }
 });
