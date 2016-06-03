@@ -114,6 +114,9 @@ Template.ManageUsers.helpers({
       return Meteor.users.find();
     }
     return false;
+  },
+  showAdminModal(){
+    return Session.get("gift_user_id");
   }
 });
 Template.ManageUsers.events({
@@ -225,7 +228,18 @@ Template.ManageUsers.events({
   },
   'keyup, change .search': _.debounce(function () {
     updateSearchVal();
-  }, 300)
+  }, 300),
+  'click .new-gift'(e){
+    e.preventDefault();
+    console.log("Clicked new gift for: ", this._id);
+    Session.set("gift_user_id", this._id);
+    Meteor.setTimeout(function(){
+      $('#modal_for_admin_give_form').modal({
+        show: true,
+        backdrop: 'static'
+      });
+    }, 0);
+  }
 });
 
 Template.ManageUsers.onCreated(function () {
@@ -255,5 +269,6 @@ Template.ManageUsers.onCreated(function () {
 });
 
 Template.ManageUsers.onDestroyed(function() {
+  Session.delete("gift_user_id");
   Session.delete("searchValue");
 });

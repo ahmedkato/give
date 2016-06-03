@@ -191,19 +191,6 @@ Meteor.publish("userStripeDataWithSubscriptions", function () {
 	}
 });
 
-Meteor.publish("publish_for_admin_give_form", function () {
-  if (Roles.userIsInRole(this.userId, ['admin'])) {
-
-    var customers = Customers.find({});
-    var devices = Devices.find({});
-    return [customers, devices];
-
-  } else {
-    // user not authorized. do not publish
-    this.ready();
-  }
-});
-
 Meteor.publish("userSubscriptions", function () {
   if (this.userId) {
     var customers = Customers.find({'metadata.user_id': this.userId});

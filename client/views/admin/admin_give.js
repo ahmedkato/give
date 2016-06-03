@@ -120,3 +120,9 @@ Template.AdminGive.events({
     }
   }
 });
+
+Template.AdminGive.onCreated(function () {
+  this.autorun(()=>{
+    this.subscribe('publish_for_admin_give_form', Session.get("gift_user_id"));
+  });
+});

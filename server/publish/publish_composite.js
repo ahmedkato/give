@@ -179,6 +179,31 @@ Meteor.publishComposite('subscriptions_and_customers', function (searchValue) {
   }
 });
 
+
+Meteor.publishComposite("publish_for_admin_give_form", function(id) {
+  check(id, String);
+  if (Roles.userIsInRole(this.userId, ['admin'])) {
+    return {
+      find:     function () {
+        return Customers.find( { 'metadata.user_id': id } );
+      },
+      children: [
+        {
+          find: function ( customers ) {
+            // Find post author. Even though we only want to return
+            // one record here, we use "find" instead of "findOne"
+            // since this function should return a cursor.
+            return Devices.find( { customer: customers._id } );
+          }
+        }
+      ]
+    }
+  } else {
+    // user not authorized. do not publish
+    this.ready();
+  }
+});
+
 Meteor.publishComposite('ach', function () {
 
   // Publish the nearly expired or expired card data to the admin dashboard

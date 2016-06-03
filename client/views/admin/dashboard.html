@@ -168,32 +168,19 @@
                                     <h5>Users & Roles</h5>
                                 </a>
                             </div>
-                            {{#if isInRole 'super-admin'}}
-                                <div class="col-sm-2"
-                                     data-toggle="tooltip"
-                                     title="Manually give a one-time or recurring
-                                     gift with an existing Stripe payment device.">
-                                    <span style="" class="badge alert-badge backgroundColor indianred">BETA</span>
-                                    <a id="new-gift" class="quick-button backgroundColor primary" href="">
-                                    <span class="fa-stack fa-lg">
-                                        <i class="fa fa-gift"></i>
-                                    </span>
-                                        <h5>New Gift</h5>
-                                    </a>
-                                </div>
-                                <div class="col-sm-2"
-                                     data-toggle="tooltip"
-                                     title="Get DonorTools splits for a time period.
-                                     This feature is only setup for Trash Mountain at this point.">
-                                    <a id="get-dt-split" class="quick-button backgroundColor primary" href="{{pathFor 'DtReport'}}">
-                                        <span style="" class="badge alert-badge backgroundColor indianred">BETA</span>
-                                        <span class="fa-stack fa-lg">
-                                            <i class="fa fa-code-fork"></i>
-                                        </span>
-                                        <h5>Get DT Split Data</h5>
-                                    </a>
-                                </div>
-                            {{/if}}
+                            <div class="col-sm-2"
+                                 data-toggle="tooltip"
+                                 title="Manager recurring gifts. Includes; view details, change
+                             payment (method, recurring date, designation),
+                             add/remove note and stop recurring gift">
+                                <a id="get-dt-split" class="quick-button backgroundColor primary"
+                                   href="{{pathFor 'AdminSubscriptions'}}">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fa fa-columns"></i>
+                                </span>
+                                    <h5>Recurring Gifts</h5>
+                                </a>
+                            </div>
                             <div class="col-sm-2"
                                  data-toggle="tooltip"
                                  title="Click to retrieve and store a list of
@@ -240,19 +227,6 @@
                     {{/if}}
                     <br>
                     <div class="row">
-                        <div class="col-sm-2"
-                             data-toggle="tooltip"
-                             title="Manager recurring gifts. Includes; view details, change
-                             payment (method, recurring date, designation),
-                             add/remove note and stop recurring gift">
-                            <a id="get-dt-split" class="quick-button backgroundColor primary"
-                               href="{{pathFor 'AdminSubscriptions'}}">
-                                <span class="fa-stack fa-lg">
-                                    <i class="fa fa-columns"></i>
-                                </span>
-                                <h5>Recurring Gifts</h5>
-                            </a>
-                        </div>
                         <div class="col-sm-2"
                              data-toggle="tooltip"
                              title="If you find that Give created a duplicate
@@ -339,9 +313,6 @@
                 {{> GetStripeEvent}}
             </div>
         </div>
-    {{/if}}
-    {{#if isInRole 'admin'}}
-        {{> AdminGive}}
     {{/if}}
     {{#if isInRole 'admin, manager'}}
         {{> AdminMoveGift}}

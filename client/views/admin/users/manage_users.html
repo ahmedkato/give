@@ -51,9 +51,20 @@
                                                   <i class="fa fa-paper-plane"></i>
                                               </button>
                                               <button type="button"
-                                                      class="btn btn-primary edit-user">
+                                                      class="btn btn-primary edit-user"
+                                                      title="Edit this user">
                                                   <i class="fa fa-pencil"></i>
                                               </button>
+                                              <!-- only show the gift button if
+                                              there is DonorTools persona_info
+                                               in the user document -->
+                                              {{#if this.persona_info}}
+                                              <button type="button"
+                                                      class="btn btn-primary new-gift"
+                                                      title="Setup a new gift from this user">
+                                                  <i class="fa fa-gift"></i>
+                                              </button>
+                                              {{/if}}
                                               <button type="button" {{disableIfAdmin _id}}
                                                       title="{{toggleUserText}}"
                                                       class="btn btn-primary disable-enable-user"
@@ -142,4 +153,7 @@
         {{/if}}
     </div>
   </div>
+    {{#if showAdminModal}}
+        {{> AdminGive}}
+    {{/if}}
 </template>

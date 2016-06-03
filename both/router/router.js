@@ -154,8 +154,6 @@ Router.route('/gift/:_id', function() {
 
 Router.route('/dashboard', function() {
   this.layout('AdminLayout');
-
-  //this.subscribe('publish_for_admin_give_form');
   this.render('Dashboard');
 }, {
   name: 'Dashboard'

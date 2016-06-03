@@ -32,13 +32,6 @@ Template.Dashboard.helpers({
 });
 
 Template.Dashboard.events({
-  'click #new-gift': function(evt) {
-    evt.preventDefault();
-    $('#modal_for_admin_give_form').modal({
-      show: true,
-      backdrop: 'static'
-    });
-  },
   'click #move-gift': function(evt) {
     evt.preventDefault();
     $('#modal_for_admin_move_gift').modal({
