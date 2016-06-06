@@ -130,7 +130,8 @@ Template.GivingOptions.events({
         "Giving.options": {
           groupId: Random.id([8]),
           type: 'group',
-          position: $(".selected-options").length
+          position: $(".selected-options").length,
+          guideShow: false
         }
       }
     });
@@ -193,7 +194,6 @@ Template.GivingOptions.events({
       return;
     }
 
-
     var group = config.Giving.options;
 
     // Check this group for duplicate group names
@@ -243,13 +243,14 @@ Template.GivingOptions.events({
         $("#" + id).addClass("indianred");
       } );
     } else {
-      // Store this new order
       reorderItems();
+      // Store this new order
       // TODO: remove this hack
       // hack, reload the page. I think there is a problem between the order of the elements from meteor and
       // the order that sortable has these in
       // without the reload the order isn't correct after the reorderItems() function is run
       location.reload();
+      //Router.go('GivingGuide');
     }
   },
   'keyup .group-input': _.debounce(function(e) {
@@ -290,13 +291,6 @@ Template.GivingOptions.events({
       }
     });
 
-    if (dtId.length === 8) {
-      Config.update({_id: config._id}, {
-        $pull: {
-          "Giving.guide": updateOperator
-        }
-      });
-    }
 
     // Now that we have removed an item we need to update the positions of the
     // remaining options

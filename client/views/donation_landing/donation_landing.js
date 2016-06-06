@@ -1,16 +1,17 @@
+function groupPosition (config, id) {
+  var givingOptions = config && config.Giving && config.Giving.options;
 
-function guideExists () {
-  let config = ConfigDoc();
-  if (config && config.Giving && config.Giving.guide) {
-    return true;
+  if(givingOptions && givingOptions.length > 0) {
+    let groups = _.filter( givingOptions, function ( item ) {
+      if( item && item.groupId ) {
+        return item;
+      }
+    } );
+
+    return groups.map( function ( group ) {
+      return group.groupId;
+    } ).indexOf( id );
   }
-  return false;
-}
-
-function groupIndex (config, id) {
-  return config.Giving.guide.map( function ( group ) {
-    return group.groupId;
-  } ).indexOf( id );
 }
 
 Template.DonationLanding.onCreated(function () {
@@ -23,16 +24,6 @@ Template.DonationLanding.helpers({
   imageSrc: function () {
     if (Uploads.findOne({fundId: this.id})) {
       return Uploads.findOne({fundId: this.id}).baseUrl + Uploads.findOne({fundId: this.id}).name;
-    }
-    return;
-  },
-  givingOptions: function() {
-    let config = ConfigDoc();
-    if (config && config._id) {
-      let givingOptions =  config && config.Giving && config.Giving.options;
-      if (givingOptions && givingOptions.length > 0) {
-        return _.sortBy(givingOptions, 'position');
-      }
     }
     return;
   },
@@ -88,6 +79,9 @@ Template.DonationLanding.helpers({
                 groups.forEach(function(item){
                   let itemName = '#dd-' + item.groupId;
                   if( selectedData.selectedData.value !== item.groupId) {
+
+                    $(".guide-item").removeClass("dim-area");
+                    $(".guide-item").removeClass("highlight-area");
                     if ($("#dd-" + selectedData.selectedData.value + " ul li").length > 1) {
                       $("#dd-" + selectedData.selectedData.value).show();
                       Session.set("showSecondLabel", true);
@@ -106,43 +100,22 @@ Template.DonationLanding.helpers({
         }, 0);
 
       }
-        return config && config._id;
-      }
+      return config && config._id;
+    }
   },
-  givingGuide: function() {
+  givingGroups: function() {
     let config = ConfigDoc();
-    var givingGuide = config && config.Giving && config.Giving.guide;
+    let givingOptions = config && config.Giving && config.Giving.options;
 
-    if(givingGuide && givingGuide.length > 0){
-      return givingGuide;
+    if(givingOptions && givingOptions.length > 0){
+      let groups = _.filter( givingOptions, function(item) {
+        if ( item && item.groupId) {
+          return item;
+        }
+      });
+
+      return groups;
     }
-  },
-  checked: function() {
-    let config = ConfigDoc();
-    if (guideExists()) {
-      if (groupIndex(config, this.groupId) !== -1 && config.Giving.guide[groupIndex(config, this.groupId)].show) {
-        return 'checked';
-      }
-    }
-    return;
-  },
-  icon: function () {
-    let config = ConfigDoc();
-    if (guideExists()) {
-      if (groupIndex(config, this.groupId) !== -1 && config.Giving.guide[groupIndex(config, this.groupId)].icon) {
-        return config.Giving.guide[groupIndex(config, this.groupId)].icon;
-      }
-    }
-    return;
-  },
-  title: function () {
-    let config = ConfigDoc();
-    if (guideExists()) {
-      if (groupIndex(config, this.groupId) !== -1 && config.Giving.guide[groupIndex(config, this.groupId)].title) {
-        return config.Giving.guide[groupIndex(config, this.groupId)].title;
-      }
-    }
-    return;
   },
   twoDDSlickOptions() {
     return Session.get("showSecondLabel");
@@ -153,12 +126,15 @@ Template.DonationLanding.events({
   'click .guide-item': function (e) {
     e.preventDefault();
     let config = ConfigDoc();
-    let index = groupIndex(config, this.groupId);
+    let index = groupPosition(config, this.groupId);
     $('#mainDD').ddslick('select', {index: index.toString() });
-    $(".guide-item").addClass("dim-area");
-    $(e.currentTarget).removeClass("dim-area");
-    $(".guide-item").removeClass("highlight-area");
-    $(e.currentTarget).addClass("highlight-area");
+    Meteor.setTimeout(()=>{
+      $(".guide-item").addClass("dim-area");
+      $(e.currentTarget).removeClass("dim-area");
+      $(".guide-item").removeClass("highlight-area");
+      $(e.currentTarget).addClass("highlight-area");
+    }, 301);
+
   },
   'click #other_ways_to_give': function (e) {
     e.preventDefault();
@@ -169,7 +145,6 @@ Template.DonationLanding.events({
   },
   'click #cardButton': function(e) {
     e.preventDefault();
-    console.log("You clicked the card button");
     var placeholder_value = $('#placeholder_donate_input').val();
     if (placeholder_value === '#depends-on-Missionary' && $('#depends-on-Missionary').val() === "") {
       $('#depends-on-Missionary > .dd-select').addClass("red-border");

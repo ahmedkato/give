@@ -7,32 +7,30 @@ Meteor.methods({
    *
    * @method updateGuide
    * @param {String} groupId - The id of this option group
-   * @param {String} index - The index of the group
    * @param {String} type - What is being updated inside the group?
    * @param {String} value - What is the value of the type being updated?
    */
-  updateGuide: function(groupId, index, type, value){
+  updateGuide: function(groupId, type, value){
     logger.info( "Started method updateGuide." );
     if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
-      console.log( groupId, index, type, value );
+      console.log( groupId, type, value );
       let config = ConfigDoc();
 
       check( groupId, String );
-      check( index, Number );
       check( type, String );
       check( value, Match.OneOf( String, Boolean ) );
 
       this.unblock();
 
-      let existingGuideObject = config.Giving.guide[index];
+      let existingGuideObject = _.findWhere(config.Giving.options, {'groupId': groupId})
       existingGuideObject[type] = value;
 
       Config.update( {
-        _id:                    config._id,
-        "Giving.guide.groupId": groupId
+        _id:                      config._id,
+        "Giving.options.groupId": groupId
       }, {
         $set: {
-          "Giving.guide.$": existingGuideObject
+          "Giving.options.$": existingGuideObject
         }
       } );
       return 'Done';
@@ -47,10 +45,11 @@ Meteor.methods({
    */
   sendChangeConfigNotice: function(from){
     logger.info( "Started method sendChangeConfigNotice." );
-
     check(from, String);
     this.unblock();
-    Utils.send_change_email_notice_to_admins( this.userId, from);
+    if (Roles.userIsInRole(this.userId, 'admin')) {
+      Utils.send_change_email_notice_to_admins( this.userId, from );
+    }
     return 'Done';
   },
   /**
@@ -952,12 +951,15 @@ Meteor.methods({
   },
   update_user_roles: function(roles, user_id) {
     logger.info("Started update_user_roles method");
+    console.log("roles: ", roles );
+    console.log("user_id: ", user_id );
 
-    check(roles, Match.Optional([String]));
+    check(roles, Match.Maybe([String]));
     check(user_id, String);
+    roles = roles ? roles : [];
 
     try {
-      if (Roles.userIsInRole(this.userId, ['admin'])) {
+      if (Roles.userIsInRole(this.userId, ['admin', 'super-admin'])) {
         console.log("Updating");
 
         Roles.setUserRoles(user_id, roles);

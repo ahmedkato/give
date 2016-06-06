@@ -265,6 +265,34 @@ Schema.Giving = new SimpleSchema({
       omit: true
     }
   },
+  "options.$.guideTitle": {
+    type: String,
+    optional: true,
+    autoform: {
+      omit: true
+    }
+  },
+  "options.$.guideDescription": {
+    type: String,
+    optional: true,
+    autoform: {
+      omit: true
+    }
+  },
+  "options.$.guideIcon": {
+    type: String,
+    optional: true,
+    autoform: {
+      omit: true
+    }
+  },
+  "options.$.guideShow": {
+    type: Boolean,
+    optional: true,
+    autoform: {
+      omit: true
+    }
+  },
   guide: {
     type: Array,
     optional: true,

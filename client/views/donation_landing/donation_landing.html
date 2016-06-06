@@ -21,7 +21,7 @@
                                     <label for="mainDD">What would you like to give to?</label>
                                     <br>
                                     <select id="mainDD" class="form-control select select-primary mbl" >
-                                        {{#each givingOptions}}
+                                        {{#each givingGroups}}
                                             {{#if groupId}}
                                                 <option value="{{groupId}}">{{text}}</option>
                                             {{/if}}
@@ -85,23 +85,23 @@
 
                 <div class="col col-lg-offset-1 col-lg-6 col-md-7 col-sm-offset-1 col-sm-10 col-xs-12">
                     <h1 class="uppercase-this">Your giving guide</h1>
-                    {{#each givingGuide}}
-                        {{#if show}}
+                    {{#each givingGroups}}
+                        {{#if guideShow}}
                             <div class="row">
                                 <div class="guide-item reduced-left-padding col col-lg-12 sol-md-12 col-sm-12 col-xs-12 giving-detail-area" id="{{groupId}}">
                                     <div class="reduced-left-padding col col-lg-2 col-md-2 col-sm-2 col-xs-3">
-                                        {{#if icon}}
+                                        {{#if guideIcon}}
                                             <span class="fa-stack fa-2x">
                                               <i class="fa fa-stack-2x fa-circle"></i>
-                                              <i class="fa fa-stack-1x {{icon}} fa-inverse"></i>
+                                              <i class="fa fa-stack-1x {{guideIcon}} fa-inverse"></i>
                                             </span>
                                         {{/if}}
                                     </div>
 
                                     <div class="col col-lg-10 col-md-10 col-sm-10 col-xs-10">
-                                        <p class="small-bottom v-top uppercase-this"><strong>{{title}}</strong></p>
+                                        <p class="small-bottom v-top uppercase-this"><strong>{{guideTitle}}</strong></p>
 
-                                        <p><em>{{description}}</em></p>
+                                        <p><em>{{guideDescription}}</em></p>
                                     </div>
                                 </div>
                             </div>

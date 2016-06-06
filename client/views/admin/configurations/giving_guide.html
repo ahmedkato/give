@@ -27,18 +27,18 @@
                                 <button class="btn btn-primary guide-icon"
                                         role="iconpicker"
                                         data-iconset="fontawesome"
-                                        data-icon="{{icon}}"
+                                        data-icon="{{guideIcon}}"
                                         data-group-id="{{groupId}}"></button>
 
                                 <div class="col col-lg-10 col-md-10 col-sm-10 col-xs-10">
                                     <p class="small-bottom v-top uppercase-this"><strong>{{text}}</strong></p>
                                     <input class="form-control input-sm guide-title"
                                            placeholder="Guide Title Here"
-                                           data-group-id="{{groupId}}" value="{{title}}">
+                                           data-group-id="{{groupId}}" value="{{guideTitle}}">
                                     <textarea class="form-control input-sm guide-description"
                                               rows="3"
                                               placeholder="Guide Description Here"
-                                              data-group-id="{{groupId}}">{{description}}</textarea>
+                                              data-group-id="{{groupId}}">{{guideDescription}}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -63,23 +63,23 @@
                             </div>
                         </div>
                     </div>
-                    {{#each givingGuide}}
-                        {{#if show}}
+                    {{#each givingGroups}}
+                        {{#if guideShow}}
                             <div class="row">
                                 <div class="reduced-left-padding col col-lg-12 sol-md-12 col-sm-12 col-xs-12 giving-detail-area" id="{{groupId}}">
                                     <div class="reduced-left-padding col col-lg-2 col-md-2 col-sm-2 col-xs-3">
-                                        {{#if icon}}
+                                        {{#if guideIcon}}
                                             <span class="fa-stack fa-2x">
                                               <i class="fa fa-stack-2x fa-circle"></i>
-                                              <i class="fa fa-stack-1x {{icon}} fa-inverse"></i>
+                                              <i class="fa fa-stack-1x {{guideIcon}} fa-inverse"></i>
                                             </span>
                                         {{/if}}
                                     </div>
 
                                     <div class="col col-lg-10 col-md-10 col-sm-10 col-xs-10">
-                                        <p class="small-bottom v-top uppercase-this"><strong>{{title}}</strong></p>
+                                        <p class="small-bottom v-top uppercase-this"><strong>{{guideTitle}}</strong></p>
 
-                                        <p><em>{{description}}</em></p>
+                                        <p><em>{{guideDescription}}</em></p>
                                     </div>
                                 </div>
                             </div>

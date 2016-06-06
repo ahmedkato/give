@@ -912,17 +912,37 @@ Utils = {
       return 'scheduled';
     }
   },
+  // TODO: setup the subType field.
+  // TODO: this will give you the ability to always use the object id (for Stripe)
+  // as the _id of the document. Since the type will be 'charge', 'customer', etc.
+  // then use the subType to check if you should send an email or not.
+  // subTypes might be 'failed', 'succeeded', 'pending',
+
+  // TODO: also, this is where we need to add the by: 'donor', 'system', 'admin'
+  // to show that the charge was made by recurring inoice from Stripe ('system') or
+  // by the admin or by the donor
+
+  // TODO: need to try to move these one at a time, there are a lot of pieces
+  // all tied together in the audit_cursor and more
   audit_email(id, type, failure_message, failure_code) {
     logger.info( "Inside audit_email." );
 
+    function upsertAuditEvent( id, type ) {
+      Audit_trail.upsert( { _id: id }, {
+        $addToSet: {
+          email: {
+            type: type,
+            sent: true,
+            time: new Date(),
+            show: true
+          }
+        }
+      } );
+    }
+
     switch( type ) {
       case 'config.change':
-        Audit_trail.upsert( { _id: id }, {
-          $set: {
-            'config.change.sent': true,
-            'config.change.time': new Date()
-          }
-        } );
+        upsertAuditEvent(id, type);
         break;
       case 'charge.pending':
         Audit_trail.upsert( { charge_id: id }, {
@@ -937,22 +957,6 @@ Utils = {
           $set: {
             'charge.succeeded.sent': true,
             'charge.succeeded.time': new Date()
-          }
-        } );
-        break;
-      case 'payment.created':
-        Audit_trail.upsert( { charge_id: id }, {
-          $set: {
-            'payment.created.sent': true,
-            'payment.created.time': new Date()
-          }
-        } );
-        break;
-      case 'payment.paid':
-        Audit_trail.upsert( { charge_id: id }, {
-          $set: {
-            'payment.paid.sent': true,
-            'payment.paid.time': new Date()
           }
         } );
         break;
@@ -1393,7 +1397,7 @@ Utils = {
       return;
     }
 
-    //Utils.audit_email(config._id, 'config.change');
+    Utils.audit_email(config._id, 'config.change');
     let admins = Roles.getUsersInRole( 'admin' );
     let adminEmails = admins.map( function ( item ) {
       return item.emails[0].address;

@@ -478,11 +478,17 @@ Router.route('/dashboard/upload', {
   template: 'Upload'
 });
 
-
 Router.route('/dashboard/logos', {
   name: 'Logos',
   where: 'client',
   template: 'Logos'
+});
+
+Router.route('/dashboard/timeline', {
+  layoutTemplate: 'AdminLayout',
+  name: 'Timeline',
+  where: 'client',
+  template: 'Timeline'
 });
 
 Router.route('/trips', {

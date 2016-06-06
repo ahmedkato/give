@@ -401,8 +401,7 @@ Meteor.publish("config", function () {
       'Settings.collectBankAccountType': 1,
       'Settings.forceACHDay': 1,
       'Settings.DonorTools.url': 1,
-      'Giving.options': 1,
-      'Giving.guide': 1
+      'Giving.options': 1
     }
   });
 });
@@ -476,4 +475,11 @@ Meteor.publish("fundNames", function () {
       }
     } );
   }
+});
+
+Meteor.publish("auditTrail", function () {
+  if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
+    return Audit_trail.find({show: true});
+  }
+  return;
 });
