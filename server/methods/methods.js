@@ -974,12 +974,11 @@ Meteor.methods({
   },
   deleteImageFile: function(name) {
     logger.info("Started deleteImageFile method");
-
     check(name, String);
 
     try {
       if (Roles.userIsInRole(this.userId, ['admin'])) {
-        console.log("Deleting");
+        logger.info("Deleting");
         FS.unlink(process.env.PWD + '/.uploads/' + name);
         FS.unlink(process.env.PWD + '/.uploads/thumbnailBig/' + name);
         FS.unlink(process.env.PWD + '/.uploads/thumbnailSmall/' + name);

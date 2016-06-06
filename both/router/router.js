@@ -393,9 +393,6 @@ Router.route('FixBankSubscription', {
 Router.route('/dashboard/giving_options', {
   name: 'GivingOptions',
   where: 'client',
-  waitOn: function() {
-    return [ Meteor.subscribe('wholeConfigDoc'), Meteor.subscribe('userDTFunds')];
-  }
 });
 
 Router.route('/dashboard/giving_guide', {

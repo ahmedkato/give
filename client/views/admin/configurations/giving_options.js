@@ -1,32 +1,48 @@
-function reorderItems() {
-  let config = ConfigDoc();
-  let orderOfOptions = $("#selectedGivingOptionsDiv").sortable("toArray"),
-    newOptionsOrder = [],
-    currentGroup;
-  let givingOptions = config && config.Giving && config.Giving.options;
+function reorderItems(dontFlash) {
 
-  orderOfOptions.forEach(function(id, index) {
-    let thisOption = _.map(givingOptions, function(item){
-      if(item.type === 'group'){
-        currentGroup = item.groupId;
-      } else {
-        item.currentGroup = currentGroup;
-      }
-      if (item.id === id || item.groupId === id){
-        item.position = index;
-        newOptionsOrder.push(item);
+  // This is here because the UI does a weird shuffle of the elements when you turn off
+  // the sortable by using 'cancel'. Also, it serves to show the user that
+  // we did something, namely, we saved their changes.
+  if(!dontFlash) {
+    $("#selectedGivingOptionsDiv").fadeOut(200).fadeIn(200);
+  }
+
+  Meteor.setTimeout(()=> {
+
+    let config = ConfigDoc();
+    let orderOfOptions = $("#selectedGivingOptionsDiv").sortable("toArray"),
+      newOptionsOrder = [],
+      currentGroup;
+    let givingOptions = config && config.Giving && config.Giving.options;
+
+    orderOfOptions.forEach(function(id, index) {
+      let thisOption = _.map(givingOptions, function(item){
+        if(item.type === 'group'){
+          currentGroup = item.groupId;
+        } else {
+          item.currentGroup = currentGroup;
+        }
+        if (item.id === id || item.groupId === id){
+          item.position = index;
+          newOptionsOrder.push(item);
+        }
+      });
+    });
+
+    Config.update({_id: config._id}, {
+      $set: {
+        'Giving.options': newOptionsOrder
       }
     });
-  });
 
-  Config.update({_id: config._id}, {
-    $set: {
-      'Giving.options': newOptionsOrder
+    Session.set("givingOptionsChecked", newOptionsOrder);
+    if(!dontFlash) {
+      $(".sortable").sortable("cancel");
     }
-  });
+  }, 202);
 };
 
-function sortableFunction () {
+function sortableFunction() {
   Meteor.setTimeout(function () {
     $(".sortable").sortable({
       cursor: 'move',
@@ -71,6 +87,9 @@ function sortableFunction () {
         if ( sortableIn === 0 ) {
           ui.item.remove();
         }
+      },
+      update(){
+        reorderItems();
       },
       cancel: ".disable-sort"
     });
@@ -183,9 +202,7 @@ Template.GivingOptions.events({
         icon:    'fa-frown-o',
         style:   'growl-bottom-right'
       } );
-      console.log(groupsTogether);
       groupsTogether.each(function(index, id){
-        console.log(id);
         if (id) {
           $("#" + id).prev().addClass("backgroundColor");
           $("#" + id).prev().addClass("indianred");
@@ -243,14 +260,8 @@ Template.GivingOptions.events({
         $("#" + id).addClass("indianred");
       } );
     } else {
-      reorderItems();
-      // Store this new order
-      // TODO: remove this hack
-      // hack, reload the page. I think there is a problem between the order of the elements from meteor and
-      // the order that sortable has these in
-      // without the reload the order isn't correct after the reorderItems() function is run
+      let readyToReload = reorderItems();
       location.reload();
-      //Router.go('GivingGuide');
     }
   },
   'keyup .group-input': _.debounce(function(e) {
@@ -291,10 +302,9 @@ Template.GivingOptions.events({
       }
     });
 
-
     // Now that we have removed an item we need to update the positions of the
     // remaining options
-    reorderItems();
+    reorderItems(true);
   },
   'click :checkbox': function(e) {
     e.preventDefault();
@@ -399,6 +409,8 @@ Template.GivingOptions.onCreated(function () {
   let self = this;
   self.autorun(function() {
     self.subscribe("uploaded");
+    self.subscribe('wholeConfigDoc');
+    self.subscribe('userDTFunds');
   });
 });
 
