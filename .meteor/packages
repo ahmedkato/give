@@ -70,3 +70,4 @@ standard-minifier-css
 standard-minifier-js
 percolate:synced-cron
 meteorhacks:ssr
+percolate:find-from-publication

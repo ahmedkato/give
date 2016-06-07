@@ -9,10 +9,8 @@
                     {{#if addingNew 'role'}}
                       {{> AddRole}}
                     {{else}}
-                        {{#if isInRole 'admin'}}
-                            <a href="" class="btn btn-success glyphicon glyphicon-plus addingNewUser" data-add="user"> User</a>
-                            {{> RoleDocumentation}}
-                        {{/if}}
+                        <a href="" class="btn btn-success glyphicon glyphicon-plus addingNewUser" data-add="user"> User</a>
+                        {{> RoleDocumentation}}
                         {{#if isInRole 'super-admin'}}
                             <a href="" class="btn btn-success glyphicon glyphicon-plus addingNewRole" data-add="role"> Role</a>
                         {{/if}}
@@ -36,7 +34,7 @@
                           </tr>
                           </thead>
                           <tbody class="users">
-                            {{#if searchUsers}}
+                            <!--{{#if searchUsers}}-->
                                 {{#if users}}
                                     {{#each users}}
                                       <tr data-id="{{_id}}">
@@ -80,11 +78,11 @@
                                 {{else}}
                                     <p>Nothing found with that search</p>
                                 {{/if}}
-                                {{else}}
-                                    {{#if $not searchValue}}
-                                        <p>Starting typing in the above search box</p>
-                                    {{/if}}
+                            <!--{{else}}
+                                {{#if $not searchValue}}
+                                    <p>Starting typing in the above search box</p>
                                 {{/if}}
+                            {{/if}}-->
                           </tbody>
                         </table>
                     {{/if}}

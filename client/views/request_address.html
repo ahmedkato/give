@@ -140,9 +140,10 @@
                 <label>Postal Code</label>
             <![endif]-->        
             <input {{attributes_Input_Zip}}
-                    pattern="(\d{5}([\-]\d{4})?)"
                     class="form-control slim-borders"
                     data-parsley-error-message="Please enter your postal code."
+                    data-parsley-type="integer"
+                    data-parsley-minlength="5"
                     value="{{logged_in 'postal_code'}}">
         </div>
     </div>

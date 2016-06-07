@@ -98,6 +98,7 @@ npm-mongo@1.4.43
 observe-sequence@1.0.11
 ongoworks:security@1.3.0
 ordered-dict@1.0.7
+percolate:find-from-publication@0.1.0
 percolate:synced-cron@1.3.2
 pfafman:font-awesome-4@4.6.1
 promise@0.6.7

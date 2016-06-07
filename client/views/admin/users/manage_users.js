@@ -1,6 +1,4 @@
-
 function updateSearchVal(){
-  console.log("Got to updateSearchVal function");
   let searchValue = $( ".search" ).val();
 
   if (searchValue) {
@@ -8,7 +6,10 @@ function updateSearchVal(){
     searchValue = searchValue
       .replace( /[^\w\s]|_/g, "" )
       .replace( /\s+/g, " " );
-
+    Session.set( "searchValue", searchValue );
+    Session.delete("documentLimit");
+  } else {
+    Session.set("documentLimit", 100);
     Session.set( "searchValue", searchValue );
   }
 };
@@ -38,16 +39,9 @@ Template.ManageUsers.helpers({
     let searchValue = Session.get("searchValue");
     let matchingUsers;
     if(!searchValue){
-      return Meteor.users.find({}, { sort: { createdAt: 1} });
+      return Meteor.users.findFromPublication('all_users', {}, { sort: { createdAt: 1} });
     } else {
-      matchingUsers = Meteor.users.find({
-        $or: [
-          { 'profile.fname': { $regex: searchValue, $options: 'i' } },
-          { 'profile.lname': { $regex: searchValue, $options: 'i' } },
-          { 'profile.business_name': { $regex: searchValue, $options: 'i' } },
-          { 'emails.address': { $regex: searchValue, $options: 'i' } }
-        ]
-      }, { sort: { createdAt: 1} });
+      matchingUsers = Meteor.users.findFromPublication('all_users', {}, { sort: { createdAt: 1} });
       if (matchingUsers.count()) {
         return matchingUsers;
       } else {
@@ -110,8 +104,8 @@ Template.ManageUsers.helpers({
       return false;
     } else if (!Session.get("searchValue")) {
       return false;
-    } else if (Meteor.users.find().count()) {
-      return Meteor.users.find();
+    } else if (Meteor.users.findFromPublication('all_users').count()) {
+      return Meteor.users.findFromPublication('all_users');
     }
     return false;
   },
@@ -243,8 +237,9 @@ Template.ManageUsers.events({
 });
 
 Template.ManageUsers.onCreated(function () {
-  let self = this;
-  self.autorun(function () {
+  Session.set("documentLimit", 100);
+
+  this.autorun(()=> {
 
     if(Session.get("params.userID")) {
       if( Meteor.users.findOne( { _id: Session.get( "params.userID" ) } ) &&
@@ -262,7 +257,11 @@ Template.ManageUsers.onCreated(function () {
     } else {
       Session.set('params.userID', '');
       Session.set("showSingleUserDashboard", false);
-      return [Meteor.subscribe( 'all_users' ), Meteor.subscribe('roles')];
+
+      return [
+        Meteor.subscribe( 'all_users', null, Session.get("searchValue"), Session.get("documentLimit") ),
+        Meteor.subscribe('roles')
+      ];
     }
   });
 

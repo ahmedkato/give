@@ -192,6 +192,8 @@ Meteor.publish("userStripeDataWithSubscriptions", function () {
 });
 
 Meteor.publish("userSubscriptions", function () {
+  logger.info("Started userSubscriptions subscription");
+
   if (this.userId) {
     var customers = Customers.find({'metadata.user_id': this.userId});
     var subscriptions = [];
@@ -299,8 +301,8 @@ Meteor.publish("transfersRange", function (range) {
       let transferStart = Number(moment(new Date(range.start)).format('X'));
       let transferEnd = Number(moment(new Date(range.end)).format('X'));
 
-      console.log(transferStart);
-      console.log(transferEnd);
+      logger.info(transferStart);
+      logger.info(transferEnd);
 
       return Transfers.find({$and: [{ date: { $lte: transferEnd } }, { date: { $gte: transferStart } }]}, {
         sort: { date: -1 }
@@ -318,7 +320,7 @@ Meteor.publish("transfersRange", function (range) {
 
 Meteor.publish("adminSubscriptions", function (_id) {
   check(_id, Match.Optional(String));
-  console.log("Got to adminSubscriptions sub");
+  logger.info("Got to adminSubscriptions sub");
   let subscriptions;
 
   if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
@@ -333,10 +335,24 @@ Meteor.publish("adminSubscriptions", function (_id) {
   }
 });
 
-Meteor.publish("all_users", function (_id) {
-  check(_id, Match.Optional(String));
-  console.log("Got to all_users sub");
+FindFromPublication.publish("all_users", function (_id, searchValue, limit) {
+  // TODO: why is there no documents published in the FindFromPublication, but there are some in the regular on the client side?
+  console.log(_id, searchValue, limit);
+  check(_id, Match.Maybe(String));
+  check(searchValue, Match.Maybe(String));
+  check(limit, Match.Maybe(Number));
+  logger.info("Got to all_users sub");
   let all_users;
+  const SEARCH = {
+    $or: [
+      { 'profile.fname': { $regex: searchValue, $options: 'i' } },
+      { 'profile.lname': { $regex: searchValue, $options: 'i' } },
+      { 'profile.business_name': { $regex: searchValue, $options: 'i' } },
+      { 'emails.address': { $regex: searchValue, $options: 'i' } }
+    ]
+  };
+  const usableSearchValue = searchValue ? SEARCH : {};
+  const limitValue = limit ? limit : 0;
 
   if (Roles.userIsInRole(this.userId, ['admin'])) {
     if(_id) {
@@ -345,10 +361,14 @@ Meteor.publish("all_users", function (_id) {
             services: 0
           }});
     } else {
-      all_users = Meteor.users.find({}, {
+      const options = {
+        sort: {createdAt: -1},
+        limit: limitValue,
         fields: {
           services: 0
-        }});
+        }
+      };
+      all_users = Meteor.users.find(usableSearchValue, options);
     }
     return all_users;
   } else {

@@ -56,6 +56,9 @@ Meteor.startup(function () {
   Invoices._ensureIndex( { 'subscription': 1 } );
 
   Meteor.users._ensureIndex( { 'emails.address': 1 } );
+  Meteor.users._ensureIndex( { 'profile.fname': 1 } );
+  Meteor.users._ensureIndex( { 'profile.lname': 1 } );
+  Meteor.users._ensureIndex( { 'profile.business_name': 1 } );
   Meteor.users._ensureIndex( { 'primary_customer_id': 1 } );
   Meteor.users._ensureIndex( { 'emailSubscriptions.id': 1 } );
   Meteor.users._ensureIndex( { 'emailSubscriptions.isActive': 1 } );
