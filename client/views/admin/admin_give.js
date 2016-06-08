@@ -64,6 +64,10 @@ Template.AdminGive.helpers({
 });
 
 Template.AdminGive.events({
+  'click .close'(){
+    $('#donateWith').val("");
+    $('#donateWith').change();
+  },
   'submit form': function(e) {
     //prevent the default reaction to submitting this form
     e.preventDefault();
