@@ -45,7 +45,7 @@ _.extend(Utils,{
    * @param {String|Array} emailObject.to - Email addresses to send to (sent as BCC)
    * @param {String} emailObject.previewLine - The text that will appear in the email preview line
    * @param {String} emailObject.type - Email type
-   * @param {String} emailObject.message - Main email message
+   * @param {String} emailObject.emailMessage - Main email message
    * @param {String} emailObject.buttonText - Button text
    * @param {String} emailObject.buttonURL - Button URL
    */
@@ -84,7 +84,7 @@ _.extend(Utils,{
                 "content": emailObject.type
               },{
                 "name": "EmailMessage",
-                "content": emailObject.message
+                "content": emailObject.emailMessage ? emailObject.emailMessage : "No additional message text"
               }, {
                 "name": "ButtonText",
                 "content": emailObject.buttonText
@@ -256,7 +256,7 @@ _.extend(Utils,{
       to: config.OrgInfo.emails.canceledGift,
       previewLine: donor_name + " or the admin canceled a recurring gift.",
       type: 'Canceled Recurring Gift',
-      message: donor_name + " or the admin stopped a recurring (every " +
+      emailMessage: donor_name + " or the admin stopped a recurring (every " +
          stripeEvent.data.object.plan.interval + ") gift (amount: " +
          (stripeEvent.data.object.quantity / 100).toFixed(2) + ") that was using " +
          donateWith + ". The gift start date was " + start_date +
@@ -602,7 +602,7 @@ _.extend(Utils,{
           to: config.OrgInfo.emails.largeGift,
           previewLine: 'A Partner Just Gave $' + (amount/ 100).toFixed(2),
           type: 'Large Gift',
-          message: 'A Partner Just Gave $' + (amount/ 100).toFixed(2),
+          emailMessage: 'A Partner Just Gave $' + (amount/ 100).toFixed(2),
           buttonText: 'Receipt Link',
           buttonURL: config.Settings.DonorTools.url + '/donations?transaction_id=' + charge_cursor._id
         };

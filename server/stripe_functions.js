@@ -327,7 +327,7 @@ _.extend(StripeFunctions, {
     }
 
     // Get the invoice from Stripe
-    let stripeResource = StripeFunctions.stripe_retrieve('invoices', 'list', 
+    let stripeResource = StripeFunctions.stripe_retrieve('invoices', 'list',
       request, '');
     return stripeResource;
   },

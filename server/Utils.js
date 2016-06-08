@@ -1547,6 +1547,7 @@ Utils = {
           let newStripePlan = Utils.create_stripe_plan(plan);
         }
       } );
+      
     } catch(e) {
       logger.error(e);
       var error = (e.response);

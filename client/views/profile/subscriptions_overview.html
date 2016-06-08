@@ -1,153 +1,149 @@
 <template name="SubscriptionsOverview">
     {{#if Template.subscriptionsReady}}
-    {{#if tutorialEnabled}}
-        {{> tutorial options}}
-    {{/if}}
-    <h4 class="billing-module-title">Recurring Gifts Overview</h4>
-    <div class="panel panel-default billing-module">
-    <div class="panel-body">
-        {{#if subscriptions}}
-            {{#each subscriptions}}
-                <div class="col col-lg-3">
-                    <ul class="list-group">
-                    {{#if equals status "trialing"}}
-                        <li class="list-group-item list-group-item-info" data-subscription-id="{{id}}">
-                            <p>This gift is schedule for {{epochToString trial_end}}. <!--<a href="#" class="cancel-subscription">Cancel Subscription</a>--></p>
-                        </li>
-                    {{/if}}
-                    {{#if equals status "pending"}}
-                        <li class="list-group-item list-group-item-info" data-subscription-id="{{id}}">
-                            <p>This gift is pending  {{epochToString trial_end}}. <!--<a href="#" class="cancel-subscription">Cancel Subscription</a>--></p>
-                        </li>
-                    {{/if}}
-                    {{#if equals status "active"}}
-                    <li class="list-group-item list-group-item-success" data-subscription-id="{{id}}">
-                      Status: Active
-                    </li>
-                    {{/if}}
-                    {{#if equals status "canceled"}}
-                    <li class="list-group-item list-group-item-danger" data-subscription-id="{{id}}">
-                      Status: Cancelled
-                    </li>
-                    {{/if}}
-                    {{#if equals status "past_due"}}
-                        <li class="list-group-item list-group-item-danger" data-subscription-id="{{id}}">
-                            Status: Failing
-                        </li>
-                    {{/if}}
-                    <li class="list-group-item bm-block">
-                      <div class="bm-block-content">
-                            Charged every: <strong>{{capitalize planInterval}}</strong>
-                      </div>
-                    </li>
-                      <!--<span class="bm-block-label">Payment<strong>{{type}}</strong> {{lastFour}}</span>-->
-                    <li class="list-group-item bm-block">To: <strong>{{donateTo}}</strong></li>
-                    <li class="list-group-item bm-block">With: <strong>{{show_donate_with}}</strong></li>
-                    <li class="list-group-item bm-block">Amount: <strong>{{centsToDollars quantity}}</strong></li>
-                    {{#unless equals status "canceled"}}
-                        <li class="list-group-item bm-block">Next gift on: <strong>{{epochToString current_period_end}}</strong></li>
-                    {{else}}
-                        <li class="list-group-item bm-block">Ended on: <strong>{{epochToString ended_at}}</strong></li>
-                    {{/unless}}
-                    {{#if equals status "canceled"}}
-                    <li class="list-group-item bm-block">
-                        <span>Canceled Reason: {{canceled_reason}}</span>
-                    </li>
-                    {{/if}}
-                    {{#if equals status "active"}}
-                        <li class="list-group-item bm-block button-blocks">
-                            <a href="" class="btn btn-block btn-danger cancel-subscription">Cancel</a>
-                        </li>
-                        <li class="list-group-item bm-block button-blocks">
-                            <button class="btn btn-block btn-primary edit-subscription">Edit Parts</button>
-                        </li>
-                        {{#if card_subscription}}
-                            <li class="list-group-item bm-block button-blocks">
-                                <a href="{{pathFor 'FixCardSubscription'}}?s={{id}}&c={{customer}}" class="btn btn-block btn-primary update-subscription">Update Payment</a>
+        {{#if tutorialEnabled}}
+            {{> tutorial options}}
+        {{/if}}
+        <h4 class="billing-module-title">Recurring Gifts Overview</h4>
+        <div class="panel panel-default billing-module">
+            <div class="panel-body">
+                {{#if subscriptions}}
+                    {{#each subscriptions}}
+                        <div class="col col-lg-3">
+                            <ul class="list-group">
+                            {{#if equals status "trialing"}}
+                                <li class="list-group-item list-group-item-info" data-subscription-id="{{id}}">
+                                    <p>This gift is schedule for {{epochToString trial_end}}. <!--<a href="#" class="cancel-subscription">Cancel Subscription</a>--></p>
+                                </li>
+                            {{/if}}
+                            {{#if equals status "pending"}}
+                                <li class="list-group-item list-group-item-info" data-subscription-id="{{id}}">
+                                    <p>This gift is pending  {{epochToString trial_end}}. <!--<a href="#" class="cancel-subscription">Cancel Subscription</a>--></p>
+                                </li>
+                            {{/if}}
+                            {{#if equals status "active"}}
+                            <li class="list-group-item list-group-item-success" data-subscription-id="{{id}}">
+                              Status: Active
                             </li>
-                        {{else}}
-                            {{> AddNewBankAccount}}
-                            <li class="list-group-item bm-block button-blocks">
-                                <a class="btn btn-block btn-primary btn_modal_for_add_new_bank_account">Update Payment</a>
+                            {{/if}}
+                            {{#if equals status "canceled"}}
+                            <li class="list-group-item list-group-item-danger" data-subscription-id="{{id}}">
+                              Status: Cancelled
                             </li>
-                        {{/if}}
-                    {{/if}}
-                    {{#if equals status "past_due"}}
+                            {{/if}}
+                            {{#if equals status "past_due"}}
+                                <li class="list-group-item list-group-item-danger" data-subscription-id="{{id}}">
+                                    Status: Failing
+                                </li>
+                            {{/if}}
+                            <li class="list-group-item bm-block">
+                              <div class="bm-block-content">
+                                    Charged every: <strong>{{capitalize planInterval}}</strong>
+                              </div>
+                            </li>
+                              <!--<span class="bm-block-label">Payment<strong>{{type}}</strong> {{lastFour}}</span>-->
+                            <li class="list-group-item bm-block">To: <strong>{{donateTo}}</strong></li>
+                            <li class="list-group-item bm-block">With: <strong>{{show_donate_with}}</strong></li>
+                            <li class="list-group-item bm-block">Amount: <strong>{{centsToDollars quantity}}</strong></li>
+                            {{#unless equals status "canceled"}}
+                                <li class="list-group-item bm-block">Next gift on: <strong>{{epochToString current_period_end}}</strong></li>
+                            {{else}}
+                                <li class="list-group-item bm-block">Ended on: <strong>{{epochToString ended_at}}</strong></li>
+                            {{/unless}}
+                            {{#if equals status "canceled"}}
+                            <li class="list-group-item bm-block">
+                                <span>Canceled Reason: {{canceled_reason}}</span>
+                            </li>
+                            {{/if}}
+                            {{#if equals status "active"}}
+                                <li class="list-group-item bm-block button-blocks">
+                                    <a href="" class="btn btn-block btn-danger cancel-subscription">Cancel</a>
+                                </li>
+                                <li class="list-group-item bm-block button-blocks">
+                                    <button class="btn btn-block btn-primary edit-subscription">Edit Parts</button>
+                                </li>
+                                {{#if card_subscription}}
+                                    <li class="list-group-item bm-block button-blocks">
+                                        <a href="{{pathFor 'FixCardSubscription'}}?s={{id}}&c={{customer}}" class="btn btn-block btn-primary update-subscription">Update Payment</a>
+                                    </li>
+                                {{else}}
+                                    {{> AddNewBankAccount}}
+                                    <li class="list-group-item bm-block button-blocks">
+                                        <a class="btn btn-block btn-primary btn_modal_for_add_new_bank_account">Update Payment</a>
+                                    </li>
+                                {{/if}}
+                            {{/if}}
+                            {{#if equals status "past_due"}}
 
-                        {{#if card_subscription}}
-                            <li class="list-group-item bm-block button-blocks">
-                                <a href="{{pathFor 'FixCardSubscription'}}?s={{id}}&c={{customer}}" class="btn btn-block btn-primary update-subscription">Fix</a>
-                            </li>
-                        {{else}}
-                            {{> AddNewBankAccount}}
-                            <li class="list-group-item bm-block button-blocks">
-                                <a class="btn btn-block btn-primary btn_modal_for_add_new_bank_account">Fix</a>
-                            </li>
-                        {{/if}}
-                    {{/if}}
-                    {{#if equals status "canceled"}}
-                        {{#if card_subscription}}
-                            <li class="list-group-item bm-block button-blocks">
-                                <a href="{{pathFor 'FixCardSubscription'}}?s={{id}}&c={{customer}}" class="btn btn-block btn-primary activate-subscription">Activate</a>
-                            </li>
-                        {{else}}
-                            <li class="list-group-item bm-block button-blocks">
-                                <a href="{{pathFor 'FixBankSubscription'}}?s={{id}}&c={{customer}}" class="btn btn-block btn-primary activate-subscription">Activate</a>
-                            </li>
-                        {{/if}}
-                    {{/if}}
-                  </ul>
+                                {{#if card_subscription}}
+                                    <li class="list-group-item bm-block button-blocks">
+                                        <a href="{{pathFor 'FixCardSubscription'}}?s={{id}}&c={{customer}}" class="btn btn-block btn-primary update-subscription">Fix</a>
+                                    </li>
+                                {{else}}
+                                    {{> AddNewBankAccount}}
+                                    <li class="list-group-item bm-block button-blocks">
+                                        <a class="btn btn-block btn-primary btn_modal_for_add_new_bank_account">Fix</a>
+                                    </li>
+                                {{/if}}
+                            {{/if}}
+                            {{#if equals status "canceled"}}
+                                {{#if card_subscription}}
+                                    <li class="list-group-item bm-block button-blocks">
+                                        <a href="{{pathFor 'FixCardSubscription'}}?s={{id}}&c={{customer}}" class="btn btn-block btn-primary activate-subscription">Activate</a>
+                                    </li>
+                                {{else}}
+                                    <li class="list-group-item bm-block button-blocks">
+                                        <a href="{{pathFor 'FixBankSubscription'}}?s={{id}}&c={{customer}}" class="btn btn-block btn-primary activate-subscription">Activate</a>
+                                    </li>
+                                {{/if}}
+                            {{/if}}
+                          </ul>
 
-                </div>
-            {{/each}}
-        {{else}}
-            {{#if donations}}
-            {{else}}
-                <div class="col col-lg-6 col-lg-offset-3">
-                    <a href="{{pathFor 'user.give'}}?recurring=monthly" class="btn btn-primary btn-block">Setup a recurring gift</a>
+                        </div>
+                    {{/each}}
+                {{/if}}
+                {{#if donations}}
+                    {{#each donations}}
+
+                    <div class="col col-lg-3">
+                        <ul class="list-group">
+                            <li class="list-group-item list-group-item-success" data-subscription-id="{{_id}}">
+                                Status: Active
+                            </li>
+
+                        <li class="list-group-item bm-block">
+                            <div class="bm-block-content">
+                                Charged every: <strong>Month</strong>
+                            </div>
+                        </li>
+                        <li class="list-group-item bm-block">To: <strong>{{donateToThis this.donateTo}}</strong></li>
+                        <li class="list-group-item bm-block">With: <strong>Bank Account</strong></li>
+                        <li class="list-group-item bm-block">Amount: <strong>{{centsToDollars total_amount}}</strong></li>
+                        <li class="list-group-item bm-block">Next gift on: <strong>{{epochToString start_date}}</strong></li>
+
+                            <li class="list-group-item bm-block button-blocks">
+                                <a href="mailto:{{support_address}}?Subject=Update Monthly Gift with id of: {{this._id}}"
+                                   class="btn btn-block btn-danger manual-change" target="_blank">Update/Change/Cancel</a>
+                            </li>
+                        </ul>
+                    </div>
+                    {{/each}}
+                {{/if}}
+            </div>
+            {{#if number_of_subscriptions}}
+                <div class="row text-center">
+                    <nav>
+                        <ul class="pager">
+                        <li class="previous"><a href="#"><span aria-hidden="true">&larr;</span> Previous page</a></li>
+                        <li class="next"><a href="#">Next page <span aria-hidden="true">&rarr;</span></a></li>
+                        </ul>
+                    </nav>
                 </div>
             {{/if}}
-        {{/if}}
-        {{#if donations}}
-            {{#each donations}}
-
-            <div class="col col-lg-3">
-                <ul class="list-group">
-                    <li class="list-group-item list-group-item-success" data-subscription-id="{{_id}}">
-                        Status: Active
-                    </li>
-
-                <li class="list-group-item bm-block">
-                    <div class="bm-block-content">
-                        Charged every: <strong>Month</strong>
-                    </div>
-                </li>
-                <li class="list-group-item bm-block">To: <strong>{{donateToThis this.donateTo}}</strong></li>
-                <li class="list-group-item bm-block">With: <strong>Bank Account</strong></li>
-                <li class="list-group-item bm-block">Amount: <strong>{{centsToDollars total_amount}}</strong></li>
-                <li class="list-group-item bm-block">Next gift on: <strong>{{epochToString start_date}}</strong></li>
-
-                    <li class="list-group-item bm-block button-blocks">
-                        <a href="mailto:{{support_address}}?Subject=Update Monthly Gift with id of: {{this._id}}"
-                           class="btn btn-block btn-danger manual-change" target="_blank">Update/Change/Cancel</a>
-                    </li>
-                </ul>
-            </div>
-            {{/each}}
-        {{/if}}
-    </div>
-    {{#if number_of_subscriptions}}
-        <div class="row text-center">
-            <nav>
-                <ul class="pager">
-                <li class="previous"><a href="#"><span aria-hidden="true">&larr;</span> Previous page</a></li>
-                <li class="next"><a href="#">Next page <span aria-hidden="true">&rarr;</span></a></li>
-                </ul>
-            </nav>
         </div>
-    {{/if}}
-    </div>
-    {{> Modals}}
-    {{> SubscriptionModal}}
+        <div class="col col-lg-6 col-lg-offset-3">
+            <a href="{{pathFor 'user.give'}}?recurring=monthly" class="btn btn-primary btn-block">Setup a recurring gift</a>
+        </div>
+        {{> Modals}}
+        {{> SubscriptionModal}}
     {{/if}}
 </template>
