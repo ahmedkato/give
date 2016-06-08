@@ -1,3 +1,5 @@
+import parsley from 'parsleyjs';
+
 Template.GiveDropdownGroup.onRendered(function() {
   $('select').select2({dropdownCssClass: 'dropdown-inverse'});
 

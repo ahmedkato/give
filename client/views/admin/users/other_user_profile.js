@@ -1,3 +1,5 @@
+import parsley from 'parsleyjs';
+
 Template.OtherUserProfile.helpers({
   user: function () {
     return Meteor.users.findOne({_id: Session.get("params.userID")});

@@ -1,3 +1,5 @@
+import parsley from 'parsleyjs';
+
 Template.FixCardSubscription.onRendered(function(){
 
   Session.setDefault('isRepair', true);

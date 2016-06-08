@@ -1,3 +1,5 @@
+import parsley from 'parsleyjs';
+
 Template.AddNewBankAccount.events({
   'submit form': function (e) {
     //prevent the default reaction to submitting this form

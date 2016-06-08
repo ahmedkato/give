@@ -1,3 +1,5 @@
+import parsley from 'parsleyjs';
+
 Template.AdminMergePersona.onRendered(function () {
   // Setup parsley form validation
   $('#quick_move').parsley();

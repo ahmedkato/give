@@ -1,3 +1,5 @@
+import parsley from 'parsleyjs';
+
 function checkDependantStates() {
   if (AutoForm.getFieldValue("Settings.ach_verification_type", "updateSettingsSection") === 'manual') {
     $('[name="Settings.forceACHDay"]').prop('disabled', false);

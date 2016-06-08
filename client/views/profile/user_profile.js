@@ -1,3 +1,5 @@
+import parsley from 'parsleyjs';
+
 var userProfileTutorialSteps = [
   {
     template: Template.tutorial_user_profile_step1,

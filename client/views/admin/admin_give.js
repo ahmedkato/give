@@ -1,3 +1,5 @@
+import parsley from 'parsleyjs';
+
 Template.AdminGive.onRendered(function() {
   if ($('#donateWith option').length > 2) {
     $('#donateWith').val($('#donateWith option').eq(2).val());

@@ -1,3 +1,5 @@
+import parsley from 'parsleyjs';
+
 var init_calendar = function(){
   let datepickerSelector = $('#start_date');
   datepickerSelector.datepicker( {

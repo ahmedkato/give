@@ -46,6 +46,7 @@
     "fs": "0.0.2",
     "jquery": "^2.2.3",
     "later": "^1.2.0",
-    "meteor-node-stubs": "^0.2.3"
+    "meteor-node-stubs": "^0.2.3",
+    "parsleyjs": "^2.3.13"
   }
 }
