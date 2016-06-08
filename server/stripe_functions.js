@@ -232,7 +232,7 @@ _.extend(StripeFunctions, {
 
     // Get this event from Stripe so we know it wasn't malicious or tampered with
     const STRIPE_REQUEST = StripeFunctions.retrieve_stripe_event( request );
-    console.log("Finished retrieve_stripe_event");
+    logger.info("Finished retrieve_stripe_event");
 
     // Did this event come from Stripe?
     if( STRIPE_REQUEST ){
@@ -275,7 +275,7 @@ _.extend(StripeFunctions, {
       }
     } else {
       // Return since this event either had an error, or it didn't come from Stripe
-      console.log("Exiting control flow, since the event had an error, or didn't come from Stripe");
+      logger.info("Exiting control flow, since the event had an error, or didn't come from Stripe");
       throw new Meteor.Error("401", "A request came in, but the event doesn't seem to have come from Stripe!");
       return;
     }
@@ -294,13 +294,13 @@ _.extend(StripeFunctions, {
       }
     } );
 
-    console.log(wait_for_audit_store);
+    logger.info(wait_for_audit_store);
     return wait_for_audit_store;
     //Utils.post_donation_operation( customer_id, charge_id );
   },
   'retrieve_stripe_event': function ( webhookEvent ) {
-    console.log("Started retrieve_stripe_event");
-    console.log("Event ID: ", webhookEvent.id);
+    logger.info("Started retrieve_stripe_event");
+    logger.info("Event ID: ", webhookEvent.id);
 
     // For security purposes, let's verify the event by retrieving it from Stripe.
     var stripeEvent = StripeFunctions.stripe_retrieve('events', 'retrieve', webhookEvent.id, '');
@@ -319,18 +319,22 @@ _.extend(StripeFunctions, {
     logger.info("Started get_previous_invoice");
     logger.info("Customer ID: ", customer_id );
     logger.info("Invoice ID: ", invoice_id );
+    let request;
+    if (!invoice_id) {
+      request = {customer: customer_id, limit: 1}
+    } else {
+      request = {customer: customer_id, limit: 1, starting_after: invoice_id}
+    }
 
     // Get the invoice from Stripe
-    let stripeResource = StripeFunctions.stripe_retrieve('invoices', 'list',
-      {
-        customer: customer_id, limit: 1, starting_after: invoice_id
-      }, '');
+    let stripeResource = StripeFunctions.stripe_retrieve('invoices', 'list', 
+      request, '');
     return stripeResource;
   },
   'update_customer_metadata': function ( customer_id, dt_persona_id ) {
-    console.log("Started update_customer_metadata");
-    console.log("Customer ID: ", customer_id );
-    console.log("DT_persona_id ID: ", dt_persona_id );
+    logger.info("Started update_customer_metadata");
+    logger.info("Customer ID: ", customer_id );
+    logger.info("DT_persona_id ID: ", dt_persona_id );
 
     // Update the metadata, dt_persona_id of the customer in Stripe
     let stripeResourceUpdate = StripeFunctions.stripe_update(
@@ -338,10 +342,10 @@ _.extend(StripeFunctions, {
     return stripeResourceUpdate;
   },
   'does_this_charge_event_violate_an_out_of_order_rule': function(request_object) {
-    console.log("Started does_this_event_violate_an_out_of_order_rule");
+    logger.info("Started does_this_event_violate_an_out_of_order_rule");
 
     // Use this function to check to see if this event violates an out of order rule
-    console.log(request_object.data.object.id);
+    logger.info(request_object.data.object.id);
 
     // Find the stored event
     let charge_cursor = Charges.findOne({_id: request_object.data.object.id});
@@ -355,7 +359,7 @@ _.extend(StripeFunctions, {
     charge_cursor.status === 'succeeded' ?
       true :
       false;
-    console.log(check_violation);
+    logger.info(check_violation);
 
     return check_violation;
   },
@@ -367,7 +371,7 @@ _.extend(StripeFunctions, {
 
     switch(event_body.data.object.object){
       case 'balance':
-        console.log("Didn't do anything with this balance event.");
+        logger.info("Didn't do anything with this balance event.");
         break;
       case "bank_account":
         Devices.upsert({_id: event_body.data.object._id}, event_body.data.object);
@@ -385,7 +389,7 @@ _.extend(StripeFunctions, {
           event_body.data.object.metadata['balanced_customer_id'] = event_body.data.object.metadata['balanced.customer_id'];
           delete event_body.data.object.metadata['balanced.customer_id'];
         }
-        console.log(event_body.data.object);
+        logger.info(event_body.data.object);
         Customers.upsert({_id: event_body.data.object.id}, event_body.data.object);
         break;
       case "invoice":
@@ -395,7 +399,7 @@ _.extend(StripeFunctions, {
         Charges.upsert({_id: event_body.data.object.id}, event_body.data.object);
         break;
       case 'plan':
-        console.log("Didn't do anything with this plan event.");
+        logger.info("Didn't do anything with this plan event.");
         break;
       case "refunds":
         Refunds.upsert({_id: event_body.data.object.id}, event_body.data.object);
@@ -462,7 +466,7 @@ _.extend(StripeFunctions, {
     chargeCursor =    Charges.findOne({_id: charge_id});
 
     customerCursor =  Customers.findOne({_id: customer_id});
-    console.log("Metadata: ", customerCursor.metadata);
+    logger.info("Metadata: ", customerCursor.metadata);
 
     if (chargeCursor && customerCursor.metadata && customerCursor.metadata.dt_persona_id) {
       Utils.insert_gift_into_donor_tools( charge_id, customer_id );
@@ -506,14 +510,16 @@ _.extend(StripeFunctions, {
         let invoice = StripeFunctions.get_previous_invoice( customer_id, chargeCursor.invoice );
 
         logger.info("Invoice Object: ");
-        logger.info(invoice.data);
-        let previous_charge_id = invoice.data[0].charge;
-        logger.info("Charge_id: ", previous_charge_id);
-        
-        if (previous_charge_id) {
-          let dt_donation_cursor = DT_donations.findOne({transaction_id: previous_charge_id});
-          logger.info("dt_donation_cursor.persona_id : ", dt_donation_cursor.persona_id );
-          dtPersonaId = dt_donation_cursor.persona_id;
+        logger.info(invoice);
+        if (invoice && invoice.data && invoice.data.length > 0) {
+          let previous_charge_id = invoice.data[0].charge;
+          logger.info("Charge_id: ", previous_charge_id);
+
+          if (previous_charge_id) {
+            let dt_donation_cursor = DT_donations.findOne({transaction_id: previous_charge_id});
+            logger.info("dt_donation_cursor.persona_id : ", dt_donation_cursor.persona_id );
+            dtPersonaId = dt_donation_cursor.persona_id;
+          }
         } else {
           dtPersonaId = Utils.find_dt_persona_flow(customerCursor.metadata.email, customer_id);
           logger.info("dtPersonaId : ", dtPersonaId );

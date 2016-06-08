@@ -310,7 +310,7 @@ if (Meteor.isServer) {
 
     // This shouldn't be considered a security precaution since anyone can forge these headers
     // we just use it here to weed out any traffic that hits the URL without trying to forge
-    // a strip origin header
+    // a Stripe origin header
     // Every request here always gets verified by Stripe and we use the verified
     // response inside the app
     this.response.setHeader( 'access-control-allow-origin', 'https://stripe.com' );

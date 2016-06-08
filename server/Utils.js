@@ -257,65 +257,65 @@ Utils = {
       "/people.json?search=" + email + "&fields=email_address"
     );
 
-    if( personResult ) {
-      metadata = Customers.findOne( { _id: customer_id } ).metadata;
-      // Step 1b
-      if( metadata.business_name ) {
-        orgMatch = _.find( personResult.data, function ( value ) {
-          return value.persona.company_name
-        } );
-        if( orgMatch ) {
-          // Does the company name in DT match the company name provided by the user?'
-          if( orgMatch.persona.company_name.toLowerCase() === metadata.business_name.toLowerCase() ) {
-            // Return value.id as the DT ID that has matched what the user inputted
-            matched_id = orgMatch.persona.id;
-            // return the matched DT persona id
-            return matched_id;
-          } else {
-            // Create new company in DT, since this one didn't match what they gave us
-            return null;
-          }
-
+    logger.info("personResult from DT: ", personResult);
+    if( personResult && personResult.data && personResult.data.length  === 0 ) {
+      // Step 1a
+      // Schedule welcome email
+      Utils.send_welcome_email(email);
+    }
+    metadata = Customers.findOne( { _id: customer_id } ).metadata;
+    // Step 1b
+    if( metadata.business_name ) {
+      orgMatch = _.find( personResult.data, function ( value ) {
+        return value.persona.company_name
+      } );
+      if( orgMatch ) {
+        // Does the company name in DT match the company name provided by the user?'
+        if( orgMatch.persona.company_name.toLowerCase() === metadata.business_name.toLowerCase() ) {
+          // Return value.id as the DT ID that has matched what the user inputted
+          matched_id = orgMatch.persona.id;
+          // return the matched DT persona id
+          return matched_id;
         } else {
-          // Create new company in DT, since this one (or these) didn't match what they gave us
+          // Create new company in DT, since this one didn't match what they gave us
           return null;
         }
+
       } else {
-        orgMatch = _.find( personResult.data, function ( value ) {
-          return !value.persona.company_name
-        } );
-
-        if( orgMatch ) {
-          personMatch = _.find( personResult.data, function ( el ) {
-
-            if( el.persona.names.some( function ( value ) {
-                if( value.first_name.toLowerCase() === metadata.fname.toLowerCase() && value.last_name.toLowerCase() === metadata.lname.toLowerCase() ) {
-                  logger.info( "Person who's name matches: " );
-                  logger.info( value );
-                  // returning true here tells the function that this is the record inside which the correct name is found
-                  return true;
-                }
-              } ) ) {
-              // Looked through all of the name arrays inside of all of the persona's and there was a match
-              return true;
-            }
-          } );
-          // return the matched DT persona id if it exists, else return null since there was no name match here.
-          if( personMatch ) {
-            return personMatch.persona.id;
-          } else {
-            return null;
-          }
-
-        } else {
-          // Create new person in DT, since this one (or these) didn't match what they gave us
-          return null;
-        }
+        // Create new company in DT, since this one (or these) didn't match what they gave us
+        return null;
       }
     } else {
-      // Step 1a
-      // Return null for no email matches
-      return null;
+      orgMatch = _.find( personResult.data, function ( value ) {
+        return !value.persona.company_name
+      } );
+
+      if( orgMatch ) {
+        personMatch = _.find( personResult.data, function ( el ) {
+
+          if( el.persona.names.some( function ( value ) {
+              if( value.first_name.toLowerCase() === metadata.fname.toLowerCase() && value.last_name.toLowerCase() === metadata.lname.toLowerCase() ) {
+                logger.info( "Person who's name matches: " );
+                logger.info( value );
+                // returning true here tells the function that this is the record inside which the correct name is found
+                return true;
+              }
+            } ) ) {
+            // Looked through all of the name arrays inside of all of the persona's and there was a match
+            return true;
+          }
+        } );
+        // return the matched DT persona id if it exists, else return null since there was no name match here.
+        if( personMatch ) {
+          return personMatch.persona.id;
+        } else {
+          return null;
+        }
+
+      } else {
+        // Create new person in DT, since this one (or these) didn't match what they gave us
+        return null;
+      }
     }
   },
   check_for_dt_user(email, checkThisDTID, use_id, customer_id) {
@@ -376,7 +376,7 @@ Utils = {
     var dt_persona_match_id;
     if( Audit_trail.findOne( { _id: customer.id } ) &&
       Audit_trail.findOne( { _id: customer.id } ).flow_checked && !skip_audit ) {
-      console.log( "Checked for and found a audit record for this customer creation flow, skipping the account creation." );
+      logger.info( "Checked for and found a audit record for this customer creation flow, skipping the account creation." );
       return;
     } else {
       logger.info( "Checked for and didn't find an audit record for this customer." );
@@ -392,7 +392,6 @@ Utils = {
 
         // Send an email to the support users telling them that a new DT account was added
         Utils.send_new_dt_account_added_email_to_support_email_contact( customer.email, user_id, dt_persona_match_id );
-        Utils.send_welcome_email(customer.email);
       }
 
       logger.info( "The donor Tools ID for this customer is ", dt_persona_match_id );
@@ -469,9 +468,8 @@ Utils = {
   insert_gift_into_donor_tools(charge_id, customer_id) {
     logger.info( "Started insert_gift_into_donor_tools" );
     let config = ConfigDoc();
-    logger.info( "Config Settings: " );
-    logger.info( config.Settings );
-    logger.info( "Charge_id: ", charge_id, " Customer_id: ", customer_id );
+    logger.info( "Config Settings:", config.Settings );
+    logger.info( "Charge_id:", charge_id, " Customer_id: ", customer_id );
     let chargeCursor, dt_fund, donateTo, invoice_cursor,
       fund_id, memo, source_id, newDonationResult;
     var metadata;
@@ -517,18 +515,21 @@ Utils = {
     if( !dt_fund ) {
       fund_id = config.Settings.DonorTools.defaultFundId;
       memo = Meteor.settings.dev +
-        metadata &&
+        (metadata &&
         metadata.frequency &&
         metadata.frequency.charAt( 0 ).toUpperCase() +
-        metadata.frequency.slice( 1 ) + " " + donateTo;
+        metadata.frequency.slice( 1 ) + " " + donateTo);
     } else {
       fund_id = dt_fund;
-      memo = Meteor.settings.dev + metadata &&
+      memo = Meteor.settings.dev +
+        (metadata &&
         metadata.frequency &&
         metadata.frequency.charAt( 0 ).toUpperCase() +
-        metadata.frequency.slice( 1 );
+        metadata.frequency.slice( 1 ));
+      logger.info("area 1:", memo);
       if( metadata && metadata.note ) {
         memo = memo + " " + metadata.note;
+        logger.info("area 2:", memo);
       }
     }
 
@@ -575,6 +576,7 @@ Utils = {
       } );
       throw new Meteor.Error( e );
     }
+    logger.info("area 3:", memo);
 
     newDonationResult = HTTP.post( config.Settings.DonorTools.url + '/donations.json', {
       data: {
@@ -638,17 +640,19 @@ Utils = {
     // write-in gifts and those not matching a fund in DT
     if( !dt_fund ) {
       fund_id = config.Settings.DonorTools.defaultFundId;
-      memo = Meteor.settings.dev + donationCursor &&
+      memo = Meteor.settings.dev +
+        (donationCursor &&
         donationCursor.frequency &&
         donationCursor.frequency.charAt( 0 ).toUpperCase() +
-        donationCursor.frequency.slice( 1 ) + " " + donateTo;
+        donationCursor.frequency.slice( 1 ) + " " + donateTo);
 
     } else {
       fund_id = dt_fund;
-      memo = Meteor.settings.dev + donationCursor &&
+      memo = Meteor.settings.dev +
+        (donationCursor &&
         donationCursor.frequency &&
         donationCursor.frequency.charAt( 0 ).toUpperCase() +
-        donationCursor.frequency.slice( 1 );
+        donationCursor.frequency.slice( 1 ));
       if( donationCursor && donationCursor.note ) {
         memo = memo + " " + donationCursor.note;
       }
@@ -2000,12 +2004,17 @@ Utils = {
       fund_id = config.Settings.DonorTools.defaultFundId;
       memo = Meteor.settings.dev + charge.metadata.frequency.charAt( 0 ).toUpperCase() + charge.metadata.frequency.slice( 1 ) + " " +
         donateTo;
+      logger.info("area 4:", memo);
     } else {
       fund_id = dt_fund;
       memo = Meteor.settings.dev + charge.metadata.frequency.charAt( 0 ).toUpperCase() + charge.metadata.frequency.slice( 1 );
+      logger.info("area 5:", memo);
+
       if( charge && charge.metadata && charge.metadata.note ) {
         memo = memo + " " + charge.metadata.note;
       }
+      logger.info("area 6:", memo);
+
     }
 
     var newDonationResult;
@@ -2191,13 +2200,16 @@ Utils = {
       if( !dt_fund ) {
         fund_id = config.Settings.DonorTools.defaultFundId;
         memo = Meteor.settings.dev + charge.metadata.frequency.charAt( 0 ).toUpperCase() + charge.metadata.frequency.slice( 1 ) + " " + donateTo;
+        logger.info("area 7:", memo);
 
       } else {
         fund_id = dt_fund;
         memo = Meteor.settings.dev + charge.metadata.frequency.charAt( 0 ).toUpperCase() + charge.metadata.frequency.slice( 1 );
+        logger.info("area 8:", memo);
         if( charge && charge.metadata && charge.metadata.note ) {
           memo = memo + " " + charge.metadata.note;
         }
+        logger.info("area 9:", memo);
       }
       var source_id;
 
