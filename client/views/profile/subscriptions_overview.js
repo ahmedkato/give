@@ -132,7 +132,7 @@ Template.SubscriptionsOverview.events({
   console.log("Got to cancel subscription call");
   console.log("subscription id: " + subscription_id);
   console.log("Customer id: " + customer_id);
-  $(e.currentTarget).button('Working');
+  $(e.currentTarget).button('loading');
   
   swal({
       title: "Are you sure?",

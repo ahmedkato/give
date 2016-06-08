@@ -1183,12 +1183,6 @@ Utils = {
       customer_id,
       subscription_id
     );
-
-    // Set this subscription to canceled. Stripe's webhooks will still update this later,
-    // but this is here so that the admin or customer who cancels the subscription gets
-    // immediate feedback on their action
-    Subscriptions.update( { _id: subscription_id }, { $set: { status: 'canceled' } } );
-    console.dir( stripe_cancel );
     return stripe_cancel;
   },
   stripe_create_subscription ( customer_id, source_id, plan, quantity, metadata ) {

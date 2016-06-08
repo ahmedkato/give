@@ -258,15 +258,19 @@ _.extend(Utils,{
       type: 'Canceled Recurring Gift',
       emailMessage: donor_name + " or the admin stopped a recurring (every " +
          stripeEvent.data.object.plan.interval + ") gift (amount: " +
-         (stripeEvent.data.object.quantity / 100).toFixed(2) + ") that was using " +
-         donateWith + ". The gift start date was " + start_date +
+         (stripeEvent.data.object.quantity / 100).toFixed(2) + ") that was using (a) " +
+         (donateWith && donateWith.toLowerCase()) + ". The gift start date was " + start_date +
          ". The last time this recurring gift ran was " + last_gift +
-         ". The gift was canceled on " + canceled_date + '. The reason they gave was ' +
-               canceledReason ? canceledReason : "None Given",
+         ". The gift was canceled on " + canceled_date + '. ' +
+         (canceledReason ?
+         "The reason they stopped giving was '" + canceledReason + "'." :
+         "This gift was canceled from Stripe directly either because someone " +
+         "used the Stripe dashboard, or because their gift failed to process to many times."),
       buttonText: 'Donor Tools Person',
       buttonURL: config.Settings.DonorTools.url + '/people/' + customer_cursor.metadata.dt_persona_id
     };
 
+    logger.info("emailObject:", emailObject);
     Utils.sendEmailNotice(emailObject);
   },
   send_donation_email: function (recurring, id, amount, type, body, frequency, subscription) {

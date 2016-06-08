@@ -405,7 +405,11 @@ _.extend(StripeFunctions, {
         Refunds.upsert({_id: event_body.data.object.id}, event_body.data.object);
         break;
       case "subscription":
-        Subscriptions.upsert({_id: event_body.data.object.id}, event_body.data.object);
+        let subscription = Subscriptions.findOne({_id: event_body.data.object.id});
+        let subscriptionStatus = subscription.status;
+        if (subscriptionStatus !== 'canceled') {
+          Subscriptions.upsert({_id: event_body.data.object.id}, event_body.data.object);
+        }
         break;
       case 'transfer':
         console.dir(event_body);
