@@ -89,7 +89,6 @@ momentjs:moment@2.13.1
 mongo@1.1.7
 mongo-id@1.0.4
 mongo-livedata@1.0.12
-mrgalaxy:stripe@2.2.2
 msavin:jetsetter@1.5.2
 mystor:device-detection@0.2.0
 npm-bcrypt@0.8.5

@@ -1,3 +1,4 @@
+
 function OrgInfoCheck(name, namePart2) {
   let config = ConfigDoc();
   if (name && namePart2){

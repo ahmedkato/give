@@ -29,7 +29,7 @@ browser-policy
 audit-argument-checks
 sacha:spin
 momentjs:moment
-mrgalaxy:stripe
+#mrgalaxy:stripe
 themeteorchef:jquery-validation
 themeteorchef:bert
 alanning:roles
