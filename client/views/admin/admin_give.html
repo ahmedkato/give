@@ -4,7 +4,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title"><strong>Thanks</strong>, complete the form below.</h4>
+                    <h4 class="modal-title">The 'Pay With' dropdown will only show payment devices if the user has saved one.</h4>
                 </div>
                 <div class="modal-body">
                     <form class="form-horizontal" id="quick_give">
@@ -80,8 +80,14 @@
 
                             <div class="form-group padBottom">
                                 <div class="col-sm-offset-2 col-sm-8">
-                                    <button name="submitQuickGive" type="submit" class="btn btn-block btn-hg btn-primary"
-                                            data-toggle="modal" data-target=".bs-example-modal-lg" > <span class="fa fa-paper-plane-o"></span> Send Donation</button>
+                                    <button name="submitQuickGive"
+                                            type="submit"
+                                            class="btn btn-block btn-hg btn-primary"
+                                            data-toggle="modal"
+                                            data-target=".bs-example-modal-lg"
+                                            data-loading-text="Processing... <i class='fa fa-spinner fa-spin'></i>">
+                                        <span class="fa fa-paper-plane-o"></span>
+                                        Send Donation</button>
                                 </div>
                             </div>
                         </fieldset>

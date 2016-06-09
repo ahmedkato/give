@@ -336,8 +336,6 @@ Meteor.publish("adminSubscriptions", function (_id) {
 });
 
 FindFromPublication.publish("all_users", function (_id, searchValue, limit) {
-  // TODO: why is there no documents published in the FindFromPublication, but there are some in the regular on the client side?
-  console.log(_id, searchValue, limit);
   check(_id, Match.Maybe(String));
   check(searchValue, Match.Maybe(String));
   check(limit, Match.Maybe(Number));

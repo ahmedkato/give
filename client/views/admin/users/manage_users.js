@@ -14,6 +14,15 @@ function updateSearchVal(){
   }
 };
 
+function getDocHeight() {
+  var D = document;
+  return Math.max(
+    D.body.scrollHeight, D.documentElement.scrollHeight,
+    D.body.offsetHeight, D.documentElement.offsetHeight,
+    D.body.clientHeight, D.documentElement.clientHeight
+  );
+};
+
 AutoForm.hooks({
   'edit-user-form': {
     onSuccess: function (operation, result) {
@@ -39,9 +48,9 @@ Template.ManageUsers.helpers({
     let searchValue = Session.get("searchValue");
     let matchingUsers;
     if(!searchValue){
-      return Meteor.users.findFromPublication('all_users', {}, { sort: { createdAt: 1} });
+      return Meteor.users.findFromPublication('all_users', {}, { sort: { createdAt: -1} });
     } else {
-      matchingUsers = Meteor.users.findFromPublication('all_users', {}, { sort: { createdAt: 1} });
+      matchingUsers = Meteor.users.findFromPublication('all_users', {}, { sort: { createdAt: -1} });
       if (matchingUsers.count()) {
         return matchingUsers;
       } else {
@@ -113,6 +122,7 @@ Template.ManageUsers.helpers({
     return Session.get("gift_user_id");
   }
 });
+
 Template.ManageUsers.events({
   'click .disable-enable-user': function () {
     console.log("got remove");
@@ -225,7 +235,6 @@ Template.ManageUsers.events({
   }, 300),
   'click .new-gift'(e){
     e.preventDefault();
-    console.log("Clicked new gift for: ", this._id);
     Session.set("gift_user_id", this._id);
     Meteor.setTimeout(function(){
       $('#modal_for_admin_give_form').modal({
@@ -237,7 +246,7 @@ Template.ManageUsers.events({
 });
 
 Template.ManageUsers.onCreated(function () {
-  Session.set("documentLimit", 100);
+  Session.set("documentLimit", 10);
 
   this.autorun(()=> {
 
@@ -267,7 +276,18 @@ Template.ManageUsers.onCreated(function () {
 
 });
 
+Template.ManageUsers.onRendered(function () {
+  $(window).scroll(function() {
+    if($(window).scrollTop() + $(window).height() == getDocHeight()) {
+      console.log("bottom!");
+      let documentLimit = Session.get("documentLimit");
+      Session.set("documentLimit", documentLimit += 10);
+    }
+  });
+});
+
 Template.ManageUsers.onDestroyed(function() {
   Session.delete("gift_user_id");
   Session.delete("searchValue");
+  $(window).unbind('scroll');
 });

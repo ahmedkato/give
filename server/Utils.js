@@ -36,6 +36,7 @@ Utils = {
       config.Settings.DonorTools.url;
 
     if( getURL ) {
+      logger.info("Donor Tools URL to use in get:", getURL);
       try {
         let getResource = HTTP.get( getURL + getQuery, {
           auth: DONORTOOLSAUTH

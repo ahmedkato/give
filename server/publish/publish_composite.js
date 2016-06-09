@@ -193,7 +193,7 @@ Meteor.publishComposite("publish_for_admin_give_form", function(id) {
             // Find post author. Even though we only want to return
             // one record here, we use "find" instead of "findOne"
             // since this function should return a cursor.
-            return Devices.find( { customer: customers._id } );
+            return Devices.find( { customer: customers._id, 'metadata.saved': 'true' } );
           }
         }
       ]

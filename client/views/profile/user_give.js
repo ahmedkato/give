@@ -28,10 +28,18 @@ Template.UserGive.helpers({
     }
   },
   paymentWithCard: function() {
-    return Session.equals("UserPaymentMethod", "Card");
+    let userPaymentMethod = Session.get("UserPaymentMethod");
+    if (userPaymentMethod) {
+      return userPaymentMethod === 'Card';
+    }
+    return;
   },
   paymentWithCheck: function() {
-    return Session.equals("UserPaymentMethod", "Check");
+    let userPaymentMethod = Session.get("UserPaymentMethod");
+    if (userPaymentMethod) {
+      return userPaymentMethod === 'Check';
+    }
+    return;
   },
   attributes_Input_Amount: function() {
     return {

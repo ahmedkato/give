@@ -16,9 +16,10 @@
             <div class="col-lg-4 col-md-4 col-sm-4">
                 <label for="donateWith" id="donateWith_label">Pay With</label>
                 <select name="donateWith" id="donateWith" class="form-control select select-primary mbl" required data-placeholder="Select an Option">
-                        <option value=""></option>
+                        <option value="Card">New Card</option>
+                        <option value="Check">New Bank</option>
                     {{#each device}}
-                        <option value="{{this.id}}" selected {{selected}}>{{brand}} - {{last4}} {{customer}}</option>
+                        <option value="{{this.id}}" {{selected}}>{{brand}} - {{last4}} {{customer}}</option>
                     {{/each}}
                 </select>
             </div>
