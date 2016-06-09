@@ -25,69 +25,65 @@
                             <button type="button" class="btn btn-danger btn-block clear-button">
                                 Clear
                             </button>
-                            <table class="table table-striped table-hover no-margin">
-                              <thead>
-                              <tr>
-                                  <th>Email</th>
-                                  <th>Name</th>
-                                  <th>Role(s)</th>
-                                  <th class="text-center">Actions</th>
-                              </tr>
-                              </thead>
-                              <tbody class="users">
-                                <!--{{#if searchUsers}}-->
-                                    {{#if users}}
-                                        {{#each users}}
-                                          <tr data-id="{{_id}}">
-                                              <td class="text-left">{{#if isCurrentUser _id}}<label class="label label-success">You!</label>{{/if}} {{emails.[0].address}}</td>
-                                              <td class="text-left">{{profile.fname}} {{profile.lname}}</td>
-                                              <td class="text-left">{{#each user_roles}} <label class="label label-success"> {{this}} </label>&nbsp;{{/each}}</td>
-                                              <td class="text-center">
-                                                  <button type="button" {{disabledIfDisabled}} class="btn btn-primary forgot-password"
-                                                        title="Send Password Reset Link"
-                                                        data-toggle="confirmation"
-                                                        data-loading-text="<i class='fa fa-spinner fa-spin'></i>">
-                                                      <i class="fa fa-paper-plane"></i>
-                                                  </button>
-                                                  <button type="button"
-                                                          class="btn btn-primary edit-user"
-                                                          title="Edit this user">
-                                                      <i class="fa fa-pencil"></i>
-                                                  </button>
-                                                  <!-- only show the gift button if
-                                                  there is DonorTools persona_info
-                                                   in the user document -->
-                                                    {{#if this.persona_info}}
-                                                        {{#if isInRole 'super-admin'}}
-                                                            <button type="button"
-                                                                class="btn btn-primary new-gift"
-                                                                title="Setup a new gift from this user">
-                                                                <i class="fa fa-gift"></i>
-                                                            </button>
+                            <div class="table-responsive">
+                                <table class="table table-striped no-margin">
+                                  <thead>
+                                  <tr>
+                                      <th>Email</th>
+                                      <th>Name</th>
+                                      <th>Role(s)</th>
+                                      <th class="text-center">Actions</th>
+                                  </tr>
+                                  </thead>
+                                  <tbody class="users">
+                                        {{#if users}}
+                                            {{#each users}}
+                                              <tr data-id="{{_id}}">
+                                                  <td class="text-left">{{#if isCurrentUser _id}}<label class="label label-success">You!</label>{{/if}} {{emails.[0].address}}</td>
+                                                  <td class="text-left">{{profile.fname}} {{profile.lname}}</td>
+                                                  <td class="text-left">{{#each user_roles}} <label class="label label-success"> {{this}} </label>&nbsp;{{/each}}</td>
+                                                  <td class="text-center">
+                                                      <button type="button" {{disabledIfDisabled}} class="btn btn-primary forgot-password"
+                                                            title="Send Password Reset Link"
+                                                            data-toggle="confirmation"
+                                                            data-loading-text="<i class='fa fa-spinner fa-spin'></i>">
+                                                          <i class="fa fa-paper-plane"></i>
+                                                      </button>
+                                                      <button type="button"
+                                                              class="btn btn-primary edit-user"
+                                                              title="Edit this user">
+                                                          <i class="fa fa-pencil"></i>
+                                                      </button>
+                                                      <!-- only show the gift button if
+                                                      there is DonorTools persona_info
+                                                       in the user document -->
+                                                        {{#if this.persona_info}}
+                                                            {{#if isInRole 'super-admin'}}
+                                                                <button type="button"
+                                                                    class="btn btn-primary new-gift"
+                                                                    title="Setup a new gift from this user">
+                                                                    <i class="fa fa-gift"></i>
+                                                                </button>
+                                                            {{/if}}
                                                         {{/if}}
-                                                    {{/if}}
-                                                  <button type="button" {{disableIfAdmin _id}}
-                                                          title="{{toggleUserText}}"
-                                                          class="btn btn-primary disable-enable-user"
-                                                          data-loading-text="<i class='fa fa-spinner fa-spin'></i>"
-                                                          data-toggle="confirmation"
-                                                          data-_id="{{_id}}"
-                                                          aria-expanded="true">
-                                                  {{{disabledUserFA}}}
-                                                  </button>
-                                              </td>
-                                          </tr>
-                                        {{/each}}
-                                    {{else}}
-                                        <p>Nothing found with that search</p>
-                                    {{/if}}
-                                <!--{{else}}
-                                    {{#if $not searchValue}}
-                                        <p>Starting typing in the above search box</p>
-                                    {{/if}}
-                                {{/if}}-->
-                              </tbody>
-                            </table>
+                                                      <button type="button" {{disableIfAdmin _id}}
+                                                              title="{{toggleUserText}}"
+                                                              class="btn btn-primary disable-enable-user"
+                                                              data-loading-text="<i class='fa fa-spinner fa-spin'></i>"
+                                                              data-toggle="confirmation"
+                                                              data-_id="{{_id}}"
+                                                              aria-expanded="true">
+                                                      {{{disabledUserFA}}}
+                                                      </button>
+                                                  </td>
+                                              </tr>
+                                            {{/each}}
+                                        {{else}}
+                                            <p>Nothing found with that search</p>
+                                        {{/if}}
+                                  </tbody>
+                                </table>
+                            </div>
                         {{/if}}
                     {{/if}}
                 {{else}}

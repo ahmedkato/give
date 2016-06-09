@@ -102,15 +102,17 @@ Meteor.publishComposite('transactions', function (transfer_id) {
   }
 });
 
-Meteor.publishComposite('subscriptions_and_customers', function (searchValue) {
-  check(searchValue, Match.Optional(String));
+Meteor.publishComposite('subscriptions_and_customers', function (searchValue, limit) {
+  check(searchValue, Match.Maybe(String));
+  check(limit, Match.Maybe(Number));
 
   // Publish the nearly expired or expired card data to the admin dashboard
-  if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
-    console.log(searchValue);
-    if(!searchValue){
-      return;
-    }
+  if (Roles.userIsInRole(this.userId, ['super-admin', 'admin', 'manager'])) {
+    const limitValue = limit ? limit : 0;
+    const options = {
+      sort: {created: -1},
+      limit: limitValue
+    };
 
     return {
       find: function () {
@@ -149,7 +151,7 @@ Meteor.publishComposite('subscriptions_and_customers', function (searchValue) {
               }
             ]
           }]
-        } );
+        }, options );
       },
       children: [
         {
