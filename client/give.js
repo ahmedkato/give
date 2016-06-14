@@ -40,7 +40,6 @@ function OrgInfoCheck(name, namePart2) {
       var addressLine2;
 
       if (Meteor.user()) {
-        
         if (user_id && Roles.userIsInRole(Meteor.user(), ['super-admin', 'admin'])) {
           userCursor = Meteor.users.findOne(user_id);
         } else {

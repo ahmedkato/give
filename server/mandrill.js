@@ -547,14 +547,6 @@ _.extend(Utils,{
                 // didn't get past the initial screen and so the donor already knows
                 // their gift failed. Sending an email here would just confuse them
                 return;
-                  /*data_slug.template_name = config.Services.Email.failedPayment;
-
-                  data_slug.message.global_merge_vars.push(
-                      {
-                          "name": "URL",
-                          "content": Meteor.absoluteUrl("landing")
-                      }
-                  );*/
               }
           } else {
               data_slug.message.global_merge_vars.push(
@@ -602,11 +594,12 @@ _.extend(Utils,{
           return;
         }
 
+        let fullName = customer_cursor.metadata.fname + " " + customer_cursor.metadata.lname;
         let emailObject = {
           to: config.OrgInfo.emails.largeGift,
-          previewLine: 'A Partner Just Gave $' + (amount/ 100).toFixed(2),
+          previewLine: fullName +' just gave $' + (amount/ 100).toFixed(2),
           type: 'Large Gift',
-          emailMessage: 'A Partner Just Gave $' + (amount/ 100).toFixed(2),
+          emailMessage: fullName +' just gave $' + (amount/ 100).toFixed(2),
           buttonText: 'Receipt Link',
           buttonURL: config.Settings.DonorTools.url + '/donations?transaction_id=' + charge_cursor._id
         };

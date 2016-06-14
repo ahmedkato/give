@@ -79,9 +79,8 @@
                 <label>Phone Number</label>
             <![endif]-->        
             <input {{attributes_Input_Phone_Number}}
-                oninvalid="setCustomValidity('Please enter only numbers')"
-                onchange="try{setCustomValidity('')}catch(e){}"
                 class="form-control slim-borders"
+                data-parsley-error-message="Please check this value and submit the form again."
                 value="{{logged_in 'phone'}}" >
         </div>
     </div>
@@ -139,12 +138,15 @@
             <!--[if lt IE 9]>
                 <label>Postal Code</label>
             <![endif]-->        
-            <input {{attributes_Input_Zip}}
-                    class="form-control slim-borders"
-                    data-parsley-error-message="Please enter your postal code."
-                    data-parsley-type="integer"
-                    data-parsley-minlength="5"
-                    value="{{logged_in 'postal_code'}}">
+            <input type="text"
+                   name="postal_code"
+                   id="postal_code"
+                   placeholder="Zip or Postal Code"
+                   class="form-control slim-borders"
+                   pattern="(\d{5}([\-]\d{4})?)"
+                   required
+                   title="Postal code"
+                   value="{{logged_in 'postal_code'}}">
         </div>
     </div>
     <!-- country select -->

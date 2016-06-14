@@ -264,9 +264,6 @@ Template.UserProfile.onRendered(function() {
   Session.setDefault('dt_donations_cursor', 0);
   Session.set("showHistory", true);
 
-  // Make sure the user can't enter anything, except what would go in a phone number field
-  $("#phone").mask("(999)999-9999");
-
   // Setup parsley form validation
   $('#userAddressForm').parsley();
 

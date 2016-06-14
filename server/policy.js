@@ -18,7 +18,7 @@ var trusted = [
   'p.typekit.net',
   'cdn.heapanalytics.com',
   'heapanalytics.com',
-  'd2zah9y47r7bi2.cloudfront.net',
+  'd2zah9y47r7bi2.cloudfront.net'
 ];
 
 

@@ -771,8 +771,8 @@ Meteor.methods({
   },
   edit_subscription: function (customer_id, subscription_id, quantity, trial_end, donateTo) {
     logger.info("Started edit_subscription method");
-
-    console.log(customer_id, subscription_id, quantity, trial_end, donateTo);
+    logger.info(customer_id, subscription_id, quantity, trial_end, donateTo);
+    
     check(subscription_id, String);
     check(customer_id, String);
     check(quantity, Match.Optional(Number));
@@ -1384,5 +1384,23 @@ Meteor.methods({
       return;
     }
     return 'finished';
+  },
+  /**
+   * Update the reports frequency
+   * @method clientLog
+   * @param {String} message - Client log message
+   */
+  clientLog(message, userOrSessionId){
+    check(message, String);
+    check(userOrSessionId, String);
+
+    // check to see if the configuration is set to send client logs to papertrail or not
+    let config = ConfigDoc();
+    if (config && config.Services &&
+      config.Services.Papertrail &&
+      config.Services.Papertrail.sendLogsFromClientToPapertrail) {
+      let userThisId = this.userId ? (" User: "  + this.userId) : ("SessionId: " + userOrSessionId);
+      logger.info("Client " + userThisId + " says: " + message);
+    }
   }
 });

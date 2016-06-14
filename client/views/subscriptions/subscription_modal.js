@@ -53,9 +53,9 @@ Template.SubscriptionModal.events({
     let amount = parseInt(((Give.getCleanValue('#amount').replace(/[^\d\.\-\ ]/g, '')) * 100).toFixed(0));
     let note = $("#note").val();
     let trial_end = $("#start_date").val() ? moment(new Date(Give.getCleanValue('#start_date'))).format('X'): '';
-    let donateToText = $("#designationSection").is(":visible") ? $('#donateTo option:selected').text() : Session.get("change_donateTo");
+    let donateToValue = $("#designationSection").is(":visible") ? $('#donateTo').val() : Session.get("change_donateTo");
 
-    if(Session.get("change_donateTo") === donateToText && Session.get("change_amount") === amount &&
+    if(Session.get("change_donateTo") === donateToValue && Session.get("change_amount") === amount &&
       (Session.equals("yes_change_date", false) || !Session.get("yes_change_date"))){
       alert("You haven't made any changes.");
       return "No changes";
@@ -64,9 +64,10 @@ Template.SubscriptionModal.events({
     amount = Session.get("change_amount") === amount ? 0 : amount;
 
     $(':submit').button('loading');
+    // TODO: add note into method call
 
-    console.log(customer_id, subscription_id, amount, trial_end, donateTo);
-    Meteor.call( "edit_subscription", customer_id, subscription_id, amount, trial_end, donateToText, function ( error, response ) {
+    console.log(customer_id, subscription_id, amount, trial_end, donateToValue);
+    Meteor.call( "edit_subscription", customer_id, subscription_id, amount, trial_end, donateToValue, function ( error, response ) {
       if( error ) {
         console.log( error, error.message);
         Bert.alert( error.message, "danger" );

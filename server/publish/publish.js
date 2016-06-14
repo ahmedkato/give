@@ -317,7 +317,6 @@ Meteor.publish("transfersRange", function (range) {
   }
 });
 
-
 Meteor.publish("adminSubscriptions", function (_id) {
   check(_id, Match.Optional(String));
   logger.info("Got to adminSubscriptions sub");
