@@ -1,0 +1,81 @@
+<template name="Timeline">
+    {{#if Template.subscriptionsReady}}
+    {{#if audits}}
+        <div class="card no-shadow">
+            <div class="card-head">
+                <header>
+                    <h2 class="opacity-50">Audit History</h2>
+                </header>
+            </div>
+            <div class="card-body">
+                <ul class="timeline collapse-lg">
+                    {{#each audits}}
+                        <li class="list-comments">
+                            <div class="timeline-circ circ-xl style-{{subtype}}"><span class="{{auditTypeIcon}}"></span></div>
+                            <div class="timeline-entry">
+                                <div class="card card-outlined {{auditStyle}}">
+                                    <div class="comment-avatar"><i class="{{auditCategoryIcon}} opacity-50 no-margin"></i></div>
+                                    <div class="card-body small-padding">
+                                        <span class="text-medium">{{auditEventTitle}}</span><br>
+                                        <span class="text-xs opacity-75">
+                                            {{formatTime time}}
+                                        </span>
+                                        <div class="stick-top-right">
+                                            <a href="#" class="btn btn-primary btn-labeled">
+                                                {{buttonTitle}}
+                                                <span class="label label-{{subtype}}">{{subtype}}</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    {{/each}}
+                </ul>
+            </div>
+    </div>
+    {{else}}
+        <h1>Nothing here yet</h1>
+    {{/if}}
+    <div class="card">
+        <div class="card-head">
+            <header>
+                <h2 class="opacity-50">Audit History</h2>
+            </header>
+        </div>
+        <div class="card-body">
+            <ul class="timeline collapse-lg">
+                <li class="list-comments">
+                    <div class="timeline-circ circ-xl style-gray"><span class="glyphicon glyphicon-leaf"></span></div>
+                    <div class="timeline-entry">
+                        <div class="card style-gray">
+                            <div class="comment-avatar"><i class="fa fa-user opacity-50 no-margin"></i></div>
+                            <div class="card-body small-padding">
+                                <span class="text-medium">Head text</span><br>
+                                <span class="opacity-50">Subline</span>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                <div class="padBottom padTop position-relative">
+                    <button class="btn btn-lg btn-info">Yesterday</button>
+                </div>
+                <li class="list-comments">
+                    <div class="timeline-circ circ-xl style-primary"><span class="fa fa-bullhorn"></span></div>
+                    <div class="timeline-entry">
+                        <div class="card style-primary">
+                            <div class="comment-avatar"><i class="fa fa-user opacity-50 no-margin"></i></div>
+                            <div class="card-body small-padding">
+                                <span class="text-medium">Head text</span><br>
+                                <span class="opacity-50">Subline</span>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+    {{/if}}
+</template>

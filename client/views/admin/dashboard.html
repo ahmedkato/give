@@ -133,6 +133,19 @@
                                         </a>
                                     </div>
                             {{/if}}
+                            {{#if isInRole 'super-admin'}}
+                                <div class="col-sm-2"
+                                     data-toggle="tooltip"
+                                     title="See activity">
+                                    <span style="" class="badge alert-badge backgroundColor indianred">BETA</span>
+                                    <a class="quick-button backgroundColor primary" href="{{pathFor 'Timeline'}}">
+                                            <span class="fa-stack fa-lg">
+                                                <i class="fa fa-clock-o"></i>
+                                            </span>
+                                            <h5>Timeline</h5>
+                                        </a>
+                                    </div>
+                            {{/if}}
                         </div>
                     </div>
                 <div class="panel-heading">

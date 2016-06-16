@@ -274,7 +274,7 @@ _.extend(Utils,{
     Utils.sendEmailNotice(emailObject);
   },
   send_donation_email: function (recurring, id, amount, type, body, frequency, subscription) {
-    try {
+    /*try {*/
       logger.info("Started send_donation_email with ID: " + id);
       let config = ConfigDoc();
 
@@ -291,8 +291,18 @@ _.extend(Utils,{
         return;
       }
       var donation_cursor;
-      // Setup a cursor for the Audit_trail document corresponding to this charge_id
+      // TODO: check right here for the relevant document. If it exists, exit the process
+      // Then below for each different case we don't need to be checking to see if these email notices
+      // have already gone out
+
+      let splitType = type.split(".");
+      var auditTrailDoc = Audit_trail.findOne({relatedDoc: id, subtype: splitType[1]});
+      if (auditTrailDoc) {
+        logger.info("Already have this record in the audit trail, escaping function");
+        return;
+      }
       var audit_trail_cursor = Audit_trail.findOne({charge_id: id});
+      
       var charge_cursor = Charges.findOne({_id: id});
 
       if (!charge_cursor) {
@@ -565,34 +575,22 @@ _.extend(Utils,{
       }
 
       if (type === 'charge.failed') {
-          Utils.audit_email(id, type, body.failure_message, body.failure_code);
-          Utils.send_mandrill_email(data_slug, 'charge.failed', customer_cursor.email, 'Your gift failed to process.');
+        Utils.audit_event(id, type, 'Stripe', '', 'Charges', body.failure_message, body.failure_code);
+        Utils.send_mandrill_email(data_slug, 'charge.failed', customer_cursor.email, 'Your gift failed to process.');
       } else if (type === 'charge.pending') {
-          if (audit_trail_cursor && audit_trail_cursor.charge && audit_trail_cursor.charge.pending && audit_trail_cursor.charge.pending.sent) {
-            logger.info("A 'created' email has already been sent for this charge, exiting email send function.");
-            return;
-          }
-          Utils.audit_email(id, type);
-          data_slug.template_name = config.Services.Email.pending;
-          Utils.send_mandrill_email(data_slug, 'charge.pending', customer_cursor.email, 'Donation');
+        Utils.audit_event(id, type, 'Stripe', '', 'Charges');
+        data_slug.template_name = config.Services.Email.pending;
+        Utils.send_mandrill_email(data_slug, 'charge.pending', customer_cursor.email, 'Donation');
       } else if (type === 'charge.succeeded') {
-          if (audit_trail_cursor && audit_trail_cursor.charge && audit_trail_cursor.charge.succeeded && audit_trail_cursor.charge.succeeded.sent) {
-              logger.info("A 'succeeded' email has already been sent for this charge, exiting email send function.");
-              return;
-          }
-          Utils.audit_email(id, type);
-          data_slug.template_name = config.Services.Email.receipt;
-          Utils.send_mandrill_email(data_slug, 'charge.succeeded', customer_cursor.email, 'Receipt for your donation');
+        Utils.audit_event(id, type, 'Stripe', '', 'Charges');
+        data_slug.template_name = config.Services.Email.receipt;
+        Utils.send_mandrill_email(data_slug, 'charge.succeeded', customer_cursor.email, 'Receipt for your donation');
       } else if (type === 'large_gift') {
-        if (audit_trail_cursor && audit_trail_cursor.charge && audit_trail_cursor.charge.large_gift && audit_trail_cursor.charge.large_gift.sent) {
-            logger.info("A 'large_gift' email has already been sent for this charge, exiting email send function.");
-            return;
-        }
-        Utils.audit_email(id, type);
         if (!(config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.largeGift)) {
           logger.warn("No large gift email(s) to send to.");
           return;
         }
+        Utils.audit_event(id, type, 'Email', '', '');
 
         let fullName = customer_cursor.metadata.fname + " " + customer_cursor.metadata.lname;
         let emailObject = {
@@ -606,10 +604,11 @@ _.extend(Utils,{
 
         Utils.sendEmailNotice(emailObject);
       }
-    }  catch (e) {
+    /*}
+  catch (e) {
       logger.error('Mandril sendEmailOutAPI Method error: ' + e);
       throw new Meteor.Error(e);
-    }
+    }*/
   },
 	send_mandrill_email: function(data_slug, type, to, subject){
     try{
@@ -669,7 +668,7 @@ _.extend(Utils,{
       Audit_trail.findOne( { "subscription_id": subscription_id } ).subscription_scheduled.sent ) {
       return;
     } else {
-      Utils.audit_email( subscription_id, 'scheduled' );
+      Utils.audit_event( subscription_id, 'scheduled' );
     }
 
     // Setup the rest of the cursors that we'll need

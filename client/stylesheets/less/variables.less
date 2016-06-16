@@ -1,6 +1,15 @@
+@import "imports/typography.less";
+
+// GLOBAL VALUES
+// --------------------------------------------------
+
+@color-threshold:				72%;
+
 // Colors
 // -------------------------
 @black:							#0c0c0c;
+@navbar:					    #4d4d4d;
+@gray-nav:					    hsl(hue(@navbar), 3%, 20%);
 @gray-darkest:					hsl(hue(@brand-primary), 3%, 10%);
 @gray-darker:					hsl(hue(@brand-primary), 3%, 13.5%);
 @gray-dark:						hsl(hue(@brand-primary), 3%, 20%);
@@ -16,7 +25,7 @@
 // -------------------------
 @brand-default:				    @gray-lighter;
 @brand-inverse:					#20252b;
-@brand-primary:				    #0aa89e;
+@brand-primary:				    #1abc9c;
 @brand-accent:				    #9C27B0;
 @brand-success:					#4CAF50;
 @brand-warning:					#FF9800;
@@ -29,10 +38,35 @@
 @brand-default-light:			@gray-lightest;
 @brand-default-bright:			@white;
 
+@primary-l:						hsvvalue(@brand-primary);
+@primary-s:						hsvsaturation(@brand-primary);
+@brand-primary-dark:			darken(rgb(red(@brand-primary), green(@brand-primary), blue(@brand-primary) + 15), 15);
+@brand-primary-light:			hsv(hue(@brand-primary), 42%, (100% - (100% - @primary-l) * (42% / @primary-s)) );
+@brand-primary-bright:			hsv(hue(@brand-primary), 16%, (100% - (100% - @primary-l) * (16% / @primary-s)) );
+
+@accent-l:						hsvvalue(@brand-accent);
+@accent-s:						hsvsaturation(@brand-accent);
+@brand-accent-dark:				darken(rgb(red(@brand-accent), green(@brand-accent), blue(@brand-accent) + 15), 15);
+@brand-accent-light:			hsv(hue(@brand-accent), 42%, (100% - (100% - @accent-l) * (42% / @accent-s)) );
+@brand-accent-bright:			hsv(hue(@brand-accent), 16%, (100% - (100% - @accent-l) * (16% / @accent-s)) );
+
+
 // Z-index
 // -------------------------
 @zindex-offcanvas-backdrop:		9998;
 @zindex-offcanvas:				9999;
+
+//== Scaffolding
+//
+//## Settings for some of the most global styles.
+
+//** Global textual link color.
+@link-color:            @brand-primary;
+//** Link hover color set via `darken()` function.
+@link-hover-color:      darken(@link-color, 15%);
+//** Link hover decoration.
+@link-hover-decoration: underline;
+
 
 // Dimensions
 // -------------------------
@@ -65,13 +99,133 @@
 @offcanvas-speed-out:			.33s;
 
 
+// Card
+// -------------------------
+@card-header-lg:				80px;
+@card-header:					56px;
+@card-header-sm:				48px;
+@card-header-xs:				36px;
+@card-gutter-width:				(@gutter-size * 6);
+@card-gutter-width-sm:			(@gutter-size * 4);
+@card-radius:					2px;
+@card-header-color:				@gray;
+@card-default-border:			@gray-light;
+@card-back-color:				#fff;
+
 // Typography
 // -------------------------
 @title-size:					20px;
+@subhead-size:					15px;
+
+@font-size-base:				13px;
+
+@font-size-large:               ceil((@font-size-base * 1.25)); // ~18px
+@font-size-small:               ceil((@font-size-base * 0.85)); // ~12px
+
 @font-size-h3:					@title-size;
 
+@headline-size:					24px;
 
-@import "vendor-prefixes.import.less";
-@import "offcanvas.import.less";
-@import "utilities.import.less";
-@import "dropzone.import.less";
+@line-height-base:				1.846153846; // 24/13
+@line-height-computed:			round((@font-size-base * @line-height-base)); // ~24px
+
+
+@weight-light:					300;
+@weight-normal:					400;
+@weight-medium:					500;
+@weight-bold:					700;
+@weight-ultra-bold:				900;
+
+//
+// Timeline
+// --------------------------------------------------
+@timeline-arrow-size:		10px;
+@timeline-arrow-top:		15px;
+@timeline-circle-size:		20px;
+@timeline-circle-top:		15px;
+
+
+//== Media queries breakpoints
+//
+//## Define the breakpoints at which your layout will change, adapting to different screen sizes.
+
+// Extra small screen / phone
+//** Deprecated `@screen-xs` as of v3.0.1
+@screen-xs:                  480px;
+//** Deprecated `@screen-xs-min` as of v3.2.0
+@screen-xs-min:              @screen-xs;
+//** Deprecated `@screen-phone` as of v3.0.1
+@screen-phone:               @screen-xs-min;
+
+// Small screen / tablet
+//** Deprecated `@screen-sm` as of v3.0.1
+@screen-sm:                  768px;
+@screen-sm-min:              @screen-sm;
+//** Deprecated `@screen-tablet` as of v3.0.1
+@screen-tablet:              @screen-sm-min;
+
+// Medium screen / desktop
+//** Deprecated `@screen-md` as of v3.0.1
+@screen-md:                  992px;
+@screen-md-min:              @screen-md;
+//** Deprecated `@screen-desktop` as of v3.0.1
+@screen-desktop:             @screen-md-min;
+
+// Large screen / wide desktop
+//** Deprecated `@screen-lg` as of v3.0.1
+@screen-lg:                  1200px;
+@screen-lg-min:              @screen-lg;
+//** Deprecated `@screen-lg-desktop` as of v3.0.1
+@screen-lg-desktop:          @screen-lg-min;
+
+// So media queries don't overlap when required, provide a maximum
+@screen-xs-max:              (@screen-sm-min - 1);
+@screen-sm-max:              (@screen-md-min - 1);
+@screen-md-max:              (@screen-lg-min - 1);
+
+//** Global text color on `<body>`.
+@text-color:            @gray-dark;
+
+
+// Gutters
+// -------------------------
+@gutter-size:					4px;
+@grid-gutter-width:				(@gutter-size * 6);
+@section-gutter-width:			(@gutter-size * 6);
+@section-gutter-width-sm:		(@gutter-size * 3);
+@header-gutter-width:			(@gutter-size * 6);
+@header-gutter-width-sm:		(@gutter-size * 3);
+
+// Menubar
+// -------------------------
+@menubar-icon-width:			40px;
+
+
+//== Badges
+//
+//##
+
+@badge-color:                 #fff;
+//** Linked badge text color on hover
+@badge-link-hover-color:      #fff;
+@badge-bg:                    @gray-light;
+
+//** Badge text color in active nav link
+@badge-active-color:          @link-color;
+//** Badge background color in active nav link
+@badge-active-bg:             #fff;
+
+@badge-font-weight:           bold;
+@badge-line-height:           1;
+@badge-border-radius:         10px;
+
+
+@import "imports/vendor-prefixes.less";
+@import "imports/offcanvas.less";
+@import "imports/utilities.less";
+@import "imports/card.less";
+@import "imports/dropzone.less";
+@import "imports/timeline.less";
+@import "imports/list.less";
+@import "imports/badges.less";
+@import "imports/buttons.less";

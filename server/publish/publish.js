@@ -493,10 +493,3 @@ Meteor.publish("fundNames", function () {
     } );
   }
 });
-
-Meteor.publish("auditTrail", function () {
-  if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
-    return Audit_trail.find({show: true});
-  }
-  return;
-});

@@ -403,3 +403,41 @@ Meteor.publishComposite("tripsMember", function (id) {
     }
   }
 });
+
+
+Meteor.publishComposite("auditTrail", function () {
+  logger.info( "Started publish function, auditTrail" );
+
+  if (Roles.userIsInRole(this.userId, ['admin', 'super-admin', 'manager'])) {
+    return {
+      find: function () {
+        return Audit_trail.find({show: true}, {sort: {time: -1}});
+      },
+      children: [
+        {
+          find: function (auditDoc) {
+            console.log(auditDoc);
+            if (auditDoc && auditDoc.relatedDoc) {
+              // Find the related Document associated with this audit doc
+              return GLOBAL[auditDoc.relatedCollection].find( { _id: auditDoc.relatedDoc} );
+            }
+            return;
+          },
+          children: [
+            {
+              find: function (relatedDoc) {
+                console.log("relatedDoc: ", relatedDoc);
+                if (relatedDoc && relatedDoc.object && relatedDoc.object === 'charge') {
+                  // If we find ourselves looking at a charge doc from the step above
+                  // then get the customer related to that charge
+                  return Customers.find( { _id: relatedDoc.customer} );
+                }
+                return;
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+});
