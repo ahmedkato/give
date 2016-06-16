@@ -91,7 +91,7 @@ Here is an example settings.json file. Each of the fields are required.
   "donor_tools_user": "",
   "donor_tools_password": "",
   "stripe": {
-    "secret": "Secrete Stripe key"
+    "secret": "Secret Stripe key"
   },
   "public": {
     "dev": "****TEST****", // If you are using this settings.json file on the dev side include this text, if on the live side, leave it blank.
