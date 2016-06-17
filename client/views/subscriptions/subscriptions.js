@@ -1,3 +1,5 @@
+import { getDocHeight } from '/client/imports/miscFunctions.js';
+
 function updateSearchVal(){
   let searchValue = $(".search").val();
 
@@ -10,15 +12,6 @@ function updateSearchVal(){
     Session.set( "searchValue", searchValue );
     Session.set( "documentLimit", 0 );
   }
-};
-
-function getDocHeight() {
-  var D = document;
-  return Math.max(
-    D.body.scrollHeight, D.documentElement.scrollHeight,
-    D.body.offsetHeight, D.documentElement.offsetHeight,
-    D.body.clientHeight, D.documentElement.clientHeight
-  );
 };
 
 Template.AdminSubscriptions.events({

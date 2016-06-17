@@ -24,7 +24,7 @@ Stripe_Events = {
     return;
   },
   'charge.pending': function (stripeEvent) {
-    StripeFunctions.audit_charge( stripeEvent.data.object.id, 'pending' );
+    //StripeFunctions.audit_charge( stripeEvent.data.object.id, 'pending' );
     let subscription_cursor, invoice_cursor, subscription_id, interval, invoice_object;
 
     console.log(stripeEvent);
@@ -53,8 +53,7 @@ Stripe_Events = {
     return;
   },
   'charge.succeeded': function (stripeEvent) {
-    StripeFunctions.audit_charge(stripeEvent.data.object.id, 'succeeded');
-    console.log(stripeEvent);
+    //StripeFunctions.audit_charge(stripeEvent.data.object.id, 'succeeded');
     let send_successful_email;
     let config = ConfigDoc();
 
@@ -91,7 +90,7 @@ Stripe_Events = {
     return;
   },
   'charge.failed': function (stripeEvent) {
-    StripeFunctions.audit_charge(stripeEvent.data.object.id, 'failed');
+    //StripeFunctions.audit_charge(stripeEvent.data.object.id, 'failed');
 
     if(stripeEvent.data.object.refunds && stripeEvent.data.object.refunds.data &&
       stripeEvent.data.object.refunds.data[0] && stripeEvent.data.object.refunds.data[0].id){

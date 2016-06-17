@@ -13,45 +13,6 @@ Meteor.publish('receipt_donations', function (input) {
 	}});
 });
 
-Meteor.publish('receipt_customers', function (input) {
-	//Check the input that came from the client
-	check(input, String);
-	return Customers.find({_id: input},
-    {
-      fields: {
-        _id: 1,
-        email: 1,
-        metadata: 1
-      }
-    }
-  );
-});
-
-Meteor.publish('receipt_charges', function (input) {
-	//Check the input that came from the client
-	check(input, String);
-
-	return Charges.find({_id: input},
-    {
-      fields:
-      {
-        _id: 1,
-        metadata: 1,
-        created: 1,
-        status: 1,
-        amount: 1,
-        'source.bank_name': 1,
-        'source.brand': 1,
-        'source.last4': 1,
-        'source.object': 1,
-        'payment_source.bank_name': 1,
-        'payment_source.last4': 1,
-        'payment_source.object': 1
-      }
-    }
-);
-});
-
 Meteor.publish("userDonations", function () {
 	if (this.userId) {
     var donations = Meteor.users.findOne({_id: this.userId}).donations;

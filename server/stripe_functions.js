@@ -296,7 +296,6 @@ _.extend(StripeFunctions, {
 
     logger.info(wait_for_audit_store);
     return wait_for_audit_store;
-    //Utils.post_donation_operation( customer_id, charge_id );
   },
   'retrieve_stripe_event': function ( webhookEvent ) {
     logger.info("Started retrieve_stripe_event");

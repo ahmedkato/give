@@ -917,58 +917,40 @@ Utils = {
       return 'scheduled';
     }
   },
-  // TODO: setup the subType field.
-  // TODO: this will give you the ability to always use the object id (for Stripe)
-  // as the _id of the document. Since the type will be 'charge', 'customer', etc.
-  // then use the subType to check if you should send an email or not.
-  // subTypes might be 'failed', 'succeeded', 'pending',
-
-  // TODO: also, this is where we need to add the by: 'donor', 'system', 'admin'
-  // to show that the charge was made by recurring invoice from Stripe ('system') or
-  // by the admin or by the donor
-
-  // TODO: need to try to move these one at a time, there are a lot of pieces
-  // all tied together in the audit_cursor and more
-  audit_event(id, type, category, user_id, relatedCollection, failure_message, failure_code) {
+  audit_event(event) {
     logger.info( "Inside audit_event." );
-    logger.info( id, type, category, user_id, relatedCollection, failure_message, failure_code );
+    logger.info( event );
 
-    function upsertAuditEvent( id, type, category, user_id, relatedCollection,
-                               failure_message, failure_code ) {
-      let splitType = type.split(".");
-      let insertThis = {
-        type: splitType[0],
-        subtype: splitType[1],
-        category: category,
-        user_id: user_id,
-        relatedCollection: relatedCollection,
-        relatedDoc: id,
-        time: new Date(),
-        show: true
-      };
+    let splitType = event["type"].split(".");
+    let insertThis = {
+      category:          event["category"],
+      failureCode:       event["failureCode"],
+      failureMessage:    event["failureMessage"],
+      emailSentTo:       event["emailSentTo"],
+      page:              event["page"],
+      relatedCollection: event["relatedCollection"],
+      relatedDoc:        event["id"],
+      show:              true,
+      subtype:           splitType[1],
+      time:              new Date(),
+      type:              splitType[0],
+      userId:            event["userId"]
+    };
 
-      if (failure_message) {
-        insertThis.failure_message = failure_message;
-      }
+    Audit_trail.insert( insertThis );
 
-      if (failure_code) {
-        insertThis.failure_code = failure_code;
-      }
-      Audit_trail.insert( insertThis );
-    }
-
-    switch( type ) {
+   /* switch( type ) {
       case 'config.change':
         upsertAuditEvent(id, type, category, user_id, relatedCollection);
         break;
       case 'charge.pending':
         upsertAuditEvent(id, type, category, user_id, relatedCollection);
-        /*Audit_trail.upsert( { charge_id: id }, {
+        /!*Audit_trail.upsert( { charge_id: id }, {
           $set: {
             'charge.pending.sent': true,
             'charge.pending.time': new Date()
           }
-        } );*/
+        } );*!/
         break;
       case 'charge.succeeded':
         upsertAuditEvent(id, type, category, user_id, relatedCollection);
@@ -978,14 +960,14 @@ Utils = {
         break;
       case 'charge.failed':
         upsertAuditEvent(id, type, category, user_id, relatedCollection, failure_message, failure_code);
-        /*Audit_trail.upsert( { charge_id: id }, {
+        /!*Audit_trail.upsert( { charge_id: id }, {
           $set: {
             'charge.failed.sent':     true,
             'charge.failed.time':     new Date(),
             'charge.failure_message': failure_message,
             'charge.failure_code':    failure_code
           }
-        } );*/
+        } );*!/
         break;
       case 'subscription.scheduled':
         Audit_trail.upsert( { subscription_id: id }, {
@@ -1021,7 +1003,7 @@ Utils = {
         break;
       default:
         logger.info( "No case matched" );
-    };
+    };*/
   },
   update_card(customer_id, card_id, saved) {
     logger.info( "Started update_card" );
@@ -1394,13 +1376,21 @@ Utils = {
   send_change_email_notice_to_admins(changeMadeBy, changeIn) {
     logger.info( "Started send_change_email_notice_to_admins" );
     let config = ConfigDoc();
+    let event = {
+      id: config._id,
+      type: 'config.change',
+      category: 'Admin',
+      userId: changeMadeBy,
+      relatedCollection: 'Config',
+      page: "/dashboard/" + changeIn
+    };
+    Utils.audit_event(event);
 
     if( !(config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.support) ) {
       logger.warn( "No support email to send from." );
       return;
     }
 
-    Utils.audit_event(config._id, 'config.change', 'Admin', changeMadeBy, 'Config');
     let admins = Roles.getUsersInRole( 'admin' );
     let adminEmails = admins.map( function ( item ) {
       return item.emails[0].address;
@@ -1422,6 +1412,10 @@ Utils = {
     };
 
     Utils.sendHTMLEmail( emailObject );
+
+    event.emailSentTo = adminEmails;
+    event.category = 'Email';
+    Utils.audit_event(event);
   },
   /**
    * set a user's state object and update that object with a timestamp

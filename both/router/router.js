@@ -117,8 +117,7 @@ Router.route('/thanks', {
   name: 'donation.thanks',
   waitOn: function() {
     return [
-      Meteor.subscribe('receipt_customers', this.params.query.c),
-      Meteor.subscribe('receipt_charges', this.params.query.charge)
+      Meteor.subscribe('receiptCharge', this.params.query.charge)
     ];
   },
   action: function() {

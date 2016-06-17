@@ -405,18 +405,17 @@ Meteor.publishComposite("tripsMember", function (id) {
 });
 
 
-Meteor.publishComposite("auditTrail", function () {
-  logger.info( "Started publish function, auditTrail" );
-
+Meteor.publishComposite("auditTrail", function (limit) {
+  check(limit, Number);
+  logger.info("Started publish function, auditTrail");
   if (Roles.userIsInRole(this.userId, ['admin', 'super-admin', 'manager'])) {
     return {
       find: function () {
-        return Audit_trail.find({show: true}, {sort: {time: -1}});
+        return Audit_trail.find({show: true}, {sort: {time: -1}, limit: limit});
       },
       children: [
         {
           find: function (auditDoc) {
-            console.log(auditDoc);
             if (auditDoc && auditDoc.relatedDoc) {
               // Find the related Document associated with this audit doc
               return GLOBAL[auditDoc.relatedCollection].find( { _id: auditDoc.relatedDoc} );
@@ -426,7 +425,6 @@ Meteor.publishComposite("auditTrail", function () {
           children: [
             {
               find: function (relatedDoc) {
-                console.log("relatedDoc: ", relatedDoc);
                 if (relatedDoc && relatedDoc.object && relatedDoc.object === 'charge') {
                   // If we find ourselves looking at a charge doc from the step above
                   // then get the customer related to that charge
@@ -439,5 +437,58 @@ Meteor.publishComposite("auditTrail", function () {
         }
       ]
     }
+  }
+});
+
+Meteor.publishComposite("receiptCharge", function (chargeId) {
+  console.log(chargeId);
+  check(chargeId, String);
+
+  logger.info("Started publish function, receiptCharge");
+  return {
+    find: function () {
+      return Charges.find({_id: chargeId},
+        {
+          fields:
+          {
+            _id: 1,
+            metadata: 1,
+            created: 1,
+            customer: 1,
+            status: 1,
+            amount: 1,
+            'source.bank_name': 1,
+            'source.brand': 1,
+            'source.last4': 1,
+            'source.object': 1,
+            'payment_source.bank_name': 1,
+            'payment_source.last4': 1,
+            'payment_source.object': 1
+          }
+        }
+      );
+    },
+    children: [
+      {
+        find: function (charge) {
+          return Customers.find({_id: charge.customer},
+            {
+              fields: {
+                _id: 1,
+                email: 1,
+                metadata: 1
+              }
+            }
+          );
+        },
+        children: [
+          {
+            find: function (charge) {
+              return Donations.find( { charge_id: charge._id} );
+            }
+          }
+        ]
+      }
+    ]
   }
 });

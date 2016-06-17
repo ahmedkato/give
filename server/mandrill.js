@@ -301,6 +301,21 @@ _.extend(Utils,{
         logger.info("Already have this record in the audit trail, escaping function");
         return;
       }
+      let event = {
+        id:                id,
+        type:              type,
+        category:          'Stripe',
+        userId:            '',
+        relatedCollection: 'Charges',
+        failureCode:       body.failure_code,
+        failureMessage:    body.failure_message
+      };
+
+      if (type !== 'large_gift') {
+        // Audit the charge event
+        Utils.audit_event(event);
+      }
+
       var audit_trail_cursor = Audit_trail.findOne({charge_id: id});
       
       var charge_cursor = Charges.findOne({_id: id});
@@ -490,12 +505,6 @@ _.extend(Utils,{
                   logger.error("No donation found here, exiting.");
                   return;
               } else {
-                  // Check to see if the failed email has already been sent for this charge
-                  if (audit_trail_cursor && audit_trail_cursor.charge.failed && audit_trail_cursor.charge.failed.sent) {
-                      logger.info("A 'failed' email has already been sent for this charge, exiting email send function.");
-                      return;
-                  }
-
                   data_slug.template_name = config.Services.Email.failedPayment;
                   data_slug.message.global_merge_vars.push(
                       {
@@ -548,10 +557,6 @@ _.extend(Utils,{
                   logger.error("No donation found here, exiting.");
                   return;
               } else {
-                  if (audit_trail_cursor && audit_trail_cursor.charge.failed && audit_trail_cursor.charge.failed.sent) {
-                      logger.info("A 'failed' email has already been sent for this charge, exiting email send function.");
-                      return;
-                  }
                 // If you get to this area it means the donor would have already seen their gift
                 // failed. If there is no donation cursor that means the gift process
                 // didn't get past the initial screen and so the donor already knows
@@ -574,23 +579,21 @@ _.extend(Utils,{
           }
       }
 
+      let to, subject;
+      to = customer_cursor.email;
       if (type === 'charge.failed') {
-        Utils.audit_event(id, type, 'Stripe', '', 'Charges', body.failure_message, body.failure_code);
-        Utils.send_mandrill_email(data_slug, 'charge.failed', customer_cursor.email, 'Your gift failed to process.');
+        subject = 'Your gift failed to process.';
       } else if (type === 'charge.pending') {
-        Utils.audit_event(id, type, 'Stripe', '', 'Charges');
         data_slug.template_name = config.Services.Email.pending;
-        Utils.send_mandrill_email(data_slug, 'charge.pending', customer_cursor.email, 'Donation');
+        subject =  'Donation';
       } else if (type === 'charge.succeeded') {
-        Utils.audit_event(id, type, 'Stripe', '', 'Charges');
         data_slug.template_name = config.Services.Email.receipt;
-        Utils.send_mandrill_email(data_slug, 'charge.succeeded', customer_cursor.email, 'Receipt for your donation');
+        subject =  'Receipt for your donation';
       } else if (type === 'large_gift') {
         if (!(config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.largeGift)) {
           logger.warn("No large gift email(s) to send to.");
           return;
         }
-        Utils.audit_event(id, type, 'Email', '', '');
 
         let fullName = customer_cursor.metadata.fname + " " + customer_cursor.metadata.lname;
         let emailObject = {
@@ -603,7 +606,20 @@ _.extend(Utils,{
         };
 
         Utils.sendEmailNotice(emailObject);
+
+        event.emailSentTo = config.OrgInfo.emails.largeGift;
+        event.category = 'Email';
+        event.page = emailObject.buttonURL;
+        Utils.audit_event(event);
+        return;
       }
+
+      Utils.send_mandrill_email(data_slug, type, to, subject);
+      event.emailSentTo = to;
+      event.category = 'Email';
+      // Audit the email send event
+      Utils.audit_event(event);
+
     /*}
   catch (e) {
       logger.error('Mandril sendEmailOutAPI Method error: ' + e);
@@ -636,8 +652,6 @@ _.extend(Utils,{
       let dataSlugWithTo = Utils.addRecipientToEmail(dataSlugWithFrom, to);
       let dataSlugWithOrgInfoFields = Utils.addOrgInfoFields(dataSlugWithTo);
       dataSlugWithTo.message.subject = subject;
-
-      logger.info(dataSlugWithOrgInfoFields);
       Mandrill.messages.sendTemplate(dataSlugWithOrgInfoFields);
     } catch (e) {
       logger.error('Mandril sendEmailOutAPI Method error message: ' + e.message);
@@ -668,6 +682,15 @@ _.extend(Utils,{
       Audit_trail.findOne( { "subscription_id": subscription_id } ).subscription_scheduled.sent ) {
       return;
     } else {
+
+      let event = {
+        id: config._id,
+        type: 'config.change',
+        category: 'Admin',
+        userId: changeMadeBy,
+        relatedCollection: 'Config',
+        page: "/dashboard/" + changeIn
+      };
       Utils.audit_event( subscription_id, 'scheduled' );
     }
 

@@ -35,3 +35,11 @@
     position: relative;
     bottom: 15px;
 }
+
+.loader {
+    display: none;
+}
+
+.loading-wrapper {
+    display: none;
+}
