@@ -148,6 +148,11 @@ Meteor.publishComposite('subscriptions_and_customers', function (searchValue, li
                   $regex:   searchValue,
                   $options: 'i'
                 }
+              },
+              {
+                'id': {
+                  $regex:   searchValue
+                }
               }
             ]
           }]

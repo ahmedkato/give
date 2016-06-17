@@ -910,7 +910,6 @@ Utils = {
         customer: customer_id,
         limit:    1
       }, '' );
-      console.dir( stripeInvoiceList );
       return stripeInvoiceList.data[0];
     } else {
       Utils.send_scheduled_email( donation_id, stripeChargePlan.id, subscription_frequency, total );
@@ -927,6 +926,7 @@ Utils = {
       failureCode:       event["failureCode"],
       failureMessage:    event["failureMessage"],
       emailSentTo:       event["emailSentTo"],
+      otherInfo:         event["otherInfo"],
       page:              event["page"],
       relatedCollection: event["relatedCollection"],
       relatedDoc:        event["id"],

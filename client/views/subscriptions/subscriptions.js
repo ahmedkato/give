@@ -157,7 +157,7 @@ Template.AdminSubscriptions.helpers({
 });
 
 Template.AdminSubscriptions.onCreated( function () {
-  Session.set("searchValue", "");
+  //Session.set("searchValue", "");
   Session.set("documentLimit", 10);
   this.autorun(()=> {
     Meteor.subscribe("subscriptions_and_customers", Session.get("searchValue"), Session.get("documentLimit"));

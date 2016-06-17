@@ -60,6 +60,15 @@ Template.Timeline.helpers({
           story = customer.metadata.fname + " " + customer.metadata.lname;
           story = story + "'s gift of $";
           story = story + (charge.amount / 100);
+          if (this.subtype === 'pending') {
+            story = story + ' is pending';
+          }
+          if (this.subtype === 'succeeded') {
+            story = story + ' has succeeded'
+          }
+          if (this.subtype === 'failed') {
+            story = story + ' has failed'
+          }
         }
       }
     }
@@ -74,7 +83,8 @@ Template.Timeline.helpers({
     }
 
     if (this.category === 'Email') {
-      story = 'An email was sent to ' + this.emailSentTo;
+      story = 'A ' + this.type + " " + this.subtype +
+        ' email was sent to ' + this.emailSentTo;
     }
     return story
   },
@@ -94,13 +104,8 @@ Template.Timeline.helpers({
     }
   },
   buttonLink(){
-    if (this.type) {
-      if( this.type === 'charge' ) {
-        return '/thanks?charge=' + this.relatedDoc;
-      }
-      if( this.type === 'config' ) {
-        return this.page;
-      }
+    if (this.page) {
+      return this.page;
     }
   }
 });

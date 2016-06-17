@@ -439,7 +439,11 @@ Router.route('/dashboard/subscriptions', {
   layoutTemplate: 'UserLayout',
   name: 'AdminSubscriptions',
   where: 'client',
-  template: 'AdminSubscriptions'
+  template: 'AdminSubscriptions',
+  data: function() {
+    var query = this.params.query;
+    Session.set("searchValue", query.sub);
+  }
 });
 
 Router.route('/dashboard/users', {

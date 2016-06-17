@@ -308,7 +308,8 @@ _.extend(Utils,{
         userId:            '',
         relatedCollection: 'Charges',
         failureCode:       body.failure_code,
-        failureMessage:    body.failure_message
+        failureMessage:    body.failure_message,
+        page:              '/thanks?charge=' + id
       };
 
       if (type !== 'large_gift') {
@@ -677,30 +678,33 @@ _.extend(Utils,{
       subscription_cursor.metadata.send_scheduled_email === 'no' ) {
       return;
     }
-    if( Audit_trail.findOne( { "subscription_id": subscription_id } ) &&
-      Audit_trail.findOne( { "subscription_id": subscription_id } ).subscription_scheduled &&
-      Audit_trail.findOne( { "subscription_id": subscription_id } ).subscription_scheduled.sent ) {
+
+    let auditTrailDoc = Audit_trail.findOne({relatedDoc: subscription_id, subtype: 'scheduled'});
+    if (auditTrailDoc) {
+      logger.info("Already have this record in the audit trail, escaping function");
       return;
-    } else {
-
-      let event = {
-        id: config._id,
-        type: 'config.change',
-        category: 'Admin',
-        userId: changeMadeBy,
-        relatedCollection: 'Config',
-        page: "/dashboard/" + changeIn
-      };
-      Utils.audit_event( subscription_id, 'scheduled' );
-    }
-
+    } 
+    
     // Setup the rest of the cursors that we'll need
-    var donation_cursor = Donations.findOne( { _id: id } );
-    var customer_cursor = Customers.findOne( donation_cursor.customer_id );
+    let donation_cursor = Donations.findOne( { _id: id } );
+    let customer_cursor = Customers.findOne( donation_cursor.customer_id );
     let email_address = customer_cursor.email;
 
-    var start_at = subscription_cursor.trial_end;
+    let start_at = subscription_cursor.trial_end;
     start_at = moment( start_at * 1000 ).format( "MMM DD, YYYY" );
+    
+    let event = {
+      emailSentTo: email_address,
+      id: subscription_id,
+      type: 'charge.scheduled',
+      category: 'Email',
+      userId: '',
+      relatedCollection: 'Subscriptions',
+      page: '/dashboard/subscriptions?sub=' + subscription_id,
+      otherInfo: start_at
+    };
+    Utils.audit_event(event);
+
 
     // convert the amount from an integer to a two decimal place number
     amount = (amount / 100).toFixed( 2 );
