@@ -262,7 +262,7 @@ _.extend(StripeFunctions, {
         if (DT_donations.findOne({transaction_id: STRIPE_REQUEST.data.object.id})) {
           // Send the donation change to Donor Tools. This function has a retry built
           // in, so also pass 1 for the interval
-          wait_for_DT_update = Utils.update_dt_donation_status( STRIPE_REQUEST, 1 );
+          wait_for_DT_update = Utils.update_dt_donation_status( STRIPE_REQUEST );
         } else {
           StripeFunctions.check_for_necessary_objects_before_inserting_into_dt(
             STRIPE_REQUEST.data.object.id, STRIPE_REQUEST.data.object.customer, 1);

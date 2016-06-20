@@ -221,7 +221,16 @@ Utils = {
 
     get_dt_donation = Utils.http_get_donortools( '/donations.json?transaction_id=' + transaction_id );
 
-    dt_donation_id = get_dt_donation.data[0].donation.id;
+    if (get_dt_donation &&
+        get_dt_donation.data &&
+        get_dt_donation.data[0] &&
+        get_dt_donation.data[0].donation &&
+        get_dt_donation.data[0].donation.id) {
+      dt_donation_id = get_dt_donation.data[0].donation.id;
+    } else {
+      logger.error("There is no record of the transaction in DT, but we have it in the DT_Donation collection");
+      return;
+    }
 
     if( get_dt_donation.data[0].donation.payment_status === event_object.data.object.status && !event_object.data.object.refunded ) {
       return;
@@ -561,15 +570,19 @@ Utils = {
     } catch( e ) {
       logger.error( "No Person with the DT ID of " +
         customerCursor.metadata.dt_persona_id + " found in DT" );
+      let to = config && config.OrgInfo &&
+        config.OrgInfo.emails && config.OrgInfo.emails &&
+        config.OrgInfo.emails.support;
       let emailObject = {
-        emailType:    'Failed to add a gift to Donor Tools.',
+        to: to,
+        type:    'Failed to add a gift to Donor Tools.',
         emailMessage: "I tried to add a gift with PersonaID of: " + customerCursor.metadata.dt_persona_id +
                       " to Donor Tools, but for some reason I wasn't able to." +
                       " Click the button to see the Stripe Charge",
         buttonText:   "Stripe Charge",
         buttonURL:    "https://dashboard.stripe.com/payments/" + charge_id
       };
-      Utils.sendAdminEmailNotice( emailObject );
+      Utils.sendEmailNotice( emailObject );
       Audit_trail.update( { _id: charge_id }, {
         $set: {
           "dt_donation_inserted": false
@@ -682,15 +695,20 @@ Utils = {
     } catch( e ) {
       logger.error( "No Person with the DT ID of " +
         dt_persona_id + " found in DT" );
+      let to = config && config.OrgInfo &&
+        config.OrgInfo.emails && config.OrgInfo.emails &&
+        config.OrgInfo.emails.support;
       let emailObject = {
-        emailType:    'Failed to add a gift to Donor Tools.',
+        to: to,
+        type:    'Failed to add a gift to Donor Tools.',
         emailMessage: "I tried to add a gift with PersonaID of: " + dt_persona_id +
                       " to Donor Tools, but for some reason I wasn't able to." +
                       " Click the button to see the Stripe Charge",
         buttonText:   "Stripe Charge",
         buttonURL:    "https://dashboard.stripe.com/payments/" + donation_id
       };
-      Utils.sendAdminEmailNotice( emailObject );
+      Utils.sendEmailNotice( emailObject );
+
       Audit_trail.update( { donation_id: donation_id }, {
         $set: {
           "dt_donation_inserted": false
