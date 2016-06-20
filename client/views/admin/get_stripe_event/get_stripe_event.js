@@ -7,6 +7,7 @@ Template.GetStripeEvent.events({
 
         console.log("Form Submited");
         console.log($('#event-id').val());
+        console.log($('#event-process').is( ":checked" ));
 
         Meteor.call("GetStripeEvent", $('#event-id').val() ,$('#event-process').is( ":checked" ) , function(err, result){
             if(err){
