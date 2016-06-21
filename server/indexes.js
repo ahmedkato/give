@@ -3,6 +3,9 @@ Meteor.startup(function () {
   Audit_trail._ensureIndex( { 'type': 1 } );
   Audit_trail._ensureIndex( { 'subtype': 1 } );
   Audit_trail._ensureIndex( { 'show': 1 } );
+  Audit_trail._ensureIndex( { 'relatedCollection': 1 } );
+  Audit_trail._ensureIndex( { 'relatedDoc': 1 } );
+  Audit_trail._ensureIndex( { 'userId': 1 } );
 
   BankAccounts._ensureIndex( { 'customer_id': 1 } );
 

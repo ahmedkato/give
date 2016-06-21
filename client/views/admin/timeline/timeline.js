@@ -7,19 +7,29 @@ Template.Timeline.helpers({
   auditsExist(){
     return Audit_trail.findOne();
   },
-  auditTypeIcon(){
-    if (this.type === 'charge') {
-      return 'fa fa-dollar';
+  greenBlueOrangeRed(){
+    if (this.subtype === 'succeeded' ||
+      this.subtype === 'account created' ||
+      this.subtype === 'change') {
+      return 'success';
     }
-    if (this.type === 'config') {
-      return 'fa fa-sliders';
+    if (this.subtype === 'scheduled' || this.subtype === 'email sent' ||
+    !this.subtype) {
+      return 'info';
     }
+    if (this.subtype === 'pending') {
+      return 'warning';
+    }
+    if (this.subtype === 'failed') {
+      return 'danger';
+    }
+    //return 'info';
   },
   auditCategoryIcon(){
     if (this.category === 'Stripe') {
       return 'fa fa-cc-stripe';
     }
-    if (this.category === 'System') {
+    if (this.category === 'System' || this.category === 'DonorTools') {
       return 'fa fa-cogs';
     }
     if (this.category === 'Admin') {
@@ -32,21 +42,11 @@ Template.Timeline.helpers({
       return 'fa fa-envelope-o';
     }
   },
-  auditStyle(){
-    if (this.category === 'Stripe') {
-      return 'style-success';
-    }
-    if (this.category === 'System') {
-      return 'style-info';
-    }
-    if (this.category === 'Admin') {
-      return 'style-primary';
-    }
-    if (this.category === 'User') {
-      return 'style-primary';
-    }
-    if (this.category === 'Email') {
-      return 'style-info';
+  subTypeStyle() {
+    if (this && this.subtype && this.subtype.indexOf(" ") > -1) {
+      return 'info';
+    } else {
+      return this.subtype;
     }
   },
   auditEventTitle(){
@@ -81,10 +81,14 @@ Template.Timeline.helpers({
         story = 'A configuration change was made by an admin';
       }
     }
-
     if (this.category === 'Email') {
-      story = 'A ' + this.type + " " + this.subtype +
+      let subtypeInfo = this.subtype ? this.subtype : '';
+      story = 'A ' + this.type + " " + subtypeInfo +
         ' email was sent to ' + this.emailSentTo;
+    }
+    if (this.category === 'System' || this.category === 'DonorTools') {
+      let subtypeInfo = this.subtype === 'account created' ? 'account was created' : '';
+      story = 'A ' + this.type + " " + subtypeInfo;
     }
     return story
   },
@@ -101,6 +105,9 @@ Template.Timeline.helpers({
     }
     if (this.type && this.type === 'config') {
       return 'Config';
+    }
+    else {
+      return 'See more...';
     }
   },
   buttonLink(){

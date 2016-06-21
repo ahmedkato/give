@@ -216,24 +216,17 @@ _.extend(Utils,{
   },
   send_cancelled_email_to_admin: function (subscription_id, stripeEvent) {
     logger.info("Started send_cancelled_email_to_admin");
-    var audit_trail_cursor = Audit_trail.findOne({subscription_id: subscription_id});
-
     let config = ConfigDoc();
     if (!(config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.canceledGift)) {
       logger.warn("There aren't any email addresses in the canceled gift notice field.");
       return;
     }
+
+    let audit_trail_cursor = Audit_trail.findOne({relatedDoc: subscription_id, category: 'Email', subtype: 'deleted'});
     // Check to see if the deleted subscription email has already been sent for this charge
-    if (audit_trail_cursor && audit_trail_cursor.subscription_deleted && audit_trail_cursor.subscription_deleted.sent_to_admin) {
+    if (audit_trail_cursor) {
       logger.info("A 'subscription deleted' email has already been sent, exiting email send function.");
       return;
-    } else {
-      Audit_trail.upsert({subscription_id: subscription_id}, {
-        $set: {
-          'subscription_deleted.sent_to_admin': true,
-          'subscription_deleted.time': new Date()
-        }
-      });
     }
 
     let start_date = moment( new Date(stripeEvent.data.object.start * 1000) ).format('DD MMM, YYYY');
@@ -251,27 +244,39 @@ _.extend(Utils,{
 
     let canceledReason = stripeEvent.data.object.metadata &&
       stripeEvent.data.object.metadata.canceled_reason;
-    
+    let emailMessage = donor_name + " or the admin stopped a recurring (every " +
+      stripeEvent.data.object.plan.interval + ") gift (amount: " +
+      (stripeEvent.data.object.quantity / 100).toFixed(2) + ") that was using (a) " +
+      (donateWith && donateWith.toLowerCase()) + ". The gift start date was " + start_date +
+      ". The last time this recurring gift ran was " + last_gift +
+      ". The gift was canceled on " + canceled_date + '. ' +
+      (canceledReason ?
+      "The reason they stopped giving was '" + canceledReason + "'." :
+      "This gift was canceled from Stripe directly either because someone " +
+      "used the Stripe dashboard, or because their gift failed to process to many times.");
     let emailObject = {
       to: config.OrgInfo.emails.canceledGift,
       previewLine: donor_name + " or the admin canceled a recurring gift.",
       type: 'Canceled Recurring Gift',
-      emailMessage: donor_name + " or the admin stopped a recurring (every " +
-         stripeEvent.data.object.plan.interval + ") gift (amount: " +
-         (stripeEvent.data.object.quantity / 100).toFixed(2) + ") that was using (a) " +
-         (donateWith && donateWith.toLowerCase()) + ". The gift start date was " + start_date +
-         ". The last time this recurring gift ran was " + last_gift +
-         ". The gift was canceled on " + canceled_date + '. ' +
-         (canceledReason ?
-         "The reason they stopped giving was '" + canceledReason + "'." :
-         "This gift was canceled from Stripe directly either because someone " +
-         "used the Stripe dashboard, or because their gift failed to process to many times."),
+      emailMessage: emailMessage,
       buttonText: 'Donor Tools Person',
       buttonURL: config.Settings.DonorTools.url + '/people/' + customer_cursor.metadata.dt_persona_id
     };
 
     logger.info("emailObject:", emailObject);
     Utils.sendEmailNotice(emailObject);
+
+    let event = {
+      id:                subscription_id,
+      emailSentTo:       config.OrgInfo.emails.canceledGift,
+      type:              'subscription.deleted',
+      category:          'Email',
+      relatedCollection: 'Subscriptions',
+      page:              '/dashboard/subscriptions?sub=' + subscription_id,
+      otherInfo:         emailMessage
+    };
+
+    Utils.audit_event(event);
   },
   send_donation_email: function (recurring, id, amount, type, body, frequency, subscription) {
     /*try {*/
@@ -316,9 +321,7 @@ _.extend(Utils,{
         // Audit the charge event
         Utils.audit_event(event);
       }
-
-      var audit_trail_cursor = Audit_trail.findOne({charge_id: id});
-      
+    
       var charge_cursor = Charges.findOne({_id: id});
 
       if (!charge_cursor) {
@@ -679,7 +682,11 @@ _.extend(Utils,{
       return;
     }
 
-    let auditTrailDoc = Audit_trail.findOne({relatedDoc: subscription_id, subtype: 'scheduled'});
+    let auditTrailDoc = Audit_trail.findOne({
+      relatedDoc: subscription_id,
+      category: 'Email',
+      subtype: 'scheduled'
+    });
     if (auditTrailDoc) {
       logger.info("Already have this record in the audit trail, escaping function");
       return;

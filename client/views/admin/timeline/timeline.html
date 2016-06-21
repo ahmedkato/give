@@ -8,9 +8,9 @@
                 <ul class="timeline collapse-lg">
                     {{#each audits}}
                         <li class="list-comments">
-                            <div class="timeline-circ circ-xl style-{{subtype}}"><span class="{{auditTypeIcon}}"></span></div>
+                            <div class="timeline-circ circ-xl style-{{greenBlueOrangeRed}}"></div>
                             <div class="timeline-entry">
-                                <div class="card card-outlined {{auditStyle}}">
+                                <div class="card card-outlined style-info">
                                     <div class="comment-avatar"><i class="{{auditCategoryIcon}} opacity-50 no-margin"></i></div>
                                     <div class="card-body small-padding">
                                         <span class="text-medium">{{auditEventTitle}}</span><br>
@@ -20,7 +20,7 @@
                                         <div class="stick-top-right">
                                             <a href="{{buttonLink}}" class="btn btn-primary btn-labeled">
                                                 {{buttonTitle}}
-                                                <span class="label label-{{subtype}}">{{subtype}}</span>
+                                                <span class="label label-{{subTypeStyle}}">{{subtype}}</span>
                                             </a>
                                         </div>
                                     </div>

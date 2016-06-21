@@ -422,8 +422,15 @@ Meteor.publishComposite("auditTrail", function (limit) {
         {
           find: function (auditDoc) {
             if (auditDoc && auditDoc.relatedDoc) {
-              // Find the related Document associated with this audit doc
-              return GLOBAL[auditDoc.relatedCollection].find( { _id: auditDoc.relatedDoc} );
+              if (auditDoc.relatedCollection.indexOf(".") > -1) {
+                let collectionNameSplit = auditDoc.relatedCollection.split(".");
+                // Find the related Document associated with this audit doc
+                return GLOBAL[collectionNameSplit[0]][collectionNameSplit[1]].find( { _id: auditDoc.relatedDoc} );
+              } else {
+                // Find the related Document associated with this audit doc
+                return GLOBAL[auditDoc.relatedCollection].find( { _id: auditDoc.relatedDoc} );  
+              }
+              
             }
             return;
           },

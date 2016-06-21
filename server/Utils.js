@@ -473,6 +473,18 @@ Utils = {
       auth:   DONORTOOLSAUTH
     } );
 
+
+    // Audit the new DT account creation
+    let event = {
+      id: newDTPerson.data.persona.id,
+      type: 'dt.account created',
+      userId: user_id,
+      category: 'DonorTools',
+      relatedCollection: 'DT_personas',
+      page: config.Settings.DonorTools.url + '/people/' + newDTPerson.data.persona.id,
+      otherInfo: '/dashboard/users?userID=' + user_id
+    };
+    Utils.audit_event( event );
     return newDTPerson.data.persona.id;
   },
   insert_gift_into_donor_tools(charge_id, customer_id) {
@@ -1260,12 +1272,15 @@ Utils = {
   },
   send_new_dt_account_added_email_to_support_email_contact(email, user_id, personaID) {
     logger.info( "Started send_new_dt_account_added_email_to_support_email_contact" );
-    if( Audit_trail.findOne( { persona_id: personaID } ) &&
-      Audit_trail.findOne( { persona_id: personaID } ).dt_account_created ) {
+    if( Audit_trail.findOne( {
+        relatedDoc: personaID,
+        category: 'Email',
+        subtype: 'account created'
+      } )) {
       logger.info( "Already sent a send_new_dt_account_added_email_to_support_email_contact email" );
       return;
     }
-    let wait_for_audit = Utils.audit_event( personaID, 'dt.account.created' );
+
     let config = ConfigDoc();
 
     //Create the HTML content for the email.
@@ -1282,8 +1297,6 @@ Utils = {
     toAddresses.push( config.OrgInfo.emails.support );
     toAddresses = toAddresses.concat( config.OrgInfo.emails.otherSupportAddresses );
     bccAddress = config.OrgInfo.emails.bccAddress;
-    //Send email
-
     let sendObject = {
       from:    config.OrgInfo.emails.support,
       to:      toAddresses,
@@ -1292,6 +1305,18 @@ Utils = {
       html:    html
     };
     Utils.sendHTMLEmail( sendObject );
+    
+    let event = {
+      id: personaID,
+      type: 'dt.account created',
+      userId: user_id,
+      emailSentTo: toAddresses,
+      category: 'Email',
+      relatedCollection: 'DT_personas',
+      page: config.Settings.DonorTools.url + "/people/" + personaID,
+      otherInfo: '/dashboard/users?userID=' + user_id
+    };
+    Utils.audit_event( event );
   },
   /**
    * Send an email to new users, welcoming them
@@ -1313,12 +1338,11 @@ Utils = {
       return;
     }
 
-    if( Audit_trail.findOne( { email: email } ) &&
-      Audit_trail.findOne( { email: email } ).welcome && Audit_trail.findOne( { email: email } ).welcome.sent ) {
+    let user = Meteor.users.findOne({'emails.address': email});
+    if( Audit_trail.findOne( { relatedDoc: user._id, type: 'welcome' } ) ) {
       logger.info( "Already sent a welcome email" );
       return;
     }
-    let wait_for_audit = Utils.audit_event( email, 'welcome.email.sent' );
 
     let data_slug = {
       "template_name": config.Services.Email.welcome,
@@ -1334,8 +1358,18 @@ Utils = {
         ]
       }
     };
-
     Utils.send_mandrill_email( data_slug, config.Services.Email.welcome, email, 'Welcome' );
+
+    let event = {
+      id: user._id,
+      type: 'welcome',
+      userId: user._id,
+      category: 'Email',
+      relatedCollection: 'Meteor.users',
+      page: '/dashboard/users?userID=' + user._id,
+      emailSentTo: email
+    };
+    Utils.audit_event( event );
 
   },
   /**
@@ -1356,12 +1390,10 @@ Utils = {
       return;
     }
 
-    if( Audit_trail.findOne( { user_id: personaID } ) &&
-      Audit_trail.findOne( { user_id: personaID } ).give_account_created ) {
+    if( Audit_trail.findOne( { relatedDoc: user_id, category: 'Email', subtype: 'account created' } ) ){
       logger.info( "Already sent a send_new_give_account_added_email_to_support_email_contact email" );
       return;
     }
-    let wait_for_audit = Utils.audit_event( personaID, 'give.account.created' );
 
     // Create the HTML content for the email.
     // Create the link to go to the new person that was just created.
@@ -1384,6 +1416,18 @@ Utils = {
     };
 
     Utils.sendHTMLEmail( emailObject );
+
+    // Audit the new account creation
+    let event = {
+      id: user_id,
+      emailSentTo: toAddresses,
+      type: 'give.account created',
+      userId: user_id,
+      category: 'Email',
+      relatedCollection: 'Meteor.users',
+      page: '/dashboard/users?userID=' + user_id
+    };
+    Utils.audit_event( event );
   },
   /**
    * Send an email to the admins.
