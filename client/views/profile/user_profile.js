@@ -277,3 +277,11 @@ Template.UserProfile.onRendered(function() {
 
   Session.set('activeTab', $('.active a').attr('value'));
 });
+
+Template.UserProfile.onDestroyed(function () {
+  Session.delete( 'NotDTUser' );
+  Session.delete( 'activeTab' );
+  Session.delete( 'got_all_donations' );
+  Session.delete( 'dt_donations_cursor' );
+  Session.delete( 'showHistory' );
+});
