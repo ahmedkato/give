@@ -170,10 +170,7 @@ Template.ACH.events({
     });
 
     Meteor.setTimeout(function() {
-      $("select option").filter(function() {
-        //may want to use $.trim in here
-        return $(this).text() === self.donateTo;
-      }).prop('selected', true).change();
+      $("#donateTo").val(self.donateTo).change();
     }, 0);
   },
   'keyup, change .search': _.debounce(function () {
@@ -195,4 +192,10 @@ Template.ACH.events({
 
 Template.ACH.onDestroyed(function() {
   Session.delete("searchValue");
+  Session.delete("change_donation_id");
+  Session.delete("change_customer_id");
+  Session.delete('change_donateTo');
+  Session.delete('change_note');
+  Session.delete('change_amount');
+  Session.delete('change_date');
 });

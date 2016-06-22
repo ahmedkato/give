@@ -85,10 +85,7 @@ Template.AdminSubscriptions.events({
     });
 
     Meteor.setTimeout(function() {
-      $("select option").filter(function() {
-        //may want to use $.trim in here
-        return $(this).text() === self.metadata.donateTo;
-      }).prop('selected', true).change();
+      $("#donateTo").val(self.metadata.donateTo).change();
     }, 0);
   },
   'keyup, change .search': _.debounce(function () {
@@ -157,7 +154,6 @@ Template.AdminSubscriptions.helpers({
 });
 
 Template.AdminSubscriptions.onCreated( function () {
-  //Session.set("searchValue", "");
   Session.set("documentLimit", 10);
   this.autorun(()=> {
     Meteor.subscribe("subscriptions_and_customers", Session.get("searchValue"), Session.get("documentLimit"));
