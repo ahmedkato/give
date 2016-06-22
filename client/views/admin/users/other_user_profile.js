@@ -223,6 +223,9 @@ Template.OtherUserProfile.events({
 Template.OtherUserProfile.onRendered(function() {
 
   let selected_user = Meteor.users.findOne({_id: Session.get("params.userID")});
+  if (!selected_user){
+    return;
+  }
 
   if(!selected_user.persona_info ||
     ( selected_user && selected_user.persona_info && selected_user.persona_info.length < 1 ) ||

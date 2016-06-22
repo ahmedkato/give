@@ -281,23 +281,6 @@ _.extend(StripeFunctions, {
     }
 
   },
-  audit_charge: function ( charge_id, status ) {
-    logger.info( "Started audit_charge" );
-    logger.info( "Charge_id: " + charge_id );
-
-    let wait_for_audit_store =  Audit_trail.upsert( { _id: charge_id }, {
-      $set: {
-        dt_donation_created: true, status: {
-          dt_donation_status_updated_to: status,
-          time: moment().format( "MMM DD, YYYY hh:mma" )
-        }
-      }
-    } );
-
-    logger.info(wait_for_audit_store);
-    return wait_for_audit_store;
-    //Utils.post_donation_operation( customer_id, charge_id );
-  },
   'retrieve_stripe_event': function ( webhookEvent ) {
     logger.info("Started retrieve_stripe_event");
     logger.info("Event ID: ", webhookEvent.id);
@@ -441,6 +424,15 @@ _.extend(StripeFunctions, {
       Utils.check_for_profile_info_add_if_none(user_id, customer.id);
     } else {
       user_id = Utils.create_user(email_address, customer.id);
+      let event = {
+        category: 'System',
+        type: 'give.account created',
+        relatedDoc: user_id,
+        userId: user_id,
+        relatedCollection: 'Meteor.users',
+        page: '/dashboard/users?userID=' + user_id
+      };
+      Utils.audit_event(event);
       // Set the new user flag
       Meteor.users.update({_id: user_id}, {$set: {newUser: true}});
     }

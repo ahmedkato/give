@@ -3,7 +3,7 @@
         <div class="col col-md-12 col-sm-12 col-lg-12">
             {{> SubscriptionModal}}
             <div class="form-group floating-label">
-                <input type="text" class="form-control search" placeholder="Search by; name, org. or email">
+                <input type="text" class="form-control search" placeholder="Search by; id, name, org. or email">
                 <label>*Only Active or <span class="trialing-subscription">Trialing</span> Subscriptions are Shown</label>
             </div>
             <button type="button" class="btn btn-danger btn-block clear-button">
@@ -20,7 +20,7 @@
                     <th>Designation</th>
                     <th>Note</th>
                     <th>Stripe ID</th>
-                    {{#if isInRole 'admin, manager'}}
+                    {{#if isInRole 'admin, super-admin, manager'}}
                         <th class="text-right"></th>
                     {{/if}}
                 </tr>

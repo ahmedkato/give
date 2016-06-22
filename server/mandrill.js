@@ -216,24 +216,17 @@ _.extend(Utils,{
   },
   send_cancelled_email_to_admin: function (subscription_id, stripeEvent) {
     logger.info("Started send_cancelled_email_to_admin");
-    var audit_trail_cursor = Audit_trail.findOne({subscription_id: subscription_id});
-
     let config = ConfigDoc();
     if (!(config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.canceledGift)) {
       logger.warn("There aren't any email addresses in the canceled gift notice field.");
       return;
     }
+
+    let audit_trail_cursor = Audit_trail.findOne({relatedDoc: subscription_id, category: 'Email', subtype: 'deleted'});
     // Check to see if the deleted subscription email has already been sent for this charge
-    if (audit_trail_cursor && audit_trail_cursor.subscription_deleted && audit_trail_cursor.subscription_deleted.sent_to_admin) {
+    if (audit_trail_cursor) {
       logger.info("A 'subscription deleted' email has already been sent, exiting email send function.");
       return;
-    } else {
-      Audit_trail.upsert({subscription_id: subscription_id}, {
-        $set: {
-          'subscription_deleted.sent_to_admin': true,
-          'subscription_deleted.time': new Date()
-        }
-      });
     }
 
     let start_date = moment( new Date(stripeEvent.data.object.start * 1000) ).format('DD MMM, YYYY');
@@ -251,30 +244,42 @@ _.extend(Utils,{
 
     let canceledReason = stripeEvent.data.object.metadata &&
       stripeEvent.data.object.metadata.canceled_reason;
-    
+    let emailMessage = donor_name + " or the admin stopped a recurring (every " +
+      stripeEvent.data.object.plan.interval + ") gift (amount: " +
+      (stripeEvent.data.object.quantity / 100).toFixed(2) + ") that was using (a) " +
+      (donateWith && donateWith.toLowerCase()) + ". The gift start date was " + start_date +
+      ". The last time this recurring gift ran was " + last_gift +
+      ". The gift was canceled on " + canceled_date + '. ' +
+      (canceledReason ?
+      "The reason they stopped giving was '" + canceledReason + "'." :
+      "This gift was canceled from Stripe directly either because someone " +
+      "used the Stripe dashboard, or because their gift failed to process to many times.");
     let emailObject = {
       to: config.OrgInfo.emails.canceledGift,
       previewLine: donor_name + " or the admin canceled a recurring gift.",
       type: 'Canceled Recurring Gift',
-      emailMessage: donor_name + " or the admin stopped a recurring (every " +
-         stripeEvent.data.object.plan.interval + ") gift (amount: " +
-         (stripeEvent.data.object.quantity / 100).toFixed(2) + ") that was using (a) " +
-         (donateWith && donateWith.toLowerCase()) + ". The gift start date was " + start_date +
-         ". The last time this recurring gift ran was " + last_gift +
-         ". The gift was canceled on " + canceled_date + '. ' +
-         (canceledReason ?
-         "The reason they stopped giving was '" + canceledReason + "'." :
-         "This gift was canceled from Stripe directly either because someone " +
-         "used the Stripe dashboard, or because their gift failed to process to many times."),
+      emailMessage: emailMessage,
       buttonText: 'Donor Tools Person',
       buttonURL: config.Settings.DonorTools.url + '/people/' + customer_cursor.metadata.dt_persona_id
     };
 
     logger.info("emailObject:", emailObject);
     Utils.sendEmailNotice(emailObject);
+
+    let event = {
+      id:                subscription_id,
+      emailSentTo:       config.OrgInfo.emails.canceledGift,
+      type:              'subscription.deleted',
+      category:          'Email',
+      relatedCollection: 'Subscriptions',
+      page:              '/dashboard/subscriptions?sub=' + subscription_id,
+      otherInfo:         emailMessage
+    };
+
+    Utils.audit_event(event);
   },
   send_donation_email: function (recurring, id, amount, type, body, frequency, subscription) {
-    try {
+    /*try {*/
       logger.info("Started send_donation_email with ID: " + id);
       let config = ConfigDoc();
 
@@ -291,8 +296,32 @@ _.extend(Utils,{
         return;
       }
       var donation_cursor;
-      // Setup a cursor for the Audit_trail document corresponding to this charge_id
-      var audit_trail_cursor = Audit_trail.findOne({charge_id: id});
+      // TODO: check right here for the relevant document. If it exists, exit the process
+      // Then below for each different case we don't need to be checking to see if these email notices
+      // have already gone out
+
+      let splitType = type.split(".");
+      var auditTrailDoc = Audit_trail.findOne({relatedDoc: id, subtype: splitType[1]});
+      if (auditTrailDoc) {
+        logger.info("Already have this record in the audit trail, escaping function");
+        return;
+      }
+      let event = {
+        id:                id,
+        type:              type,
+        category:          'Stripe',
+        userId:            '',
+        relatedCollection: 'Charges',
+        failureCode:       body.failure_code,
+        failureMessage:    body.failure_message,
+        page:              '/thanks?charge=' + id
+      };
+
+      if (type !== 'large_gift') {
+        // Audit the charge event
+        Utils.audit_event(event);
+      }
+    
       var charge_cursor = Charges.findOne({_id: id});
 
       if (!charge_cursor) {
@@ -480,12 +509,6 @@ _.extend(Utils,{
                   logger.error("No donation found here, exiting.");
                   return;
               } else {
-                  // Check to see if the failed email has already been sent for this charge
-                  if (audit_trail_cursor && audit_trail_cursor.charge.failed && audit_trail_cursor.charge.failed.sent) {
-                      logger.info("A 'failed' email has already been sent for this charge, exiting email send function.");
-                      return;
-                  }
-
                   data_slug.template_name = config.Services.Email.failedPayment;
                   data_slug.message.global_merge_vars.push(
                       {
@@ -538,10 +561,6 @@ _.extend(Utils,{
                   logger.error("No donation found here, exiting.");
                   return;
               } else {
-                  if (audit_trail_cursor && audit_trail_cursor.charge.failed && audit_trail_cursor.charge.failed.sent) {
-                      logger.info("A 'failed' email has already been sent for this charge, exiting email send function.");
-                      return;
-                  }
                 // If you get to this area it means the donor would have already seen their gift
                 // failed. If there is no donation cursor that means the gift process
                 // didn't get past the initial screen and so the donor already knows
@@ -564,31 +583,17 @@ _.extend(Utils,{
           }
       }
 
+      let to, subject;
+      to = customer_cursor.email;
       if (type === 'charge.failed') {
-          Utils.audit_email(id, type, body.failure_message, body.failure_code);
-          Utils.send_mandrill_email(data_slug, 'charge.failed', customer_cursor.email, 'Your gift failed to process.');
+        subject = 'Your gift failed to process.';
       } else if (type === 'charge.pending') {
-          if (audit_trail_cursor && audit_trail_cursor.charge && audit_trail_cursor.charge.pending && audit_trail_cursor.charge.pending.sent) {
-            logger.info("A 'created' email has already been sent for this charge, exiting email send function.");
-            return;
-          }
-          Utils.audit_email(id, type);
-          data_slug.template_name = config.Services.Email.pending;
-          Utils.send_mandrill_email(data_slug, 'charge.pending', customer_cursor.email, 'Donation');
+        data_slug.template_name = config.Services.Email.pending;
+        subject =  'Donation';
       } else if (type === 'charge.succeeded') {
-          if (audit_trail_cursor && audit_trail_cursor.charge && audit_trail_cursor.charge.succeeded && audit_trail_cursor.charge.succeeded.sent) {
-              logger.info("A 'succeeded' email has already been sent for this charge, exiting email send function.");
-              return;
-          }
-          Utils.audit_email(id, type);
-          data_slug.template_name = config.Services.Email.receipt;
-          Utils.send_mandrill_email(data_slug, 'charge.succeeded', customer_cursor.email, 'Receipt for your donation');
+        data_slug.template_name = config.Services.Email.receipt;
+        subject =  'Receipt for your donation';
       } else if (type === 'large_gift') {
-        if (audit_trail_cursor && audit_trail_cursor.charge && audit_trail_cursor.charge.large_gift && audit_trail_cursor.charge.large_gift.sent) {
-            logger.info("A 'large_gift' email has already been sent for this charge, exiting email send function.");
-            return;
-        }
-        Utils.audit_email(id, type);
         if (!(config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.largeGift)) {
           logger.warn("No large gift email(s) to send to.");
           return;
@@ -605,11 +610,25 @@ _.extend(Utils,{
         };
 
         Utils.sendEmailNotice(emailObject);
+
+        event.emailSentTo = config.OrgInfo.emails.largeGift;
+        event.category = 'Email';
+        event.page = emailObject.buttonURL;
+        Utils.audit_event(event);
+        return;
       }
-    }  catch (e) {
+
+      Utils.send_mandrill_email(data_slug, type, to, subject);
+      event.emailSentTo = to;
+      event.category = 'Email';
+      // Audit the email send event
+      Utils.audit_event(event);
+
+    /*}
+  catch (e) {
       logger.error('Mandril sendEmailOutAPI Method error: ' + e);
       throw new Meteor.Error(e);
-    }
+    }*/
   },
 	send_mandrill_email: function(data_slug, type, to, subject){
     try{
@@ -637,8 +656,6 @@ _.extend(Utils,{
       let dataSlugWithTo = Utils.addRecipientToEmail(dataSlugWithFrom, to);
       let dataSlugWithOrgInfoFields = Utils.addOrgInfoFields(dataSlugWithTo);
       dataSlugWithTo.message.subject = subject;
-
-      logger.info(dataSlugWithOrgInfoFields);
       Mandrill.messages.sendTemplate(dataSlugWithOrgInfoFields);
     } catch (e) {
       logger.error('Mandril sendEmailOutAPI Method error message: ' + e.message);
@@ -664,21 +681,37 @@ _.extend(Utils,{
       subscription_cursor.metadata.send_scheduled_email === 'no' ) {
       return;
     }
-    if( Audit_trail.findOne( { "subscription_id": subscription_id } ) &&
-      Audit_trail.findOne( { "subscription_id": subscription_id } ).subscription_scheduled &&
-      Audit_trail.findOne( { "subscription_id": subscription_id } ).subscription_scheduled.sent ) {
-      return;
-    } else {
-      Utils.audit_email( subscription_id, 'scheduled' );
-    }
 
+    let auditTrailDoc = Audit_trail.findOne({
+      relatedDoc: subscription_id,
+      category: 'Email',
+      subtype: 'scheduled'
+    });
+    if (auditTrailDoc) {
+      logger.info("Already have this record in the audit trail, escaping function");
+      return;
+    } 
+    
     // Setup the rest of the cursors that we'll need
-    var donation_cursor = Donations.findOne( { _id: id } );
-    var customer_cursor = Customers.findOne( donation_cursor.customer_id );
+    let donation_cursor = Donations.findOne( { _id: id } );
+    let customer_cursor = Customers.findOne( donation_cursor.customer_id );
     let email_address = customer_cursor.email;
 
-    var start_at = subscription_cursor.trial_end;
+    let start_at = subscription_cursor.trial_end;
     start_at = moment( start_at * 1000 ).format( "MMM DD, YYYY" );
+    
+    let event = {
+      emailSentTo: email_address,
+      id: subscription_id,
+      type: 'charge.scheduled',
+      category: 'Email',
+      userId: '',
+      relatedCollection: 'Subscriptions',
+      page: '/dashboard/subscriptions?sub=' + subscription_id,
+      otherInfo: start_at
+    };
+    Utils.audit_event(event);
+
 
     // convert the amount from an integer to a two decimal place number
     amount = (amount / 100).toFixed( 2 );

@@ -69,7 +69,7 @@ Template.SubscriptionModal.events({
     console.log(customer_id, subscription_id, amount, trial_end, donateToValue);
     Meteor.call( "edit_subscription", customer_id, subscription_id, amount, trial_end, donateToValue, function ( error, response ) {
       if( error ) {
-        console.log( error, error.message);
+        console.error( error, error.message);
         Bert.alert( error.message, "danger" );
         $(':submit').button( 'reset' );
       } else {
@@ -118,10 +118,15 @@ Template.SubscriptionModal.events({
     $('#designationSection').hide();
   },
   'click .close': function () {
-    Session.set("yes_change_date", false);
-    Session.set("yes_change_designation", false);
     $('#calendarSection').hide();
     $('#designationSection').hide();
+
+    Session.delete("yes_change_date");
+    Session.delete("yes_change_designation");
+    Session.delete("yes_change_note");
+    Session.delete("change_donateTo");
+    Session.delete("change_customer_id");
+    Session.delete("change_subscription_id");
   }
 });
 
@@ -136,4 +141,14 @@ Template.SubscriptionModal.onRendered(function () {
 
   init_calendar();
 
+  //$("#donateTo").val()
+});
+
+Template.SubscriptionModal.onDestroyed(function() {
+  Session.delete("yes_change_date");
+  Session.delete("yes_change_designation");
+  Session.delete("yes_change_note");
+  Session.delete("change_donateTo");
+  Session.delete("change_customer_id");
+  Session.delete("change_subscription_id");
 });

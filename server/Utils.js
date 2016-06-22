@@ -473,6 +473,18 @@ Utils = {
       auth:   DONORTOOLSAUTH
     } );
 
+
+    // Audit the new DT account creation
+    let event = {
+      id: newDTPerson.data.persona.id,
+      type: 'dt.account created',
+      userId: user_id,
+      category: 'DonorTools',
+      relatedCollection: 'DT_personas',
+      page: config.Settings.DonorTools.url + '/people/' + newDTPerson.data.persona.id,
+      otherInfo: '/dashboard/users?userID=' + user_id
+    };
+    Utils.audit_event( event );
     return newDTPerson.data.persona.id;
   },
   insert_gift_into_donor_tools(charge_id, customer_id) {
@@ -928,78 +940,64 @@ Utils = {
         customer: customer_id,
         limit:    1
       }, '' );
-      console.dir( stripeInvoiceList );
       return stripeInvoiceList.data[0];
     } else {
       Utils.send_scheduled_email( donation_id, stripeChargePlan.id, subscription_frequency, total );
       return 'scheduled';
     }
   },
-  // TODO: setup the subType field.
-  // TODO: this will give you the ability to always use the object id (for Stripe)
-  // as the _id of the document. Since the type will be 'charge', 'customer', etc.
-  // then use the subType to check if you should send an email or not.
-  // subTypes might be 'failed', 'succeeded', 'pending',
+  audit_event(event) {
+    logger.info( "Inside audit_event." );
+    logger.info( event );
 
-  // TODO: also, this is where we need to add the by: 'donor', 'system', 'admin'
-  // to show that the charge was made by recurring inoice from Stripe ('system') or
-  // by the admin or by the donor
+    let splitType = event["type"].split(".");
+    let insertThis = {
+      category:          event["category"],
+      failureCode:       event["failureCode"],
+      failureMessage:    event["failureMessage"],
+      emailSentTo:       event["emailSentTo"],
+      otherInfo:         event["otherInfo"],
+      page:              event["page"],
+      relatedCollection: event["relatedCollection"],
+      relatedDoc:        event["id"],
+      show:              true,
+      subtype:           splitType[1],
+      time:              new Date(),
+      type:              splitType[0],
+      userId:            event["userId"]
+    };
 
-  // TODO: need to try to move these one at a time, there are a lot of pieces
-  // all tied together in the audit_cursor and more
-  audit_email(id, type, failure_message, failure_code) {
-    logger.info( "Inside audit_email." );
+    Audit_trail.insert( insertThis );
 
-    function upsertAuditEvent( id, type ) {
-      Audit_trail.upsert( { _id: id }, {
-        $addToSet: {
-          email: {
-            type: type,
-            sent: true,
-            time: new Date(),
-            show: true
-          }
-        }
-      } );
-    }
-
-    switch( type ) {
+   /* switch( type ) {
       case 'config.change':
-        upsertAuditEvent(id, type);
+        upsertAuditEvent(id, type, category, user_id, relatedCollection);
         break;
       case 'charge.pending':
-        Audit_trail.upsert( { charge_id: id }, {
+        upsertAuditEvent(id, type, category, user_id, relatedCollection);
+        /!*Audit_trail.upsert( { charge_id: id }, {
           $set: {
             'charge.pending.sent': true,
             'charge.pending.time': new Date()
           }
-        } );
+        } );*!/
         break;
       case 'charge.succeeded':
-        Audit_trail.upsert( { charge_id: id }, {
-          $set: {
-            'charge.succeeded.sent': true,
-            'charge.succeeded.time': new Date()
-          }
-        } );
+        upsertAuditEvent(id, type, category, user_id, relatedCollection);
         break;
       case 'large_gift':
-        Audit_trail.upsert( { charge_id: id }, {
-          $set: {
-            'charge.large_gift.sent': true,
-            'charge.large_gift.time': new Date()
-          }
-        } );
+        upsertAuditEvent(id, type, category, user_id, relatedCollection);
         break;
       case 'charge.failed':
-        Audit_trail.upsert( { charge_id: id }, {
+        upsertAuditEvent(id, type, category, user_id, relatedCollection, failure_message, failure_code);
+        /!*Audit_trail.upsert( { charge_id: id }, {
           $set: {
             'charge.failed.sent':     true,
             'charge.failed.time':     new Date(),
             'charge.failure_message': failure_message,
             'charge.failure_code':    failure_code
           }
-        } );
+        } );*!/
         break;
       case 'subscription.scheduled':
         Audit_trail.upsert( { subscription_id: id }, {
@@ -1035,7 +1033,7 @@ Utils = {
         break;
       default:
         logger.info( "No case matched" );
-    };
+    };*/
   },
   update_card(customer_id, card_id, saved) {
     logger.info( "Started update_card" );
@@ -1274,12 +1272,15 @@ Utils = {
   },
   send_new_dt_account_added_email_to_support_email_contact(email, user_id, personaID) {
     logger.info( "Started send_new_dt_account_added_email_to_support_email_contact" );
-    if( Audit_trail.findOne( { persona_id: personaID } ) &&
-      Audit_trail.findOne( { persona_id: personaID } ).dt_account_created ) {
+    if( Audit_trail.findOne( {
+        relatedDoc: personaID,
+        category: 'Email',
+        subtype: 'account created'
+      } )) {
       logger.info( "Already sent a send_new_dt_account_added_email_to_support_email_contact email" );
       return;
     }
-    let wait_for_audit = Utils.audit_email( personaID, 'dt.account.created' );
+
     let config = ConfigDoc();
 
     //Create the HTML content for the email.
@@ -1296,8 +1297,6 @@ Utils = {
     toAddresses.push( config.OrgInfo.emails.support );
     toAddresses = toAddresses.concat( config.OrgInfo.emails.otherSupportAddresses );
     bccAddress = config.OrgInfo.emails.bccAddress;
-    //Send email
-
     let sendObject = {
       from:    config.OrgInfo.emails.support,
       to:      toAddresses,
@@ -1306,6 +1305,18 @@ Utils = {
       html:    html
     };
     Utils.sendHTMLEmail( sendObject );
+    
+    let event = {
+      id: personaID,
+      type: 'dt.account created',
+      userId: user_id,
+      emailSentTo: toAddresses,
+      category: 'Email',
+      relatedCollection: 'DT_personas',
+      page: config.Settings.DonorTools.url + "/people/" + personaID,
+      otherInfo: '/dashboard/users?userID=' + user_id
+    };
+    Utils.audit_event( event );
   },
   /**
    * Send an email to new users, welcoming them
@@ -1327,12 +1338,11 @@ Utils = {
       return;
     }
 
-    if( Audit_trail.findOne( { email: email } ) &&
-      Audit_trail.findOne( { email: email } ).welcome && Audit_trail.findOne( { email: email } ).welcome.sent ) {
+    let user = Meteor.users.findOne({'emails.address': email});
+    if( Audit_trail.findOne( { relatedDoc: user._id, type: 'welcome' } ) ) {
       logger.info( "Already sent a welcome email" );
       return;
     }
-    let wait_for_audit = Utils.audit_email( email, 'welcome.email.sent' );
 
     let data_slug = {
       "template_name": config.Services.Email.welcome,
@@ -1348,8 +1358,18 @@ Utils = {
         ]
       }
     };
-
     Utils.send_mandrill_email( data_slug, config.Services.Email.welcome, email, 'Welcome' );
+
+    let event = {
+      id: user._id,
+      type: 'welcome',
+      userId: user._id,
+      category: 'Email',
+      relatedCollection: 'Meteor.users',
+      page: '/dashboard/users?userID=' + user._id,
+      emailSentTo: email
+    };
+    Utils.audit_event( event );
 
   },
   /**
@@ -1370,12 +1390,10 @@ Utils = {
       return;
     }
 
-    if( Audit_trail.findOne( { user_id: personaID } ) &&
-      Audit_trail.findOne( { user_id: personaID } ).give_account_created ) {
+    if( Audit_trail.findOne( { relatedDoc: user_id, category: 'Email', subtype: 'account created' } ) ){
       logger.info( "Already sent a send_new_give_account_added_email_to_support_email_contact email" );
       return;
     }
-    let wait_for_audit = Utils.audit_email( personaID, 'give.account.created' );
 
     // Create the HTML content for the email.
     // Create the link to go to the new person that was just created.
@@ -1398,6 +1416,18 @@ Utils = {
     };
 
     Utils.sendHTMLEmail( emailObject );
+
+    // Audit the new account creation
+    let event = {
+      id: user_id,
+      emailSentTo: toAddresses,
+      type: 'give.account created',
+      userId: user_id,
+      category: 'Email',
+      relatedCollection: 'Meteor.users',
+      page: '/dashboard/users?userID=' + user_id
+    };
+    Utils.audit_event( event );
   },
   /**
    * Send an email to the admins.
@@ -1408,13 +1438,21 @@ Utils = {
   send_change_email_notice_to_admins(changeMadeBy, changeIn) {
     logger.info( "Started send_change_email_notice_to_admins" );
     let config = ConfigDoc();
+    let event = {
+      id: config._id,
+      type: 'config.change',
+      category: 'Admin',
+      userId: changeMadeBy,
+      relatedCollection: 'Config',
+      page: "/dashboard/" + changeIn
+    };
+    Utils.audit_event(event);
 
     if( !(config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.support) ) {
       logger.warn( "No support email to send from." );
       return;
     }
 
-    Utils.audit_email(config._id, 'config.change');
     let admins = Roles.getUsersInRole( 'admin' );
     let adminEmails = admins.map( function ( item ) {
       return item.emails[0].address;
@@ -1436,6 +1474,10 @@ Utils = {
     };
 
     Utils.sendHTMLEmail( emailObject );
+
+    event.emailSentTo = adminEmails;
+    event.category = 'Email';
+    Utils.audit_event(event);
   },
   /**
    * set a user's state object and update that object with a timestamp

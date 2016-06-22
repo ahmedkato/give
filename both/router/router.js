@@ -117,8 +117,7 @@ Router.route('/thanks', {
   name: 'donation.thanks',
   waitOn: function() {
     return [
-      Meteor.subscribe('receipt_customers', this.params.query.c),
-      Meteor.subscribe('receipt_charges', this.params.query.charge)
+      Meteor.subscribe('receiptCharge', this.params.query.charge)
     ];
   },
   action: function() {
@@ -440,7 +439,11 @@ Router.route('/dashboard/subscriptions', {
   layoutTemplate: 'UserLayout',
   name: 'AdminSubscriptions',
   where: 'client',
-  template: 'AdminSubscriptions'
+  template: 'AdminSubscriptions',
+  data: function() {
+    var query = this.params.query;
+    Session.set("searchValue", query.sub);
+  }
 });
 
 Router.route('/dashboard/users', {

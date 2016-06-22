@@ -207,10 +207,7 @@ Template.SubscriptionsOverview.events({
     });
 
     Meteor.setTimeout(function() {
-      $("select option").filter(function() {
-        //may want to use $.trim in here
-        return $(this).text() === self.metadata.donateTo;
-      }).prop('selected', true).change();
+      $("#donateTo").val(self.metadata.donateTo).change();
     }, 0);
   }
 });
