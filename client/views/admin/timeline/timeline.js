@@ -17,13 +17,12 @@ Template.Timeline.helpers({
     !this.subtype) {
       return 'info';
     }
-    if (this.subtype === 'pending') {
+    if (this.subtype === 'pending' || this.subtype === 'refunded') {
       return 'warning';
     }
     if (this.subtype === 'failed') {
       return 'danger';
     }
-    //return 'info';
   },
   auditCategoryIcon(){
     if (this.category === 'Stripe') {
@@ -68,6 +67,9 @@ Template.Timeline.helpers({
           }
           if (this.subtype === 'failed') {
             story = story + ' has failed'
+          }
+          if (this.subtype === 'refunded') {
+            story = story + ' has been refunded'
           }
         }
       }

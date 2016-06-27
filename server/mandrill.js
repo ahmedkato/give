@@ -310,7 +310,6 @@ _.extend(Utils,{
         id:                id,
         type:              type,
         category:          'Stripe',
-        userId:            '',
         relatedCollection: 'Charges',
         failureCode:       body.failure_code,
         failureMessage:    body.failure_message,

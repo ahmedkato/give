@@ -24,6 +24,8 @@ Stripe_Events = {
     return;
   },
   'charge.pending': function (stripeEvent) {
+    logEvent( stripeEvent.type + ': event processed' );
+
     let subscription_cursor, invoice_cursor, subscription_id, interval, invoice_object;
 
     if( stripeEvent.data.object.invoice ) {
@@ -47,10 +49,11 @@ Stripe_Events = {
       Utils.send_donation_email(false, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, "One Time", null);
     }
-    logEvent( stripeEvent.type + ': event processed' );
     return;
   },
   'charge.succeeded': function (stripeEvent) {
+    logEvent(stripeEvent.type);
+
     let send_successful_email;
     let config = ConfigDoc();
 
@@ -62,8 +65,6 @@ Stripe_Events = {
 
       let invoice_cursor = Invoices.findOne({_id: stripeEvent.data.object.invoice});
       let subscription_cursor = Subscriptions.findOne({_id: invoice_cursor.subscription});
-
-      console.log(invoice_cursor._id);
       Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, subscription_cursor.plan.interval, invoice_cursor.subscription );
       if (config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.largeGiftThreshold) {
@@ -72,7 +73,6 @@ Stripe_Events = {
             stripeEvent, subscription_cursor.plan.interval, invoice_cursor.subscription );
         }
       }
-
     } else {
       send_successful_email = Utils.send_donation_email(false, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, "One Time", null);
@@ -83,7 +83,6 @@ Stripe_Events = {
         }
       }
     }
-    logEvent(stripeEvent.type);
     return;
   },
   'charge.failed': function (stripeEvent) {
@@ -121,7 +120,7 @@ Stripe_Events = {
     logEvent(stripeEvent.type);
 
     let event = {
-      relatedDoc: stripeEvent.data.object.id,
+      id: stripeEvent.data.object.id,
       category: 'Stripe',
       relatedCollection: 'Charges',
       type: 'charge.refunded',

@@ -548,10 +548,8 @@ Utils = {
         metadata.frequency &&
         metadata.frequency.charAt( 0 ).toUpperCase() +
         metadata.frequency.slice( 1 ));
-      logger.info("area 1:", memo);
       if( metadata && metadata.note ) {
         memo = memo + " " + metadata.note;
-        logger.info("area 2:", memo);
       }
     }
 
@@ -602,7 +600,6 @@ Utils = {
       } );
       throw new Meteor.Error( e );
     }
-    logger.info("area 3:", memo);
 
     newDonationResult = HTTP.post( config.Settings.DonorTools.url + '/donations.json', {
       data: {
@@ -2060,16 +2057,13 @@ Utils = {
       fund_id = config.Settings.DonorTools.defaultFundId;
       memo = Meteor.settings.dev + charge.metadata.frequency.charAt( 0 ).toUpperCase() + charge.metadata.frequency.slice( 1 ) + " " +
         donateTo;
-      logger.info("area 4:", memo);
     } else {
       fund_id = dt_fund;
       memo = Meteor.settings.dev + charge.metadata.frequency.charAt( 0 ).toUpperCase() + charge.metadata.frequency.slice( 1 );
-      logger.info("area 5:", memo);
 
       if( charge && charge.metadata && charge.metadata.note ) {
         memo = memo + " " + charge.metadata.note;
       }
-      logger.info("area 6:", memo);
 
     }
 
@@ -2256,16 +2250,13 @@ Utils = {
       if( !dt_fund ) {
         fund_id = config.Settings.DonorTools.defaultFundId;
         memo = Meteor.settings.dev + charge.metadata.frequency.charAt( 0 ).toUpperCase() + charge.metadata.frequency.slice( 1 ) + " " + donateTo;
-        logger.info("area 7:", memo);
 
       } else {
         fund_id = dt_fund;
         memo = Meteor.settings.dev + charge.metadata.frequency.charAt( 0 ).toUpperCase() + charge.metadata.frequency.slice( 1 );
-        logger.info("area 8:", memo);
         if( charge && charge.metadata && charge.metadata.note ) {
           memo = memo + " " + charge.metadata.note;
         }
-        logger.info("area 9:", memo);
       }
       var source_id;
 
