@@ -39,7 +39,8 @@ function getAdjustmentAmount(id, parent, parentParent) {
     .map(function(item) {return item.id; }).indexOf(trip_id);
 
   if (parentParent && tripElementPosition &&
-    parentParent.trips[tripElementPosition] &&
+    parentParent.trips && parentParent.trips[tripElementPosition] &&
+    parentParent.trips[tripElementPosition].deadlines &&
     parentParent.trips[tripElementPosition].deadlines[deadlineElementPosition] &&
     parentParent.trips[tripElementPosition].deadlines[deadlineElementPosition].amount) {
     return Number(parentParent.trips[tripElementPosition].deadlines[deadlineElementPosition].amount);

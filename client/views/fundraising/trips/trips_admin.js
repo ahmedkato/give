@@ -8,6 +8,8 @@ AutoForm.hooks({
         style: 'growl-bottom-right'
       });
       $("html, body").animate({ scrollTop: 0 }, "slow");
+      // Call the function to go get all of the splits and donations for trips
+      Meteor.call("updateTripFunds");
     },
     onError: function(formType, error) {
       console.error(error);

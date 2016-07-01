@@ -66,5 +66,17 @@ Meteor.startup( function() {
     }
   });
 
+  SyncedCron.remove('Get Trip Fund data');
+  SyncedCron.add({
+    name: 'Get Trip Fund data',
+    schedule: (parser)=> {
+      return parser.recur().on('17:55:00').time();
+    },
+    job: ()=> {
+      let updateTripFunds = Utils.updateTripFunds();
+      return updateTripFunds;
+    }
+  });
+
   SyncedCron.start();
 });

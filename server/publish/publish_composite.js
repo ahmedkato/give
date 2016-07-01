@@ -261,17 +261,17 @@ Meteor.publishComposite("travelDTSplits", function (tripId) {
   check(tripId, Match.Optional(String));
 
   if (Roles.userIsInRole(this.userId, ['admin', 'trips-manager', 'trips-member'])) {
+    logger.info("Inside correct role section of travelDTSplits");
     var funds = [];
     if (tripId) {
       let fundId = Trips.findOne({_id: tripId}) && Trips.findOne({_id: tripId}).fundId;
-      console.log(fundId);
       funds[0] = Number(fundId);
     } else {
       funds = Trips.find().map(function ( item ) {
         return Number(item.fundId);
       });  
     }
-    console.log(funds);
+    logger.info("funds: ", funds);
 
     return {
       find: function () {

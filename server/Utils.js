@@ -125,7 +125,7 @@ Utils = {
     } );
   },
   GetDTData( fundsList, dateStart, dateEnd ) {
-    logger.info( "Started GetDTData method (not method call)" );
+    logger.info( "Started GetDTData Utils method (not method call)" );
 
     check( fundsList, [Number] );
     check( dateStart, String );
@@ -135,6 +135,46 @@ Utils = {
     } );
     console.log( "Got all funds history" );
     return;
+  },
+  /**
+   * Get the Donor Tools split data for the trip funds
+   *
+   * @method updateTripFunds
+   * @param {String} dateStart - Today - x days
+   * @param {String} dateEnd - Today
+   */
+  updateTripFunds: function (dateStart, dateEnd) {
+    logger.info("Started updateTripFunds Utils method (not method call)");
+
+    check(dateStart, Match.Optional(String));
+    check(dateEnd, Match.Optional(String));
+    try {
+      let fundsList = Trips.find().map( function ( trip ) {
+        return trip.fundId;
+      });
+      logger.info( "Trips funds list: " + fundsList );
+
+      fundsList.forEach( function ( fundId ) {
+        var funds = Utils.getFundHistory( fundId,
+          dateStart ? dateStart : "",
+          dateEnd ? dateEnd : "" );
+
+        let dtSplits = DT_splits.find({fund_id: Number(fundId)});
+        console.log(dtSplits.fetch());
+        let amount = dtSplits.fetch().reduce(function ( prevValue, item ) {
+          return prevValue + item.amount_in_cents;
+        }, 0);
+
+        Trips.update({fundId: fundId}, {$set: {
+          fundTotal: amount/100
+        }});
+      });
+
+    } catch( e ) {
+      // Got a network error, time-out or HTTP error in the 400 or 500 range.
+      return false;
+    }
+    return "Got all funds history for the trips listed";
   },
   update_dt_account( form, dt_persona_id ) {
     logger.info( "Inside update_dt_account." );
@@ -190,23 +230,42 @@ Utils = {
 
     var totalPages = 3;
     for( i = 1; i <= totalPages; i++ ) {
-      var dataResults;
+      let dataResults;
+      let query;
       if (dateStart && dateEnd) {
-        dataResults = Utils.http_get_donortools( '/splits.json?basis=cash&fund_id=' +
-          fundId + '&range[from]=' + dateStart + '&range[to]=' + dateEnd + '&page=' +
-          i + '&per_page=1000' );
-
-        Utils.store_splits( dataResults.data );
-        totalPages = dataResults.headers['pagination-total-pages'];
+        query = '/splits.json?basis=cash&fund_id=' + fundId + '&range[from]=' +
+          dateStart + '&range[to]=' + dateEnd + '&page=' + i + '&per_page=1000';
       } else {
-        dataResults = Utils.http_get_donortools( '/splits.json?basis=cash&fund_id=' +
-          fundId + '&page=' + i + '&per_page=1000' );
-        Utils.store_splits( dataResults.data );
-        totalPages = dataResults.headers['pagination-total-pages'];
+        query = '/splits.json?basis=cash&fund_id=' + fundId + '&page=' + i + 
+          '&per_page=1000';
       }
+      dataResults = Utils.http_get_donortools( query );
+
+      Utils.store_splits( dataResults.data );
+      dataResults = Utils.http_get_donortools( query );
+
+      // take the array of donations and only get the unique donations in that array
+      let uniqueDonations = _.unique(dataResults.data, function(split){return split.split.donation_id});
+
+      // Now get only the IDs from that unique list
+      let uniqueDonationIDs = uniqueDonations.map(function(split){return split.split.donation_id});
+      Utils.store_donations(uniqueDonationIDs);
+      
+      totalPages = dataResults.headers['pagination-total-pages'];
     }
   },
+  store_donations( donationIDs ) {
+    logger.info("Started store_donations");
+    donationIDs.forEach(function(id) {
+      let donation = Utils.http_get_donortools(
+        '/donations/' + id + '.json' );
+      DT_donations.upsert( { _id: donation.data.donation.id }, { $set: donation.data.donation } );
+    });
+  },
   store_splits( donations ) {
+    logger.info("donations");
+    logger.info(donations);
+
     donations.forEach( function ( split ) {
       DT_splits.upsert( { _id: split.split.id }, { $set: split.split } );
     } );
@@ -2643,7 +2702,8 @@ Utils = {
           },
           orgURL() {
             let config = ConfigDoc();
-            let domain = 'https://' + config.OrgInfo.web.subdomain ? config.OrgInfo.web.subdomain + "." : "" + config.OrgInfo.web.domain_name;
+            let subdomain = config.OrgInfo.web.subdomain ? (config.OrgInfo.web.subdomain + ".") : "";
+            let domain = 'https://' + subdomain + config.OrgInfo.web.domain_name;
             return domain;
           }
         });
