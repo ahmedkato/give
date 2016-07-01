@@ -1192,27 +1192,7 @@ Meteor.methods({
     if( Roles.userIsInRole( this.userId, ['admin', 'trips-manager'] ) ) {
       this.unblock();
       try {
-        let fundsList = Trips.find().map( function ( trip ) {
-          return trip.fundId;
-        });
-        logger.info( "Trips funds list: " + fundsList );
-
-        fundsList.forEach( function ( fundId ) {
-          var funds = Utils.getFundHistory( fundId,
-            dateStart ? dateStart : "",
-            dateEnd ? dateEnd : "" );
-
-          let dtSplits = DT_splits.find({fund_id: Number(fundId)});
-          console.log(dtSplits.fetch());
-          let amount = dtSplits.fetch().reduce(function ( prevValue, item ) {
-            return prevValue + item.amount_in_cents;
-          }, 0);
-          
-          Trips.update({fundId: fundId}, {$set: {
-            fundTotal: amount/100
-          }});
-        });
-
+        Utils.updateTripFunds(dateStart, dateEnd);
       } catch( e ) {
         // Got a network error, time-out or HTTP error in the 400 or 500 range.
         return false;

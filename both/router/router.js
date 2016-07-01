@@ -505,21 +505,14 @@ Router.route('/trips/admin', {
   template: 'TripsAdmin'
 });
 
-Router.route('/trips/admin/:_id', function() {
-  this.layoutTemplate = 'AdminLayout';
-
-  var params = this.params;
-  this.subscribe('trips', params._id);
-
-  if (this.ready()) {
-    this.render('TripAdmin');
-    this.next();
-  } else {
-    this.render('Loading');
-    this.next();
+Router.route('/trips/admin/:_id', {
+  layoutTemplate: 'AdminLayout',
+  name: 'TripAdmin',
+  template: 'TripAdmin',
+  waitOn: function () {
+    var params = this.params;
+    this.subscribe('trips', params._id);
   }
-}, {
-  name: 'TripAdmin'
 });
 
 Router.route('/trips/member', {
@@ -529,19 +522,12 @@ Router.route('/trips/member', {
   template: 'TripsMember'
 });
 
-Router.route('/trips/member/:_id', function() {
-  var params = this.params;
-
-  this.subscribe('trips', params._id);
-  this.layoutTemplate = 'AdminLayout';
-
-  if (this.ready()) {
-    this.render('TripMember');
-    this.next();
-  } else {
-    this.render('Loading');
-    this.next();
+Router.route('/trips/member/:_id', {
+  layoutTemplate: 'AdminLayout',
+  name: 'TripMember',
+  template: 'TripMember',
+  waitOn: function(){
+    var params = this.params;
+    this.subscribe('trips', params._id);
   }
-}, {
-  name: 'TripMember'
 });

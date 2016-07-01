@@ -139,4 +139,5 @@ Template.Timeline.onRendered(function () {
 
 Template.Timeline.onDestroyed(function (){
   Session.delete("documentLimit");
+  $(window).unbind("scroll");
 });
