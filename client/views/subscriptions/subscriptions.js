@@ -1,6 +1,6 @@
+import { getDocHeight } from '/client/imports/miscFunctions.js';
 
 function updateSearchVal(){
-  console.log("Got to updateSearchVal function");
   let searchValue = $(".search").val();
 
   if (searchValue) {
@@ -10,6 +10,7 @@ function updateSearchVal(){
       .replace( /\s+/g, " " );
 
     Session.set( "searchValue", searchValue );
+    Session.set( "documentLimit", 0 );
   }
 };
 
@@ -84,10 +85,7 @@ Template.AdminSubscriptions.events({
     });
 
     Meteor.setTimeout(function() {
-      $("select option").filter(function() {
-        //may want to use $.trim in here
-        return $(this).text() === self.metadata.donateTo;
-      }).prop('selected', true).change();
+      $("#donateTo").val(self.metadata.donateTo).change();
     }, 0);
   },
   'keyup, change .search': _.debounce(function () {
@@ -95,6 +93,8 @@ Template.AdminSubscriptions.events({
   }, 300),
   'click .clear-button': function () {
     $(".search").val("").change();
+    Session.set("searchValue", "");
+    Session.set( "documentLimit", 10);
   },
   'click #btn_modal_for_add_new_bank_account': function () {
     $("#modal_for_add_new_bank_account").modal('show');
@@ -133,15 +133,8 @@ Template.AdminSubscriptions.helpers({
       return false;
     }
   },
-  searchSubscriptions: function () {
-    if (Session.equals("searchValue", "")) {
-      return false;
-    } else if (!Session.get("searchValue")) {
-      return;
-    } else if (Subscriptions.find().count()) {
-      return Subscriptions.find();
-    }
-    return false;
+  subscriptions: function () {
+    return Subscriptions.find({}, {sort: {created: -1}});
   },
   name: function () {
     let name = this.metadata && this.metadata.fname + " " +
@@ -161,14 +154,25 @@ Template.AdminSubscriptions.helpers({
 });
 
 Template.AdminSubscriptions.onCreated( function () {
-  Session.set("searchValue", "");
-  let self = this;
-  self.autorun(function () {
-    Meteor.subscribe("subscriptions_and_customers", Session.get("searchValue") ?
-      Session.get("searchValue") : '');
+  Session.set("documentLimit", 10);
+  this.autorun(()=> {
+    Meteor.subscribe("subscriptions_and_customers", Session.get("searchValue"), Session.get("documentLimit"));
+  });
+});
+
+Template.AdminSubscriptions.onRendered(function () {
+  $(window).scroll(function() {
+    if(($(window).scrollTop() + $(window).height() == getDocHeight()) ||
+      ($(window).scrollTop() + window.innerHeight == getDocHeight())) {
+      console.log("bottom!");
+      let documentLimit = Session.get("documentLimit");
+      Session.set("documentLimit", documentLimit += 10);
+    }
   });
 });
 
 Template.AdminSubscriptions.onDestroyed(function() {
   Session.delete("searchValue");
+  Session.delete("documentLimit");
+  $(window).unbind('scroll');
 });

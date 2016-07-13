@@ -13,45 +13,6 @@ Meteor.publish('receipt_donations', function (input) {
 	}});
 });
 
-Meteor.publish('receipt_customers', function (input) {
-	//Check the input that came from the client
-	check(input, String);
-	return Customers.find({_id: input},
-    {
-      fields: {
-        _id: 1,
-        email: 1,
-        metadata: 1
-      }
-    }
-  );
-});
-
-Meteor.publish('receipt_charges', function (input) {
-	//Check the input that came from the client
-	check(input, String);
-
-	return Charges.find({_id: input},
-    {
-      fields:
-      {
-        _id: 1,
-        metadata: 1,
-        created: 1,
-        status: 1,
-        amount: 1,
-        'source.bank_name': 1,
-        'source.brand': 1,
-        'source.last4': 1,
-        'source.object': 1,
-        'payment_source.bank_name': 1,
-        'payment_source.last4': 1,
-        'payment_source.object': 1
-      }
-    }
-);
-});
-
 Meteor.publish("userDonations", function () {
 	if (this.userId) {
     var donations = Meteor.users.findOne({_id: this.userId}).donations;
@@ -317,7 +278,6 @@ Meteor.publish("transfersRange", function (range) {
   }
 });
 
-
 Meteor.publish("adminSubscriptions", function (_id) {
   check(_id, Match.Optional(String));
   logger.info("Got to adminSubscriptions sub");
@@ -336,8 +296,6 @@ Meteor.publish("adminSubscriptions", function (_id) {
 });
 
 FindFromPublication.publish("all_users", function (_id, searchValue, limit) {
-  // TODO: why is there no documents published in the FindFromPublication, but there are some in the regular on the client side?
-  console.log(_id, searchValue, limit);
   check(_id, Match.Maybe(String));
   check(searchValue, Match.Maybe(String));
   check(limit, Match.Maybe(Number));
@@ -495,11 +453,4 @@ Meteor.publish("fundNames", function () {
       }
     } );
   }
-});
-
-Meteor.publish("auditTrail", function () {
-  if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
-    return Audit_trail.find({show: true});
-  }
-  return;
 });

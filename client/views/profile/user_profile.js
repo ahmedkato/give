@@ -264,9 +264,6 @@ Template.UserProfile.onRendered(function() {
   Session.setDefault('dt_donations_cursor', 0);
   Session.set("showHistory", true);
 
-  // Make sure the user can't enter anything, except what would go in a phone number field
-  $("#phone").mask("(999)999-9999");
-
   // Setup parsley form validation
   $('#userAddressForm').parsley();
 
@@ -279,4 +276,12 @@ Template.UserProfile.onRendered(function() {
   $('.tab-pane:first').addClass('active');
 
   Session.set('activeTab', $('.active a').attr('value'));
+});
+
+Template.UserProfile.onDestroyed(function () {
+  Session.delete( 'NotDTUser' );
+  Session.delete( 'activeTab' );
+  Session.delete( 'got_all_donations' );
+  Session.delete( 'dt_donations_cursor' );
+  Session.delete( 'showHistory' );
 });

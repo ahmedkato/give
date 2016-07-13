@@ -6,4 +6,3 @@ Stripe = require("stripe")(
 
 // Define a global object for Stripe Methods
 StripeFunctions = {};
-

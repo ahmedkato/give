@@ -18,9 +18,6 @@ Template.AdminGiveDropdownGroup.onRendered(function() {
 });
 
 Template.AdminGiveDropdownGroup.helpers({
-  give_home: function() {
-    return true;
-  },
   today: function() {
     return moment().format('D MMM, YYYY');
   },
@@ -33,7 +30,7 @@ Template.AdminGiveDropdownGroup.helpers({
   selected: function() {
     var customer = Customers.find({_id: this.customer});
     if(this.id === customer.default_source){
-      return selected;
+      return 'selected';
     } else{
       return;
     }
@@ -66,8 +63,22 @@ Template.AdminGiveDropdownGroup.events({
     }
   },
   'change #donateWith': function() {
-    var selectedValue = $("#donateWith").val();
+    let selectedValue = $("#donateWith").val();
     Session.set("UserPaymentMethod", selectedValue);
+    if (selectedValue) {
+      if(selectedValue === 'Check'){
+        Session.set("savedDevice", false);
+        Give.updateTotal();
+        $("#show_total").hide();
+      } else if(selectedValue === 'Card'){
+        Session.set("savedDevice", false);
+        Give.updateTotal();
+      } else if(selectedValue.slice(0,3) === 'car'){
+        Session.set("savedDevice", 'Card');
+      } else{
+        Session.set("savedDevice", 'Check');
+      }
+    }
   },
   'click #start_date_button'(){
     $("#start_date").select();

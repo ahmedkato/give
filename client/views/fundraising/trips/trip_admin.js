@@ -27,22 +27,22 @@ function onFormSuccess() {
   });
 }
 
-function getAdjustmentAmount(id, parent, parentParent) {
-
-  let trip_id = parent._id;
+function getAdjustmentAmount(id, trip, fundraiser) {
+  let trip_id = trip._id;
   let deadline_id = id;
 
-  let deadlineElementPosition = parent.deadlines
+  let deadlineElementPosition = trip.deadlines
     .map(function(item) {return item.id; }).indexOf(deadline_id);
 
-  let tripElementPosition = parentParent.trips
+  let tripElementPosition = fundraiser.trips
     .map(function(item) {return item.id; }).indexOf(trip_id);
 
-  if (parentParent && tripElementPosition &&
-    parentParent.trips[tripElementPosition] &&
-    parentParent.trips[tripElementPosition].deadlines[deadlineElementPosition] &&
-    parentParent.trips[tripElementPosition].deadlines[deadlineElementPosition].amount) {
-    return Number(parentParent.trips[tripElementPosition].deadlines[deadlineElementPosition].amount);
+  if (fundraiser && tripElementPosition &&
+    fundraiser.trips && fundraiser.trips[tripElementPosition] &&
+    fundraiser.trips[tripElementPosition].deadlines &&
+    fundraiser.trips[tripElementPosition].deadlines[deadlineElementPosition] &&
+    fundraiser.trips[tripElementPosition].deadlines[deadlineElementPosition].amount) {
+    return fundraiser.trips[tripElementPosition].deadlines[deadlineElementPosition].amount;
   }
   return '0';
 }
@@ -137,8 +137,6 @@ Template.TripAdmin.helpers({
   deadlines() {
     if (this.deadlines && this.deadlines.length > 0 ) {
       return this.deadlines.sort(function(item, nextItem){return item.dueDate - nextItem.dueDate;});
-    } else if (this.deadlines) {
-      return this.deadlines;
     }
     return;
   },
@@ -216,19 +214,20 @@ Template.TripAdmin.helpers({
     return this.amount_in_cents ? (this.amount_in_cents/100) : "";
   },
   adjustedAmount() {
-    let parent = Template.parentData(1);
-    let parentParent = Template.parentData(2);
+    const trip = Template.parentData(1);
+    const fundraiser = Template.parentData(2);
 
     let deadlineAmount = this.amount;
-    let adjustment = getAdjustmentAmount(this.id, parent, parentParent);
+
+    let adjustment = getAdjustmentAmount(this.id, trip, fundraiser);
     return Number(deadlineAmount) + Number(adjustment);
   },
   deadlineAdjustmentValue() {
-    let parent = Template.parentData(1);
-    let parentParent = Template.parentData(2);
+    const parent = Template.parentData(1);
+    const parentParent = Template.parentData(2);
 
-    let adjustmentValue = getAdjustmentAmount(this.id, parent, parentParent);
-    return adjustmentValue;
+    const adjustmentValue = getAdjustmentAmount(this.id, parent, parentParent);
+    return Number(adjustmentValue);
   },
   deadlineDue() {
     let tripId = Router.current().params._id;

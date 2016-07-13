@@ -33,12 +33,67 @@ function OrgInfoCheck(name, namePart2) {
         total: s
       };
     },
-    process_give_form: function( quickForm, customer ) {
+    process_give_form: function( quickForm, customer, user_id ) {
       var form = {};
       var userCursor;
       var customerCursor;
       var businessName;
       var addressLine2;
+
+      if (Meteor.user()) {
+        if (user_id && Roles.userIsInRole(Meteor.user(), ['super-admin', 'admin'])) {
+          userCursor = Meteor.users.findOne(user_id);
+        } else {
+          userCursor = Meteor.user();
+        }
+        var profile;
+        if (userCursor.profile && userCursor.profile.fname) {
+          profile = userCursor.profile;
+        } else {
+          let persona_info = userCursor &&
+            userCursor.persona_info &&
+            userCursor.persona_info[0];
+          if (!persona_info) {
+            console.error("No persona_info");
+            return;
+          }
+          profile = {
+            fname: persona_info.names[0].first_name,
+            lname: persona_info.names[0].last_name,
+            phone: persona_info.phone_numbers[0].phone_number,
+            business_name: persona_info.company_name,
+            address: {
+              address_line1: persona_info.addresses[0].street_address.slice(0,
+                persona_info.addresses[0].street_address.indexOf('\n')),
+              city: persona_info.addresses[0].city,
+              state: persona_info.addresses[0].state,
+              postal_code: persona_info.addresses[0].postal_code,
+              country: persona_info.addresses[0].country
+            }
+          };
+          if (persona_info.addresses[0].street_address.indexOf('\n')) {
+            profile.address.address_line2 =
+              persona_info.addresses[0]
+                .street_address.slice(persona_info.addresses[0]
+                  .street_address.indexOf('\n')+1);
+          } else {
+            console.log("no second line found");
+            //profile.address.address_line2 = '';
+          }
+        }
+
+        if( profile.business_name ) {
+          businessName = profile.business_name;
+        } else {
+          businessName = '';
+        }
+
+        if( profile && profile.address && profile.address.address_line2 ) {
+          addressLine2 = profile.address.address_line2;
+        } else {
+          addressLine2 = '';
+        }
+      }
 
       if( quickForm ) {
         if( customer ) {
@@ -86,55 +141,17 @@ function OrgInfoCheck(name, namePart2) {
             sessionId: Meteor.default_connection._lastSessionId
           };
         } else {
-          userCursor = Meteor.user();
-          var profile;
-          if (userCursor.profile && userCursor.profile.fname) {
-            profile = userCursor.profile;
-          } else {
-            let persona_info = Meteor.user() &&
-              Meteor.user().persona_info &&
-              Meteor.user().persona_info[0];
-            if (!persona_info) {
-              console.error("No persona_info");
-              return;
-            }
-            profile = {
-              fname: persona_info.names[0].first_name,
-              lname: persona_info.names[0].last_name,
-              phone: persona_info.phone_numbers[0].phone_number,
-              business_name: persona_info.company_name,
-              address: {
-                address_line1: persona_info.addresses[0].street_address.slice(0,
-                  persona_info.addresses[0].street_address.indexOf('\n')),
-                city: persona_info.addresses[0].city,
-                state: persona_info.addresses[0].state,
-                postal_code: persona_info.addresses[0].postal_code,
-                country: persona_info.addresses[0].country
-              }
-            };
-            if (persona_info.addresses[0].street_address.indexOf('\n')) {
-              profile.address.address_line2 =
-                persona_info.addresses[0]
-                  .street_address.slice(persona_info.addresses[0]
-                  .street_address.indexOf('\n')+1);
-            } else {
-              console.log("no second line found");
-              //profile.address.address_line2 = '';
-            }
-          }
-
-          console.log(profile);
-          if( profile.business_name ) {
-            businessName = profile.business_name;
-          } else {
-            businessName = '';
-          }
-
-          if( profile && profile.address && profile.address.address_line2 ) {
-            addressLine2 = profile.address.address_line2;
-          } else {
-            addressLine2 = '';
-          }
+          // TODO: change the customer part above to accommodate the admin use case. For both saved devices and new devices.
+          
+          // TODO:
+          // 1. can we remove the customer part? 
+          // 2. if so, how do we ensure that only admins can use other user ids
+          // 3. If not, how can we get the userCursor and profile info.
+          
+          // I think the best way is to pull the contact info from the user's profile anyway, but for saved devices
+          // this might not be right. Since that saved device could have a different zip code tied to it
+          
+          
 
           form = {
             "paymentInformation": {
@@ -150,7 +167,7 @@ function OrgInfoCheck(name, namePart2) {
               "start_date":   moment( new Date( Give.getCleanValue( '#start_date' ) ) ).format( 'X' ),
               "saved":        $( '#save_payment' ).is( ":checked" )
             },
-            "customer":           {
+            "customer": {
               "fname":         profile.fname,
               "lname":         profile.lname,
               "org":           businessName,
@@ -296,6 +313,9 @@ function OrgInfoCheck(name, namePart2) {
           Give.process_bank_with_stripe( bankInfo, form );
         }
       } else {
+        // TODO: this is really where the old one worked, it was always using a saved device.
+        // TODO: need to fix this so that the form will jump here anytime an admin is giving
+        // which means we'll need to adjust how the unsaved devices work here
         form.paymentInformation.saved = true;
         var payment = { id: form.paymentInformation.donateWith };
         if( form.paymentInformation.donateWith.slice( 0, 3 ) === 'car' ) {

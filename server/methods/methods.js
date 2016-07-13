@@ -537,10 +537,10 @@ Meteor.methods({
   GetStripeEvent: function (id, process) {
     logger.info("Started GetStripeEvent");
 
-    if (Roles.userIsInRole(this.userId, ['admin'])) {
-      try {
-        check(id, String);
-        check(process, Boolean);
+    check(id, String);
+    check(process, Boolean);
+    if (Roles.userIsInRole(this.userId, ['super-admin', 'admin'])) {
+      /*try {*/
 
         if (process) {
           let thisRequest = {id: id};
@@ -551,11 +551,11 @@ Meteor.methods({
           Stripe_Events[stripeEvent.type]( stripeEvent );
           return stripeEvent;
         }
-      } catch (e) {
+      /*} catch (e) {
         logger.info(e);
         var error = (e.response);
         throw new Meteor.Error(error, e._id);
-      }
+      }*/
     } else {
       logger.info("You aren't an admin, you can't do that");
       return;
@@ -582,11 +582,11 @@ Meteor.methods({
     }
   },
   get_dt_name: function (id, dtDonationId) {
-    logger.info("Started get_dt_name method");
+    logger.info("Started get_dt_name method id: ", id, " dtDonationId: ", dtDonationId);
     check(id, Number);
     check(dtDonationId, Match.Optional(String));
 
-    if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
+    if (Roles.userIsInRole(this.userId, ['super-admin', 'admin', 'manager'])) {
       this.unblock();
       try {
         if (dtDonationId && !DT_donations.findOne({_id: Number(dtDonationId)})) {
@@ -771,8 +771,8 @@ Meteor.methods({
   },
   edit_subscription: function (customer_id, subscription_id, quantity, trial_end, donateTo) {
     logger.info("Started edit_subscription method");
-
-    console.log(customer_id, subscription_id, quantity, trial_end, donateTo);
+    logger.info(customer_id, subscription_id, quantity, trial_end, donateTo);
+    
     check(subscription_id, String);
     check(customer_id, String);
     check(quantity, Match.Optional(Number));
@@ -1192,27 +1192,7 @@ Meteor.methods({
     if( Roles.userIsInRole( this.userId, ['admin', 'trips-manager'] ) ) {
       this.unblock();
       try {
-        let fundsList = Trips.find().map( function ( trip ) {
-          return trip.fundId;
-        });
-        logger.info( "Trips funds list: " + fundsList );
-
-        fundsList.forEach( function ( fundId ) {
-          var funds = Utils.getFundHistory( fundId,
-            dateStart ? dateStart : "",
-            dateEnd ? dateEnd : "" );
-
-          let dtSplits = DT_splits.find({fund_id: Number(fundId)});
-          console.log(dtSplits.fetch());
-          let amount = dtSplits.fetch().reduce(function ( prevValue, item ) {
-            return prevValue + item.amount_in_cents;
-          }, 0);
-          
-          Trips.update({fundId: fundId}, {$set: {
-            fundTotal: amount/100
-          }});
-        });
-
+        Utils.updateTripFunds(dateStart, dateEnd);
       } catch( e ) {
         // Got a network error, time-out or HTTP error in the 400 or 500 range.
         return false;
@@ -1384,5 +1364,23 @@ Meteor.methods({
       return;
     }
     return 'finished';
+  },
+  /**
+   * Update the reports frequency
+   * @method clientLog
+   * @param {String} message - Client log message
+   */
+  clientLog(message, userOrSessionId){
+    check(message, String);
+    check(userOrSessionId, String);
+
+    // check to see if the configuration is set to send client logs to papertrail or not
+    let config = ConfigDoc();
+    if (config && config.Services &&
+      config.Services.Papertrail &&
+      config.Services.Papertrail.sendLogsFromClientToPapertrail) {
+      let userThisId = this.userId ? (" User: "  + this.userId) : ("SessionId: " + userOrSessionId);
+      logger.info("Client " + userThisId + " says: " + message);
+    }
   }
 });

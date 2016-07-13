@@ -45,8 +45,10 @@ Template.Dashboard.events({
       Session.set("showGetStripeEvent", false);
     } else {
       Session.set("showGetStripeEvent", true);
+      Meteor.setTimeout(()=>{
+        $("html, body").animate({ scrollTop: ($("#get_event_form").offset().top - 100) }, "slow");
+      }, 100);
     }
-    $("html, body").animate({ scrollTop: $(document).height() }, "slow");
   },
   'click #show-fix-no-user': function(evt) {
     evt.preventDefault();
@@ -54,8 +56,10 @@ Template.Dashboard.events({
       Session.set("showFixNoUser", false);
     } else {
       Session.set("showFixNoUser", true);
+      Meteor.setTimeout(()=> {
+        $( "html, body" ).animate( { scrollTop: ($( "#fix_no_local" ).offset().top - 120) }, "slow" );
+      }, 100);
     }
-    $("html, body").animate({ scrollTop: $(document).height() }, "slow");
   },
   'click #get-dt-funds': function(e) {
     // prevent the default reaction to submitting this form

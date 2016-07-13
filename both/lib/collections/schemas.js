@@ -417,6 +417,11 @@ Schema.Services = new SimpleSchema({
     label: "Port",
     optional: true
   },
+  "Papertrail.sendLogsFromClientToPapertrail": {
+    type: Boolean,
+    label: "Send logs from the client to papertrail?",
+    optional: true
+  },
   Analytics: {
     type: Object,
     label: "Analytics and Error tracking",

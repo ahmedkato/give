@@ -4,14 +4,12 @@
 Template.RequestAddress.events({
   'change #country': function(e, tmpl) {
     if($('#country').val() !== "US") {
-      $("#phone").unmask();
       $('#city').attr("placeholder", "City / Town");
       $('#region').attr("placeholder", "State / Province / Region");
       $('#postal_code').attr("placeholder", "ZIP / Postal Code");
       $("#postal_code").attr("pattern", "");
       $("#postal_code").attr("required", false);
     } else {
-      $("#phone").mask("(999) 999-9999");
       $("#postal_code").attr("pattern", "(\d{5}([\-]\d{4})?)");
       $("#postal_code").attr("required", true);
     }
@@ -101,15 +99,6 @@ Template.RequestAddress.helpers({
         placeholder: "State",
         required: true
       }
-    },
-    attributes_Input_Zip: function() {
-      return {
-        type: "text",
-        name: "postal_code",
-        id: "postal_code",
-        placeholder: "Zip or Postal Code",
-        required: true
-      };
     }
 });
 

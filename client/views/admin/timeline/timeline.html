@@ -1,0 +1,45 @@
+<template name="Timeline">
+    {{#if auditsExist}}
+        <div class="card no-shadow">
+            <div class="card-head">
+                <h2 class="text-center">Audit History</h2>
+            </div>
+            <div class="card-body">
+                <ul class="timeline collapse-lg">
+                    {{#each audits}}
+                        <li class="list-comments">
+                            <div class="timeline-circ circ-xl style-{{greenBlueOrangeRed}}"></div>
+                            <div class="timeline-entry">
+                                <div class="card card-outlined style-info">
+                                    <div class="comment-avatar"><i class="{{auditCategoryIcon}} opacity-50 no-margin"></i></div>
+                                    <div class="card-body small-padding">
+                                        <span class="text-medium">{{auditEventTitle}}</span><br>
+                                        <span class="text-xs opacity-75">
+                                            {{formatTime time}}
+                                        </span>
+                                        <div class="stick-top-right">
+                                            <a href="{{buttonLink}}" class="btn btn-primary btn-labeled">
+                                                {{buttonTitle}}
+                                                <span class="label label-{{subTypeStyle}}">{{subtype}}</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+    {{else}}
+        <div class="text-center">
+            <h1>Nothing here yet</h1>
+            <h3>Here is a list of some audited events</h3>
+            <ul class="list-unstyled">
+                <li>Donations</li>
+                <li>Configuration changes</li>
+                <li>Emails sent</li>
+            </ul>
+        </div>
+    {{/if}}
+</template>

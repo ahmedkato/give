@@ -117,8 +117,7 @@ Router.route('/thanks', {
   name: 'donation.thanks',
   waitOn: function() {
     return [
-      Meteor.subscribe('receipt_customers', this.params.query.c),
-      Meteor.subscribe('receipt_charges', this.params.query.charge)
+      Meteor.subscribe('receiptCharge', this.params.query.charge)
     ];
   },
   action: function() {
@@ -310,7 +309,7 @@ if (Meteor.isServer) {
 
     // This shouldn't be considered a security precaution since anyone can forge these headers
     // we just use it here to weed out any traffic that hits the URL without trying to forge
-    // a strip origin header
+    // a Stripe origin header
     // Every request here always gets verified by Stripe and we use the verified
     // response inside the app
     this.response.setHeader( 'access-control-allow-origin', 'https://stripe.com' );
@@ -392,7 +391,7 @@ Router.route('FixBankSubscription', {
 
 Router.route('/dashboard/giving_options', {
   name: 'GivingOptions',
-  where: 'client',
+  where: 'client'
 });
 
 Router.route('/dashboard/giving_guide', {
@@ -440,7 +439,11 @@ Router.route('/dashboard/subscriptions', {
   layoutTemplate: 'UserLayout',
   name: 'AdminSubscriptions',
   where: 'client',
-  template: 'AdminSubscriptions'
+  template: 'AdminSubscriptions',
+  data: function() {
+    var query = this.params.query;
+    Session.set("searchValue", query.sub);
+  }
 });
 
 Router.route('/dashboard/users', {
@@ -502,21 +505,14 @@ Router.route('/trips/admin', {
   template: 'TripsAdmin'
 });
 
-Router.route('/trips/admin/:_id', function() {
-  this.layoutTemplate = 'AdminLayout';
-
-  var params = this.params;
-  this.subscribe('trips', params._id);
-
-  if (this.ready()) {
-    this.render('TripAdmin');
-    this.next();
-  } else {
-    this.render('Loading');
-    this.next();
+Router.route('/trips/admin/:_id', {
+  layoutTemplate: 'AdminLayout',
+  name: 'TripAdmin',
+  template: 'TripAdmin',
+  waitOn: function () {
+    var params = this.params;
+    Meteor.subscribe('trips', params._id);
   }
-}, {
-  name: 'TripAdmin'
 });
 
 Router.route('/trips/member', {
@@ -526,19 +522,12 @@ Router.route('/trips/member', {
   template: 'TripsMember'
 });
 
-Router.route('/trips/member/:_id', function() {
-  var params = this.params;
-
-  this.subscribe('trips', params._id);
-  this.layoutTemplate = 'AdminLayout';
-
-  if (this.ready()) {
-    this.render('TripMember');
-    this.next();
-  } else {
-    this.render('Loading');
-    this.next();
+Router.route('/trips/member/:_id', {
+  layoutTemplate: 'AdminLayout',
+  name: 'TripMember',
+  template: 'TripMember',
+  waitOn: function(){
+    var params = this.params;
+    Meteor.subscribe('trips', params._id);
   }
-}, {
-  name: 'TripMember'
 });

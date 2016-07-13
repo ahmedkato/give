@@ -132,7 +132,7 @@ Template.SubscriptionsOverview.events({
   console.log("Got to cancel subscription call");
   console.log("subscription id: " + subscription_id);
   console.log("Customer id: " + customer_id);
-  $(e.currentTarget).button('Working');
+  $(e.currentTarget).button('loading');
   
   swal({
       title: "Are you sure?",
@@ -207,10 +207,7 @@ Template.SubscriptionsOverview.events({
     });
 
     Meteor.setTimeout(function() {
-      $("select option").filter(function() {
-        //may want to use $.trim in here
-        return $(this).text() === self.metadata.donateTo;
-      }).prop('selected', true).change();
+      $("#donateTo").val(self.metadata.donateTo).change();
     }, 0);
   }
 });

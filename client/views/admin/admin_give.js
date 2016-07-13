@@ -64,19 +64,34 @@ Template.AdminGive.helpers({
 });
 
 Template.AdminGive.events({
+  'click .close'(){
+    $('#donateWith').val("");
+    $('#donateWith').change();
+    Meteor.setTimeout(()=>{
+      Session.set("gift_user_id", "");
+    },300);
+  },
   'submit form': function(e) {
     //prevent the default reaction to submitting this form
     e.preventDefault();
     // Stop propagation prevents the form from being submitted more than once.
     e.stopPropagation();
 
+    $("[name='submitQuickGive']").button('loading');
     Session.set("loading", true);
     $(window).off('beforeunload');
-
-    var customer = Devices.findOne({_id: $('#donateWith').val()}).customer;
+    let donateWith = $("#donateWith").val();
+    let gift_user_id = Session.get("gift_user_id");
+    let customer;
+    if (donateWith && donateWith !== 'Card' && donateWith !== 'Check') {
+      customer = Devices.findOne({_id: $('#donateWith').val()}) &&
+        Devices.findOne({_id: $('#donateWith').val()}).customer;
+    } else {
+      customer = Meteor.users.findOne({_id: gift_user_id}).primary_customer_id;
+    }
     Give.updateTotal();
 
-    Give.process_give_form(true, customer);
+    Give.process_give_form(true, customer, gift_user_id);
   },
   'keyup, change #amount': function() {
     return Give.updateTotal();
@@ -96,24 +111,6 @@ Template.AdminGive.events({
   },
   'change #coverTheFees': function() {
     return Give.updateTotal();
-  },
-  'change [name=donateWith]': function() {
-    var selectedValue = $("#donateWith").val();
-    if (selectedValue) {
-      Session.set("paymentMethod", selectedValue);
-      if(selectedValue === 'Check'){
-        Session.set("savedDevice", false);
-        Give.updateTotal();
-        $("#show_total").hide();
-      } else if(selectedValue === 'Card'){
-        Session.set("savedDevice", false);
-        Give.updateTotal();
-      } else if(selectedValue.slice(0,3) === 'car'){
-        Session.set("savedDevice", 'Card');
-      } else{
-        Session.set("savedDevice", 'Check');
-      }
-    }
   },
   // keypress input detection for autofilling form with test data
   'keypress input': function(e) {

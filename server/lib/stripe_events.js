@@ -24,10 +24,10 @@ Stripe_Events = {
     return;
   },
   'charge.pending': function (stripeEvent) {
-    StripeFunctions.audit_charge( stripeEvent.data.object.id, 'pending' );
+    logEvent( stripeEvent.type + ': event processed' );
+
     let subscription_cursor, invoice_cursor, subscription_id, interval, invoice_object;
 
-    console.log(stripeEvent);
     if( stripeEvent.data.object.invoice ) {
       invoice_cursor = Invoices.findOne({_id: stripeEvent.data.object.invoice});
       // It is possible that the invoice event hasn't been received by our server
@@ -49,12 +49,11 @@ Stripe_Events = {
       Utils.send_donation_email(false, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, "One Time", null);
     }
-    logEvent( stripeEvent.type + ': event processed' );
     return;
   },
   'charge.succeeded': function (stripeEvent) {
-    StripeFunctions.audit_charge(stripeEvent.data.object.id, 'succeeded');
-    console.log(stripeEvent);
+    logEvent(stripeEvent.type);
+
     let send_successful_email;
     let config = ConfigDoc();
 
@@ -66,8 +65,6 @@ Stripe_Events = {
 
       let invoice_cursor = Invoices.findOne({_id: stripeEvent.data.object.invoice});
       let subscription_cursor = Subscriptions.findOne({_id: invoice_cursor.subscription});
-
-      console.log(invoice_cursor._id);
       Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, subscription_cursor.plan.interval, invoice_cursor.subscription );
       if (config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.largeGiftThreshold) {
@@ -76,7 +73,6 @@ Stripe_Events = {
             stripeEvent, subscription_cursor.plan.interval, invoice_cursor.subscription );
         }
       }
-
     } else {
       send_successful_email = Utils.send_donation_email(false, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, "One Time", null);
@@ -87,40 +83,52 @@ Stripe_Events = {
         }
       }
     }
-    logEvent(stripeEvent.type);
     return;
   },
   'charge.failed': function (stripeEvent) {
-    StripeFunctions.audit_charge(stripeEvent.data.object.id, 'failed');
+    logEvent(stripeEvent.type);
 
-    if(stripeEvent.data.object.refunds && stripeEvent.data.object.refunds.data &&
-      stripeEvent.data.object.refunds.data[0] && stripeEvent.data.object.refunds.data[0].id){
+    let event = {
+      relatedDoc: stripeEvent.data.object.id,
+      category: 'Stripe',
+      relatedCollection: 'Charges',
+      type: 'charge.failed',
+      page: '/thanks?charge=' + stripeEvent.data.object.id
+    };
+    Utils.audit_event(event);
+
+    if (stripeEvent.data.object.refunds && stripeEvent.data.object.refunds.data &&
+      stripeEvent.data.object.refunds.data[0] && stripeEvent.data.object.refunds.data[0].id) {
       let refund_object = Utils.stripe_get_refund(stripeEvent.data.object.refunds.data[0].id);
-      console.log(refund_object);
       Refunds.upsert({_id: refund_object.id}, refund_object);
     }
-    if(stripeEvent.data.object.invoice) {
+    if (stripeEvent.data.object.invoice) {
       let wait_for_metadata_update = Utils.update_charge_metadata( stripeEvent );
 
       let invoice_cursor = Invoices.findOne( { _id: stripeEvent.data.object.invoice } );
       let subscription_cursor = Subscriptions.findOne( { _id: invoice_cursor.subscription } );
 
-      console.log( invoice_cursor._id );
       Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, subscription_cursor.plan.interval, invoice_cursor.subscription );
     } else {
       Utils.send_donation_email( false, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, "One Time", null );
     }
-    logEvent(stripeEvent.type);
     return;
   },
   'charge.refunded': function (stripeEvent) {
-    StripeFunctions.audit_charge(stripeEvent.data.object.id, 'refunded');
-    let refund_object = Utils.stripe_get_refund(stripeEvent.data.object.refunds.data[0].id);
-    console.log(refund_object);
-    Refunds.upsert({_id: refund_object.id}, refund_object);
     logEvent(stripeEvent.type);
+
+    let event = {
+      id: stripeEvent.data.object.id,
+      category: 'Stripe',
+      relatedCollection: 'Charges',
+      type: 'charge.refunded',
+      page: '/thanks?charge=' + stripeEvent.data.object.id
+    };
+    Utils.audit_event(event);
+    let refund_object = Utils.stripe_get_refund(stripeEvent.data.object.refunds.data[0].id);
+    Refunds.upsert({_id: refund_object.id}, refund_object);
     return;
   },
   'charge.captured': function (stripeEvent) {

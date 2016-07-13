@@ -1,3 +1,13 @@
+@import 'mixins/opacity.less';
+//
+// Opacity
+// --------------------------------------------------
+
+.opacity-25 {	.opacity(.25); }
+.opacity-50 {	.opacity(.50); }
+.opacity-75 {	.opacity(.75); }
+.opacity-100 {	.opacity(1); }
+
 // Dimensions
 // -------------------------
 
@@ -29,3 +39,31 @@
 .width-12, .size-12 {	width: floor(@dimensions-steps * 12); }
 
 .auto-width {	width:auto; }
+
+// Vertical alignment, works only when parent style has a display:table
+// -------------------------
+
+.stick-top-left,
+.stick-top-right,
+.stick-top-left-right {
+  position: absolute;
+  top: 0;
+}
+.stick-bottom-left,
+.stick-bottom-right,
+.stick-bottom-left-right {
+  position: absolute;
+  bottom: 0;
+}
+.stick-top-left,
+.stick-bottom-left,
+.stick-top-left-right,
+.stick-bottom-left-right {
+  left: 0;
+}
+.stick-top-right,
+.stick-bottom-right,
+.stick-top-left-right,
+.stick-bottom-left-right {
+  right: 0;
+}

@@ -102,15 +102,18 @@ Meteor.publishComposite('transactions', function (transfer_id) {
   }
 });
 
-Meteor.publishComposite('subscriptions_and_customers', function (searchValue) {
-  check(searchValue, Match.Optional(String));
+Meteor.publishComposite('subscriptions_and_customers', function (search, limit) {
+  check(search, Match.Maybe(String));
+  check(limit, Match.Maybe(Number));
 
   // Publish the nearly expired or expired card data to the admin dashboard
-  if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
-    console.log(searchValue);
-    if(!searchValue){
-      return;
-    }
+  if (Roles.userIsInRole(this.userId, ['super-admin', 'admin', 'manager'])) {
+    const limitValue = limit ? limit : 0;
+    const searchValue = search ? search : '';
+    const options = {
+      sort: {created: -1},
+      limit: limitValue
+    };
 
     return {
       find: function () {
@@ -146,10 +149,15 @@ Meteor.publishComposite('subscriptions_and_customers', function (searchValue) {
                   $regex:   searchValue,
                   $options: 'i'
                 }
+              },
+              {
+                'id': {
+                  $regex:   searchValue
+                }
               }
             ]
           }]
-        } );
+        }, options );
       },
       children: [
         {
@@ -193,7 +201,7 @@ Meteor.publishComposite("publish_for_admin_give_form", function(id) {
             // Find post author. Even though we only want to return
             // one record here, we use "find" instead of "findOne"
             // since this function should return a cursor.
-            return Devices.find( { customer: customers._id } );
+            return Devices.find( { customer: customers._id, 'metadata.saved': 'true' } );
           }
         }
       ]
@@ -253,17 +261,17 @@ Meteor.publishComposite("travelDTSplits", function (tripId) {
   check(tripId, Match.Optional(String));
 
   if (Roles.userIsInRole(this.userId, ['admin', 'trips-manager', 'trips-member'])) {
+    logger.info("Inside correct role section of travelDTSplits");
     var funds = [];
     if (tripId) {
       let fundId = Trips.findOne({_id: tripId}) && Trips.findOne({_id: tripId}).fundId;
-      console.log(fundId);
       funds[0] = Number(fundId);
     } else {
       funds = Trips.find().map(function ( item ) {
         return Number(item.fundId);
       });  
     }
-    console.log(funds);
+    logger.info("funds: ", funds);
 
     return {
       find: function () {
@@ -399,5 +407,101 @@ Meteor.publishComposite("tripsMember", function (id) {
         }
       ]
     }
+  }
+});
+
+
+Meteor.publishComposite("auditTrail", function (limit) {
+  check(limit, Number);
+  logger.info("Started publish function, auditTrail");
+  if (Roles.userIsInRole(this.userId, ['admin', 'super-admin', 'manager'])) {
+    return {
+      find: function () {
+        return Audit_trail.find({show: true}, {sort: {time: -1}, limit: limit});
+      },
+      children: [
+        {
+          find: function (auditDoc) {
+            if (auditDoc && auditDoc.relatedDoc) {
+              if (auditDoc.relatedCollection.indexOf(".") > -1) {
+                let collectionNameSplit = auditDoc.relatedCollection.split(".");
+                // Find the related Document associated with this audit doc
+                return GLOBAL[collectionNameSplit[0]][collectionNameSplit[1]].find( { _id: auditDoc.relatedDoc} );
+              } else {
+                // Find the related Document associated with this audit doc
+                return GLOBAL[auditDoc.relatedCollection].find( { _id: auditDoc.relatedDoc} );  
+              }
+              
+            }
+            return;
+          },
+          children: [
+            {
+              find: function (relatedDoc) {
+                if (relatedDoc && relatedDoc.object && relatedDoc.object === 'charge') {
+                  // If we find ourselves looking at a charge doc from the step above
+                  // then get the customer related to that charge
+                  return Customers.find( { _id: relatedDoc.customer} );
+                }
+                return;
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+});
+
+Meteor.publishComposite("receiptCharge", function (chargeId) {
+  console.log(chargeId);
+  check(chargeId, String);
+
+  logger.info("Started publish function, receiptCharge");
+  return {
+    find: function () {
+      return Charges.find({_id: chargeId},
+        {
+          fields:
+          {
+            _id: 1,
+            metadata: 1,
+            created: 1,
+            customer: 1,
+            status: 1,
+            amount: 1,
+            'source.bank_name': 1,
+            'source.brand': 1,
+            'source.last4': 1,
+            'source.object': 1,
+            'payment_source.bank_name': 1,
+            'payment_source.last4': 1,
+            'payment_source.object': 1
+          }
+        }
+      );
+    },
+    children: [
+      {
+        find: function (charge) {
+          return Customers.find({_id: charge.customer},
+            {
+              fields: {
+                _id: 1,
+                email: 1,
+                metadata: 1
+              }
+            }
+          );
+        },
+        children: [
+          {
+            find: function (charge) {
+              return Donations.find( { charge_id: charge._id} );
+            }
+          }
+        ]
+      }
+    ]
   }
 });

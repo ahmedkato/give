@@ -1,4 +1,11 @@
 Meteor.startup( function() {
+  // If the 'dev' property isn't set inside Meteor.settings then
+  // check for Stripe plans and create them if they don't already exist
+  if(!Meteor.settings.dev){
+    Utils.create_stripe_plans();
+  }
+
+  // make sure that the plans we need are created in Stripe
   let config = ConfigDoc();
 
   if (config &&
@@ -56,6 +63,18 @@ Meteor.startup( function() {
     job: ()=> {
       let sendScheduledEmails = Utils.sendScheduledEmails('daily');
       return sendScheduledEmails;
+    }
+  });
+
+  SyncedCron.remove('Get Trip Fund data');
+  SyncedCron.add({
+    name: 'Get Trip Fund data',
+    schedule: (parser)=> {
+      return parser.recur().on('17:55:00').time();
+    },
+    job: ()=> {
+      let updateTripFunds = Utils.updateTripFunds();
+      return updateTripFunds;
     }
   });
 

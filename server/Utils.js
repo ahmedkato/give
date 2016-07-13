@@ -36,6 +36,7 @@ Utils = {
       config.Settings.DonorTools.url;
 
     if( getURL ) {
+      logger.info("Donor Tools URL to use in get:", getURL);
       try {
         let getResource = HTTP.get( getURL + getQuery, {
           auth: DONORTOOLSAUTH
@@ -124,7 +125,7 @@ Utils = {
     } );
   },
   GetDTData( fundsList, dateStart, dateEnd ) {
-    logger.info( "Started GetDTData method (not method call)" );
+    logger.info( "Started GetDTData Utils method (not method call)" );
 
     check( fundsList, [Number] );
     check( dateStart, String );
@@ -134,6 +135,46 @@ Utils = {
     } );
     console.log( "Got all funds history" );
     return;
+  },
+  /**
+   * Get the Donor Tools split data for the trip funds
+   *
+   * @method updateTripFunds
+   * @param {String} dateStart - Today - x days
+   * @param {String} dateEnd - Today
+   */
+  updateTripFunds: function (dateStart, dateEnd) {
+    logger.info("Started updateTripFunds Utils method (not method call)");
+
+    check(dateStart, Match.Optional(String));
+    check(dateEnd, Match.Optional(String));
+    try {
+      let fundsList = Trips.find().map( function ( trip ) {
+        return trip.fundId;
+      });
+      logger.info( "Trips funds list: " + fundsList );
+
+      fundsList.forEach( function ( fundId ) {
+        var funds = Utils.getFundHistory( fundId,
+          dateStart ? dateStart : "",
+          dateEnd ? dateEnd : "" );
+
+        let dtSplits = DT_splits.find({fund_id: Number(fundId)});
+        console.log(dtSplits.fetch());
+        let amount = dtSplits.fetch().reduce(function ( prevValue, item ) {
+          return prevValue + item.amount_in_cents;
+        }, 0);
+
+        Trips.update({fundId: fundId}, {$set: {
+          fundTotal: amount/100
+        }});
+      });
+
+    } catch( e ) {
+      // Got a network error, time-out or HTTP error in the 400 or 500 range.
+      return false;
+    }
+    return "Got all funds history for the trips listed";
   },
   update_dt_account( form, dt_persona_id ) {
     logger.info( "Inside update_dt_account." );
@@ -189,23 +230,42 @@ Utils = {
 
     var totalPages = 3;
     for( i = 1; i <= totalPages; i++ ) {
-      var dataResults;
+      let dataResults;
+      let query;
       if (dateStart && dateEnd) {
-        dataResults = Utils.http_get_donortools( '/splits.json?basis=cash&fund_id=' +
-          fundId + '&range[from]=' + dateStart + '&range[to]=' + dateEnd + '&page=' +
-          i + '&per_page=1000' );
-
-        Utils.store_splits( dataResults.data );
-        totalPages = dataResults.headers['pagination-total-pages'];
+        query = '/splits.json?basis=cash&fund_id=' + fundId + '&range[from]=' +
+          dateStart + '&range[to]=' + dateEnd + '&page=' + i + '&per_page=1000';
       } else {
-        dataResults = Utils.http_get_donortools( '/splits.json?basis=cash&fund_id=' +
-          fundId + '&page=' + i + '&per_page=1000' );
-        Utils.store_splits( dataResults.data );
-        totalPages = dataResults.headers['pagination-total-pages'];
+        query = '/splits.json?basis=cash&fund_id=' + fundId + '&page=' + i + 
+          '&per_page=1000';
       }
+      dataResults = Utils.http_get_donortools( query );
+
+      Utils.store_splits( dataResults.data );
+      dataResults = Utils.http_get_donortools( query );
+
+      // take the array of donations and only get the unique donations in that array
+      let uniqueDonations = _.unique(dataResults.data, function(split){return split.split.donation_id});
+
+      // Now get only the IDs from that unique list
+      let uniqueDonationIDs = uniqueDonations.map(function(split){return split.split.donation_id});
+      Utils.store_donations(uniqueDonationIDs);
+      
+      totalPages = dataResults.headers['pagination-total-pages'];
     }
   },
+  store_donations( donationIDs ) {
+    logger.info("Started store_donations");
+    donationIDs.forEach(function(id) {
+      let donation = Utils.http_get_donortools(
+        '/donations/' + id + '.json' );
+      DT_donations.upsert( { _id: donation.data.donation.id }, { $set: donation.data.donation } );
+    });
+  },
   store_splits( donations ) {
+    logger.info("donations");
+    logger.info(donations);
+
     donations.forEach( function ( split ) {
       DT_splits.upsert( { _id: split.split.id }, { $set: split.split } );
     } );
@@ -220,7 +280,16 @@ Utils = {
 
     get_dt_donation = Utils.http_get_donortools( '/donations.json?transaction_id=' + transaction_id );
 
-    dt_donation_id = get_dt_donation.data[0].donation.id;
+    if (get_dt_donation &&
+        get_dt_donation.data &&
+        get_dt_donation.data[0] &&
+        get_dt_donation.data[0].donation &&
+        get_dt_donation.data[0].donation.id) {
+      dt_donation_id = get_dt_donation.data[0].donation.id;
+    } else {
+      logger.error("There is no record of the transaction in DT, but we have it in the DT_Donation collection");
+      return;
+    }
 
     if( get_dt_donation.data[0].donation.payment_status === event_object.data.object.status && !event_object.data.object.refunded ) {
       return;
@@ -257,65 +326,65 @@ Utils = {
       "/people.json?search=" + email + "&fields=email_address"
     );
 
-    if( personResult ) {
-      metadata = Customers.findOne( { _id: customer_id } ).metadata;
-      // Step 1b
-      if( metadata.business_name ) {
-        orgMatch = _.find( personResult.data, function ( value ) {
-          return value.persona.company_name
-        } );
-        if( orgMatch ) {
-          // Does the company name in DT match the company name provided by the user?'
-          if( orgMatch.persona.company_name.toLowerCase() === metadata.business_name.toLowerCase() ) {
-            // Return value.id as the DT ID that has matched what the user inputted
-            matched_id = orgMatch.persona.id;
-            // return the matched DT persona id
-            return matched_id;
-          } else {
-            // Create new company in DT, since this one didn't match what they gave us
-            return null;
-          }
-
+    logger.info("personResult from DT: ", personResult);
+    if( personResult && personResult.data && personResult.data.length  === 0 ) {
+      // Step 1a
+      // Schedule welcome email
+      Utils.send_welcome_email(email);
+    }
+    metadata = Customers.findOne( { _id: customer_id } ).metadata;
+    // Step 1b
+    if( metadata.business_name ) {
+      orgMatch = _.find( personResult.data, function ( value ) {
+        return value.persona.company_name
+      } );
+      if( orgMatch ) {
+        // Does the company name in DT match the company name provided by the user?'
+        if( orgMatch.persona.company_name.toLowerCase() === metadata.business_name.toLowerCase() ) {
+          // Return value.id as the DT ID that has matched what the user inputted
+          matched_id = orgMatch.persona.id;
+          // return the matched DT persona id
+          return matched_id;
         } else {
-          // Create new company in DT, since this one (or these) didn't match what they gave us
+          // Create new company in DT, since this one didn't match what they gave us
           return null;
         }
+
       } else {
-        orgMatch = _.find( personResult.data, function ( value ) {
-          return !value.persona.company_name
-        } );
-
-        if( orgMatch ) {
-          personMatch = _.find( personResult.data, function ( el ) {
-
-            if( el.persona.names.some( function ( value ) {
-                if( value.first_name.toLowerCase() === metadata.fname.toLowerCase() && value.last_name.toLowerCase() === metadata.lname.toLowerCase() ) {
-                  logger.info( "Person who's name matches: " );
-                  logger.info( value );
-                  // returning true here tells the function that this is the record inside which the correct name is found
-                  return true;
-                }
-              } ) ) {
-              // Looked through all of the name arrays inside of all of the persona's and there was a match
-              return true;
-            }
-          } );
-          // return the matched DT persona id if it exists, else return null since there was no name match here.
-          if( personMatch ) {
-            return personMatch.persona.id;
-          } else {
-            return null;
-          }
-
-        } else {
-          // Create new person in DT, since this one (or these) didn't match what they gave us
-          return null;
-        }
+        // Create new company in DT, since this one (or these) didn't match what they gave us
+        return null;
       }
     } else {
-      // Step 1a
-      // Return null for no email matches
-      return null;
+      orgMatch = _.find( personResult.data, function ( value ) {
+        return !value.persona.company_name
+      } );
+
+      if( orgMatch ) {
+        personMatch = _.find( personResult.data, function ( el ) {
+
+          if( el.persona.names.some( function ( value ) {
+              if( value.first_name.toLowerCase() === metadata.fname.toLowerCase() && value.last_name.toLowerCase() === metadata.lname.toLowerCase() ) {
+                logger.info( "Person who's name matches: " );
+                logger.info( value );
+                // returning true here tells the function that this is the record inside which the correct name is found
+                return true;
+              }
+            } ) ) {
+            // Looked through all of the name arrays inside of all of the persona's and there was a match
+            return true;
+          }
+        } );
+        // return the matched DT persona id if it exists, else return null since there was no name match here.
+        if( personMatch ) {
+          return personMatch.persona.id;
+        } else {
+          return null;
+        }
+
+      } else {
+        // Create new person in DT, since this one (or these) didn't match what they gave us
+        return null;
+      }
     }
   },
   check_for_dt_user(email, checkThisDTID, use_id, customer_id) {
@@ -376,7 +445,7 @@ Utils = {
     var dt_persona_match_id;
     if( Audit_trail.findOne( { _id: customer.id } ) &&
       Audit_trail.findOne( { _id: customer.id } ).flow_checked && !skip_audit ) {
-      console.log( "Checked for and found a audit record for this customer creation flow, skipping the account creation." );
+      logger.info( "Checked for and found a audit record for this customer creation flow, skipping the account creation." );
       return;
     } else {
       logger.info( "Checked for and didn't find an audit record for this customer." );
@@ -392,7 +461,6 @@ Utils = {
 
         // Send an email to the support users telling them that a new DT account was added
         Utils.send_new_dt_account_added_email_to_support_email_contact( customer.email, user_id, dt_persona_match_id );
-        Utils.send_welcome_email(customer.email);
       }
 
       logger.info( "The donor Tools ID for this customer is ", dt_persona_match_id );
@@ -464,14 +532,25 @@ Utils = {
       auth:   DONORTOOLSAUTH
     } );
 
+
+    // Audit the new DT account creation
+    let event = {
+      id: newDTPerson.data.persona.id,
+      type: 'dt.account created',
+      userId: user_id,
+      category: 'DonorTools',
+      relatedCollection: 'DT_personas',
+      page: config.Settings.DonorTools.url + '/people/' + newDTPerson.data.persona.id,
+      otherInfo: '/dashboard/users?userID=' + user_id
+    };
+    Utils.audit_event( event );
     return newDTPerson.data.persona.id;
   },
   insert_gift_into_donor_tools(charge_id, customer_id) {
     logger.info( "Started insert_gift_into_donor_tools" );
     let config = ConfigDoc();
-    logger.info( "Config Settings: " );
-    logger.info( config.Settings );
-    logger.info( "Charge_id: ", charge_id, " Customer_id: ", customer_id );
+    logger.info( "Config Settings:", config.Settings );
+    logger.info( "Charge_id:", charge_id, " Customer_id: ", customer_id );
     let chargeCursor, dt_fund, donateTo, invoice_cursor,
       fund_id, memo, source_id, newDonationResult;
     var metadata;
@@ -517,16 +596,17 @@ Utils = {
     if( !dt_fund ) {
       fund_id = config.Settings.DonorTools.defaultFundId;
       memo = Meteor.settings.dev +
-        metadata &&
+        (metadata &&
         metadata.frequency &&
         metadata.frequency.charAt( 0 ).toUpperCase() +
-        metadata.frequency.slice( 1 ) + " " + donateTo;
+        metadata.frequency.slice( 1 ) + " " + donateTo);
     } else {
       fund_id = dt_fund;
-      memo = Meteor.settings.dev + metadata &&
+      memo = Meteor.settings.dev +
+        (metadata &&
         metadata.frequency &&
         metadata.frequency.charAt( 0 ).toUpperCase() +
-        metadata.frequency.slice( 1 );
+        metadata.frequency.slice( 1 ));
       if( metadata && metadata.note ) {
         memo = memo + " " + metadata.note;
       }
@@ -559,15 +639,19 @@ Utils = {
     } catch( e ) {
       logger.error( "No Person with the DT ID of " +
         customerCursor.metadata.dt_persona_id + " found in DT" );
+      let to = config && config.OrgInfo &&
+        config.OrgInfo.emails && config.OrgInfo.emails &&
+        config.OrgInfo.emails.support;
       let emailObject = {
-        emailType:    'Failed to add a gift to Donor Tools.',
+        to: to,
+        type:    'Failed to add a gift to Donor Tools.',
         emailMessage: "I tried to add a gift with PersonaID of: " + customerCursor.metadata.dt_persona_id +
                       " to Donor Tools, but for some reason I wasn't able to." +
                       " Click the button to see the Stripe Charge",
         buttonText:   "Stripe Charge",
         buttonURL:    "https://dashboard.stripe.com/payments/" + charge_id
       };
-      Utils.sendAdminEmailNotice( emailObject );
+      Utils.sendEmailNotice( emailObject );
       Audit_trail.update( { _id: charge_id }, {
         $set: {
           "dt_donation_inserted": false
@@ -638,17 +722,19 @@ Utils = {
     // write-in gifts and those not matching a fund in DT
     if( !dt_fund ) {
       fund_id = config.Settings.DonorTools.defaultFundId;
-      memo = Meteor.settings.dev + donationCursor &&
+      memo = Meteor.settings.dev +
+        (donationCursor &&
         donationCursor.frequency &&
         donationCursor.frequency.charAt( 0 ).toUpperCase() +
-        donationCursor.frequency.slice( 1 ) + " " + donateTo;
+        donationCursor.frequency.slice( 1 ) + " " + donateTo);
 
     } else {
       fund_id = dt_fund;
-      memo = Meteor.settings.dev + donationCursor &&
+      memo = Meteor.settings.dev +
+        (donationCursor &&
         donationCursor.frequency &&
         donationCursor.frequency.charAt( 0 ).toUpperCase() +
-        donationCursor.frequency.slice( 1 );
+        donationCursor.frequency.slice( 1 ));
       if( donationCursor && donationCursor.note ) {
         memo = memo + " " + donationCursor.note;
       }
@@ -677,15 +763,20 @@ Utils = {
     } catch( e ) {
       logger.error( "No Person with the DT ID of " +
         dt_persona_id + " found in DT" );
+      let to = config && config.OrgInfo &&
+        config.OrgInfo.emails && config.OrgInfo.emails &&
+        config.OrgInfo.emails.support;
       let emailObject = {
-        emailType:    'Failed to add a gift to Donor Tools.',
+        to: to,
+        type:    'Failed to add a gift to Donor Tools.',
         emailMessage: "I tried to add a gift with PersonaID of: " + dt_persona_id +
                       " to Donor Tools, but for some reason I wasn't able to." +
                       " Click the button to see the Stripe Charge",
         buttonText:   "Stripe Charge",
         buttonURL:    "https://dashboard.stripe.com/payments/" + donation_id
       };
-      Utils.sendAdminEmailNotice( emailObject );
+      Utils.sendEmailNotice( emailObject );
+
       Audit_trail.update( { donation_id: donation_id }, {
         $set: {
           "dt_donation_inserted": false
@@ -905,78 +996,64 @@ Utils = {
         customer: customer_id,
         limit:    1
       }, '' );
-      console.dir( stripeInvoiceList );
       return stripeInvoiceList.data[0];
     } else {
       Utils.send_scheduled_email( donation_id, stripeChargePlan.id, subscription_frequency, total );
       return 'scheduled';
     }
   },
-  // TODO: setup the subType field.
-  // TODO: this will give you the ability to always use the object id (for Stripe)
-  // as the _id of the document. Since the type will be 'charge', 'customer', etc.
-  // then use the subType to check if you should send an email or not.
-  // subTypes might be 'failed', 'succeeded', 'pending',
+  audit_event(event) {
+    logger.info( "Inside audit_event." );
+    logger.info( event );
 
-  // TODO: also, this is where we need to add the by: 'donor', 'system', 'admin'
-  // to show that the charge was made by recurring inoice from Stripe ('system') or
-  // by the admin or by the donor
+    let splitType = event["type"].split(".");
+    let insertThis = {
+      category:          event["category"],
+      failureCode:       event["failureCode"],
+      failureMessage:    event["failureMessage"],
+      emailSentTo:       event["emailSentTo"],
+      otherInfo:         event["otherInfo"],
+      page:              event["page"],
+      relatedCollection: event["relatedCollection"],
+      relatedDoc:        event["id"],
+      show:              true,
+      subtype:           splitType[1],
+      time:              new Date(),
+      type:              splitType[0],
+      userId:            event["userId"]
+    };
 
-  // TODO: need to try to move these one at a time, there are a lot of pieces
-  // all tied together in the audit_cursor and more
-  audit_email(id, type, failure_message, failure_code) {
-    logger.info( "Inside audit_email." );
+    Audit_trail.insert( insertThis );
 
-    function upsertAuditEvent( id, type ) {
-      Audit_trail.upsert( { _id: id }, {
-        $addToSet: {
-          email: {
-            type: type,
-            sent: true,
-            time: new Date(),
-            show: true
-          }
-        }
-      } );
-    }
-
-    switch( type ) {
+   /* switch( type ) {
       case 'config.change':
-        upsertAuditEvent(id, type);
+        upsertAuditEvent(id, type, category, user_id, relatedCollection);
         break;
       case 'charge.pending':
-        Audit_trail.upsert( { charge_id: id }, {
+        upsertAuditEvent(id, type, category, user_id, relatedCollection);
+        /!*Audit_trail.upsert( { charge_id: id }, {
           $set: {
             'charge.pending.sent': true,
             'charge.pending.time': new Date()
           }
-        } );
+        } );*!/
         break;
       case 'charge.succeeded':
-        Audit_trail.upsert( { charge_id: id }, {
-          $set: {
-            'charge.succeeded.sent': true,
-            'charge.succeeded.time': new Date()
-          }
-        } );
+        upsertAuditEvent(id, type, category, user_id, relatedCollection);
         break;
       case 'large_gift':
-        Audit_trail.upsert( { charge_id: id }, {
-          $set: {
-            'charge.large_gift.sent': true,
-            'charge.large_gift.time': new Date()
-          }
-        } );
+        upsertAuditEvent(id, type, category, user_id, relatedCollection);
         break;
       case 'charge.failed':
-        Audit_trail.upsert( { charge_id: id }, {
+        upsertAuditEvent(id, type, category, user_id, relatedCollection, failure_message, failure_code);
+        /!*Audit_trail.upsert( { charge_id: id }, {
           $set: {
             'charge.failed.sent':     true,
             'charge.failed.time':     new Date(),
             'charge.failure_message': failure_message,
             'charge.failure_code':    failure_code
           }
-        } );
+        } );*!/
         break;
       case 'subscription.scheduled':
         Audit_trail.upsert( { subscription_id: id }, {
@@ -1012,7 +1089,7 @@ Utils = {
         break;
       default:
         logger.info( "No case matched" );
-    };
+    };*/
   },
   update_card(customer_id, card_id, saved) {
     logger.info( "Started update_card" );
@@ -1179,12 +1256,6 @@ Utils = {
       customer_id,
       subscription_id
     );
-
-    // Set this subscription to canceled. Stripe's webhooks will still update this later,
-    // but this is here so that the admin or customer who cancels the subscription gets
-    // immediate feedback on their action
-    Subscriptions.update( { _id: subscription_id }, { $set: { status: 'canceled' } } );
-    console.dir( stripe_cancel );
     return stripe_cancel;
   },
   stripe_create_subscription ( customer_id, source_id, plan, quantity, metadata ) {
@@ -1257,12 +1328,15 @@ Utils = {
   },
   send_new_dt_account_added_email_to_support_email_contact(email, user_id, personaID) {
     logger.info( "Started send_new_dt_account_added_email_to_support_email_contact" );
-    if( Audit_trail.findOne( { persona_id: personaID } ) &&
-      Audit_trail.findOne( { persona_id: personaID } ).dt_account_created ) {
+    if( Audit_trail.findOne( {
+        relatedDoc: personaID,
+        category: 'Email',
+        subtype: 'account created'
+      } )) {
       logger.info( "Already sent a send_new_dt_account_added_email_to_support_email_contact email" );
       return;
     }
-    let wait_for_audit = Utils.audit_email( personaID, 'dt.account.created' );
+
     let config = ConfigDoc();
 
     //Create the HTML content for the email.
@@ -1279,8 +1353,6 @@ Utils = {
     toAddresses.push( config.OrgInfo.emails.support );
     toAddresses = toAddresses.concat( config.OrgInfo.emails.otherSupportAddresses );
     bccAddress = config.OrgInfo.emails.bccAddress;
-    //Send email
-
     let sendObject = {
       from:    config.OrgInfo.emails.support,
       to:      toAddresses,
@@ -1289,6 +1361,18 @@ Utils = {
       html:    html
     };
     Utils.sendHTMLEmail( sendObject );
+    
+    let event = {
+      id: personaID,
+      type: 'dt.account created',
+      userId: user_id,
+      emailSentTo: toAddresses,
+      category: 'Email',
+      relatedCollection: 'DT_personas',
+      page: config.Settings.DonorTools.url + "/people/" + personaID,
+      otherInfo: '/dashboard/users?userID=' + user_id
+    };
+    Utils.audit_event( event );
   },
   /**
    * Send an email to new users, welcoming them
@@ -1310,12 +1394,11 @@ Utils = {
       return;
     }
 
-    if( Audit_trail.findOne( { email: email } ) &&
-      Audit_trail.findOne( { email: email } ).welcome && Audit_trail.findOne( { email: email } ).welcome.sent ) {
+    let user = Meteor.users.findOne({'emails.address': email});
+    if( Audit_trail.findOne( { relatedDoc: user._id, type: 'welcome' } ) ) {
       logger.info( "Already sent a welcome email" );
       return;
     }
-    let wait_for_audit = Utils.audit_email( email, 'welcome.email.sent' );
 
     let data_slug = {
       "template_name": config.Services.Email.welcome,
@@ -1331,8 +1414,18 @@ Utils = {
         ]
       }
     };
-
     Utils.send_mandrill_email( data_slug, config.Services.Email.welcome, email, 'Welcome' );
+
+    let event = {
+      id: user._id,
+      type: 'welcome',
+      userId: user._id,
+      category: 'Email',
+      relatedCollection: 'Meteor.users',
+      page: '/dashboard/users?userID=' + user._id,
+      emailSentTo: email
+    };
+    Utils.audit_event( event );
 
   },
   /**
@@ -1353,12 +1446,10 @@ Utils = {
       return;
     }
 
-    if( Audit_trail.findOne( { user_id: personaID } ) &&
-      Audit_trail.findOne( { user_id: personaID } ).give_account_created ) {
+    if( Audit_trail.findOne( { relatedDoc: user_id, category: 'Email', subtype: 'account created' } ) ){
       logger.info( "Already sent a send_new_give_account_added_email_to_support_email_contact email" );
       return;
     }
-    let wait_for_audit = Utils.audit_email( personaID, 'give.account.created' );
 
     // Create the HTML content for the email.
     // Create the link to go to the new person that was just created.
@@ -1381,6 +1472,18 @@ Utils = {
     };
 
     Utils.sendHTMLEmail( emailObject );
+
+    // Audit the new account creation
+    let event = {
+      id: user_id,
+      emailSentTo: toAddresses,
+      type: 'give.account created',
+      userId: user_id,
+      category: 'Email',
+      relatedCollection: 'Meteor.users',
+      page: '/dashboard/users?userID=' + user_id
+    };
+    Utils.audit_event( event );
   },
   /**
    * Send an email to the admins.
@@ -1391,13 +1494,21 @@ Utils = {
   send_change_email_notice_to_admins(changeMadeBy, changeIn) {
     logger.info( "Started send_change_email_notice_to_admins" );
     let config = ConfigDoc();
+    let event = {
+      id: config._id,
+      type: 'config.change',
+      category: 'Admin',
+      userId: changeMadeBy,
+      relatedCollection: 'Config',
+      page: "/dashboard/" + changeIn
+    };
+    Utils.audit_event(event);
 
     if( !(config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.support) ) {
       logger.warn( "No support email to send from." );
       return;
     }
 
-    Utils.audit_email(config._id, 'config.change');
     let admins = Roles.getUsersInRole( 'admin' );
     let adminEmails = admins.map( function ( item ) {
       return item.emails[0].address;
@@ -1419,6 +1530,10 @@ Utils = {
     };
 
     Utils.sendHTMLEmail( emailObject );
+
+    event.emailSentTo = adminEmails;
+    event.category = 'Email';
+    Utils.audit_event(event);
   },
   /**
    * set a user's state object and update that object with a timestamp
@@ -1543,6 +1658,7 @@ Utils = {
           let newStripePlan = Utils.create_stripe_plan(plan);
         }
       } );
+      
     } catch(e) {
       logger.error(e);
       var error = (e.response);
@@ -2003,9 +2119,11 @@ Utils = {
     } else {
       fund_id = dt_fund;
       memo = Meteor.settings.dev + charge.metadata.frequency.charAt( 0 ).toUpperCase() + charge.metadata.frequency.slice( 1 );
+
       if( charge && charge.metadata && charge.metadata.note ) {
         memo = memo + " " + charge.metadata.note;
       }
+
     }
 
     var newDonationResult;
@@ -2551,7 +2669,7 @@ Utils = {
               } else {
                 Meteor.call("getDTPerson", donation.persona_id, function ( err, res ) {
                   if(!err){
-                    return res.recognition_name;
+                    return res && res.recognition_name;
                   } else {
                     console.error(err);
                   }
@@ -2584,7 +2702,8 @@ Utils = {
           },
           orgURL() {
             let config = ConfigDoc();
-            let domain = 'https://' + config.OrgInfo.web.subdomain ? config.OrgInfo.web.subdomain + "." : "" + config.OrgInfo.web.domain_name;
+            let subdomain = config.OrgInfo.web.subdomain ? (config.OrgInfo.web.subdomain + ".") : "";
+            let domain = 'https://' + subdomain + config.OrgInfo.web.domain_name;
             return domain;
           }
         });
