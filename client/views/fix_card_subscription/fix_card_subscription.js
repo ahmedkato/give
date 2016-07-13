@@ -20,7 +20,7 @@ Template.FixCardSubscription.onRendered(function(){
 });
 
 Template.FixCardSubscription.events({
-  'submit form': function(e){
+  'click [name=submitCardForm]'(e){
     e.preventDefault();
 
     var update_this = {
@@ -118,9 +118,6 @@ Template.FixCardSubscription.events({
     e.preventDefault();
     $('form#resubscribe').unbind('submit');
     Session.set('addingNewCreditCard', false);
-  },
-  'click #cancel-card-form': function () {
-    history.back();
   },
   'click .btn_modal_for_add_new_bank_account': function () {
     $("#modal_for_add_new_bank_account").modal('show');

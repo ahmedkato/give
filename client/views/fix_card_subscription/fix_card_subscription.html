@@ -85,8 +85,8 @@
                         </div>
                     </div> <!-- end .panel-body -->
                     <div class="panel-footer">
-                        <button type="submit" class="btn btn-primary resubscribe" data-loading-text="Processing...">Update</button>
-                        <a id="cancel-card-form" class="btn btn-warning">Cancel</a>
+                        <button name="submitCardForm" class="btn btn-primary resubscribe" data-loading-text="Processing...">Update</button>
+                        <a href="{{pathFor 'subscriptions'}}" class="btn btn-warning">Cancel</a>
 
                         {{> AddNewBankAccount}}
                         <a class="btn btn-primary btn_modal_for_add_new_bank_account pull-right">
