@@ -14,3 +14,4 @@ npm-debug.log
 bundle.tar.gz
 start-local-debug.sh
 node_modules
+.meteor/dev_bundle
