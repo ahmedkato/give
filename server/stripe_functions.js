@@ -33,7 +33,8 @@ _.extend(StripeFunctions, {
         logger.error(err);
         throw new Meteor.Error(err);
       });
-  },/**
+  },
+  /**
    * Stripe general purpose resource retriever
    * cRud (R in CRUD)
    * https://stripe.com/docs/api
@@ -220,7 +221,6 @@ _.extend(StripeFunctions, {
           throw new Meteor.Error(500, err);
         });
     }
-
   },
   'control_flow_of_stripe_event_processing': function ( request ) {
 

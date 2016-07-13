@@ -2669,7 +2669,7 @@ Utils = {
               } else {
                 Meteor.call("getDTPerson", donation.persona_id, function ( err, res ) {
                   if(!err){
-                    return res.recognition_name;
+                    return res && res.recognition_name;
                   } else {
                     console.error(err);
                   }

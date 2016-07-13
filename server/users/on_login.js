@@ -3,6 +3,5 @@ Accounts.validateLoginAttempt(function(attemptObj) {
     throw new Meteor.Error(403, "Your account is disabled. Please call us to have it enabled " +
       Meteor.settings.public.org_phone);
   }
-
   return true;
 });

@@ -391,7 +391,7 @@ Router.route('FixBankSubscription', {
 
 Router.route('/dashboard/giving_options', {
   name: 'GivingOptions',
-  where: 'client',
+  where: 'client'
 });
 
 Router.route('/dashboard/giving_guide', {
@@ -511,7 +511,7 @@ Router.route('/trips/admin/:_id', {
   template: 'TripAdmin',
   waitOn: function () {
     var params = this.params;
-    this.subscribe('trips', params._id);
+    Meteor.subscribe('trips', params._id);
   }
 });
 
@@ -528,6 +528,6 @@ Router.route('/trips/member/:_id', {
   template: 'TripMember',
   waitOn: function(){
     var params = this.params;
-    this.subscribe('trips', params._id);
+    Meteor.subscribe('trips', params._id);
   }
 });
