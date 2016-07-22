@@ -16,7 +16,6 @@ Security.permit(['insert', 'update', 'remove'])
     DT_sources,
     Fundraisers,
     Invoices,
-    Config,
     Payments,
     Refunds,
     Subscriptions,
@@ -25,9 +24,9 @@ Security.permit(['insert', 'update', 'remove'])
     Uploads
   ])
   .ifHasRole('admin')
-  .apply();
+  .allowInClientCode();
 
 Security.permit(['insert', 'update', 'remove'])
   .collections([Trips])
   .ifHasRole(['admin', 'trips-manager'])
-  .apply();
+  .allowInClientCode();

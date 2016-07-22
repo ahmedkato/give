@@ -219,7 +219,9 @@ Template.StripeTransferDetails.helpers({
       if (dt_donation && dt_donation.persona_id) {
         if (!Session.get(dt_donation.persona_id)) {
 
-          Meteor.call( "get_dt_name", dt_donation.persona_id, this.metadata && this.metadata.dt_donation_id ? this.metadata.dt_donation_id : '', function ( err, result ) {
+          Meteor.call( "get_dt_name", dt_donation.persona_id,
+            this.metadata && this.metadata.dt_donation_id ? this.metadata.dt_donation_id : '',
+            function ( err, result ) {
             if( err ) {
               console.error( err );
               // TODO: need to query DT for the latest version of this dt_donation record

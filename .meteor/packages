@@ -18,7 +18,6 @@ email
 http
 pfafman:font-awesome-4
 less
-#amr:parsley.js
 iron:router
 useraccounts:bootstrap
 useraccounts:iron-routing
