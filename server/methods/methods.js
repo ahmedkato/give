@@ -1382,5 +1382,25 @@ Meteor.methods({
       let userThisId = this.userId ? (" User: "  + this.userId) : ("SessionId: " + userOrSessionId);
       logger.info("Client " + userThisId + " says: " + message);
     }
-  }
+  },
+  /**
+   * Refund a Stripe gift
+   * @method stripeRefundGift
+   * @param {String} charge_id - Charge to be refunded
+   * @param {String} reason    - Reason for the refund
+   */
+  stripeRefundGift: function (charge_id, reason) {
+    logger.info("Started method stripeRefundGift.");
+    if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
+      check( charge_id, String );
+      check( reason, String );
+      let refund = StripeFunctions.stripe_create('refunds', {
+        charge: charge_id,
+        metadata: {reason: reason}
+      });
+
+    } else {
+      throw new Meteor.Error(403, "Not logged in");
+    }
+  },
 });

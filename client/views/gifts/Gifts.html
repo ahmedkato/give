@@ -1,0 +1,86 @@
+<template name="Gifts">
+    <div class="row">
+        <div class="col col-md-12 col-sm-12 col-lg-12">
+            <div class="text-right">
+                <a tabindex="0"
+                   class="btn btn-lg btn-primary"
+                   role="button"
+                   data-toggle="popover"
+                   data-trigger="click"
+                   data-placement="left"
+                   title="Filters"
+                   data-content='<div class="row" name="captured">
+                    <label>
+                        <input id="filter-refunded" type="checkbox" checked={{isChecked}}>
+                        <span>Refunded</span>
+                    </label>'>
+                    <i class="fa fa-filter"></i> Filter
+                </a>
+                <br>
+            </div>
+            <div class="form-group floating-label">
+                <input type="text" class="form-control search" placeholder="Search by; id, name, org. or email">
+            </div>
+            <button type="button" class="btn btn-danger btn-block clear-button">
+                Clear
+            </button>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Amount</th>
+                        <th>Recurring</th>
+                        <th>Designation</th>
+                        <th>Note</th>
+                        <th>Stripe ID</th>
+                        {{#if isInRole 'admin, super-admin, manager'}}
+                            <th class="text-right"></th>
+                        {{/if}}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{#if charges}}
+                        {{#each charges}}
+                            <tr class="{{refunded}}">
+                                {{#with thisCustomer}}
+                                    <td>{{name}}</td>
+                                    <td>{{email}}</td>
+                                {{/with}}
+                                <td>${{twoDecimalPlaces amount}}</td>
+                                <td>{{recurring}}</td>
+                                <td>{{donateToThis metadata.donateTo}}</td>
+                                <td>{{metadata.note}}</td>
+                                <td>{{_id}}</td>
+                                {{#if isInRole 'admin, manager'}}
+                                    <td class="text-right">
+                                        {{#if recurring}}
+                                            <button title="Edit Payment method"
+                                                    class="btn btn-sm btn-info go_to_subscription_link"
+                                                    data-invoice-id="{{invoice}}">
+                                                <i class="fa fa-pencil"></i> More...</button>
+                                        {{/if}}
+                                        {{#unless refunded}}
+                                            <button title="Refund"
+                                                    class="btn btn-sm btn-primary refund-button">
+                                                <i class="fa fa-undo"></i>
+                                            </button>
+                                        {{/unless}}
+                                    </td>
+                                {{/if}}
+                            </tr>
+                        {{/each}}
+                    {{else}}
+                        {{#if searchValue}}
+                            <p>Nothing found with that search</p>
+                        {{else}}
+                            <p>Starting typing in the above search box</p>
+                        {{/if}}
+                    {{/if}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</template>

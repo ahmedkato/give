@@ -1,0 +1,163 @@
+<template name="Filters">
+    <div class="content">
+        <div class="filter-view">
+            <div class="header">
+                <h2>Filters</h2>
+            </div>
+            <div class="inner-box">
+                <div class="filters">
+                    <div class="row" name="captured">
+                        <label>
+                            <input class="enabled" type="checkbox">
+                            <span>Date</span>
+                        </label>
+
+                        <div class="row-content disabled" style="display: none;">
+                            <span class="date-filter"><!--Date created-->
+                                <select class="multi-field-select">
+                                  <option value="last">is in the last</option>
+                                  <option value="bt">is between</option>
+                                  <option value="eq">is equal to</option>
+                                  <option value="gt">is after</option>
+                                  <option value="lt">is before</option>
+                                </select>
+
+                                <span class="single">
+                                  <input type="text" name="single" class="units">
+                                  <select class="last">
+                                    <option value="days">days</option>
+                                    <option value="months">months</option>
+                                  </select>
+                                  <span class="single_error filter_error error">&nbsp;</span>
+                                </span>
+
+                                <span class="double" style="display: none;">
+                                  <input type="text" name="double1" class="timestamp hasDatepicker" id="dp1469637863068"><span class="double1_error filter_error error"></span>
+                                  <span class="and">and</span>
+                                  <input type="text" name="double2" class="timestamp hasDatepicker" id="dp1469637863069"><span class="double2_error filter_error error"></span>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row" name="captured">
+
+                        <label>
+                            <input class="enabled" type="checkbox">
+                            <span>Amount</span>
+                        </label>
+
+                        <div class="row-content disabled" style="display: none;">
+                            <span class="amount-filter"><!--Amount-->
+                                <select class="multi-field-select">
+                                  <option value="eq">is equal to</option>
+                                  <option value="bt">is between</option>
+                                  <option value="gt">is greater than</option>
+                                  <option value="lt">is less than</option>
+                                </select>
+
+                                <span class="single" style="display: inline;">
+                                  $ <input type="text" name="single" class="amount"><span class="single_error filter_error error"></span>
+                                </span>
+
+                                <span class="double" style="display: none;">
+                                  $ <input type="text" name="double1" class="amount"><span class="double1_error filter_error error"></span>
+                                  <span class="and">and</span>
+                                  $ <input type="text" name="double2" class="amount"><span class="double2_error filter_error error"></span>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row" name="captured">
+
+                        <label>
+                            <input class="enabled" type="checkbox">
+                            <span>Status</span>
+                        </label>
+
+                        <div class="row-content disabled" style="display: none;">
+                            <span class="singular-filter">
+                                <div class="dropdown-widget-view singular_filter_item">
+                                    <select name="singular_filter_item" class="field">
+                                      <option value="true">is successful</option>
+                                      <option value="false">is failed</option>
+                                    </select>
+                                </div>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row" name="captured">
+
+                        <label>
+                            <input class="enabled" type="checkbox">
+                            <span>Refunded</span>
+                        </label>
+
+                        <div class="row-content disabled" style="display: none;">
+                            <span class="payment-refund-filter">
+                                <div class="dropdown-widget-view singular_filter_item">
+                                    <select name="singular_filter_item" class="field">
+                                      <option value="true">is fully refunded</option>
+                                      <option value="false">is not refunded</option>
+                                      <option value="partial">is partially refunded</option>
+                                    </select>
+                                </div>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row" name="captured">
+
+                        <label>
+                            <input class="enabled" type="checkbox">
+                            <span>Captured</span>
+                        </label>
+
+                        <div class="row-content disabled" style="display: none;">
+                            <span class="singular-filter">
+                                <div class="dropdown-widget-view singular_filter_item">
+                                    <select name="singular_filter_item" class="field">
+                                        <option value="true">has been captured</option>
+                                        <option value="false">has not been captured</option>
+                                    </select>
+                                </div>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row" name="captured">
+                        <label>
+                            <input class="enabled" type="checkbox">
+                            <span>Disputed status</span>
+                        </label>
+                        <div class="row-content disabled" style="display: none;">
+                            <span class="singular-filter">
+                                <div class="dropdown-widget-view singular_filter_item">
+                                    <select name="singular_filter_item" class="field">
+                                        <option value="true">is disputed</option>
+                                        <option value="false">is not disputed</option>
+                                    </select>
+                                </div>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row" name="captured">
+
+                        <label>
+                            <input class="enabled" type="checkbox">
+                            <span>Payment Source</span>
+                        </label>
+
+                        <div class="row-content disabled" style="display: none;">
+                            <span class="nested-singular-filter">
+                                <div class="dropdown-widget-view singular_filter_item">
+                                    <select name="singular_filter_item" class="field">
+                                        <option value="card">Card</option>
+                                        <option value="bank_account">Bank Account</option>
+                                    </select>
+                                </div>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

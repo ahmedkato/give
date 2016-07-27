@@ -296,7 +296,16 @@ Utils = {
     }
 
     if( event_object.data.object.refunded ) {
+      logger.warn("charge is showing refunded");
+
       get_dt_donation.data[0].donation.payment_status = 'refunded';
+      get_dt_donation.data[0].donation.splits[0].amount_in_cents = 0;
+      let dateNow = moment( new Date() ).format( "YYYY/MM/DD hh:mma" );
+      let refundedAmount = event_object.data.object.amount_refunded/100;
+
+      let donationMemo = "The charge was refunded on " + dateNow +
+        ". The original charge amount was " + refundedAmount;
+      get_dt_donation.data[0].donation.memo = donationMemo;
     } else {
       get_dt_donation.data[0].donation.payment_status = event_object.data.object.status;
     }
@@ -1024,72 +1033,6 @@ Utils = {
     };
 
     Audit_trail.insert( insertThis );
-
-   /* switch( type ) {
-      case 'config.change':
-        upsertAuditEvent(id, type, category, user_id, relatedCollection);
-        break;
-      case 'charge.pending':
-        upsertAuditEvent(id, type, category, user_id, relatedCollection);
-        /!*Audit_trail.upsert( { charge_id: id }, {
-          $set: {
-            'charge.pending.sent': true,
-            'charge.pending.time': new Date()
-          }
-        } );*!/
-        break;
-      case 'charge.succeeded':
-        upsertAuditEvent(id, type, category, user_id, relatedCollection);
-        break;
-      case 'large_gift':
-        upsertAuditEvent(id, type, category, user_id, relatedCollection);
-        break;
-      case 'charge.failed':
-        upsertAuditEvent(id, type, category, user_id, relatedCollection, failure_message, failure_code);
-        /!*Audit_trail.upsert( { charge_id: id }, {
-          $set: {
-            'charge.failed.sent':     true,
-            'charge.failed.time':     new Date(),
-            'charge.failure_message': failure_message,
-            'charge.failure_code':    failure_code
-          }
-        } );*!/
-        break;
-      case 'subscription.scheduled':
-        Audit_trail.upsert( { subscription_id: id }, {
-          $set: {
-            'subscription_scheduled.sent': true,
-            'subscription_scheduled.time': new Date()
-          }
-        } );
-        break;
-      case 'dt.account.created':
-        Audit_trail.upsert( { persona_id: id }, {
-          $set: {
-            'dt_account_created.sent': true,
-            'dt_account_created.time': new Date()
-          }
-        } );
-        break;
-      case 'give.account.created':
-        Audit_trail.upsert( { user_id: id }, {
-          $set: {
-            'give_account_created.sent': true,
-            'give_account_created.time': new Date()
-          }
-        } );
-        break;
-      case 'welcome.email.sent':
-        Audit_trail.upsert( { email: id }, {
-          $set: {
-            'welcome.sent': true,
-            'welcome.time': new Date()
-          }
-        } );
-        break;
-      default:
-        logger.info( "No case matched" );
-    };*/
   },
   update_card(customer_id, card_id, saved) {
     logger.info( "Started update_card" );
@@ -2270,11 +2213,22 @@ Utils = {
       let config = ConfigDoc();
 
       //TODO: still need to fix the below for any time when the charge isn't being passed here, like for scheduled gifts
-      if( Audit_trail.findOne( { _id: charge_id } ) && Audit_trail.findOne( { _id: charge_id } ).dt_donation_inserted ) {
+      if( Audit_trail.findOne( { _id: charge_id } ) &&
+        Audit_trail.findOne( { _id: charge_id } ).subtype &&
+        Audit_trail.findOne( { _id: charge_id } ).subtype === 'gift inserted' ) {
         logger.info( "Already inserted the donation into DT." );
         return;
       } else {
-        Audit_trail.upsert( { _id: charge_id }, { $set: { dt_donation_inserted: true } } );
+        // Audit the new account creation
+        let event = {
+          id: charge_id,
+          type: 'dt.gift inserted',
+          userId: user_id,
+          category: 'DonorTools',
+          relatedCollection: 'Charges',
+          page: '/dashboard/gifts?refunds=true&chargeID=' + charge_id
+        };
+        Utils.audit_event( event );
       }
 
       var customer = Customers.findOne( customer_id );
@@ -2328,13 +2282,15 @@ Utils = {
         source_id = DONORTOOLSINDVSOURCEID;
       }
 
+      let amount = charge.amount;
+
       var newDonationResult;
       newDonationResult = HTTP.post( config.Settings.DonorTools.url + '/donations.json', {
         data: {
           "donation": {
             "persona_id":       persona_id,
             "splits":           [{
-              "amount_in_cents": charge.amount,
+              "amount_in_cents": amount,
               "fund_id":         fund_id,
               "memo":            memo
             }],

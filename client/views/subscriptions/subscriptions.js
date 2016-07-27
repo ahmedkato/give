@@ -1,18 +1,4 @@
-import { getDocHeight } from '/client/imports/miscFunctions.js';
-
-function updateSearchVal(){
-  let searchValue = $(".search").val();
-
-  if (searchValue) {
-    // Remove punctuation and make it into an array of words
-    searchValue = searchValue
-      .replace( /[^\w\s]|_/g, "" )
-      .replace( /\s+/g, " " );
-
-    Session.set( "searchValue", searchValue );
-    Session.set( "documentLimit", 0 );
-  }
-};
+import { setDocHeight, updateSearchVal } from '/client/imports/miscFunctions.js';
 
 Template.AdminSubscriptions.events({
   'click .addingNewPerson': function ( e ){
@@ -52,14 +38,12 @@ Template.AdminSubscriptions.events({
         Session.set("loading", true);
         Meteor.call("stripeCancelSubscription", customer_id, subscription_id, inputValue, function(error, response){
           if (error){
-            confirm.button("reset");
             Bert.alert(error.message, "danger");
             Session.set("loading", false);
             $(e.currentTarget).button('reset');
           } else {
             // If we're resubscribed, go ahead and confirm by returning to the
             // subscriptions page and show the alert
-            console.log(response);
             Session.set("loading", false);
             swal("Cancelled", "That recurring gift has been stopped.", "error");
           }
@@ -161,14 +145,7 @@ Template.AdminSubscriptions.onCreated( function () {
 });
 
 Template.AdminSubscriptions.onRendered(function () {
-  $(window).scroll(function() {
-    if(($(window).scrollTop() + $(window).height() == getDocHeight()) ||
-      ($(window).scrollTop() + window.innerHeight == getDocHeight())) {
-      console.log("bottom!");
-      let documentLimit = Session.get("documentLimit");
-      Session.set("documentLimit", documentLimit += 10);
-    }
-  });
+  setDocHeight();
 });
 
 Template.AdminSubscriptions.onDestroyed(function() {

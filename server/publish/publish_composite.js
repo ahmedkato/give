@@ -187,6 +187,107 @@ Meteor.publishComposite('subscriptions_and_customers', function (search, limit) 
   }
 });
 
+Meteor.publishComposite('charges_and_customers', function (search, limit, refunded) {
+  check(search, Match.Maybe(String));
+  check(limit, Match.Maybe(Number));
+  check(refunded, Match.OneOf(null, "_true", "_false"));
+  if (refunded === "_true") {
+    refunded = true;
+  } else {
+    refunded = false;
+  }
+
+  // Publish the nearly expired or expired card data to the admin dashboard
+  if (Roles.userIsInRole(this.userId, ['super-admin', 'admin', 'manager'])) {
+    const limitValue = limit ? limit : 0;
+    const searchValue = search ? search : '';
+    const options = {
+      sort: {created: -1},
+      limit: limitValue
+    };
+
+    return {
+      find: function () {
+        // Find posts made by user. Note arguments for callback function
+        // being used in query.
+        return Charges.find( {
+          $and: [{
+            refunded: refunded
+          }, {
+            $or: [
+              {
+                'metadata.fname': {
+                $regex: searchValue, $options: 'i'
+                }
+              },
+              {
+                'metadata.lname': {
+                  $regex: searchValue, $options: 'i'
+                }
+              },
+              {
+                'metadata.business_name': {
+                  $regex:   searchValue,
+                  $options: 'i'
+                }
+              },
+              {
+                'metadata.email': {
+                  $regex:   searchValue,
+                  $options: 'i'
+                }
+              },
+              {
+                'id': {
+                  $regex:   searchValue
+                }
+              }
+            ]
+          }]
+        }, options );
+      },
+      children: [
+        {
+          find: function ( charges ) {
+            // Find post author. Even though we only want to return
+            // one record here, we use "find" instead of "findOne"
+            // since this function should return a cursor.
+            return Customers.find(
+              { _id: charges.customer },
+              {
+                limit:  1,
+                fields: {
+                  email:                1,
+                  metadata:             1,
+                  default_source:       1,
+                  default_source_type:  1,
+                  sources:              1,
+                  subscriptions:        1
+                }
+              } );
+          }
+        }, {
+          find: function ( charges ) {
+            // Find post author. Even though we only want to return
+            // one record here, we use "find" instead of "findOne"
+            // since this function should return a cursor.
+            return Invoices.find(
+              { _id: charges.invoice },
+              {
+                limit:  1,
+                fields: {
+                  subscription: 1
+                }
+              } );
+          }
+        }
+      ]
+    }
+  } else {
+    this.stop();
+    return;
+  }
+});
 
 Meteor.publishComposite("publish_for_admin_give_form", function(id) {
   check(id, String);
@@ -409,7 +510,6 @@ Meteor.publishComposite("tripsMember", function (id) {
     }
   }
 });
-
 
 Meteor.publishComposite("auditTrail", function (limit) {
   check(limit, Number);

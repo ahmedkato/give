@@ -1,4 +1,4 @@
-import { getDocHeight } from '/client/imports/miscFunctions.js';
+import { setDocHeight } from '/client/imports/miscFunctions.js';
 
 Template.Timeline.helpers({
   audits(){
@@ -127,14 +127,7 @@ Template.Timeline.onCreated(function () {
 });
 
 Template.Timeline.onRendered(function () {
-  $(window).scroll(function() {
-    if(($(window).scrollTop() + $(window).height() == getDocHeight()) ||
-      ($(window).scrollTop() + window.innerHeight == getDocHeight())) {
-      console.log("bottom!");
-      let documentLimit = Session.get("documentLimit");
-      Session.set("documentLimit", documentLimit += 10);
-    }
-  });
+  setDocHeight();
 });
 
 Template.Timeline.onDestroyed(function (){

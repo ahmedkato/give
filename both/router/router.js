@@ -491,6 +491,17 @@ Router.route('/dashboard/timeline', {
   template: 'Timeline'
 });
 
+Router.route('/dashboard/gifts', {
+  layoutTemplate: 'AdminLayout',
+  name: 'Gifts',
+  where: 'client',
+  template: 'Gifts',
+  data: function() {
+    let query = this.params.query;
+    Session.set("refunded", query.refunded);
+  }
+});
+
 Router.route('/trips', {
   layoutTemplate: 'AdminLayout',
   name: 'Trips',
