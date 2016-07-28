@@ -214,6 +214,7 @@ Meteor.publishComposite('charges_and_customers', function (search, limit, refund
         invoice:          1,
         metadata:         1,
         refunded:         1,
+        refunds:          1,
         status:           1
       }
     };
@@ -288,6 +289,7 @@ Meteor.publishComposite('charges_and_customers', function (search, limit, refund
               {
                 limit:  1,
                 fields: {
+                  metadata:     1,
                   subscription: 1
                 }
               } );

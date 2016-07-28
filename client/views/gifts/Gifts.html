@@ -29,7 +29,7 @@
                     <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Email</th>
+                        <th>Date</th>
                         <th>Amount</th>
                         <th>Recurring</th>
                         <th>Designation</th>
@@ -46,11 +46,15 @@
                             <tr class="{{refunded}}">
                                 {{#with thisCustomer}}
                                     <td>{{name}}</td>
-                                    <td>{{email}}</td>
                                 {{/with}}
+                                <td>{{formatDate created true}}
+                                    {{#if refunded}}
+                                        - Refunded on: {{formatDate refundUnixDate true}}
+                                    {{/if}}
+                                </td>
                                 <td>${{twoDecimalPlaces amount}}</td>
                                 <td>{{recurring}}</td>
-                                <td>{{donateToThis metadata.donateTo}}</td>
+                                <td>{{donateToThis metadataDonateTo}}</td>
                                 <td>{{metadata.note}}</td>
                                 <td>{{_id}}</td>
                                 {{#if isInRole 'admin, manager'}}
