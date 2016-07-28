@@ -203,7 +203,19 @@ Meteor.publishComposite('charges_and_customers', function (search, limit, refund
     const searchValue = search ? search : '';
     const options = {
       sort: {created: -1},
-      limit: limitValue
+      limit: limitValue,
+      fields: {
+        amount:           1,
+        amount_refunded:  1,
+        created:          1,
+        customer:         1,
+        failure_code:     1,
+        failure_message:  1,
+        invoice:          1,
+        metadata:         1,
+        refunded:         1,
+        status:           1
+      }
     };
 
     return {

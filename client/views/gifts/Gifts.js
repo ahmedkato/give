@@ -18,11 +18,15 @@ Template.Gifts.onDestroyed(function () {
 });
 
 Template.Gifts.onRendered(function () {
-  $( "[data-toggle='popover']" ).popover({html: true});
   setDocHeight();
-  if(Session.equals("refunded", "_true")) {
+  let refunded = Iron.Location.get().queryObject && Iron.Location.get().queryObject.refunded;
+  if(refunded === "_true") {
     $("#filter-refunded").prop( "checked", true );
+  } else {
+    $("#filter-refunded").prop( "checked", false );
   }
+  $( "[data-toggle='popover']" ).popover({html: true});
+
 });
 
 Template.Gifts.events({
@@ -41,7 +45,8 @@ Template.Gifts.events({
   'click .clear-button'() {
     $(".search").val("").change();
     Session.set("searchValue", "");
-    Session.set( "documentLimit", 10);
+    Session.set("documentLimit", 10);
+    Session.set("refunded", "_false");
   },
   'click .go_to_subscription_link'(e){
     let invoice = Invoices.findOne({_id: $(e.currentTarget).data('invoice-id')});
@@ -124,11 +129,10 @@ Template.Gifts.helpers({
     return Session.get("refundAmount");
   },
   isChecked(){
-    let checked = Session.equals("refunded", "_true");
-    if (checked === true) {
+    let checked = Session.equals( "refunded", "_true" );
+    if( checked === true ) {
       return 'checked';
-    } else {
-      return 'unchecked';
     }
+    return;
   }
 });

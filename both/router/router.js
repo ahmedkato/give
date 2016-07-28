@@ -496,10 +496,6 @@ Router.route('/dashboard/gifts', {
   name: 'Gifts',
   where: 'client',
   template: 'Gifts',
-  data: function() {
-    let query = this.params.query;
-    Session.set("refunded", query.refunded);
-  }
 });
 
 Router.route('/trips', {
