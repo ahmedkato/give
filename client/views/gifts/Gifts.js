@@ -50,7 +50,7 @@ Template.Gifts.events({
   },
   'click .go_to_subscription_link'(e){
     let invoice = Invoices.findOne({_id: $(e.currentTarget).data('invoice-id')});
-    Router.go('/dashboard/subscriptions', {sub: invoice.subscription});
+    Router.go('/dashboard/subscriptions?sub=' + invoice.subscription);
   },
   'click .refund-button': function (e) {
     console.log("Clicked refund");

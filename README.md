@@ -7,26 +7,31 @@ written in <a href="https://meteor.com">Meteor</a>.
 
 ## About
 
-Give is used by Non-Profits to take donations using Stripe. Which includes Credit/Debit Cards, ACH. 
+Give is used by non-profits to take donations using Stripe. Which includes Credit/Debit Cards, ACH. 
 
 ## Problems addressed
 
-Non-profits want to allow anyone to give with or without an account. However, we also want to give them credit for doing so.
-This is a problem. How do we track givers while letting them give without an account? The answer is; we do all the hard work.
-First, we will end up with a lot of customers in Stripe since each time a person gives without logging in we can't know if they've given before.
-Second, we want to do our best to make sure we don't have duplicates in our CMS, so we search backwards and forwards to see if we can find them there.
+Non-profits want to allow anyone to give with or without an account. 
+However, we also want to give them credit for doing so. This is a problem. 
+How do we track givers while letting them give without an account? The answer is;
+ we do all the hard work. First, we will end up with a lot of customers in Stripe
+  since each time a person gives without logging in we can't know if they've given before.
+Second, we want to do our best to make sure we don't have duplicates in our CMS,
+ so we search backwards and forwards to see if we can find them there.
 
-If we think this is a new person, we insert them into the CMS as a new person and send off an email to the support admin letting them know we just inserted a 
-new person. Chances are we'll end up with newly inserted people who really shouldn't be new people at all. 
-Users misspell things, they change their address and phone numbers and sometimes give under shortened version of their names. 
-(and these are just a few reasons we'll still get duplicates)
+If we think this is a new person, we insert them into the CMS as a new person 
+and send off an email to the support admin letting them know we just inserted a 
+new person. Chances are we'll end up with newly inserted people who really shouldn't
+ be new people at all. Users misspell things, they change their address and phone
+  numbers and sometimes give under shortened version of their names. (and these 
+  are just a few reasons we'll still get duplicates)
 
 
 
 ## Setup
 
 Once you have this repo cloned you'll want to setup a settings.json file. This 
-is where your Donor Tools and Stripe settings go (you can use the example below 
+is where your Donor Tools and Stripe```` settings go (you can use the [example](/#settings) below 
 to get started) as well as your organization's domain name and other settings. 
 
 Before running this app edit the server/fixtures.js file and change the email 
@@ -81,7 +86,7 @@ https://give.trashmountain.com/landing
 
 This is a live giving page, which is being used by Trash Mountain Project. 
 
-## Settings.json file
+## Settings
 
 Here is an example settings.json file. Each of the fields are required.
 
