@@ -250,29 +250,69 @@ Meteor.publish("transfers", function (id) {
 });
 
 
-Meteor.publish("transfersRange", function (range) {
+Meteor.publish("transfersRange", function (search, limit, posted, range) {
+  check(search, Match.Maybe(String));
+  check(limit, Match.Maybe(Number));
+  check(posted, Match.OneOf(null, "_true", "_false"));
   check(range, {
     start:   Match.Optional( String ),
     end:   Match.Optional( String )
   });
 
-  if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
+  if (Roles.userIsInRole(this.userId, ['super-admin', 'admin', 'manager'])) {
 
-    if(range && range.start){
+    logger.info("search: ", search,
+      "limit: ", limit,
+      "posted: ", posted,
+      "range: ", range);
+    let searchValue;
+    if (search && !isNaN(search)) {
+      searchValue = { 'amount': search * 100 }
+    } else {
+      console.log("ID: ", search);
+      let thisSearch = search ? search : '';
+      searchValue = { 'id': { $regex:  thisSearch} };
+    }
+    const limitValue = limit ? limit : 0;
+    const options = {
+      sort: {date: -1},
+      limit: limitValue,
+      fields: {
+        amount:           1,
+        amount_reversed:  1,
+        created:          1,
+        date:             1,
+        id:               1,
+        metadata:         1,
+        status:           1
+      }
+    };
+
+    if (posted === "_true") {
+      posted = true;
+    } else {
+      posted = undefined;
+    }
+    /*if(range && range.start){*/
       let transferStart = Number(moment(new Date(range.start)).format('X'));
       let transferEnd = Number(moment(new Date(range.end)).format('X'));
 
       logger.info(transferStart);
       logger.info(transferEnd);
 
-      return Transfers.find({$and: [{ date: { $lte: transferEnd } }, { date: { $gte: transferStart } }]}, {
-        sort: { date: -1 }
-      });
-    } else {
+      return Transfers.find({$and: [
+        { date: { $gte: transferStart } },
+        { date: { $lte: transferEnd } },
+        { 'metadata.posted': posted },
+        searchValue
+        ]},
+        { options },
+      );
+    /*} else {
       return Transfers.find({},
         { sort: { date: -1 } }
       );
-    }
+    }*/
   } else {
     this.ready();
   }

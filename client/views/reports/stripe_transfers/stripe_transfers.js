@@ -1,7 +1,48 @@
-/*****************************************************************************/
-/* StripeTransfers: Event Handlers */
-/*****************************************************************************/
+import { setDocHeight, updateSearchVal } from '/client/imports/miscFunctions.js';
+
+Template.StripeTransfers.onCreated(function () {
+  Session.set("documentLimit", 10);
+
+  // Setup the range for this month if no previous session is set for "transferRange"
+  if(!Session.get("transferRange")){
+    Session.setDefault("transferRange", {start: moment().startOf('month').format("YYYY-MM-DD"), end: moment().endOf("month").format("YYYY-MM-DD")});
+  }
+
+  // Use self.subscribe with the data context reactively
+  this.autorun(()=> {
+    this.subscribe("transfersRange",
+      Session.get("searchValue"),
+      Session.get("documentLimit"),
+      Session.get("posted"),
+      Session.get("transferRange"));
+  });
+});
+
+Template.StripeTransfers.onDestroyed(function () {
+  Session.delete("searchValue");
+  Session.delete("documentLimit");
+  $(window).unbind('scroll');
+});
+
 Template.StripeTransfers.events({
+  'change #filter-posted'(e){
+    console.log("Changes");
+    const checked = $(e.currentTarget).is(':checked');
+    if (checked) {
+      Session.set("posted", "_true");
+    } else {
+      Session.set("posted", "_false");
+    }
+  },
+  'keyup, change .search': _.debounce(function () {
+    updateSearchVal();
+  }, 300),
+  'click .clear-button'() {
+    $(".search").val("").change();
+    Session.set("searchValue", "");
+    Session.set("documentLimit", 10);
+    Session.set("posted", "_false");
+  },
   'click .clickable_row': function(){
     Router.go('/transfers/' + this.id);
   },
@@ -72,25 +113,16 @@ Template.StripeTransfers.helpers({
   }
 });
 
-/*****************************************************************************/
-/* StripeTransfers: Lifecycle Hooks */
-/*****************************************************************************/
-Template.StripeTransfers.onCreated(function () {
-
-  // Setup the range for this month if no previous session is set for "transferRange"
-  if(!Session.get("transferRange")){
-    Session.setDefault("transferRange", {start: moment().startOf('month').format("YYYY-MM-DD"), end: moment().endOf("month").format("YYYY-MM-DD")});
-  }
-  let self = this;
-
-  // Use self.subscribe with the data context reactively
-  self.autorun(function () {
-    let transferRange = Session.get("transferRange");
-    self.subscribe("transfersRange", transferRange);
-  });
-});
 
 Template.StripeTransfers.onRendered(function () {
+  setDocHeight();
+  let posted = Iron.Location.get().queryObject && Iron.Location.get().queryObject.posted;
+  if(posted === "_true") {
+    $("#filter-posted").prop( "checked", true );
+  } else {
+    $("#filter-posted").prop( "checked", false );
+  }
+  $( "[data-toggle='popover']" ).popover({html: true});
 
   $('input[name="daterange"]').daterangepicker({
     ranges: {
@@ -108,3 +140,10 @@ Template.StripeTransfers.onRendered(function () {
     Session.set( "transferRange", {start: picker.startDate.format('YYYY-MM-DD'), end: picker.endDate.format('YYYY-MM-DD')} );
   });
 });
+
+/* TODO:
+Add search value to subscription
+Change subscription to account for searching
+Setup clear button to clear the search and set the range back to
+ Session.set( "transferRange", {start: picker.startDate.format('YYYY-MM-DD'), end: picker.endDate.format('YYYY-MM-DD')} );
+ */

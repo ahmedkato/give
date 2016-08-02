@@ -10,11 +10,11 @@ function getDocHeight() {
 function updateSearchVal(){
   let searchValue = $(".search").val();
 
-  if (searchValue) {
+  if (searchValue || searchValue === "") {
     // Remove punctuation and make it into an array of words
     searchValue = searchValue
-      .replace( /[^\w\s]|_/g, "" )
-      .replace( /\s+/g, " " );
+      .replace(/[,\/#!$%\^&\*;:{}=\`~()]/g,"")
+      .replace(/\s/g,"");
 
     Session.set( "searchValue", searchValue );
     Session.set( "documentLimit", 0 );
