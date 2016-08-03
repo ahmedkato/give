@@ -30,19 +30,20 @@ function onFormSuccess() {
 function getAdjustmentAmount(id, trip, fundraiser) {
   let trip_id = trip._id;
   let deadline_id = id;
+  let tripDeadlines = trip.deadlines;
+  let fundraiserTrips = fundraiser.trips;
 
-  let deadlineElementPosition = trip.deadlines
+  let deadlineElementPosition = tripDeadlines
     .map(function(item) {return item.id; }).indexOf(deadline_id);
 
-  let tripElementPosition = fundraiser.trips
+  let tripElementPosition = fundraiserTrips
     .map(function(item) {return item.id; }).indexOf(trip_id);
 
-  if (fundraiser && tripElementPosition &&
-    fundraiser.trips && fundraiser.trips[tripElementPosition] &&
-    fundraiser.trips[tripElementPosition].deadlines &&
-    fundraiser.trips[tripElementPosition].deadlines[deadlineElementPosition] &&
-    fundraiser.trips[tripElementPosition].deadlines[deadlineElementPosition].amount) {
-    return fundraiser.trips[tripElementPosition].deadlines[deadlineElementPosition].amount;
+  if (fundraiser && fundraiserTrips && fundraiserTrips[tripElementPosition] &&
+    fundraiserTrips[tripElementPosition].deadlines &&
+    fundraiserTrips[tripElementPosition].deadlines[deadlineElementPosition] &&
+    fundraiserTrips[tripElementPosition].deadlines[deadlineElementPosition].amount){
+    return fundraiserTrips[tripElementPosition].deadlines[deadlineElementPosition].amount;
   }
   return '0';
 }
@@ -219,8 +220,12 @@ Template.TripAdmin.helpers({
 
     let deadlineAmount = this.amount;
 
+    //console.log(deadlineAmount);
+    console.log(this.id, trip, fundraiser);
     let adjustment = getAdjustmentAmount(this.id, trip, fundraiser);
-    return Number(deadlineAmount) + Number(adjustment);
+    //console.log(adjustment);
+    //console.log(Number(deadlineAmount) + Number(adjustment));
+    return (Number(deadlineAmount) + Number(adjustment));
   },
   deadlineAdjustmentValue() {
     const parent = Template.parentData(1);
