@@ -29,9 +29,9 @@ Template.StripeTransfers.events({
     console.log("Changes");
     const checked = $(e.currentTarget).is(':checked');
     if (checked) {
-      Session.set("posted", "_true");
+      Session.set("posted", "true");
     } else {
-      Session.set("posted", "_false");
+      Session.set("posted", "false");
     }
   },
   'keyup, change .search': _.debounce(function () {
@@ -59,7 +59,6 @@ Template.StripeTransfers.events({
       checkbox_state = 'true';
     }
 
-
     Meteor.call("toggle_post_transfer_metadata_state", transfer_id,
       checkbox_state, function(err, res){
       if (err){
@@ -73,9 +72,6 @@ Template.StripeTransfers.events({
   }
 });
 
-/*****************************************************************************/
-/* StripeTransfers: Helpers */
-/*****************************************************************************/
 Template.StripeTransfers.helpers({
   transfer: function () {
     return Transfers.find( {}, {
@@ -110,6 +106,13 @@ Template.StripeTransfers.helpers({
     } else {
       return '';
     }
+  },
+  isChecked(){
+    let checked = Session.equals( "posted", "true" );
+    if( checked === true ) {
+      return 'checked';
+    }
+    return;
   }
 });
 
@@ -140,10 +143,3 @@ Template.StripeTransfers.onRendered(function () {
     Session.set( "transferRange", {start: picker.startDate.format('YYYY-MM-DD'), end: picker.endDate.format('YYYY-MM-DD')} );
   });
 });
-
-/* TODO:
-Add search value to subscription
-Change subscription to account for searching
-Setup clear button to clear the search and set the range back to
- Session.set( "transferRange", {start: picker.startDate.format('YYYY-MM-DD'), end: picker.endDate.format('YYYY-MM-DD')} );
- */

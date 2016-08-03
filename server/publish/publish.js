@@ -253,7 +253,7 @@ Meteor.publish("transfers", function (id) {
 Meteor.publish("transfersRange", function (search, limit, posted, range) {
   check(search, Match.Maybe(String));
   check(limit, Match.Maybe(Number));
-  check(posted, Match.OneOf(null, "_true", "_false"));
+  check(posted, Match.OneOf(null, "true", "false"));
   check(range, {
     start:   Match.Optional( String ),
     end:   Match.Optional( String )
@@ -288,31 +288,26 @@ Meteor.publish("transfersRange", function (search, limit, posted, range) {
       }
     };
 
-    if (posted === "_true") {
-      posted = true;
+    if (posted === "true") {
+      console.log(posted);
+      postedValue = { 'metadata.posted': posted }
     } else {
-      posted = undefined;
+      postedValue = { $or: [{'metadata.posted': posted }, {'metadata.posted': undefined }] };
     }
-    /*if(range && range.start){*/
-      let transferStart = Number(moment(new Date(range.start)).format('X'));
-      let transferEnd = Number(moment(new Date(range.end)).format('X'));
+    let transferStart = Number(moment(new Date(range.start)).format('X'));
+    let transferEnd = Number(moment(new Date(range.end)).format('X'));
 
-      logger.info(transferStart);
-      logger.info(transferEnd);
+    logger.info(transferStart);
+    logger.info(transferEnd);
 
-      return Transfers.find({$and: [
-        { date: { $gte: transferStart } },
-        { date: { $lte: transferEnd } },
-        { 'metadata.posted': posted },
-        searchValue
-        ]},
-        { options },
-      );
-    /*} else {
-      return Transfers.find({},
-        { sort: { date: -1 } }
-      );
-    }*/
+    return Transfers.find({$and: [
+      { date: { $gte: transferStart } },
+      { date: { $lte: transferEnd } },
+      postedValue,
+      searchValue
+      ]},
+      { options },
+    );
   } else {
     this.ready();
   }

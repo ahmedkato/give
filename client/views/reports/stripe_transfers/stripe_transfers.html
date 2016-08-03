@@ -45,6 +45,7 @@
                             <th>Date</th>
                             <th>Stipre id</th>
                             <th>Amount</th>
+                            <th>Transfered to</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -58,6 +59,7 @@
                                 <td class="change-td-padding clickable_row">{{transfer_date}}</td>
                                 <td class="change-td-padding clickable_row">{{id}}</td>
                                 <td class="clickable_row">${{twoDecimalPlaces amount}}</td>
+                                <td class="clickable_row">last 4 - {{bank_account.last4}}</td>
                                 <td class="clickable_row">{{capitalize status}}</td>
                             </tr>
                         {{/each}}
