@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Give by c316</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Give</h1>
+      <h2 class="project-tagline">A donation platform using Stripe and DonorTools</h2>
+      <a href="https://github.com/c316/give" class="btn">View on GitHub</a>
+      <a href="https://github.com/c316/give/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/c316/give/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <p><a href="https://www.codacy.com/app/c316/give"><img src="https://www.codacy.com/project/badge/cd0a18c7433547279f5409d4ec3297c1" alt="Codacy Badge"></a></p>
+
+<p>An opinionated donation app for Non-profits using <a href="https://stripe.com">Stripe</a> 
+written in <a href="https://meteor.com">Meteor</a>.</p>
+
+<h2>
+<a id="about" class="anchor" href="#about" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>About</h2>
+
+<p>Give is used by non-profits to take donations using Stripe. Which includes Credit/Debit Cards, ACH. </p>
+
+<h2>
+<a id="problems-addressed" class="anchor" href="#problems-addressed" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Problems addressed</h2>
+
+<p>Non-profits want to allow anyone to give with or without an account. 
+However, we also want to give them credit for doing so. This is a problem. 
+How do we track givers while letting them give without an account? The answer is;
+ we do all the hard work. First, we will end up with a lot of customers in Stripe
+  since each time a person gives without logging in we can't know if they've given before.
+Second, we want to do our best to make sure we don't have duplicates in our CMS,
+ so we search backwards and forwards to see if we can find them there.</p>
+
+<p>If we think this is a new person, we insert them into the CMS as a new person 
+and send off an email to the support admin letting them know we just inserted a 
+new person. Chances are we'll end up with newly inserted people who really shouldn't
+ be new people at all. Users misspell things, they change their address and phone
+  numbers and sometimes give under shortened version of their names. (and these 
+  are just a few reasons we'll still get duplicates)</p>
+
+<h2>
+<a id="setup" class="anchor" href="#setup" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Setup</h2>
+
+<p>Once you have this repo cloned you'll want to setup a settings.json file. This 
+is where your Donor Tools and Stripe```` settings go (you can use the <a href="/#settings">example</a> below 
+to get started) as well as your organization's domain name and other settings. </p>
+
+<p>Before running this app edit the server/fixtures.js file and change the email 
+address to your address and a set a temporary password there too.</p>
+
+<p>Run the app with <code>meteor --settings settings.json</code></p>
+
+<p>Once you are logged in you should see the "Start Here!" label on the "Organization 
+Info." button. Click that and complete the form.</p>
+
+<p>Each time you complete a section, more of the app is unlocked.</p>
+
+<p>After the Organization Info. form is completed you'll see the Settings and Giving 
+Options buttons. </p>
+
+<p>You'll want to complete the Settings form first, then the Giving Options. The 
+Giving Options section pulls in all the Donor Tools funds so that you can use 
+them to create all the giving options you want donors to be able to choose. </p>
+
+<p>In order to use the <strong>image uploading</strong> you'll need to make sure that the user running
+the meteor process on your server can make changes to the .uploads folder. You'll
+also need to create the <code>thumbnailSmall</code> and <code>thumbnailBig</code> folders inside the
+<code>.uploads</code> directory. 
+<code>chown -R meteoruser /opt/give/.uploads /opt/give/.uploads/thumbnailSmall /opt/give/.uploads/thumbnailBig</code></p>
+
+<h2>
+<a id="webhooks" class="anchor" href="#webhooks" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Webhooks</h2>
+
+<p>In order to get updates about charges, transfers and many other resources via Stripe 
+you'll need to point a webhook in the 
+<a href="https://dashboard.stripe.com/dashboard">Stripe dashboard</a> to 
+https://yourSiteURL/webhooks/stripe</p>
+
+<h2>
+<a id="todo" class="anchor" href="#todo" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>TODO</h2>
+
+<p>Move these to the configuration and out of the settings.json file</p>
+
+<p>newStuffVersion</p>
+
+<p>Document Services
+  Papertrail
+  TrackJS
+  Kadira
+  Heap</p>
+
+<p>Document Setup process</p>
+
+<p>Document Limitations of Integration with Stripe (No micro-deposit or Plaid at the moment)</p>
+
+<h2>
+<a id="example" class="anchor" href="#example" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example</h2>
+
+<p><a href="https://give.trashmountain.com/landing">https://give.trashmountain.com/landing</a></p>
+
+<p>This is a live giving page, which is being used by Trash Mountain Project. </p>
+
+<h2>
+<a id="settings" class="anchor" href="#settings" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Settings</h2>
+
+<p>Here is an example settings.json file. Each of the fields are required.</p>
+
+<pre><code>{
+  "dev": "****TEST****", // If you are using this settings.json file on the dev side include this text, if on the live side, leave it blank.
+  "donor_tools_user": "",
+  "donor_tools_password": "",
+  "stripe": {
+    "secret": "Secret Stripe key"
+  },
+  "public": {
+    "dev": "****TEST****", // If you are using this settings.json file on the dev side include this text, if on the live side, leave it blank.
+    "newStuffVersion": "e.g. '0.9' This is used to show the user new updates and then increment those updates.", // This is being deprecated
+    "org_domain": "Your org domain, for example 'trashmountain.com'",
+    "stripe_publishable: "publishable Stripe Key",
+  }
+}
+</code></pre>
+
+<h2>
+<a id="more" class="anchor" href="#more" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>More</h2>
+
+<p>These are the integrations built into Give already</p>
+
+<p>Payment Processing, including recurring gifts - Stripe</p>
+
+<p>Mandrill (MailChimp's transactional email service) - Transactional emails (used for receipting and failure notices)</p>
+
+<p>DonorTools, a CRM for non-profits.</p>
+
+<p>You will need an account with each of these providers in order to use Give. 
+The accounts are free up to a point. Stripe doesn't charge you a monthly fee, 
+only a fee per transaction (2.9% + .30 per transaction for credit/debit cards). 
+ACH fees are $0.80 per charge and there is no fee for transfers to your own bank account after charging the customer. </p>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h2>
+
+<p>MIT</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/c316/give">Give</a> is maintained by <a href="https://github.com/c316">c316</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
