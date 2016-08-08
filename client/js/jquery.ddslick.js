@@ -18,7 +18,7 @@
 
     var methods = {},
 
-    //Set defauls for the control
+    //Set defaults for the control
     defaults = {
         data: [],
         keepJSONItemsOnTop: false,
@@ -104,9 +104,17 @@
                     ddOptions = obj.find('.dd-options');
 
                 //Set widths
-                ddOptions.css({ width: options.width });
-                ddSelect.css({ width: options.width, background: options.background });
-                obj.css({ width: options.width });
+                let currentWidth = $(window).width();
+                if (currentWidth <= 350) {
+                  ddOptions.css({ width: (options.width * .75) });
+                  ddSelect.css({ width: (options.width * .75) , background: options.background });
+                  obj.css({ width: (options.width * .75)  });
+                } else {
+                  ddOptions.css({ width: options.width });
+                  ddSelect.css({ width: options.width, background: options.background });
+                  obj.css({ width: options.width });
+                }
+
 
                 //Set height
                 if (options.height != null)
