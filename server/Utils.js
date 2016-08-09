@@ -300,17 +300,25 @@ Utils = {
 
       get_dt_donation.data[0].donation.payment_status = 'refunded';
       get_dt_donation.data[0].donation.splits[0].amount_in_cents = 0;
-      let dateNow = moment( new Date() ).format( "YYYY/MM/DD hh:mma" );
+      let createdDate = moment.unix( event_object.data.object.created ).format( "YYYY/MM/DD hh:mma" );
       let refundedAmount = event_object.data.object.amount_refunded/100;
 
-      let donationMemo = "The charge was refunded on " + dateNow +
-        ". The original charge amount was " + refundedAmount;
+      let donationMemo = "The charge was refunded on " + createdDate +
+        ". The original charge amount was $" + refundedAmount;
       get_dt_donation.data[0].donation.memo = donationMemo;
     } else {
       get_dt_donation.data[0].donation.payment_status = event_object.data.object.status;
     }
 
     if( event_object.data.object.status === 'failed' ) {
+      get_dt_donation.data[0].donation.splits[0].amount_in_cents = 0;
+      let createdDate = moment.unix( event_object.data.object.created ).format( "YYYY/MM/DD hh:mma" );
+      let failedAmount = event_object.data.object.amount/100;
+
+      let donationMemo = "The charge was refunded on " + createdDate +
+        ". The original charge amount was $" + failedAmount + ". The failed reason was " +
+        event_object.data.object.failure_message;
+      get_dt_donation.data[0].donation.memo = donationMemo;
       // The failed type in Donor Tools
       get_dt_donation.data[0].donation.donation_type_id = config.Settings.DonorTools.failedDonationTypeId;
     }
