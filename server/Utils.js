@@ -315,9 +315,9 @@ Utils = {
       let createdDate = moment.unix( event_object.data.object.created ).format( "YYYY/MM/DD hh:mma" );
       let failedAmount = event_object.data.object.amount/100;
 
-      let donationMemo = "The charge was refunded on " + createdDate +
-        ". The original charge amount was $" + failedAmount + ". The failed reason was " +
-        event_object.data.object.failure_message;
+      let donationMemo = "The charge failed on " + createdDate +
+        ". The original charge amount was $" + failedAmount + '. The failed reason was "' +
+        event_object.data.object.failure_message + '"git ';
       get_dt_donation.data[0].donation.memo = donationMemo;
       // The failed type in Donor Tools
       get_dt_donation.data[0].donation.donation_type_id = config.Settings.DonorTools.failedDonationTypeId;
