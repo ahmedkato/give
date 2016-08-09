@@ -101,9 +101,17 @@ Template.Gifts.helpers({
   charges() {
     return Charges.find({}, {sort: {created: -1}});
   },
-  refunded(){
+  status(){
     if (this.refunded) {
       return 'refunded';
+    } else if (this.status === 'failed'){
+      return 'failed';
+    }
+    return;
+  },
+  failureMessage(){
+    if(this.status === 'failed'){
+      return this.failure_message;
     }
     return;
   },

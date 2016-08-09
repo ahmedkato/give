@@ -43,7 +43,7 @@
                     <tbody>
                     {{#if charges}}
                         {{#each charges}}
-                            <tr class="{{refunded}}">
+                            <tr class="{{refunded}}" title="{{failureMessage}}">
                                 {{#with thisCustomer}}
                                     <td>{{name}}</td>
                                 {{/with}}
