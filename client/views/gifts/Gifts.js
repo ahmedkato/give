@@ -109,6 +109,12 @@ Template.Gifts.helpers({
     }
     return;
   },
+  refunded(){
+    if (this.refunded) {
+      return 'refunded';
+    }
+    return;
+  },
   failureMessage(){
     if(this.status === 'failed'){
       return this.failure_message;
