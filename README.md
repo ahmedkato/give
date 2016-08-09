@@ -31,7 +31,7 @@ new person. Chances are we'll end up with newly inserted people who really shoul
 ## Setup
 
 Once you have this repo cloned you'll want to setup a settings.json file. This 
-is where your Donor Tools and Stripe```` settings go (you can use the [example](/#settings) below 
+is where your Donor Tools and Stripe settings go (you can use the [example](/#settings) below 
 to get started) as well as your organization's domain name and other settings. 
 
 Before running this app edit the server/fixtures.js file and change the email 
