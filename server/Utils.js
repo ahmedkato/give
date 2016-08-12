@@ -61,11 +61,11 @@ Utils = {
     return stripe_customer;
   },
   // Check donation form entries
-  check_update_customer_form ( form, dt_persona_id ) {
+  check_update_customer_form ( form, dt_persona_id, updateThisUser ) {
     check( form, {
       'address': {
         'address_line1': String,
-        'address_line2': Match.Optional( String ),
+        'address_line2': Match.Maybe( String ),
         'city':          String,
         'state':         String,
         'postal_code':   String
@@ -73,6 +73,7 @@ Utils = {
       'phone':   String
     } );
     check( dt_persona_id, Number );
+    check(updateThisUser, Match.Maybe(String))
   },
   // Check donation form entries
   checkFormFields(form) {
@@ -176,9 +177,15 @@ Utils = {
     }
     return "Got all funds history for the trips listed";
   },
-  update_dt_account( form, dt_persona_id ) {
+  update_dt_account( form, dt_persona_id, updateThisUser ) {
     logger.info( "Inside update_dt_account." );
     let config = ConfigDoc();
+    let id;
+    if (updateThisUser) {
+      id = updateThisUser;
+    } else {
+      id = Meteor.userId();
+    }
 
     let get_dt_persona = Utils.http_get_donortools(
       '/people/' + dt_persona_id + '.json' );
@@ -216,7 +223,7 @@ Utils = {
       } );
 
     var insertedPersonaInfo = Meteor.users.update( {
-        _id: Meteor.userId(),
+        _id: id,
         'persona_info.id': dt_persona_id
       },{ $set: {
           'persona_info.$': update_persona.data.persona
@@ -1091,7 +1098,7 @@ Utils = {
     customers.forEach( function ( customer_id ) {
       console.log( customer_id );
 
-      let stripeCustomerUpdate = StripeFunctions.stripe_update( 'customers',
+      StripeFunctions.stripe_update( 'customers',
         'update', customer_id, '', {
           "metadata": {
             "city":          form.address.city,

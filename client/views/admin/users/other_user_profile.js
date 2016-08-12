@@ -165,16 +165,19 @@ Template.OtherUserProfile.events({
       phone:                  $('#phone').val()
     };
 
-    var loadingButton = $(':submit').button('loading');
+    $(':submit').button('loading');
 
-    Meteor.call('update_customer', fields, Number(Session.get('activeTab')), function(error, result){
+    Meteor.call('update_customer',
+      fields,
+      Number(Session.get('activeTab')),
+      Session.get('params.userID'), function(error, result){
       if(result){
         $('#modal_for_address_change').modal('hide');
-        loadingButton.button("reset");
+        $(':submit').button("reset");
         Bert.alert("This user is being updated now.", "success");
       } else{
         console.log(error);
-        loadingButton.button("reset");
+        $(':submit').button("reset");
         Bert.alert("That didn't work. Please try again. If it still doesn't work, " +
           "then please let us know, we'll check into this error." + error, "danger");
       }

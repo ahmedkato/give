@@ -122,24 +122,27 @@ Meteor.methods({
         throw new Meteor.Error(error, e._id);
       }
   },
-  update_customer: function(form, dt_persona_id) {
+  update_customer: function(form, dt_persona_id, updateThisUser) {
     logger.info( "Started method update_customer." );
+    console.log(form, dt_persona_id, updateThisUser);
 
     if (Meteor.userId()) {
+      console.log("Yes, there is a userId");
+
       // Check the client side form fields with the Meteor 'check' method
-      Utils.check_update_customer_form(form, dt_persona_id);
+      Utils.check_update_customer_form(form, dt_persona_id, updateThisUser);
 
       // Setup a function for updating the accounts
-      const update_accounts = function(form, dt_persona_id){
+      const update_accounts = function(form, dt_persona_id, updateThisUser){
         // Send the user's contact updates to stripe
         Utils.update_stripe_customer( form, dt_persona_id );
         // Send the user's contact updates to Donor Tools
-        Utils.update_dt_account( form, dt_persona_id );
+        Utils.update_dt_account( form, dt_persona_id, updateThisUser );
       };
 
       // if admin proceed without checking dt_persona association
       if (Roles.userIsInRole(Meteor.userId(), ['admin'])) {
-        update_accounts(form, dt_persona_id);
+        update_accounts(form, dt_persona_id, updateThisUser);
         return 'Updating now';
       } else {
         // Check that this user should be able to modify this dt_persona
@@ -147,7 +150,9 @@ Meteor.methods({
         console.log(this_user.persona_info);
         if(_.findWhere(this_user.persona_info, {id: dt_persona_id})){
           console.log( 'yes' );
+          const _id = Meteor.userId();
           update_accounts(form, dt_persona_id);
+          return "Updating now'";
         } else {
           logger.error("This user doesn't have the dt_persona_id that was passed inside their persona_info array");
           return;

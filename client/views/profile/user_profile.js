@@ -182,7 +182,7 @@ Template.UserProfile.events({
        $('#modal_for_address_change').modal('hide');
        $(':submit').button("reset");
        Bert.alert("We have updated your profile, thanks.", "success");
-     } else{
+     } else {
        console.log(error);
        $(':submit').button("reset");
        Bert.alert("That didn't work. Please try again. If it still doesn't work, " +
