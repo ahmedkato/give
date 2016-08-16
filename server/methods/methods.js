@@ -876,7 +876,7 @@ Meteor.methods({
 
     check( form, Schema.CreateUserFormSchema );
 
-    /*try {*/
+    try {
       if (Roles.userIsInRole(this.userId, ['admin', 'trips-manager'])) {
         SimpleSchema.debug = true;
 
@@ -901,10 +901,10 @@ Meteor.methods({
       } else {
         return;
       }
-    /*} catch(e) {
+    } catch(e) {
       logger.error(e);
       throw new Meteor.Error(e);
-    }*/
+    }
   },
   updateUser: function (form, _id) {
     logger.info("Started updateUser method");
@@ -1173,11 +1173,7 @@ Meteor.methods({
             }
           });
         } else {
-          if (!(Roles.userIsInRole(existingUser._id, 'super-admin') ||
-            Roles.userIsInRole(existingUser._id, 'admin') ||
-            Roles.userIsInRole(existingUser._id, 'trips-manager') )) {
-            Roles.addUsersToRoles(existingUser._id, 'trips-member');
-          }
+          Roles.addUsersToRoles(existingUser._id, 'trips-member');
         }
       }
     }
