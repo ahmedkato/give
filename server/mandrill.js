@@ -742,5 +742,67 @@ _.extend(Utils,{
       }
     };
     Utils.send_mandrill_email(data_slug, config.Services.Email.scheduled, email_address, 'Scheduled Gift');
+  },
+  /**
+   *  Send an email to a fundraiser when they are added to a campaign
+   *
+   *  @method sendFundraiserAddedEmail
+   *  @param {String} email - Email address of the fundraiser
+   *  @param {String} tripId - The ID of the trip they have been added to
+   */
+  sendFundraiserAddedEmail: function (email, tripId) {
+    let user = Meteor.users.findOne({'emails.address': email});
+
+    logger.info( "Started sendFundraiserAddedEmail with email address of: ", email);
+    let config = ConfigDoc();
+
+    if( !(config && config.Services && config.Services.Email &&
+      config.Services.Email.newFundraiser) ) {
+      logger.warn("There is no template for new fundraisers emails.");
+      return;
+    }
+
+    let auditTrailDoc = Audit_trail.findOne({
+      id: tripId,
+      emailSentTo: email,
+      category: 'Email',
+      type: 'fundraiser',
+      subtype: 'setup'
+    });
+    if (auditTrailDoc) {
+      logger.info("Already have this record in the audit trail, escaping function");
+      return;
+    }
+
+    let event = {
+      id: tripId,
+      emailSentTo: email,
+      type: 'fundraiser setup',
+      category: 'Email',
+      userId: user._id,
+      relatedCollection: 'Fundraisers',
+      page: Meteor.absoluteUrl("trips/admin/", tripId)
+    };
+    Utils.audit_event(event);
+
+
+    let data_slug = {
+      "template_name": config.Services.Email.newFundraiser,
+      "template_content": [
+        {}
+      ],
+      "message": {
+        "global_merge_vars":  [
+              {
+                "name":    "URL",
+                "content": Meteor.absoluteUrl()
+              }, {
+                "name":    "DEV",
+                "content": Meteor.settings.dev
+              }
+        ]
+      }
+    };
+    Utils.send_mandrill_email(data_slug, config.Services.Email.newFundraiser, email, 'Welcome');
   }
 });

@@ -1146,6 +1146,7 @@ Meteor.methods({
       doc.addedBy = this.userId;
       if (Fundraisers.findOne({email: doc.email})) {
         let updatedFundraiser = Fundraisers.update({email: doc.email}, {$push: {trips: doc.trips[0]}});
+        // TODO: send new fundraiser email here
         return updatedFundraiser;
       } else {
         Fundraisers.insert(doc);
@@ -1169,11 +1170,13 @@ Meteor.methods({
             } else {
               logger.info("createUserMethod returned successful with this message:");
               logger.info(res);
+              Utils.sendFundraiserAddedEmail(doc.email, doc.trips[0]);
               return res;
             }
           });
         } else {
           Roles.addUsersToRoles(existingUser._id, 'trips-member');
+          Utils.sendFundraiserAddedEmail(doc.email, doc.trips[0]);
         }
       }
     }

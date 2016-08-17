@@ -376,6 +376,11 @@ Schema.Services = new SimpleSchema({
     label: "The template name of the scheduled email.",
     optional: true
   },
+  "Email.newFundraiser": {
+    type: String,
+    label: "The template name of an email notice for new fundraisers.",
+    optional: true
+  },
   Kadira: {
     type: Object,
     optional: true,
