@@ -11,26 +11,46 @@ function getAmountRaised(name) {
   return 0;
 }
 
-function getAdjustmentAmount(id) {
-  let parent = Template.parentData(1);
-  let parentParent = Template.parentData(2);
-  let trip_id = parent._id;
+function getAdjustmentAmount(id, trip, fundraiser) {
+  let trip_id = trip._id;
   let deadline_id = id;
+  if (!trip || !fundraiser) return;
 
-  let deadlineElementPosition = parent.deadlines
+  let deadlineElementPosition = trip.deadlines
     .map(function(item) {return item.id; }).indexOf(deadline_id);
 
-  let tripElementPosition = parentParent.trips
+  let tripElementPosition = fundraiser.trips
     .map(function(item) {return item.id; }).indexOf(trip_id);
 
-  if (parentParent &&
-    parentParent.trips && parentParent.trips[tripElementPosition] &&
-    parentParent.trips[tripElementPosition].deadlines &&
-    parentParent.trips[tripElementPosition].deadlines[deadlineElementPosition] &&
-    parentParent.trips[tripElementPosition].deadlines[deadlineElementPosition].amount) {
-    return Number(parentParent.trips[tripElementPosition].deadlines[deadlineElementPosition].amount);
+  if (fundraiser &&
+    fundraiser.trips && fundraiser.trips[tripElementPosition] &&
+    fundraiser.trips[tripElementPosition].deadlines &&
+    fundraiser.trips[tripElementPosition].deadlines[deadlineElementPosition] &&
+    fundraiser.trips[tripElementPosition].deadlines[deadlineElementPosition].amount) {
+    return Number(fundraiser.trips[tripElementPosition].deadlines[deadlineElementPosition].amount);
   }
   return '0';
+}
+
+function getDeadlineInfo(){
+  let today = moment();
+  let tripId = Router.current().params._id;
+  if (Trips.findOne()) {
+    let allDeadlines = Trips.findOne( { _id: tripId } )
+      .deadlines;
+    let lastDeadlineDate = allDeadlines
+      .map( ( deadline ) => {
+        return true;
+      } );
+    let deadlinesCount = allDeadlines
+      .length;
+    let pastDeadlines = allDeadlines
+      .filter( ( deadline ) => {
+        if( today.diff( deadline.dueDate ) > 0 ) return true;
+      } );
+
+    return { allDeadlines, lastDeadlineDate, pastDeadlines, deadlinesCount };
+  }
 }
 
 Template.TripMember.onRendered(function () {
@@ -101,6 +121,8 @@ Template.TripMember.helpers({
     return raised;
   },
   amountRaisedPercent(amountRaised){
+    // TODO: Fix this for those who have a trip cost lower then the deadline total cost
+    // Thinking of Kyle N.
     let deadlines = Trips.findOne() && Trips.findOne().deadlines;
     if (!deadlines){
       return;
@@ -201,12 +223,8 @@ Template.TripMember.helpers({
   },
   adjustedAmount() {
     let deadlineAmount = this.amount;
-    let adjustment = getAdjustmentAmount(this.id);
+    let adjustment = getAdjustmentAmount(this.id, Template.parentData(1), Template.parentData(2));
     return Number(deadlineAmount) + Number(adjustment);
-  },
-  deadlineAdjustmentValue() {
-    let adjustmentValue = getAdjustmentAmount(this.id);
-    return adjustmentValue;
   },
   deadlineDue() {
     let tripId = Router.current().params._id;
@@ -214,6 +232,76 @@ Template.TripMember.helpers({
     let trip = Trips.findOne({_id: tripId});
     let tripDeadline = _.findWhere(trip.deadlines, {id: deadlineId});
     return tripDeadline && tripDeadline.dueDate;
+  },
+  deadlineData() {
+    let deadlineInfo = getDeadlineInfo();
+    let trip = Trips.findOne();
+    let name = this.fname + " " + this.lname;
+    let totalLeftToRaise, deadlineDate, totalDue;
+
+    // Used to add values in array to get a total
+    function add(a, b) {
+      return Number(a) + Number(b);
+    }
+
+    // Return higher of the two moments or numbers
+    function returnGreater(a, b) {
+      return a > b ? a : b;
+    }
+
+    if (deadlineInfo.pastDeadlines === 0) {
+      let firstDeadline = deadlineInfo.allDeadlines[0];
+      totalLeftToRaise = add(getAdjustmentAmount(firstDeadline.id, trip, this), firstDeadline.amount);
+      deadlineDate = firstDeadline.dueDate;
+    } else {
+      let deadlineDifference = (deadlineInfo.deadlinesCount - deadlineInfo.pastDeadlines.length);
+      let allDeadlinesShouldBeUsed = (deadlineDifference <= 1);
+      let includeDeadlinesUpToIndex = allDeadlinesShouldBeUsed ? deadlineInfo.deadlinesCount : deadlineDifference + 1;
+
+      let relevantDeadlines = deadlineInfo
+        .allDeadlines
+        .filter((deadline, index)=>{
+          if(index <= includeDeadlinesUpToIndex){
+            return deadline;
+          }
+          return 0;
+        });
+
+      let relevantDeadlinesTotalAmount = relevantDeadlines
+        .map((deadline)=>{
+          return add(getAdjustmentAmount(deadline.id, trip, this), deadline.amount)
+        })
+        .reduce(add, 0);
+
+      deadlineDate = relevantDeadlines
+        .map((deadline)=> {
+          return deadline.dueDate;
+        })
+        .reduce(returnGreater, 0);
+
+      totalLeftToRaise = relevantDeadlinesTotalAmount - getAmountRaised(name);
+    }
+
+    let allDeadlinesTotalAmount = deadlineInfo
+      .allDeadlines
+      .map((deadline)=>{
+        return add(getAdjustmentAmount(deadline.id, trip, this), deadline.amount)
+      })
+      .reduce(add, 0);
+
+    let lastDueDate = deadlineInfo
+      .allDeadlines
+      .map((deadline)=> {
+        return deadline.dueDate;
+      })
+      .reduce(returnGreater, 0);
+
+    return {
+      amount: totalLeftToRaise.toFixed(2),
+      date: deadlineDate,
+      totalDue: (allDeadlinesTotalAmount - getAmountRaised(name)),
+      lastDueDate: lastDueDate
+    };
   }
 });
 

@@ -48,8 +48,21 @@
                 <div class="row">
                     <div class="col-md-12">
                         {{#with participant}}
+                            <div class="row text-center">
+                                <div class="col col-md-4">
+                                    <h3>Amount Raised: ${{amountRaised}}</h3>
+                                </div>
+                                <div class="col col-md-4">
+                                    <h2><strong>Amount Due By {{formatDateUTC deadlineData.date}}<br>
+                                        ${{deadlineData.amount}}</strong></h2>
+                                </div>
+                                <div class="col col-md-4">
+                                    <h3>Total Due By {{formatDateUTC deadlineData.lastDueDate}}<br>
+                                        ${{deadlineData.totalDue}}</h3>
+                                </div>
+                            </div>
                             <div class="text-center">
-                                <h3>Amount Raised: ${{amountRaised}}</h3>
+                                Progress
                             </div>
                             <div class="progress progress-bar-info">
                                 <div class="progress-bar progress-bar-success"
@@ -75,10 +88,10 @@
                                                             </th>
                                                             <th class="text-left">
                                                                 Deadline Amount
-                                                            </th>
+                                                            </th><!--
                                                             <th>
                                                                 Progress
-                                                            </th>
+                                                            </th>-->
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -93,16 +106,18 @@
                                                                 </td>
                                                                 <td>
                                                                     ${{adjustedAmount}}
-                                                                </td>
+                                                                </td><!--
                                                                 <td data-deadline-id="{{this.id}}" title="{{percentageOfDeadline}}%" value="{{percentageOfDeadline}}">
                                                                     <div class="progress progress-bar-info">
                                                                         <div class="progress-bar progress-bar-success" style="width: {{percentageOfDeadline}}%;"></div>
                                                                     </div>
-                                                                </td>
+                                                                </td>-->
                                                             </tr>
                                                         {{/each}}
                                                     {{/with}}
                                                     </tbody>
+                                                    <br>
+                                                    <br>
                                                     <thead>
                                                         <tr>
                                                             <th>Donor Name</th>
