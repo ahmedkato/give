@@ -583,6 +583,7 @@ Meteor.publishComposite("receiptCharge", function (chargeId) {
             created: 1,
             customer: 1,
             status: 1,
+            refunded: 1,
             amount: 1,
             'source.bank_name': 1,
             'source.brand': 1,

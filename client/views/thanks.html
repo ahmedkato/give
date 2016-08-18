@@ -8,11 +8,17 @@
 	<div class="container hidden-print fix-height">
 	    <div class="row vertical-center-row">
 	        <div class="col-lg-10 col-lg-offset-1 alignReceipt">
-    			{{#if successOrPendingPayment}}
-		 			{{{successOrPendingTrans}}}
-		 		{{else}}
-                    {{{failedTrans}}}
-		 		{{/if}}
+                {{#with charge}}
+                    {{#unless refunded}}
+                        {{#if successOrPendingPayment}}
+                            {{{successOrPendingTrans}}}
+                        {{else}}
+                            {{{failedTrans}}}
+                        {{/if}}
+                    {{else}}
+                        {{{refundedTrans}}}
+                    {{/unless}}
+                {{/with}}
 	        </div>
 	    </div>
 	</div>
