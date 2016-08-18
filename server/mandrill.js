@@ -280,7 +280,14 @@ _.extend(Utils,{
   },
   send_donation_email: function (recurring, id, amount, type, body, frequency, subscription) {
     /*try {*/
-      logger.info("Started send_donation_email with ID: " + id);
+      logger.info("Started send_donation_email with these parameters");
+      logger.info("recurring:", recurring);
+      logger.info("id:", id);
+      logger.info("amount:", amount);
+      logger.info("type:", type);
+      logger.info("body:", body);
+      logger.info("frequency:", frequency);
+      logger.info("subscription:", subscription);
       let config = ConfigDoc();
 
       if (config && config.Services && config.Services.Email &&
@@ -296,10 +303,6 @@ _.extend(Utils,{
         return;
       }
       var donation_cursor;
-      // TODO: check right here for the relevant document. If it exists, exit the process
-      // Then below for each different case we don't need to be checking to see if these email notices
-      // have already gone out
-
       let splitType = type.split(".");
       var auditTrailDoc = Audit_trail.findOne({relatedDoc: id, subtype: splitType[1]});
       if (auditTrailDoc) {
@@ -529,7 +532,7 @@ _.extend(Utils,{
               data_slug.message.global_merge_vars.push(
                   {
                       "name": "DonateTo",
-                      "content": Utils.getDonateToName(donation_cursor.donateTo)
+                      "content": Utils.getDonateToName(subscription_cursor.metadata.donateTo)
                   }
               );
               data_slug.message.global_merge_vars.push(

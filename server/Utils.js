@@ -652,6 +652,32 @@ Utils = {
 
     logger.info( "Persona ID is: ", customerCursor.metadata.dt_persona_id );
 
+    let amount = chargeCursor.amount;
+
+    if( chargeCursor.refunded ) {
+      logger.warn("charge is showing refunded");
+
+      amount = 0;
+      let createdDate = moment.unix( chargeCursor.created ).format( "YYYY/MM/DD hh:mma" );
+      let refundedAmount = (chargeCursor.refunds.data[0].amount/100).toFixed(2);
+
+      let donationMemo = "The charge was refunded on " + createdDate +
+        ". The original charge amount was $" + refundedAmount;
+      memo = donationMemo;
+    }
+
+    if( chargeCursor.status === 'failed' ) {
+      amount = 0;
+      let createdDate = moment.unix( chargeCursor.created ).format( "YYYY/MM/DD hh:mma" );
+      let failedAmount = (chargeCursor.amount/100).toFixed(2);
+
+      let donationMemo = "The charge failed on " + createdDate +
+        ". The original charge amount was $" + failedAmount + '. The failed reason was "' +
+        chargeCursor.failure_message;
+
+      memo = donationMemo;
+    }
+
     try {
       logger.info( "Started checking for this person in DT" );
       let checkPerson;
@@ -689,7 +715,7 @@ Utils = {
         "donation": {
           "persona_id":       customerCursor.metadata.dt_persona_id,
           "splits":           [{
-            "amount_in_cents": chargeCursor.amount,
+            "amount_in_cents": amount,
             "fund_id":         fund_id,
             "memo":            memo
           }],
@@ -858,7 +884,7 @@ Utils = {
     return;
   },
   getDonateTo(donateTo) {
-    logger.info( "Get Donate To with: " );
+    logger.info( "getDonateTo with: " );
     logger.info( donateTo );
     logger.info( "Is not a number? " + isNaN( donateTo ) );
 
@@ -879,7 +905,7 @@ Utils = {
     }
   },
   getDonateToName(donateTo) {
-    logger.info( "Get Donate To with: " );
+    logger.info( "getDonateToName with: " );
     logger.info( donateTo );
     logger.info( "Is not a number? " + isNaN( donateTo ) );
 
@@ -894,27 +920,6 @@ Utils = {
       let donorToolsNameMatch = Utils.checkForDTFundName( donateTo );
       if( donorToolsNameMatch ) {
         return DT_funds.findOne( { id: donorToolsNameMatch } ).name;
-      } else {
-        throw new Meteor.Error( 500, "Couldn't find that name in DT. Did it get changed?" );
-      }
-    }
-  },
-  getDonateTo(donateTo) {
-    logger.info( "Get Donate To with: " );
-    logger.info( donateTo );
-    logger.info( "Is not a number? " + isNaN( donateTo ) );
-
-    if( !isNaN( donateTo ) ) {
-      let donorToolsIDMatch = Utils.checkForDTFundID( donateTo );
-      if( donorToolsIDMatch ) {
-        return donorToolsIDMatch;
-      } else {
-        throw new Meteor.Error( 500, "Couldn't find that number id in DT. Did it get merged?" );
-      }
-    } else {
-      let donorToolsNameMatch = Utils.checkForDTFundName( donateTo );
-      if( donorToolsNameMatch ) {
-        return donorToolsNameMatch;
       } else {
         throw new Meteor.Error( 500, "Couldn't find that name in DT. Did it get changed?" );
       }
