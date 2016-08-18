@@ -248,7 +248,7 @@ _.extend(Utils,{
       stripeEvent.data.object.plan.interval + ") gift (amount: " +
       (stripeEvent.data.object.quantity / 100).toFixed(2) + ") that was using (a) " +
       (donateWith && donateWith.toLowerCase()) + ". The gift start date was " + start_date +
-      ". The last time this recurring gift ran was " + last_gift +
+      ". The last time this recurring gift charged was " + last_gift +
       ". The gift was canceled on " + canceled_date + '. ' +
       (canceledReason ?
       "The reason they stopped giving was '" + canceledReason + "'." :
