@@ -26,7 +26,6 @@ AutoForm.hooks({
        console.error(error);
        }
        });*/
-      console.log( "After" );
       Meteor.call( "get_dt_funds", function ( error, result ) {
         if( result ) {
           console.log( "Got all funds" );

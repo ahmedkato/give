@@ -406,6 +406,15 @@ Template.GivingOptions.helpers({
 });
 
 Template.GivingOptions.onCreated(function () {
+
+  Meteor.call("get_dt_funds", function(error, result) {
+    if (result) {
+      console.log("Got all funds");
+    } else {
+      console.error( error.message );
+    }
+  });
+
   let self = this;
   self.autorun(function() {
     self.subscribe("uploaded");
@@ -435,7 +444,6 @@ Template.GivingOptions.onRendered(function () {
       dropdownCssClass: 'dropdown-inverse',
       placeholder: "Choose one"
     });
-    //$("#testDropdown").select2('val',givingOptions[0].id);
 
     Session.set("givingOptionsChecked", givingOptions);
     let groups = _.filter( givingOptions, function(item) {
