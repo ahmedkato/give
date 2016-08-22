@@ -570,16 +570,16 @@ Utils = {
     Utils.audit_event( event );
     return newDTPerson.data.persona.id;
   },
-  insert_gift_into_donor_tools(charge_id, customer_id) {
+  insert_gift_into_donor_tools(chargeId, customer_id) {
     logger.info( "Started insert_gift_into_donor_tools" );
     let config = ConfigDoc();
     logger.info( "Config Settings:", config.Settings );
-    logger.info( "Charge_id:", charge_id, " Customer_id: ", customer_id );
+    logger.info( "chargeId:", chargeId, " Customer_id: ", customer_id );
     let chargeCursor, dt_fund, donateTo, invoice_cursor,
       fund_id, memo, source_id, newDonationResult;
     var metadata;
 
-    chargeCursor = Charges.findOne( { _id: charge_id } );
+    chargeCursor = Charges.findOne( { _id: chargeId } );
 
     const customerCursor = Customers.findOne( { _id: customer_id } );
 
@@ -590,7 +590,7 @@ Utils = {
       Audit_trail.upsert( { _id: chargeCursor._id }, { $set: { dt_donation_inserted: true } } );
     }
 
-    if( charge_id.slice( 0, 2 ) === 'ch' || charge_id.slice( 0, 2 ) === 'py' ) {
+    if( chargeId.slice( 0, 2 ) === 'ch' || chargeId.slice( 0, 2 ) === 'py' ) {
       if( chargeCursor.invoice ) {
         invoice_cursor = Invoices.findOne( { _id: chargeCursor.invoice } );
         if( invoice_cursor &&
@@ -637,7 +637,7 @@ Utils = {
     }
 
     if( !memo ) {
-      logger.error( charge_id, customer_id );
+      logger.error( chargeId, customer_id );
       logger.error( metadata );
       logger.error( "Something went wrong above, it looks like there is no metadata on this object." );
     }
@@ -699,10 +699,10 @@ Utils = {
                       " to Donor Tools, but for some reason I wasn't able to." +
                       " Click the button to see the Stripe Charge",
         buttonText:   "Stripe Charge",
-        buttonURL:    "https://dashboard.stripe.com/payments/" + charge_id
+        buttonURL:    "https://dashboard.stripe.com/payments/" + chargeId
       };
       Utils.sendEmailNotice( emailObject );
-      Audit_trail.update( { _id: charge_id }, {
+      Audit_trail.update( { _id: chargeId }, {
         $set: {
           "dt_donation_inserted": false
         }
@@ -723,7 +723,7 @@ Utils = {
           "received_on":      moment( new Date( chargeCursor.created * 1000 ) ).format( "YYYY/MM/DD hh:mma" ),
           "source_id":        source_id,
           "payment_status":   chargeCursor.status,
-          "transaction_id":   charge_id
+          "transaction_id":   chargeId
         }
       },
       auth: DONORTOOLSAUTH
@@ -734,7 +734,7 @@ Utils = {
 
     if( newDonationResult && newDonationResult.data && newDonationResult.data.donation && newDonationResult.data.donation.persona_id ) {
       // Send the id of this new DT donation to the function which will update the charge to add that meta text.
-      Utils.update_charge_with_dt_donation_id( charge_id, newDonationResult.data.donation.id );
+      Utils.update_charge_with_dt_donation_id( chargeId, newDonationResult.data.donation.id );
 
       // Get all of the donations related to the persona_id that was either just created or that was just used when
       // the user gave

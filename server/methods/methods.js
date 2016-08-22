@@ -84,6 +84,8 @@ Meteor.methods({
         let config = Config.findOne({'OrgInfo.web.domain_name': Meteor.settings.public.org_domain});
         if (config && config.Settings && config.Settings.DonorTools && config.Settings.DonorTools.url) {
           fundResults = Utils.http_get_donortools('/settings/funds.json?per_page=1000');
+
+          DT_funds.remove({});
           Utils.separate_funds( fundResults.data );
           return fundResults.data;
         } else {
