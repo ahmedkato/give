@@ -44,24 +44,15 @@
                                         <label class="label label-important">{{donationFrequency}}</label>
                                     </td>
                                     <td class="text-center">
-                                        {{#if pendingSetup}}
-                                            <button type="button" {{disabledIfBeforeToday}}
+
+                                            <button type="button" {{disableSendIfNotReady}}
                                                     class="btn btn-primary pending-setup"
-                                                    title="Send new gift to Donor Tools"
-                                                    data-loading-text="<i class='fa fa-spinner fa-spin'></i>"
+                                                    {{pendingSetupTitle}}
                                                     data-toggle="confirmation"
+                                                    data-loading-text="<i class='fa fa-spinner fa-spin'></i>"
                                                     aria-expanded="true">
                                                 <i class="fa fa-paper-plane"></i>
                                             </button>
-                                        {{else}}
-                                            <button type="button" {{disabledIfBeforeToday}}
-                                                    class="btn btn-primary"
-                                                    title="Send new instance of recurring gift to Donor Tools"
-                                                    data-toggle="confirmation"
-                                                    data-loading-text="<i class='fa fa-spinner fa-spin'></i>">
-                                                <i class="fa fa-paper-plane"></i>
-                                            </button>
-                                        {{/if}}
                                         <button type="button"
                                                 title="Edit the gift details"
                                                 class="btn btn-primary edit-ach"

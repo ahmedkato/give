@@ -47,9 +47,15 @@ Template.ACH.helpers({
     }
     return 'one-time'
   },
-  'pendingSetup': function() {
+  'pendingSetupTitle'() {
     if (!this.iterationCount) {
-      return true;
+      return {
+        title: "Send new gift to Donor Tools"
+      }
+    } else {
+      return {
+        title: "Send new instance of recurring gift to Donor Tools"
+      }
     }
   },
   'donorName': function() {
@@ -67,10 +73,20 @@ Template.ACH.helpers({
     return (this.total_amount / 100).toFixed(2);
   },
   'donationDate': function() {
-    return moment(this.start_date === 'today' ? (this.created_at * 1000): (this.start_date * 1000)).format("MM/DD/YYYY");
+    if (this.start_date === 'today'){
+      return moment(this.created_at * 1000).format("MM/DD/YYYY");
+    } else {
+      return this.start_date  > this.created_at ?
+        moment(new Date(this.start_date * 1000)).format("MM/DD/YYYY") :
+        moment(new Date(this.created_at * 1000)).format("MM/DD/YYYY");
+    }
   },
-  'disabledIfBeforeToday': function() {
-    return (this.start_date > (new Date().getTime() / 1000 | 0)) ? 'disabled': '';
+  'disableSendIfNotReady'() {
+    if(this.start_date === 'today') {
+      return;
+    }
+    let dateToUse = this.start_date > this.created_at ? this.start_date : this.created_at;
+    return (dateToUse > (new Date().getTime() / 1000 | 0)) ? 'disabled': '';
   },
   'routingNumber': function() {
     let bankInfo = BankAccounts.findOne({_id: this.source_id});

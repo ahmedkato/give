@@ -601,12 +601,13 @@ _.extend(Utils,{
           return;
         }
 
+        let companyName = customer_cursor.metadata.business_name || "";
         let fullName = customer_cursor.metadata.fname + " " + customer_cursor.metadata.lname;
         let emailObject = {
           to: config.OrgInfo.emails.largeGift,
-          previewLine: fullName +' just gave $' + (amount/ 100).toFixed(2),
+          previewLine: companyName || fullName +' just gave $' + (amount/ 100).toFixed(2),
           type: 'Large Gift',
-          emailMessage: fullName +' just gave $' + (amount/ 100).toFixed(2),
+          emailMessage: companyName || fullName +' just gave $' + (amount/ 100).toFixed(2),
           buttonText: 'Receipt Link',
           buttonURL: config.Settings.DonorTools.url + '/donations?transaction_id=' + charge_cursor._id
         };

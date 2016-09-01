@@ -320,11 +320,11 @@ Utils = {
     if( event_object.data.object.status === 'failed' ) {
       get_dt_donation.data[0].donation.splits[0].amount_in_cents = 0;
       let createdDate = moment.unix( event_object.data.object.created ).format( "YYYY/MM/DD hh:mma" );
-      let failedAmount = event_object.data.object.amount/100;
+      let failedAmount = (event_object.data.object.amount/100).toFixed(2);
 
       let donationMemo = "The charge failed on " + createdDate +
         ". The original charge amount was $" + failedAmount + '. The failed reason was "' +
-        event_object.data.object.failure_message + '"git ';
+        event_object.data.object.failure_message + '"';
       get_dt_donation.data[0].donation.memo = donationMemo;
       // The failed type in Donor Tools
       get_dt_donation.data[0].donation.donation_type_id = config.Settings.DonorTools.failedDonationTypeId;
@@ -673,7 +673,7 @@ Utils = {
 
       let donationMemo = "The charge failed on " + createdDate +
         ". The original charge amount was $" + failedAmount + '. The failed reason was "' +
-        chargeCursor.failure_message;
+        chargeCursor.failure_message + '"';
 
       memo = donationMemo;
     }

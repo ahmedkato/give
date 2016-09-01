@@ -268,6 +268,7 @@ Template.DonationForm.onRendered(function() {
 
 Template.DonationForm.onDestroyed( function() {
   $(window).unbind('beforeunload');
+  Session.delete('params.start_date')
 });
 
 Template.checkPaymentInformation.helpers({
