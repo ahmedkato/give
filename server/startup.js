@@ -37,6 +37,7 @@ Meteor.startup( function() {
       return parser.recur().first().dayOfMonth().on('18:00:00').time();
     },
     job: ()=> {
+      logger.info("Send monthly report emails job");
       let sendScheduledEmails = Utils.sendScheduledEmails('monthly');
       return sendScheduledEmails;
     }
@@ -49,6 +50,7 @@ Meteor.startup( function() {
       return parser.recur().on(6).dayOfWeek().on('18:00:00').time();
     },
     job: ()=> {
+      logger.info("Send weekly report emails job");
       let sendScheduledEmails = Utils.sendScheduledEmails('weekly');
       return sendScheduledEmails;
     }
@@ -61,6 +63,7 @@ Meteor.startup( function() {
       return parser.recur().on('18:00:00').time();
     },
     job: ()=> {
+      logger.info("Send daily report emails job");
       let sendScheduledEmails = Utils.sendScheduledEmails('daily');
       return sendScheduledEmails;
     }
@@ -73,6 +76,7 @@ Meteor.startup( function() {
       return parser.recur().on('17:55:00').time();
     },
     job: ()=> {
+      logger.info("Started Get Trip Fund data job");
       let updateTripFunds = Utils.updateTripFunds();
       return updateTripFunds;
     }

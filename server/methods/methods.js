@@ -663,7 +663,6 @@ Meteor.methods({
 
       customer = { id: id, email: email };
 
-
       let user_id, dt_account_id, wait_for_user_update;
 
       user_id = StripeFunctions.find_user_account_or_make_a_new_one( customer );

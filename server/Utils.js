@@ -385,15 +385,26 @@ Utils = {
 
       if( orgMatch ) {
         personMatch = _.find( personResult.data, function ( el ) {
-
           if( el.persona.names.some( function ( value ) {
-              if( value.first_name.toLowerCase() === metadata.fname.toLowerCase() && value.last_name.toLowerCase() === metadata.lname.toLowerCase() ) {
+              logger.info("Peron names from DT here:");
+              logger.info(value);
+              logger.info("Stripe metadata here:");
+              logger.info(metadata);
+              logger.info("Data trimmed and split: ");
+              logger.info(value.first_name.toLowerCase().split('&')[0].trim(),
+                metadata.fname.toLowerCase().split('&')[0].trim(),
+                value.last_name.toLowerCase().split('&')[0].trim(),
+                metadata.lname.toLowerCase().split('&')[0].trim() );
+
+              if( value.first_name.toLowerCase().split('&')[0].trim() === metadata.fname.toLowerCase().split('&')[0].trim()
+                && value.last_name.toLowerCase().split('&')[0].trim() === metadata.lname.toLowerCase().split('&')[0].trim() ) {
                 logger.info( "Person who's name matches: " );
                 logger.info( value );
                 // returning true here tells the function that this is the record inside which the correct name is found
                 return true;
               }
             } ) ) {
+
             // Looked through all of the name arrays inside of all of the persona's and there was a match
             return true;
           }
