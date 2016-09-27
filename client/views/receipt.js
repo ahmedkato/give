@@ -10,7 +10,7 @@ Template.Receipt.helpers({
     }
   },
   customer_data: function() {
-    return Customers.findOne().metadata;
+    return Customers.findOne() && Customers.findOne().metadata;
   },
   charges: function() {
     return Charges.findOne();
