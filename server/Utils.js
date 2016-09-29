@@ -89,7 +89,7 @@ Utils = {
         dt_source:            Match.Optional( String ),
         fees:                 Match.Optional( Number ),
         href:                 Match.Optional( String ),
-        is_recurring:         Match.OneOf( "one_time", "monthly", "weekly", "daily", "yearly" ),
+        is_recurring:         Match.OneOf( "one_time", "monthly", "yearly", "semi-annually" ),
         later:                Match.Optional( Boolean ),
         method:               Match.Optional( String ),
         note:                 Match.Optional( String ),
@@ -1011,6 +1011,9 @@ Utils = {
       case "daily":
         plan = "giveDaily";
         break;
+      case "semi-annually":
+        plan = "giveEvery6Months";
+        break;
     }
 
     var attributes = {
@@ -1620,7 +1623,8 @@ Utils = {
         { name: 'giveDaily', interval: 'day' },
         { name: 'giveWeekly', interval: 'week' },
         { name: 'giveMonthly', interval: 'month' },
-        { name: 'giveYearly', interval: 'year' }
+        { name: 'giveYearly', interval: 'year' },
+        { name: 'giveEvery6Months', interval: 'month', interval_count: 6 }
       ];
 
       stripe_plans.forEach( function (plan) {
@@ -1668,6 +1672,7 @@ Utils = {
     let createdPlan = StripeFunctions.stripe_create( 'plans', {
       amount:   1,
       interval: plan.interval,
+      interval_count: plan.interval_count || 1,
       name:     plan.name,
       currency: "usd",
       id:       plan.name

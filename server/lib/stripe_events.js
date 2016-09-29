@@ -40,7 +40,11 @@ Stripe_Events = {
         console.log(invoice_object);
         subscription_id = invoice_object.subscription;
       }
+      let intervalCount = subscription_cursor.plan.interval_count;
       interval = subscription_cursor.plan.interval;
+      if(intervalCount === 6 && interval === 'month'){
+        interval = 'semi-annual';
+      }
 
       Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, interval, subscription_id );
@@ -65,12 +69,18 @@ Stripe_Events = {
 
       let invoice_cursor = Invoices.findOne({_id: stripeEvent.data.object.invoice});
       let subscription_cursor = Subscriptions.findOne({_id: invoice_cursor.subscription});
+
+      let intervalCount = subscription_cursor.plan.interval_count;
+      let interval = subscription_cursor.plan.interval;
+      if(intervalCount === 6 && interval === 'month'){
+        interval = 'semi-annual';
+      }
       Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
-        stripeEvent, subscription_cursor.plan.interval, invoice_cursor.subscription );
+        stripeEvent, interval, invoice_cursor.subscription );
       if (config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.largeGiftThreshold) {
         if(stripeEvent.data.object.amount >= (config.OrgInfo.emails.largeGiftThreshold * 100)) {
           send_successful_email = Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, 'large_gift',
-            stripeEvent, subscription_cursor.plan.interval, invoice_cursor.subscription );
+            stripeEvent, interval, invoice_cursor.subscription );
         }
       }
     } else {

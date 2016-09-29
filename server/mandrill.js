@@ -482,6 +482,14 @@ _.extend(Utils,{
                       "content": "daily"
                   }
               );
+          } else if (frequency === 'semi-annual') {
+
+            data_slug.message.global_merge_vars.push(
+              {
+                "name":    "Frequency",
+                "content": "semi-annual"
+              }
+            );
           } else {
               data_slug.message.global_merge_vars.push(
                   {
