@@ -113,19 +113,19 @@ _.extend(Utils,{
 
     let newDataSlug = dataSlug;
     let logoURL;
-    let receiptURL;
-    let emailLogo = Uploads.findOne({$and: [{configId: config._id},{'emailLogo': "_true"}]});
-    let receiptImage = Uploads.findOne({$and: [{configId: config._id},{'receiptImage': "_true"}]});
+    let receiptImageURL;
+    let emailLogo =     Images.findOne({$and: [{configId: config._id},{meta: {"emailLogo": "_true"}}]});
+    let receiptImage =  Images.findOne({$and: [{configId: config._id},{meta: {"receiptImage": "_true"}}]});
     if (emailLogo) {
-      logoURL = emailLogo.baseUrl + emailLogo.name;
+      logoURL = emailLogo.versions.thumbnail.meta.pipeFrom;
     } else {
       logoURL = ''
     }
 
     if (receiptImage) {
-      receiptURL = receiptImage.baseUrl + receiptImage.name;
+      receiptImageURL = receiptImage.versions.thumbnail.meta.pipeFrom;
     } else {
-      receiptURL = ''
+      receiptImageURL = ''
     }
 
     newDataSlug.message.global_merge_vars.push(
@@ -137,7 +137,7 @@ _.extend(Utils,{
     newDataSlug.message.global_merge_vars.push(
       {
         "name": "ReceiptImage",
-        "content": receiptURL
+        "content": receiptImageURL
       }
     );
 

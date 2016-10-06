@@ -21,12 +21,6 @@ Template.DonationLanding.onCreated(function () {
 });
 
 Template.DonationLanding.helpers({
-  imageSrc: function () {
-    if (Uploads.findOne({fundId: this.id})) {
-      return Uploads.findOne({fundId: this.id}).baseUrl + Uploads.findOne({fundId: this.id}).name;
-    }
-    return;
-  },
   donationGroups: function() {
     let config = ConfigDoc();
     let givingOptions =  config && config.Giving && config.Giving.options;

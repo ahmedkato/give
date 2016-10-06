@@ -978,25 +978,6 @@ Meteor.methods({
       throw new Meteor.Error(e);
     }
   },
-  deleteImageFile: function(name) {
-    logger.info("Started deleteImageFile method");
-    check(name, String);
-
-    try {
-      if (Roles.userIsInRole(this.userId, ['admin'])) {
-        logger.info("Deleting");
-        FS.unlink(process.env.PWD + '/.uploads/' + name);
-        FS.unlink(process.env.PWD + '/.uploads/thumbnailBig/' + name);
-        FS.unlink(process.env.PWD + '/.uploads/thumbnailSmall/' + name);
-        return "Done";
-      } else {
-        return;
-      }
-    } catch(e) {
-      console.log(e);
-      throw new Meteor.Error(e);
-    }
-  },
   afterUpdateInfoSection: function() {
     logger.info("Started afterUpdateInfoSection method");
 
@@ -1404,6 +1385,21 @@ Meteor.methods({
         metadata: {reason: reason}
       });
 
+    } else {
+      throw new Meteor.Error(403, "Not logged in");
+    }
+  },
+  /**
+   * Remove an image
+   * @method imageRemove
+   * @param {String} _id  - The image ID to be removed
+   */
+  imageRemove: function (_id) {
+    logger.info("Started method imageRemove.");
+    if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
+      check( _id, String );
+
+      return Images.remove( _id );
     } else {
       throw new Meteor.Error(403, "Not logged in");
     }

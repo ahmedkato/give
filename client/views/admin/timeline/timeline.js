@@ -1,4 +1,4 @@
-import { setDocHeight } from '/client/imports/miscFunctions.js';
+import { setDocHeight } from '/imports/miscFunctions.js';
 
 Template.Timeline.helpers({
   audits(){

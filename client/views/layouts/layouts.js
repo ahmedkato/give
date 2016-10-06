@@ -2,7 +2,7 @@ function loadHead(){
   let config = ConfigDoc();
 
   if (config && config._id) {
-    let imageDoc = Uploads.findOne({$and: [{configId: config._id},{'favicon': "_true"}]});
+    let imageDoc = Images.findOne({$and: [{configId: config._id},{'favicon': "_true"}]});
     if (imageDoc) {
       console.log("Got to imageDoc exists");
       $('#favicon').attr("href", imageDoc.baseUrl + imageDoc.name);

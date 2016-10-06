@@ -18,7 +18,10 @@ var trusted = [
   'p.typekit.net',
   'cdn.heapanalytics.com',
   'heapanalytics.com',
-  'd2zah9y47r7bi2.cloudfront.net'
+  'd2zah9y47r7bi2.cloudfront.net',
+  Meteor.settings.AWS.cfdomain,
+  'localhost',
+  'localhost:3000',
 ];
 
 
@@ -37,3 +40,7 @@ _.each(trusted, function(origin) {
     BrowserPolicy.content.allowOriginForAll(nonSecureOrigin);
   }
 });
+
+BrowserPolicy.content.allowOriginForAll("blob:");
+var constructedCsp = BrowserPolicy.content._constructCsp();
+BrowserPolicy.content.setPolicy(constructedCsp +" media-src blob:;");

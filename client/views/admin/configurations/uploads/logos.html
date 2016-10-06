@@ -16,9 +16,8 @@
                                             <div data-toggle='popover'
                                                  data-trigger='hover focus'
                                                  data-container='body'
-                                                 data-content='Drop your favicon here. width: 96px, height: 96px, PNG.'>
-                                                {{> dropzone contentType='images' fileTypes='.jpg,.jpeg,.png,.gif'
-                                                multiple=false formData=addFavIconData callbacks=imageUploadCallback}}
+                                                 data-content='Click here to select your favicon. width: 96px, height: 96px, PNG.'>
+                                                {{> uploadForm imageType='favicon'}}
                                             </div>
                                         {{else}}
                                             <a href="" title="" class="image">
@@ -43,11 +42,10 @@
                                             <div data-toggle='popover'
                                                  data-trigger='hover focus'
                                                  data-container='body'
-                                                 data-content='Drop your logo here.
+                                                 data-content='Click here to select your logo.
                                                   width: 130px, height: 80px, PNG.
                                                   Black and white logos look the best.'>
-                                                {{> dropzone contentType='images' fileTypes='.jpg,.jpeg,.png,.gif'
-                                                multiple=false formData=addLogoData callbacks=imageUploadCallback}}
+                                                {{> uploadForm imageType='logo'}}
                                             </div>
                                         {{else}}
                                             <a href="" title="" class="image">
@@ -72,10 +70,8 @@
                                             <div data-toggle='popover'
                                                  data-trigger='hover focus'
                                                  data-container='body'
-                                                 data-content='Drop your email logo
-                                                 here. width: 250px, height: 188px, PNG.'>
-                                                {{> dropzone contentType='images' fileTypes='.jpg,.jpeg,.png,.gif'
-                                                multiple=false formData=addEmailLogoData callbacks=imageUploadCallback}}
+                                                 data-content='Click here to select your email logo. width: 250px, height: 188px, PNG.'>
+                                                {{> uploadForm imageType='emailLogo'}}
                                             </div>
                                         {{else}}
                                             <a href="" title="" class="image">
@@ -100,10 +96,9 @@
                                             <div data-toggle='popover'
                                                  data-trigger='hover focus'
                                                  data-container='body'
-                                                 data-content='Drop your receipt image here.
+                                                 data-content='Click here to select your receipt image.
                                                  width: 200px, height: 150px, JPEG or JPG'>
-                                                {{> dropzone contentType='images' fileTypes='.jpg,.jpeg,.png,.gif'
-                                                multiple=false formData=addReceiptImageData callbacks=imageUploadCallback}}
+                                                {{> uploadForm imageType='receiptImage'}}
                                             </div>
                                         {{else}}
                                             <a href="" title="" class="image">

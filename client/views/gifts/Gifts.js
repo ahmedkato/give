@@ -1,4 +1,4 @@
-import { setDocHeight, updateSearchVal } from '/client/imports/miscFunctions.js';
+import { setDocHeight, updateSearchVal } from '/imports/miscFunctions.js';
 
 Template.Gifts.onCreated(function(){
   Session.set("documentLimit", 10);

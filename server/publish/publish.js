@@ -377,14 +377,6 @@ Meteor.publish("roles", function () {
   }
 });
 
-Meteor.publish("uploaded", function () {
-  let config = ConfigDoc();
-  if (config) {
-    return Uploads.find({configId: config._id});
-  } else {
-    this.ready();
-  }
-});
 
 Meteor.publish("config", function () {
   return Config.find({
@@ -488,4 +480,8 @@ Meteor.publish("fundNames", function () {
       }
     } );
   }
+});
+
+Meteor.publish('files.images.all', function () {
+  return Images.find().cursor;
 });

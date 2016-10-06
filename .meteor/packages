@@ -3,29 +3,29 @@
 # 'meteor add' and 'meteor remove' will edit this file for you,
 # but you can also edit it by hand.
 
-meteor-base             # Packages every Meteor app needs to have
-mobile-experience       # Packages for a great mobile UX
-mongo                   # The database Meteor supports right now
-blaze-html-templates    # Compile .html files into Meteor Blaze views
-session                 # Client-side reactive dictionary for your app
-jquery                  # Helpful client-side library
-tracker                 # Meteor's client-side reactive programming library
+meteor-base@1.0.4             # Packages every Meteor app needs to have
+mobile-experience@1.0.4       # Packages for a great mobile UX
+mongo@1.1.12_1                   # The database Meteor supports right now
+blaze-html-templates@1.0.4    # Compile .html files into Meteor Blaze views
+session@1.1.6                 # Client-side reactive dictionary for your app
+jquery@1.11.9                  # Helpful client-side library
+tracker@1.1.0                 # Meteor's client-side reactive programming library
 
-ecmascript
-reactive-var
+ecmascript@0.5.8_1
+reactive-var@1.0.10
 
-email
-http
+email@1.1.17_1
+http@1.2.9_1
 pfafman:font-awesome-4
-less
+less@2.7.5_1
 iron:router
 useraccounts:bootstrap
 useraccounts:iron-routing
-accounts-password
+accounts-password@1.3.0
 zimme:iron-router-active
-browser-policy
+browser-policy@1.0.9
 
-audit-argument-checks
+audit-argument-checks@1.0.7
 sacha:spin
 momentjs:moment
 themeteorchef:jquery-validation
@@ -45,27 +45,26 @@ rajit:bootstrap3-datepicker
 underscorestring:underscore.string
 meteorhacks:aggregate
 meteorhacks:kadira
-logging
-reload
-random
-ejson
-spacebars
-check
+logging@1.1.15_1
+reload@1.1.10
+random@1.0.10
+ejson@1.0.12
+spacebars@1.0.12
+check@1.2.3
 
-promise
+promise@0.8.4_1
 reywood:publish-composite
 msavin:jetsetter
-meteorhacks:kadira-profiler
 dangrossman:bootstrap-daterangepicker
 mizzao:tutorials
 raix:handlebar-helpers
-tomi:upload-server
-tomi:upload-jquery
 cfs:graphicsmagick
 mystor:device-detection
 matb33:collection-hooks
-standard-minifier-css
-standard-minifier-js
+standard-minifier-css@1.2.0_1
+standard-minifier-js@1.2.0_1
 percolate:synced-cron
 meteorhacks:ssr
 percolate:find-from-publication
+shell-server@0.2.1
+ostrio:files

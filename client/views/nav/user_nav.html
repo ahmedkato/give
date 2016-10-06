@@ -10,7 +10,7 @@
             </button>
             <a class="navbar-brand" href="{{org_homepage_url}}" target="_blank">
                 <div class="margin-left">
-                    {{#unless imageExists}}
+                    {{#unless imageExists 'logo'}}
                         {{#if notAdmin}}
                             <a href="/dashboard" title="Give Logo">
                                 <img src="/images/icons/mountain.svg" width="65px" />
@@ -19,23 +19,24 @@
                             <div data-toggle='popover'
                                  data-trigger='hover focus'
                                  data-container='body'
-                                 data-content='Drop your logo here. width: 130px,
+                                 data-content='Click here to select your logo. width: 130px,
                                   height: 80px, PNG. Black and white logos look the best.'>
-                                {{> UploadLogo}}
+                                {{> uploadForm imageType='logo'}}
                             </div>
                         {{/if}}
                     {{else}}
                         {{#if notAdmin}}
                             <a href="" title="" class="image">
-                                <img class="logoImage" src="{{imageSrc}}">
+                                <img class="logoImage" src="{{imageSrc 'logo'}}">
                             </a>
                         {{else}}
                             <a href="" title="" class="image">
-                                <img class="logoImage" src="{{imageSrc}}">
+                                <img class="logoImage" src="{{imageSrc 'logo'}}">
                             </a>
                             <div class="center-logo-overlay">
                                 <div class="inner">
                                     <a class="clear-image"
+                                       data-el-type="logo"
                                        href="">
                                         <i class="large fa fa-times indianred">
                                         </i>

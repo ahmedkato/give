@@ -1,4 +1,4 @@
-import { setDocHeight, updateSearchVal } from '/client/imports/miscFunctions.js';
+import { setDocHeight, updateSearchVal } from '/imports/miscFunctions.js';
 
 Template.AdminSubscriptions.events({
   'click .addingNewPerson': function ( e ){

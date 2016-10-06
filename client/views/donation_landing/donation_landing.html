@@ -39,8 +39,8 @@
                                             <optgroup label="{{text}}">{{text}}</optgroup>
                                             {{#each children}}
                                                 <option value="{{id}}"
-                                                        data-description="{{description}}"
-                                                        data-imagesrc="{{imageSrc}}">
+                                                    data-description="{{description}}"
+                                                    data-imagesrc="{{imageSrc this.id}}">
                                                     {{text}}
                                                 </option>
                                             {{/each}}

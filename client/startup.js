@@ -5,14 +5,6 @@ Meteor.startup( function() {
     style: 'growl-bottom-right'
   };
 
-  Uploader.finished = function(index, fileInfo) {
-    Bert.alert({
-      message: "Uploaded " + fileInfo.name,
-      type: 'success',
-      icon: 'fa-smile-o'
-    });
-  };
-
   Meteor.Spinner.options = {
     lines: 15, // The number of lines to draw
     length: 45, // The length of each line

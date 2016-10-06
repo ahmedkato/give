@@ -1,3 +1,11 @@
+import { clearImage } from '/imports/miscFunctions';
+
+Template.UserNav.onCreated(function () {
+  this.autorun(()=>{
+    Meteor.subscribe('files.images.all');
+  });
+});
+
 Template.UserNav.onRendered(function () {
   materialadmin.AppOffcanvas.initialize($("#offcanvas-what-is-new"));
   $('[data-toggle="popover"]').popover({html: true});
@@ -38,24 +46,6 @@ Template.UserNav.helpers({
       return !Roles.userIsInRole( Meteor.userId(), 'admin' );
     }
     return true;
-  },
-  imageExists: function () {
-    let config = ConfigDoc();
-    if (config && config._id) {
-      return Uploads.findOne({$and: [{configId: config._id},{logo: "_true"}]});
-    }
-    return;
-  },
-  imageSrc: function () {
-    let config = ConfigDoc();
-    if (config && config._id) {
-      let imageDoc = Uploads.findOne({$and: [{configId: config._id},{logo: "_true"}]});
-      if (imageDoc) {
-        return imageDoc.baseUrl +
-          imageDoc.name;
-      }
-    }
-    return;
   }
 });
 
@@ -77,31 +67,9 @@ Template.UserNav.events({
     Session.set('addingNewCreditCard', false);
     Router.go('subscriptions');
   },
-  'click .clear-image': function() {
-    if (!confirm( "Are you sure you want to delete the logo?" )) {
-      return;
-    }
-    let uploadId = Uploads.findOne( { logo: "_true" } )._id;
-    let uploadName = Uploads.findOne( { logo: "_true" } ).name;
-    Uploads.remove( { _id: uploadId } );
-    Meteor.call( "deleteImageFile", uploadName, function ( err ) {
-      if( err ) {
-        Bert.alert( {
-          message: "Hmm... that didn't work",
-          type:    'danger',
-          icon:    'fa-frown-o',
-          style:   'growl-bottom-right'
-        } );
-        throw new Meteor.Error( "400", "Something went wrong and the user wasn't able to remove an image" );
-      } else {
-        Bert.alert( {
-          message: "Removed",
-          type:    'success',
-          icon:    'fa-smile-o',
-          style:   'growl-bottom-right'
-      } );
-      }
-    } )
+  'click .clear-image': function(e) {
+    let type = $(e.currentTarget).data('el-type');
+    return clearImage(type);
   }
 });
 

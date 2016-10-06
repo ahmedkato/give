@@ -78,7 +78,4 @@ Meteor.startup(function () {
 
   Trips._ensureIndex( { 'fundId': 1 } );
   Trips._ensureIndex( { 'name': 1 } );
-
-  Uploads._ensureIndex( { 'configId': 1 } );
-  Uploads._ensureIndex( { 'fundId': 1 } );
 });

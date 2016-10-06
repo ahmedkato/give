@@ -1,3 +1,5 @@
+import { clearImage } from '/imports/miscFunctions';
+
 function reorderItems(dontFlash) {
 
   // This is here because the UI does a weird shuffle of the elements when you turn off
@@ -324,30 +326,9 @@ Template.GivingOptions.events({
       }
     });
   },
-  'click .clear-image': function() {
-    if (!confirm( "Are you sure you want to delete that image?" )) {
-      return;
-    }
-    let uploadId = Uploads.findOne({fundId: this.id})._id;
-    let uploadName = Uploads.findOne({fundId: this.id}).name;
-    Uploads.remove({_id: uploadId});
-    Meteor.call("deleteImageFile", uploadName, function(err){
-      if(err){
-        Bert.alert( {
-          message: "Hmm... that didn't work",
-          type:    'danger',
-          icon:    'fa-frown-o',
-          style:   'growl-bottom-right'
-        } );
-        throw new Meteor.Error("400", "Something went wrong and the user wasn't able to remove an image");
-      } else {
-        Bert.alert({
-          message: "Removed",
-          type: 'success',
-          icon: 'fa-smile-o'
-        });
-      }
-    });
+  'click .clear-image': function(e) {
+    let type = $( e.currentTarget ).data( 'el-type' );
+    return clearImage( type );
   }
 });
 
@@ -362,16 +343,6 @@ Template.GivingOptions.helpers({
       }
     }
     return DT_funds.find({}, {sort: { name: 1 } });
-  },
-  imageExists: function () {
-    let id = this.id;
-    return Uploads.findOne({fundId: id});
-  },
-  imageSrc: function () {
-    if (Uploads.findOne({fundId: this.id})) {
-      return Uploads.findOne({fundId: this.id}).baseUrl + Uploads.findOne({fundId: this.id}).name;
-    }
-    return;
   },
   givingOptions: function() {
     let config = ConfigDoc();
@@ -406,7 +377,6 @@ Template.GivingOptions.helpers({
 });
 
 Template.GivingOptions.onCreated(function () {
-
   Meteor.call("get_dt_funds", function(error, result) {
     if (result) {
       console.log("Got all funds");
@@ -417,7 +387,6 @@ Template.GivingOptions.onCreated(function () {
 
   let self = this;
   self.autorun(function() {
-    self.subscribe("uploaded");
     self.subscribe('wholeConfigDoc');
     self.subscribe('userDTFunds');
   });
@@ -427,7 +396,7 @@ Template.GivingOptions.onRendered(function () {
   $('[data-toggle="popover"]').popover({html: true});
 
   let config = ConfigDoc();
-  
+
   if (config && config._id) {
     // Start the function to setup the table connections and make them sortable
     sortableFunction();

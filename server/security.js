@@ -16,12 +16,12 @@ Security.permit(['insert', 'update', 'remove'])
     DT_sources,
     Fundraisers,
     Invoices,
+    Invoices,
     Payments,
     Refunds,
     Subscriptions,
     Transactions,
     Transfers,
-    Uploads
   ])
   .ifHasRole('admin')
   .allowInClientCode();

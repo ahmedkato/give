@@ -471,13 +471,6 @@ Router.route('/dashboard/users', {
   }
 });
 
-Router.route('/dashboard/upload', {
-  layoutTemplate: 'AdminLayout',
-  name: 'Upload',
-  where: 'client',
-  template: 'Upload'
-});
-
 Router.route('/dashboard/logos', {
   name: 'Logos',
   where: 'client',

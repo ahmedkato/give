@@ -79,23 +79,24 @@
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="margin-left">
-                                                    {{#unless imageExists}}
+                                                    {{#unless imageExists this.id}}
                                                         <div data-toggle='popover'
                                                              data-trigger='hover focus'
                                                              data-container='body'
-                                                             data-content='Drop a picture here to add it to this gift option.
+                                                             data-content='Click here to add a picture to this gift option.
                                                              For images to correctly display in your list, make sure they are square.'>
-                                                            {{> Upload}}
+                                                            {{> uploadForm imageType=this.id}}
                                                         </div>
                                                     {{else}}
                                                         <a href="" title="" class="image">
-                                                            <img src="{{imageSrc}}"
+                                                            <img src="{{imageSrc this.id}}"
                                                                  height="64"
                                                                  width="64" />
                                                         </a>
                                                         <div class="center-overlay">
                                                             <div class="inner">
                                                                 <a class="clear-image"
+                                                                   data-el-type="{{this.id}}"
                                                                    href="">
                                                                     <i class="large fa fa-times">
                                                                     </i>

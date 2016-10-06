@@ -1,0 +1,17 @@
+.file-area {
+    width: 64px;
+    height: 64px;
+    line-height: 70px;
+    text-align: center;
+    font-weight: bold;
+    border: dashed 1px #20252b;
+    color: #1abc9c;
+    vertical-align: middle;
+    margin-right: 5px;
+    max-width: 64px;
+}
+
+.file-area:hover {
+    cursor: pointer;
+    color: #0fa11e;
+}

@@ -371,6 +371,42 @@ Template.registerHelper('donateToThis', function(idOrName) {
   }
 });
 
+
+Template.registerHelper('imageExists', function(type) {
+    console.log(type);
+    let config = ConfigDoc();
+    if (config && config._id) {
+      let imageDoc = Images.findOne({$and: [{configId: config._id},{meta: {[type]: "_true"}}]});
+      if (imageDoc && imageDoc._id) {
+        return imageDoc;
+      }
+    }
+    return;
+});
+
+
+Template.registerHelper('imageSrc', function(type) {
+  if(!type){
+    return;
+  }
+  let config = ConfigDoc();
+  if (config && config._id) {
+    let imageDoc = Images.findOne({$and: [{configId: config._id},{meta: {[type]: "_true"}}]});
+    if (imageDoc && imageDoc._id) {
+      if( imageDoc
+        && imageDoc.versions
+        && imageDoc.versions.thumbnail
+        && imageDoc.versions.thumbnail.meta
+        && imageDoc.versions.thumbnail.meta.pipeFrom ) {
+        return imageDoc.versions.thumbnail.meta.pipeFrom;
+      } else {
+        return '/images/spin.gif';
+      }
+    }
+  }
+  return;
+});
+
 Template.registerHelper('imageUploadCallback', function() {
     return {
       validate: function(file) {

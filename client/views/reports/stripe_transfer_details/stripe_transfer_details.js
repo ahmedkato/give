@@ -65,7 +65,7 @@ Template.StripeTransferDetails.events({
           Bert.alert({
             message: err.message,
             type: 'danger',
-            icon: 'fa-smile-o',
+            icon: 'fa-frown-o',
             style: 'growl-bottom-right'
           });
         } else {
@@ -98,7 +98,7 @@ Template.StripeTransferDetails.events({
           Bert.alert({
             message: err.message,
             type: 'danger',
-            icon: 'fa-smile-o',
+            icon: 'fa-frown-o',
             style: 'growl-bottom-right'
           });
         } else {

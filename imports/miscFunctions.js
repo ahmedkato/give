@@ -32,4 +32,30 @@ function setDocHeight() {
   } );
 }
 
-export { setDocHeight, updateSearchVal };
+function clearImage(type) {
+  if (!confirm( "Are you sure you want to delete the " + type + " ?" )) {
+    return;
+  }
+  console.log(type);
+  let uploadId = Images.findOne({meta: {[type]: "_true"}})._id;
+  Meteor.call("imageRemove", uploadId, function ( err, res ) {
+    if(err) {
+      Bert.alert({
+        message: err.message,
+        type: 'danger',
+        icon: 'fa-frown-o',
+        style: 'growl-bottom-right'
+      });
+      console.error(err);
+    } else {
+      Bert.alert( {
+        message: "Removed",
+        type:    'success',
+        icon:    'fa-smile-o',
+        style:   'growl-bottom-right'
+      } );
+    }
+  });
+}
+
+export { setDocHeight, updateSearchVal, clearImage };
