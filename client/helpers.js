@@ -80,7 +80,6 @@ Template.registerHelper('logged_in', function(context) {
  * Epoch to String
  * Convert a UNIX epoch string to human readable time.
  */
-
 Template.registerHelper('epochToString', function(timestamp) {
   if (timestamp === 'today') {
     return moment().format('MM/DD/YY');
@@ -99,7 +98,6 @@ Template.registerHelper('epochToString', function(timestamp) {
  * Take the two passed values and compare them, returning true if they're equal
  * and false if they're not.
  */
-
 Template.registerHelper('equals', function(c1, c2) {
   // If case1 is equal to case2, return true, else false.
   return c1 === c2 ? true : false;
@@ -109,7 +107,6 @@ Template.registerHelper('equals', function(c1, c2) {
  * Cents to Dollars
  * Take the passed value in cents and convert it to USD.
  */
-
 Template.registerHelper('centsToDollars', function(cents) {
   return "$" + cents / 100;
 });
@@ -118,7 +115,6 @@ Template.registerHelper('centsToDollars', function(cents) {
  * Percentage
  * Take the two passed values, divide them, and multiply by 100 to return percentage.
  */
-
 Template.registerHelper('percentage', function(v1, v2) {
   return ( parseInt(v1, 10) / parseInt(v2, 10) ) * 100 + "%";
 });
@@ -128,7 +124,6 @@ Template.registerHelper('percentage', function(v1, v2) {
  * Take the passed string and capitalize it. Helpful for when we're pulling
  * data out of the database that's stored in lowercase.
  */
-
 Template.registerHelper('capitalize', function(string) {
   if (string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -139,7 +134,6 @@ Template.registerHelper('capitalize', function(string) {
  * Limit String
  * Return the proper string based on the number of lists.
  */
-
 Template.registerHelper('limitString', function(limit) {
   return limit > 1 ? limit + " lists" : limit + " list";
 });
@@ -150,7 +144,6 @@ Template.registerHelper('limitString', function(limit) {
  * (set in the appropriate file in /client/routes/) is equal to the name passed
  * to the helper in the template.
  */
-
 Template.registerHelper('currentRoute', function(route) {
   return Session.equals('currentRoute', route) ? 'active' : '';
 });
@@ -263,7 +256,6 @@ Template.registerHelper('cleanupString', function(string) {
  * Subtract
  * Take the two passed values, subtract them, and divide by 100 to return dollar amount.
  */
-
 Template.registerHelper('subtract', function(v1, v2) {
   // Don't want to divide by 0 or a negative
   if (v1 <= v2) {
@@ -276,7 +268,6 @@ Template.registerHelper('subtract', function(v1, v2) {
  * Add
  * Take the two passed values, add them, and divide by 100 to return dollar amount.
  */
-
 Template.registerHelper('add', function(v1, v2) {
   if ((v1 + v2) === 0 ) return 0; // Don't want to divide by 0
   return ( v1 + v2 ) / 100;
@@ -289,11 +280,9 @@ Template.registerHelper('addingNew', function(type) {
   return false;
 });
 
-
 /*
  * Is this a logged in user?
  */
-
 Template.registerHelper( 'isCurrentUser', ( currentUser ) => {
   return currentUser === Meteor.userId();
 });
@@ -371,9 +360,7 @@ Template.registerHelper('donateToThis', function(idOrName) {
   }
 });
 
-
 Template.registerHelper('imageExists', function(type) {
-    console.log(type);
     let config = ConfigDoc();
     if (config && config._id) {
       let imageDoc = Images.findOne({$and: [{configId: config._id},{meta: {[type]: "_true"}}]});
@@ -383,7 +370,6 @@ Template.registerHelper('imageExists', function(type) {
     }
     return;
 });
-
 
 Template.registerHelper('imageSrc', function(type) {
   if(!type){
