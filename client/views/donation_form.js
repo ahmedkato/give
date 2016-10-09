@@ -110,7 +110,7 @@ Template.DonationForm.events({
   },
   // keypress input detection for autofilling form with test data
   'keypress input': function(e) {
-    if (Meteor.settings.public.dev) {
+    if (Meteor.isDevelopment) {
       if (e.which === 17) { // 17 is ctrl + q
         Give.fillForm('main');
       }
