@@ -15,17 +15,25 @@ Non-profits want to allow anyone to give with or without an account.
 However, we also want to give them credit for doing so. This is a problem. 
 How do we track givers while letting them give without an account? The answer is;
  we do all the hard work. First, we will end up with a lot of customers in Stripe
-  since each time a person gives without logging in we can't know if they've given before.
+  since each time a person gives without logging in we can't know if they've given before. 
+  We don't want the donor to wait around for us to query over to DonorTools to check, so we create
+  a Stripe customer every time someone gives and they aren't logged in.
 Second, we want to do our best to make sure we don't have duplicates in our CMS,
- so we search backwards and forwards to see if we can find them there.
+ so we search backwards and forwards to see if we can find them there. Users don't
+ always know what they should and shouldn't do when entering their information in our forms
+ so we try to parse out the different versions of their name, but always create a new 
+ account in DonorTools and locally if they use a different email address then one of those
+ in their DonorTools Person record. 
 
 If we think this is a new person, we insert them into the CMS as a new person 
-and send off an email to the support a****dmin letting them know we just inserted a 
+and send off an email to the support admin letting them know we just inserted a 
 new person. Chances are we'll end up with newly inserted people who really shouldn't
  be new people at all. Users misspell things, they change their address and phone
   numbers and sometimes give under shortened version of their names. (and these 
   are just a few reasons we'll still get duplicates)
-
+  
+Knowing we'll have duplicates we have to merge those accounts in both DonorTools and in Give.
+Use the "Merge DT accounts" button in the Dashboard for this.
 
 
 ## Setup

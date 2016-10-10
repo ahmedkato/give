@@ -126,7 +126,7 @@ Meteor.methods({
   },
   update_customer: function(form, dt_persona_id, updateThisUser) {
     logger.info( "Started method update_customer." );
-    console.log(form, dt_persona_id, updateThisUser);
+    logger.info(form, dt_persona_id, updateThisUser);
 
     if (Meteor.userId()) {
       console.log("Yes, there is a userId");
@@ -1400,6 +1400,28 @@ Meteor.methods({
       check( _id, String );
 
       return Images.remove( _id );
+    } else {
+      throw new Meteor.Error(403, "Not logged in");
+    }
+  },
+  /**
+   * Update customer with dt_persona_id
+   * @method addDTPersonaIDToCustomer
+   * @param {String} email        - The email of the customer
+   * @param {String} customer_id  - The Stripe customer id
+   */
+  addDTPersonaIDToCustomer: function (email, customer_id) {
+    if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
+      check( email, String );
+      check( customer_id, String );
+      logger.info("Started method addDTPersonaIDToCustomer with email: " +
+        email +
+        " and customer_id: " +
+        customer_id);
+      let dt_persona_id = Utils.find_dt_persona_flow( email, customer_id );
+
+      let customer = StripeFunctions.update_customer_metadata(customer_id, dt_persona_id);
+      return Customers.upsert({_id: customer_id}, customer);
     } else {
       throw new Meteor.Error(403, "Not logged in");
     }

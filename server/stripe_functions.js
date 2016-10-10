@@ -314,6 +314,12 @@ _.extend(StripeFunctions, {
       request, '');
     return stripeResource;
   },
+  /**
+   * Update customer with dt_persona_id
+   * @method update_customer_metadata
+   * @param {String} customer_id    - The Stripe customer id
+   * @param {String} dt_persona_id  - The Donor Tools Persona ID of this customer
+   */
   'update_customer_metadata': function ( customer_id, dt_persona_id ) {
     logger.info("Started update_customer_metadata");
     logger.info("Customer ID: ", customer_id );

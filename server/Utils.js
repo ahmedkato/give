@@ -386,12 +386,12 @@ Utils = {
       if( orgMatch ) {
         personMatch = _.find( personResult.data, function ( el ) {
           if( el.persona.names.some( function ( value ) {
-              logger.info("Peron names from DT here:");
-              logger.info(value);
-              logger.info("Stripe metadata here:");
-              logger.info(metadata);
-              logger.info("Data trimmed and split: ");
-              logger.info(value.first_name.toLowerCase().split('&')[0].trim(),
+              logger.info( "Person names from DT here: " );
+              logger.info( value );
+              logger.info( "Stripe metadata here: " );
+              logger.info( metadata );
+              logger.info( "Data trimmed and split: " );
+              logger.info( value.first_name.toLowerCase().split('&')[0].trim(),
                 metadata.fname.toLowerCase().split('&')[0].trim(),
                 value.last_name.toLowerCase().split('&')[0].trim(),
                 metadata.lname.toLowerCase().split('&')[0].trim() );

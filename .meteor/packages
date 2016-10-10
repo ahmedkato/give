@@ -54,7 +54,6 @@ check@1.2.3
 
 promise@0.8.4_1
 reywood:publish-composite
-msavin:jetsetter
 dangrossman:bootstrap-daterangepicker
 mizzao:tutorials
 raix:handlebar-helpers
@@ -68,3 +67,4 @@ meteorhacks:ssr
 percolate:find-from-publication
 shell-server@0.2.1
 ostrio:files
+meteortoys:allthings

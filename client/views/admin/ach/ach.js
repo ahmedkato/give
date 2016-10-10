@@ -103,7 +103,16 @@ Template.ACH.helpers({
   'personaId': function() {
     let customer = Customers.findOne({_id: this.customer_id});
     if (customer) {
-      return customer.metadata.dt_persona_id ? customer.metadata.dt_persona_id : '';
+      if(customer.metadata.dt_persona_id){
+        return customer.metadata.dt_persona_id;
+      } else {
+        Meteor.call( "addDTPersonaIDToCustomer",
+          customer.metadata.email,
+          this.customer_id,
+          function ( err, res ) {
+            if( err ) console.error( err ); else console.log( res );
+          } );
+      }
     }
   },
   'showSingleRecord': function() {
