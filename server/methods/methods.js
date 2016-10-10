@@ -879,7 +879,7 @@ Meteor.methods({
 
     try {
       if (Roles.userIsInRole(this.userId, ['admin', 'trips-manager'])) {
-        SimpleSchema.debug = true;
+        SimpleSchema.debug = false;
 
         // Create a new user
         let user_id = Accounts.createUser( {

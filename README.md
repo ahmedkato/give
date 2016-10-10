@@ -20,7 +20,7 @@ Second, we want to do our best to make sure we don't have duplicates in our CMS,
  so we search backwards and forwards to see if we can find them there.
 
 If we think this is a new person, we insert them into the CMS as a new person 
-and send off an email to the support admin letting them know we just inserted a 
+and send off an email to the support a****dmin letting them know we just inserted a 
 new person. Chances are we'll end up with newly inserted people who really shouldn't
  be new people at all. Users misspell things, they change their address and phone
   numbers and sometimes give under shortened version of their names. (and these 
@@ -51,11 +51,10 @@ You'll want to complete the Settings form first, then the Giving Options. The
 Giving Options section pulls in all the Donor Tools funds so that you can use 
 them to create all the giving options you want donors to be able to choose. 
 
-In order to use the **image uploading** you'll need to make sure that the user running
-the meteor process on your server can make changes to the .uploads folder. You'll
-also need to create the ```thumbnailSmall``` and ```thumbnailBig``` folders inside the
-```.uploads``` directory. 
-```chown -R meteoruser /opt/give/.uploads /opt/give/.uploads/thumbnailSmall /opt/give/.uploads/thumbnailBig```
+We use S3 to store files. We also use graphicsmagick to make a thumbnail size version of
+the images that are uploaded. Make sure your linux server has this installed. 
+Or if you are using docker you can use my docker image, which has graphicsmagick installed.
+https://github.com/c316/meteor-graphicsmagick
 
 ## Webhooks 
 
@@ -86,13 +85,21 @@ https://give.trashmountain.com/landing
 
 This is a live giving page, which is being used by Trash Mountain Project. 
 
-## Settings
+## Settings <a name="settings"></a>
 
 Here is an example settings.json file. Each of the fields are required.
 
 ```
 {
   "dev": "****TEST****", // If you are using this settings.json file on the dev side include this text, if on the live side, leave it blank.
+  "AWS": {
+    "cfdomain": "YOURsubdomain.cloudfront.net",
+    "key": "YOURs3key",
+    "secret": "YOURs3secret",
+    "bucket": "YOURbucketName",
+    "region": "YOURS3Region",
+    "folder": "YOURFolder"
+  },
   "donor_tools_user": "",
   "donor_tools_password": "",
   "stripe": {
@@ -103,6 +110,9 @@ Here is an example settings.json file. Each of the fields are required.
     "newStuffVersion": "e.g. '0.9' This is used to show the user new updates and then increment those updates.", // This is being deprecated
     "org_domain": "Your org domain, for example 'trashmountain.com'",
     "stripe_publishable: "publishable Stripe Key",
+    "File": {
+      "path": "assets/app/uploads/Images" // This is the temporary file storage path used before uploading to S3
+    }
   }
 }
 ```
