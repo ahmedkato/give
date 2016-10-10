@@ -81,21 +81,5 @@ Meteor.startup( function() {
       return updateTripFunds;
     }
   });
-
-  // TODO: connect this to the Utils.find_dt_persona_flow('josh@trashmountain.com', 'cus_6GM3aZl2bUc16u')
-  // function with a forEach
-  /*SyncedCron.remove("Check ACH customer's to see if they are missing dt_persona_id in their metadata and resolve");
-  SyncedCron.add({
-    name: 'Get Trip Fund data',
-    schedule: (parser)=> {
-      return parser.recur().on('17:55:00').time();
-    },
-    job: ()=> {
-      logger.info("Started Get Trip Fund data job");
-      let updateTripFunds = Utils.updateTripFunds();
-      return updateTripFunds;
-    }
-  });*/
-
   SyncedCron.start();
 });

@@ -111,7 +111,7 @@ Template.ACH.helpers({
           this.customer_id,
           function ( err, res ) {
             if( err ) console.error( err ); else console.log( res );
-          } );
+        } );
       }
     }
   },
