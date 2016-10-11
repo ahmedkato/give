@@ -67,7 +67,8 @@
                                 </select>
                             </div>
                             <div class="col-lg-4 col-md-4 col-sm-4">
-                                <label for="is_recurring" id="frequency_label">Donation Frequency {{#if doNotShowOneTime}}<span style="font-size: .8em;">{{{onlyOneTimeIcon}}}</span> {{/if}}</label>
+                                <label for="is_recurring" id="frequency_label">Donation Frequency
+                                    {{#if doNotShowOneTime}}<span style="font-size: .8em;">{{{onlyOneTimeIcon}}}</span> {{/if}}</label>
                                 {{#unless locked_frequency}}
                                         <select type="text"
                                                 name="is_recurring"
@@ -82,9 +83,9 @@
                                         <option value="monthly">Monthly</option>
                                         {{#unless doNotShowOneTime}}
                                             <option value="one_time">One-Time</option>
+                                            <option value="yearly">Yearly</option>
+                                            <option value="semi-annually">Every 6 months</option>
                                         {{/unless}}
-                                        <option value="yearly">Yearly</option>
-                                        <option value="semi-annually">Every 6 months</option>
                                     </select>
                                 {{else}}
                                     <br>
