@@ -79,14 +79,14 @@
                                                 data-parsley-error-message="  Choose one ^">
                                         {{#unless doNotShowOneTime}}
                                             <option selected></option>
+                                            <option value="one_time">One-Time</option>
                                         {{/unless}}
                                         <option value="monthly">Monthly</option>
                                         {{#unless doNotShowOneTime}}
-                                            <option value="one_time">One-Time</option>
                                             <option value="yearly">Yearly</option>
                                             <option value="semi-annually">Every 6 months</option>
                                         {{/unless}}
-                                    </select>
+                                        </select>
                                 {{else}}
                                     <br>
                                     <p class="uppercase-this">Monthly</p>
