@@ -1,5 +1,11 @@
 import parsley from 'parsleyjs';
 
+Template.AdminGive.onCreated(function () {
+  this.autorun(()=>{
+    this.subscribe('publish_for_admin_give_form', Session.get("gift_user_id"));
+  });
+});
+
 Template.AdminGive.onRendered(function() {
   if ($('#donateWith option').length > 2) {
     $('#donateWith').val($('#donateWith option').eq(2).val());
@@ -118,10 +124,4 @@ Template.AdminGive.events({
       Give.fillForm();
     }
   }
-});
-
-Template.AdminGive.onCreated(function () {
-  this.autorun(()=>{
-    this.subscribe('publish_for_admin_give_form', Session.get("gift_user_id"));
-  });
 });
