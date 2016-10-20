@@ -79,7 +79,7 @@ Meteor.methods({
     try {
       this.unblock();
       //check to see that the user is the admin user
-      if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
+      if (Roles.userIsInRole(this.userId, ['admin', 'manager', 'trips-manager'])) {
         var fundResults;
         let config = Config.findOne({'OrgInfo.web.domain_name': Meteor.settings.public.org_domain});
         if (config && config.Settings && config.Settings.DonorTools && config.Settings.DonorTools.url) {
@@ -93,8 +93,7 @@ Meteor.methods({
           return;
         }
       } else {
-        logger.error("You aren't an admin, you can't do that");
-        return;
+        throw new Meteor.Error(403, "You aren't an admin, you can't do that");
       }
     } catch (e) {
       logger.info(e);
@@ -475,6 +474,7 @@ Meteor.methods({
     check(donation_id, String);
     check(move_to_id, String);
     if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
+      let config = ConfigDoc();
 
       // Move a donation from one persona_id to another
       logger.info("Inside move_donation_to_other_person.");
@@ -496,7 +496,7 @@ Meteor.methods({
 
       // Insert the donation into the move_to_id persona
       var movedDonation;
-      movedDonation = HTTP.post(Meteor.settings.public.donor_tools_site + '/donations.json', {
+      movedDonation = HTTP.post(config.Settings.DonorTools.url + '/donations.json', {
         data: {
             donation: get_donation.data.donation
         },
@@ -510,7 +510,7 @@ Meteor.methods({
 
         // Delete the old DT donation, I've setup an async callback because I'm getting a 406 response from DT, but the delete is still going through
         var deleteDonation;
-        deleteDonation = HTTP.del(Meteor.settings.public.donor_tools_site +
+        deleteDonation = HTTP.del(config.Settings.DonorTools.url +
           '/donations/' + donation_id +
           '.json', {auth: Meteor.settings.donor_tools_user + ':' +
           Meteor.settings.donor_tools_password}, function(err, result){
@@ -826,7 +826,8 @@ Meteor.methods({
       //check to see that the user is the admin user
       if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
         logger.info("Started post_dt_note");
-        let noteResult = HTTP.post(Meteor.settings.public.donor_tools_site + '/people/' +
+        let config = ConfigDoc();
+        let noteResult = HTTP.post(config.Settings.DonorTools.url + '/people/' +
           to_persona + '/notes.json', {
           "data": {
             "note": {
@@ -1112,6 +1113,9 @@ Meteor.methods({
 
       doc.fundAdmin = this.userId;
       Trips.insert(doc);
+      Meteor.call("get_dt_funds");
+    } else {
+      throw new Meteor.Error(500, 'You do not have permission to do that');
     }
   },
   /**
@@ -1123,43 +1127,16 @@ Meteor.methods({
   insertFundraisersWithTrip: function(doc) {
     logger.info( "Started method insertFundraisersWithTrip." );
     if( Roles.userIsInRole( this.userId, ['admin', 'trips-manager'] ) ) {
-      check( doc, Schema.Fundraisers);
+      check( doc, Schema.Fundraisers );
       this.unblock();
       doc.addedBy = this.userId;
-      if (Fundraisers.findOne({email: doc.email})) {
-        let updatedFundraiser = Fundraisers.update({email: doc.email}, {$push: {trips: doc.trips[0]}});
-        // TODO: send new fundraiser email here
-        return updatedFundraiser;
-      } else {
-        Fundraisers.insert(doc);
-        let existingUser = Meteor.users.findOne({'emails.address': doc.email});
-        if (!existingUser) {
-          let user = {
-            email: doc.email,
-            profile: {
-              fname: doc.fname,
-              lname: doc.lname
-            },
-            roles: ['trips-member'],
-            state: {
-              status: 'invited'
-            }
-          };
-          Meteor.call("createUserMethod", user, function( err, res ) {
-            if(err) {
-              logger.error(err);
-              return err;
-            } else {
-              logger.info("createUserMethod returned successful with this message:");
-              logger.info(res);
-              Utils.sendFundraiserAddedEmail(doc.email, doc.trips[0]);
-              return res;
-            }
-          });
-        } else {
-          Roles.addUsersToRoles(existingUser._id, 'trips-member');
-          Utils.sendFundraiserAddedEmail(doc.email, doc.trips[0]);
+      if( doc.fundId ) {
+        let trip = Trips.findOne( { fundId: doc.fundId } );
+        if( trip && trip._id ) {
+          doc.trips = [{id: trip._id}];
         }
+        let fundraiserInsert = Fundraisers.insert( doc );
+        return fundraiserInsert && 'success';
       }
     }
   },

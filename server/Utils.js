@@ -474,6 +474,14 @@ Utils = {
       throw new Meteor.Error( error, e._id );
     }
   },
+  /**
+   * Main algorithm for checking if there is already a DonorTools account that
+   * matches this customer's information
+   * @method find_dt_account_or_make_a_new_one
+   * @param {Object} customer - The Stripe customer
+   * @param {String} user_id - The user id from the Give app
+   * @param {Boolean} skip_audit - Should we skip the audit check?
+   */
   find_dt_account_or_make_a_new_one(customer, user_id, skip_audit) {
     logger.info( "Started find_dt_account_or_make_a_new_one" );
 
@@ -654,7 +662,11 @@ Utils = {
     }
 
     if( customerCursor && customerCursor.metadata && customerCursor.metadata.business_name ) {
-      source_id = DONORTOOLSORGSOURCEID;
+      if (metadata.dt_source){
+        source_id = metadata.dt_source;
+      } else {
+        source_id = DONORTOOLSORGSOURCEID;
+      }
     } else if( metadata && metadata.dt_source ) {
       source_id = metadata.dt_source;
     } else {
@@ -806,7 +818,11 @@ Utils = {
     }
 
     if( customerCursor && customerCursor.metadata && customerCursor.metadata.business_name ) {
-      source_id = DONORTOOLSORGSOURCEID;
+      if (donationCursor.dt_source){
+        source_id = donationCursor.dt_source;
+      } else {
+        source_id = DONORTOOLSORGSOURCEID;
+      }
     } else if( donationCursor && donationCursor.dt_source ) {
       source_id = donationCursor.dt_source;
     } else {
@@ -904,14 +920,14 @@ Utils = {
       if( donorToolsIDMatch ) {
         return donorToolsIDMatch;
       } else {
-        throw new Meteor.Error( 500, "Couldn't find that number id in DT. Did it get merged?" );
+        throw new Meteor.Error( 500, "Couldn't find that number id in DT. Did it get merged? Your admin might also need to retrieve all the funds from DT via the Give dashboard. " );
       }
     } else {
       let donorToolsNameMatch = Utils.checkForDTFundName( donateTo );
       if( donorToolsNameMatch ) {
         return donorToolsNameMatch;
       } else {
-        throw new Meteor.Error( 500, "Couldn't find that name in DT. Did it get changed?" );
+        throw new Meteor.Error( 500, "Couldn't find that name in DT. Did it get changed? Your admin might also need to retrieve all the funds from DT via the Give dashboard. ");
       }
     }
   },
@@ -2051,7 +2067,11 @@ Utils = {
 
     if( customer && customer.metadata.business_name ) {
       business_name = customer.metadata.business_name;
-      source_id = DONORTOOLSORGSOURCEID;
+      if(charge.metadata && charge.metadata.dt_source) {
+        source_id = charge.metadata.dt_source;
+      } else {
+        source_id = DONORTOOLSORGSOURCEID;
+      }
     }
     if( charge.metadata && charge.metadata.dt_source ) {
       source_id = charge.metadata.dt_source;
@@ -2310,7 +2330,11 @@ Utils = {
       var source_id;
 
       if( customer && customer.metadata && customer.metadata.business_name ) {
-        source_id = DONORTOOLSORGSOURCEID;
+        if (charge.metadata.dt_source){
+          source_id = charge.metadata.dt_source;
+        } else {
+          source_id = DONORTOOLSORGSOURCEID;
+        }
       }
       if( charge.metadata && charge.metadata.dt_source ) {
         source_id = charge.metadata.dt_source;

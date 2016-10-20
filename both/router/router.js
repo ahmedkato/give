@@ -18,7 +18,8 @@ Router.onAfterAction(function() {
 
     if (!(config && config.Settings && config.Settings.showDonatePage)){
       if (!Meteor.user() && !Meteor.loggingIn() && !(Router.current().route.getName() === 'signIn')) {
-        this.render("SetupNotComplete");
+        // TODO: fix this area, it is coming up to much...
+        //this.render("SetupNotComplete");
       }
     }
   }, 3000);

@@ -654,7 +654,7 @@ Schema.Trips = new SimpleSchema({
   },
   fundId: {
     type: String,
-    label: 'Select a Trip',
+    label: 'FundId',
     autoform: {
       options: function() {
         return DT_funds.find({}, {sort: {name: 1}}).map( function(r) {
@@ -712,43 +712,9 @@ Schema.Trips = new SimpleSchema({
       }
     }
   },
-  deadlines: {
-    type: Array
-  },
-  "deadlines.$": {
-    type: Object
-  },
-  "deadlines.$.id": {
-    type: String,
-    autoValue: function() {
-      if( this.isInsert ) {
-        return Random.id([6]);
-      }
-    },
-    autoform: {
-      afFieldInput: {
-        type: "hidden"
-      },
-      afFormGroup: {
-        label: false
-      }
-    }
-  },
-  "deadlines.$.name": {
-    type: String,
-    autoform: {
-      placeholder: "Name or description"
-    }
-  },
-  "deadlines.$.amount": {
-    type: Number,
-    autoform: {
-      placeholder: "Individual deadline amount"
-    }
-  },
-  "deadlines.$.dueDate": {
+  expires: {
     type: Date,
-    label: "When is this deadline?",
+    label: "Expiration Date",
     autoform: {
       afFieldInput: {
         type: "bootstrap-datepicker",
@@ -1331,6 +1297,18 @@ Schema.Fundraisers = new SimpleSchema( {
     type: String,
     label: "Email Address",
     regEx: SimpleSchema.RegEx.Email
+  },
+  fundId: {
+    type:     String,
+    optional: true,
+    autoform: {
+      afFieldInput: {
+        type: "hidden"
+      },
+      afFormGroup:  {
+        label: false
+      }
+    }
   }
 });
 

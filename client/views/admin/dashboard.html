@@ -238,32 +238,34 @@
                     {{/if}}
                     <br>
                     <div class="row">
-                        <div class="col-sm-2"
-                             data-toggle="tooltip"
-                             title="If you find that Give created a duplicate
+                        {{#if isInRole 'admin'}}
+                            <div class="col-sm-2"
+                                 data-toggle="tooltip"
+                                 title="If you find that Give created a duplicate
                              account in DonorTools, use this tool to merge the
                              accounts. You will also need to merge the accounts
                              in DonorTools after doing so here.">
-                            <a id="merge-dt-persona" class="quick-button backgroundColor primary" href="">
+                                <a id="merge-dt-persona" class="quick-button backgroundColor primary" href="">
                             <span class="fa-stack fa-lg">
                                 <i class="fa fa-compress"></i>
                             </span>
-                                <h5>Merge DT accounts</h5>
-                            </a>
-                        </div>
-                        <div class="col-sm-2"
-                             data-toggle="tooltip"
-                             title="If you find that Give created a gift under the
+                                    <h5>Merge DT accounts</h5>
+                                </a>
+                            </div>
+                            <div class="col-sm-2"
+                                 data-toggle="tooltip"
+                                 title="If you find that Give created a gift under the
                              wrong DonorTools account you can use this tool to
                              move that gift to the right donor. (don't move the
                              gift in DonorTools, this tool takes care of it)">
-                            <a id="move-gift" class="quick-button backgroundColor primary" href="">
+                                <a id="move-gift" class="quick-button backgroundColor primary" href="">
                                 <span class="fa-stack fa-lg">
                                     <i class="fa fa-arrows"></i>
                                 </span>
-                                <h5>Move Gift</h5>
-                            </a>
-                        </div>
+                                    <h5>Move Gift</h5>
+                                </a>
+                            </div>
+                        {{/if}}
                         {{#if isInRole 'super-admin'}}
                             <div class="col-sm-2"
                                  data-toggle="tooltip"

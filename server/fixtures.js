@@ -11,7 +11,7 @@ Meteor.startup(function() {
 
     // CHANGE THE FIXTURE EMAIL BELOW
     let email = 'test@example.com';
-    let tempPassword = 'sdie3030s,,@isS;';
+    let tempPassword = 'sdie3038s,,@isT;';
     
     let initRoles = ['admin', 'manager', 'trips-manager', 'trips-member'];
 

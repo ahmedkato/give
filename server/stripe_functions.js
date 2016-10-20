@@ -411,6 +411,11 @@ _.extend(StripeFunctions, {
         logger.error("This event didn't fit any of the configured cases, go into store_stripe_event and add the appropriate case.");
     }
   },
+  /**
+   * Main method for checking if there is already a user account with this email
+   * @method find_user_account_or_make_a_new_one
+   * @param {Object} customer - The Stripe customer
+   */
   'find_user_account_or_make_a_new_one': function (customer){
     logger.info("Started find_dt_account_or_make_a_new_one");
     logger.info("customer: ");
