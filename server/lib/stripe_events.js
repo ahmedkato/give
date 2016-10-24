@@ -44,9 +44,11 @@ Stripe_Events = {
       interval = subscription_cursor.plan.interval;
       if(intervalCount === 6 && interval === 'month'){
         interval = 'semi-annual';
+      } else if(intervalCount === 2 && interval === 'week'){
+        interval = 'bi-week';
       }
 
-      Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
+        Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, interval, subscription_id );
 
     } else {
@@ -74,6 +76,8 @@ Stripe_Events = {
       let interval = subscription_cursor.plan.interval;
       if(intervalCount === 6 && interval === 'month'){
         interval = 'semi-annual';
+      } else if(intervalCount === 2 && interval === 'week'){
+        interval = 'bi-week';
       }
       Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, interval, invoice_cursor.subscription );

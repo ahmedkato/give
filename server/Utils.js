@@ -89,7 +89,7 @@ Utils = {
         dt_source:            Match.Optional( String ),
         fees:                 Match.Optional( Number ),
         href:                 Match.Optional( String ),
-        is_recurring:         Match.OneOf( "one_time", "monthly", "yearly", "semi-annually" ),
+        is_recurring:         Match.OneOf( "one_time", "monthly", "yearly", "semi-annually", "weekly", "bi-weekly" ),
         later:                Match.Optional( Boolean ),
         method:               Match.Optional( String ),
         note:                 Match.Optional( String ),
@@ -1021,6 +1021,9 @@ Utils = {
       case "weekly":
         plan = "giveWeekly";
         break;
+      case "bi-weekly":
+        plan = "giveBiWeekly";
+        break;
       case "yearly":
         plan = "giveYearly";
         break;
@@ -1638,9 +1641,10 @@ Utils = {
       let stripe_plans = [
         { name: 'giveDaily', interval: 'day' },
         { name: 'giveWeekly', interval: 'week' },
+        { name: 'giveBiWeekly', interval: 'week', interval_count: 2 },
         { name: 'giveMonthly', interval: 'month' },
         { name: 'giveYearly', interval: 'year' },
-        { name: 'giveEvery6Months', interval: 'month', interval_count: 6 }
+        { name: 'giveEvery6Months', interval: 'month', interval_count: 6 },
       ];
 
       stripe_plans.forEach( function (plan) {
