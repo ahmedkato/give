@@ -33,19 +33,15 @@ Template.Modals.onCreated(function () {
 Template.Modals.events({
   'click #write_in_save': function() {
     let config = ConfigDoc();
-    let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId.toString();
-    
+
     $('#modal_for_write_in').modal('hide');
 
-    removeParam('note', window.location.href);
-    var goHere = removeParam('donateTo', window.location.href);
+    let goHere = removeParam('note', window.location.href);
     console.log(goHere);
     Session.set('showWriteIn', 'no');
-    goHere = goHere + '&note=' + Give.getCleanValue("#writeIn") + '&donateTo=' + writeInDonationTypeId;
+    goHere = goHere + '&note=' + Give.getCleanValue("#writeIn");
     Router.go(goHere);
     $('#giftNoteText').show();
-    
-    $('[name="donateTo"]').val(writeInDonationTypeId);
   },
   'click #tripsSave'() {
     if ($('#tripSelect').val() === "" || $('#participantSelect').val() === "") {
@@ -93,52 +89,6 @@ Template.Modals.helpers({
       return DT_funds.findOne( { _id: fundId } ) && DT_funds.findOne( { _id: fundId } ).name;
     }
     return;
-  },
-  churchSources: function() {
-    return [
-      {
-        "name": "Fellowship Bible Church",
-        "city": "Topeka, KS"
-      },
-      {
-        "name": "Topeka Bible Church",
-        "city": "Topeka, KS"
-      },
-      {
-        "name": "Fountain Springs Church",
-        "city": "Rapid City, SD"
-      },
-      {
-        "name": "Gracepoint Church",
-        "city": "Topeka, KS"
-      },
-      {
-        "name": "Gracepoint Church North",
-        "city": "Topeka, KS"
-      },
-      {
-        "name": "Journey Church",
-        "city": "Topeka, KS"
-      },
-      {
-        "name": "Western Hills Church",
-        "city": "Topeka, KS"
-      },
-      {
-        "name": "Church On The Hill",
-        "city": "Dundee, FL"
-      },
-      {
-        "name": "Ridgepoint Church Winter",
-        "city": "Haven, FL"
-      },
-      {
-        "name": "A Mailer"
-      },
-      {
-        "name": "Other"
-      }
-    ];
   }
 });
 

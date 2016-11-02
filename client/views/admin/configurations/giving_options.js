@@ -266,20 +266,16 @@ Template.GivingOptions.events({
       location.reload();
     }
   },
-  'keyup .group-input': _.debounce(function(e) {
+  'input .group-input, input .option-text': _.debounce(function(e) {
     let id = $(e.currentTarget).attr("data-el-id");
     let text = $(e.currentTarget).val();
     console.log(id, text);
     updateText(id, 'text', text);
   }, 500),
-  'keyup .option-text': _.debounce(function(e) {
-    let id = $(e.currentTarget).attr("data-el-id");
-    let text = $(e.currentTarget).val();
-    updateText(id, 'text', text);
-  }, 500),
-  'keyup .option-description': _.debounce(function(e) {
+  'input .option-description': _.debounce(function(e) {
     let id = $(e.currentTarget).attr("data-el-id");
     let description = $(e.currentTarget).val();
+    console.log(id, description);
     updateText(id, 'description', description);
   }, 500),
   'click .remove-item': function(e) {

@@ -141,12 +141,12 @@ Template.UserGive.events({
 
 Template.UserGive.onRendered(function () {
   let config = ConfigDoc();
-  let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId.toString();
+  let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
 
   $('[data-toggle="popover"]').popover();
 
   // setup modal for entering give toward information
-  if (Session.equals('params.donateTo', writeInDonationTypeId) && !(Session.equals('showWriteIn', 'no'))) {
+  if (writeInDonationTypeId.indexOf(Session.get('params.donateTo')) !== -1 && !(Session.equals('showWriteIn', 'no'))) {
     $('#modal_for_write_in').modal({
       show: true,
       backdrop: 'static'

@@ -5,23 +5,23 @@
 
 meteor-base@1.0.4             # Packages every Meteor app needs to have
 mobile-experience@1.0.4       # Packages for a great mobile UX
-mongo@1.1.12_1                   # The database Meteor supports right now
+mongo@1.1.14                   # The database Meteor supports right now
 blaze-html-templates@1.0.4    # Compile .html files into Meteor Blaze views
-session@1.1.6                 # Client-side reactive dictionary for your app
-jquery@1.11.9                  # Helpful client-side library
-tracker@1.1.0                 # Meteor's client-side reactive programming library
+session@1.1.7                 # Client-side reactive dictionary for your app
+jquery@1.11.10                  # Helpful client-side library
+tracker@1.1.1                 # Meteor's client-side reactive programming library
 
-ecmascript@0.5.8_1
-reactive-var@1.0.10
+ecmascript@0.5.9
+reactive-var@1.0.11
 
-email@1.1.17_1
-http@1.2.9_1
+email@1.1.18
+http@1.2.10
 pfafman:font-awesome-4
-less@2.7.5_1
+less@2.7.6
 iron:router
 useraccounts:bootstrap
 useraccounts:iron-routing
-accounts-password@1.3.0
+accounts-password@1.3.1
 zimme:iron-router-active
 browser-policy@1.0.9
 
@@ -45,14 +45,14 @@ rajit:bootstrap3-datepicker
 underscorestring:underscore.string
 meteorhacks:aggregate
 meteorhacks:kadira
-logging@1.1.15_1
-reload@1.1.10
+logging@1.1.16
+reload@1.1.11
 random@1.0.10
-ejson@1.0.12
+ejson@1.0.13
 spacebars@1.0.12
-check@1.2.3
+check@1.2.4
 
-promise@0.8.4_1
+promise@0.8.8
 reywood:publish-composite
 dangrossman:bootstrap-daterangepicker
 mizzao:tutorials
@@ -60,8 +60,8 @@ raix:handlebar-helpers
 cfs:graphicsmagick
 mystor:device-detection
 matb33:collection-hooks
-standard-minifier-css@1.2.0_1
-standard-minifier-js@1.2.0_1
+standard-minifier-css@1.3.2
+standard-minifier-js@1.2.1
 percolate:synced-cron
 meteorhacks:ssr
 percolate:find-from-publication

@@ -380,10 +380,10 @@ Utils = {
       }
     } else {
       orgMatch = _.find( personResult.data, function ( value ) {
-        return !value.persona.company_name
+        return value.persona.is_company
       } );
 
-      if( orgMatch ) {
+      if( !orgMatch ) {
         personMatch = _.find( personResult.data, function ( el ) {
           if( el.persona.names.some( function ( value ) {
               logger.info( "Person names from DT here: " );

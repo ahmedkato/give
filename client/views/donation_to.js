@@ -52,11 +52,19 @@ Template.DonationTo.events({
   'change #donateTo': function() {
 
     let config = ConfigDoc();
-    let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId.toString();
+    let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
+    console.log(writeInDonationTypeId);
 
-    if ($('#donateTo').val() !== writeInDonationTypeId) {
+    if (writeInDonationTypeId.indexOf(Number($('#donateTo').val())) === -1 ) {
       $('#giftNoteText').hide();
       Session.set('showWriteIn', 'no');
+      // setup modal for entering give toward information
+      if ($('#donateTo').val().toLowerCase() === 'trips') {
+        $('#modal_for_trips').modal({
+          show: true,
+          backdrop: 'static'
+        });
+      }
     } else {
       Session.set('showWriteIn', 'yes');
       // setup modal for entering give toward information

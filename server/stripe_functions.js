@@ -401,10 +401,10 @@ _.extend(StripeFunctions, {
         }
         break;
       case 'transfer':
-        console.dir(event_body);
+        logger.info(event_body);
         Transfers.upsert({_id: event_body.data.object.id}, event_body.data.object);
         let transactions = StripeFunctions.get_transactions_from_transfer(event_body.data.object.id);
-        console.dir(transactions);
+        logger.info(transactions);
         StripeFunctions.upsert_stripe_transactions(transactions, event_body.data.object.id);
         break;
       default:

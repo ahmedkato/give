@@ -89,25 +89,6 @@ Template.DonationForm.events({
       $("#show_total").hide();
     }
   },
-  'change #donateTo': function() {
-    let config = ConfigDoc();
-    let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId.toString();
-    if ($('#donateTo').val() !== writeInDonationTypeId) {
-      $('#giftNoteText').hide();
-    } else {
-      Session.set('showWriteIn', 'yes');
-      Session.set('params.donateTo', writeInDonationTypeId);
-      // setup modal for entering give toward information
-      $('#modal_for_write_in').modal({
-        show: true,
-        backdrop: 'static'
-      });
-    }
-
-    if ($("#donateTo").val() !== '') {
-      $("#s2id_donateTo").children().removeClass("redText");
-    }
-  },
   // keypress input detection for autofilling form with test data
   'keypress input': function(e) {
     if (Meteor.isDevelopment) {
@@ -222,7 +203,7 @@ Template.DonationForm.helpers({
 
 Template.DonationForm.onRendered(function() {
   let config = ConfigDoc();
-  let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId.toString();
+  let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
 
   // Setup parsley form validation
   $('#donation_form').parsley();
@@ -237,7 +218,7 @@ Template.DonationForm.onRendered(function() {
     $('#calendarSection').show();
   }
   // setup modal for entering give toward information
-  if (Session.equals('params.donateTo', writeInDonationTypeId) && !(Session.equals('showWriteIn', 'no'))) {
+  if (writeInDonationTypeId.indexOf(Session.get('params.donateTo')) !== -1 && !(Session.equals('showWriteIn', 'no'))) {
     $('#modal_for_write_in').modal({
       show: true,
       backdrop: 'static'
@@ -259,8 +240,8 @@ Template.DonationForm.onRendered(function() {
     autoclose: true
   });
 
-  if (Session.get('params.start_date')) {
-    $("#start_date").val(Session.get('params.start_date'));
+  if (Session.get('params.startdate')) {
+    $("#start_date").val(Session.get('params.startdate'));
   }
 
   $('[name="donateTo"]').change();
@@ -268,7 +249,7 @@ Template.DonationForm.onRendered(function() {
 
 Template.DonationForm.onDestroyed( function() {
   $(window).unbind('beforeunload');
-  Session.delete('params.start_date')
+  Session.delete('params.startdate')
 });
 
 Template.checkPaymentInformation.helpers({

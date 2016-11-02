@@ -11,7 +11,13 @@ Template.DonationScheduled.helpers({
     return Session.get('params.amount');
   },
   start_date: function() {
-    return Session.get('params.start_date');
+    if (Session.get('params.startdate')){
+      if (Session.get('params.startdate') ==='today'){
+        return moment().format('DD MMMM, YYYY');
+      } else {
+        return moment(Session.get('params.startdate') * 1000).format('DD MMMM, YYYY');
+      }
+    }
   },
   one_time_language: function () {
     if (Session.get('params.frequency') &&

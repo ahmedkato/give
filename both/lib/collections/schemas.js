@@ -597,8 +597,8 @@ Schema.Settings = new SimpleSchema({
     optional: true
   },
   "DonorTools.writeInDonationTypeId": {
-    type: Number,
-    label: "Donation fund used to prompt user to add a note",
+    type: [Number],
+    label: "Donation fund(s) used to prompt user to add a note",
     autoform: {
       placeholder: "Might use for 'other'"
     },

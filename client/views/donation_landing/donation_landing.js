@@ -20,6 +20,13 @@ Template.DonationLanding.onCreated(function () {
   });
 });
 
+Template.DonationLanding.onRendered(function () {
+  $('[name="donateTo"]').change();
+  $('.modal').modal('hide');
+  $('body').removeClass('modal-open');
+  $('.modal-backdrop').remove();
+});
+
 Template.DonationLanding.helpers({
   donationGroups: function() {
     let config = ConfigDoc();
@@ -179,7 +186,4 @@ Template.DonationLanding.events({
   }
 });
 
-Template.DonationLanding.onRendered(function () {
-  $('[name="donateTo"]').change();
-});
 

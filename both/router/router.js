@@ -292,12 +292,12 @@ Router.route('Subscriptions', function() {
 Router.route('/scheduled', {
   name: 'donation.scheduled',
 
-  data: function() {
+  action: function() {
     Session.set('params.frequency', this.params.query.frequency);
     Session.set('params.amount', this.params.query.amount);
-    Session.set('params.start_date', this.params.query.start_date === 'today' ?
-      moment().format('DD MMMM, YYYY') :
-      moment(this.params.query.start_date * 1000).format('DD MMMM, YYYY'));
+    Session.set('params.startdate', this.params.query.startdate);
+
+    this.render('DonationScheduled');
   }
 });
 

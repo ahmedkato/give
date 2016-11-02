@@ -166,9 +166,6 @@ Meteor.methods({
     logger.info("Started stripeDonation");
     try {
 
-      let config = ConfigDoc();
-      let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId.toString();
-
       // Check the form to make sure nothing malicious is being submitted to the server
       Utils.checkFormFields(data);
       if (data.paymentInformation.coverTheFees === false) {
@@ -181,11 +178,6 @@ Meteor.methods({
       // Get the fund reference for this donation
       donateTo = Utils.getDonateTo(data.paymentInformation.donateTo);
 
-      // Shouldn't be needed anymore since this write in id isn't a placeholder
-      // rather the id for that write-in fund is already there
-      /*if (donateTo === writeInDonationTypeId) {
-        donateTo = data.paymentInformation.note;
-      }*/
       if (!data.customer.id) {
         customerData = Utils.create_customer(data.paymentInformation.token_id ? 
           data.paymentInformation.token_id : '',
@@ -1138,6 +1130,24 @@ Meteor.methods({
         let fundraiserInsert = Fundraisers.insert( doc );
         return fundraiserInsert && 'success';
       }
+    }
+  },
+  /**
+   * Update a fundraisers name
+   *
+   * @method updateFundraiserName is used only by the Trips app
+   * @param {Object} doc - Form values
+   * @param doc.fname - User's first name
+   * @param doc.lname - User's last name
+   * @param doc.email - User's email address
+   */
+  updateFundraiserName: function(doc) {
+    logger.info( "Started method updateFundraiserName." );
+    if( Roles.userIsInRole( this.userId, ['admin', 'trips-manager'] ) ) {
+      check( doc, Schema.Fundraisers );
+      logger.info( "Check passed with this doc: " + doc );
+      let fundraiserInsert = Fundraisers.update( {email: doc.email }, {$set: {fname: doc.fname, lname: doc.lname } } );
+      return fundraiserInsert && 'success';
     }
   },
   /**

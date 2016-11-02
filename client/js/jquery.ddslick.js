@@ -246,7 +246,7 @@
         //Update or Set plugin data with new selection
         pluginData.selectedIndex = index;
         pluginData.selectedItem = selectedLiItem;
-        pluginData.selectedData = selectedData;        
+        pluginData.selectedData = selectedData;
 
         //If set to display to full html, add html
         if (settings.showSelectedHTML) {
