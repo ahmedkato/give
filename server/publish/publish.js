@@ -434,7 +434,7 @@ Meteor.publish("trips", function (id) {
   if (id) {
     return Trips.find({_id: id});
   }
-  return Trips.find({active: true});
+  return Trips.find({active: true, show: true});
 });
 
 Meteor.publish("fundraisers", function (id) {

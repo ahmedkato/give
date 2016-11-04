@@ -723,6 +723,11 @@ Schema.Trips = new SimpleSchema({
         }
       }
     }
+  },
+  show: {
+    type: Boolean,
+    label: "Should this trip appear on the Giving page?",
+    optional: true
   }
 });
 
