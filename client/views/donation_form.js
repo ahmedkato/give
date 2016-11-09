@@ -136,9 +136,9 @@ Template.DonationForm.events({
       $('select').select2({dropdownCssClass: 'dropdown-inverse'});
     }, 500);
   },
-  'click #removeButton'(){
-    DonationFormItems.remove({item: $(".clonedInput").length -1});
-    $('[data-toggle="popover"]').popover('destroy');
+  'click [name="remove-button"]'(e){
+    DonationFormItems.remove({_id: this._id});
+    $('.popover').popover('destroy');
     Meteor.setTimeout(()=>{
       $('[data-toggle="popover"]').popover({html: true});
       Give.updateTotal();

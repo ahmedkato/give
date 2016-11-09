@@ -28,6 +28,9 @@
     margin: 10px;
 }
 
+.top-margin {
+    margin-top: 38px;
+}
 @media print {
     a[href]:after {
         content: none !important;
@@ -73,5 +76,8 @@
 @media screen and (max-width: 550px) {
     .button-text {
         display: none;
+    }
+    .top-margin {
+        margin-top: 10px;
     }
 }
