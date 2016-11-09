@@ -119,8 +119,6 @@ Template.ACHModal.onRendered(function () {
   // Setup parsley form validation
   $('#subscription_change').parsley();
 
-  $('select').select2({dropdownCssClass: 'dropdown-inverse'});
-
   init_calendar();
 
 });

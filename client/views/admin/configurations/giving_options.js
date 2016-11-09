@@ -404,12 +404,6 @@ Template.GivingOptions.onRendered(function () {
 
   if(givingOptions && givingOptions.length > 0){
 
-    $('#testDropdown').select2({
-      data: _.sortBy(givingOptions, 'position'),
-      dropdownCssClass: 'dropdown-inverse',
-      placeholder: "Choose one"
-    });
-
     Session.set("givingOptionsChecked", givingOptions);
     let groups = _.filter( givingOptions, function(item) {
         return item && item.groupId;

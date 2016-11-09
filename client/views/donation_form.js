@@ -133,7 +133,6 @@ Template.DonationForm.events({
     Meteor.setTimeout(()=>{
       $('#donation_form').parsley();
       $('[data-toggle="popover"]').popover({html: true});
-      $('select').select2({dropdownCssClass: 'dropdown-inverse'});
     }, 500);
   },
   'click [name="remove-button"]'(e){
@@ -294,13 +293,11 @@ Template.checkPaymentInformation.onRendered(function() {
   $('[data-toggle="popover"]').popover();
   $("#routing_number").mask("999999999");
 
-  $('select').select2({dropdownCssClass: 'dropdown-inverse'});
 });
 
 // Card Payment Template mods
 Template.cardPaymentInformation.onRendered(function() {
   $('[data-toggle="popover"]').popover();
-  $('select').select2({dropdownCssClass: 'dropdown-inverse'});
 
   if (Session.get('params.exp_month')) {
     $("#expiry_month").val(Session.get('params.exp_month'));

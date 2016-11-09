@@ -423,3 +423,32 @@ Template.registerHelper('imageUploadCallback', function() {
       }
     };
 });
+
+Template.registerHelper('givingOptionsGroup', function() {
+  let config = ConfigDoc();
+  var givingOptions = config && config.Giving && config.Giving.options;
+
+  if( givingOptions && givingOptions.length > 0 ) {
+    let groups = [];
+    givingOptions.forEach(function ( item ) {
+      if(item.type === 'group') {
+        groups.push(item);
+      }
+    });
+    return groups;
+  }
+});
+
+Template.registerHelper('givingOptionsMember', function() {
+  let config = ConfigDoc();
+  var givingOptions = config && config.Giving && config.Giving.options;
+
+  let groupId = this.groupId;
+  let members = [];
+  givingOptions.forEach(function ( item ) {
+    if(item.currentGroup === groupId) {
+      members.push(item);
+    }
+  });
+  return members;
+});

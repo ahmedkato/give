@@ -52,40 +52,42 @@
                         </div>
                         <div class="clonedInputCopies">
                             {{#each DonationFormItems}}
-                                <div class="clonedInput">
-                                    <hr class="hr-in-well" />
-                                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+                                <hr class="hr-in-well" />
+                                <div class="row">
+                                    <div class="clonedInput">
+                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
                                             <label class="control-label" for="amount">Donation Amount</label>
                                             <div class="input-group">
                                                 <!--[if lt IE 9]>
-                                                    <label>Amount</label>
+                                                <label>Amount</label>
                                                 <![endif]-->
                                                 <span class="input-group-addon">$</span>
                                                 <input name="clonedAmount"
-                                                        type="digits"
-                                                        class="form-control slim-borders"
-                                                        required="true"
-                                                        min="1"
-                                                        data-parsley-error-message="Please only use numbers over 1 in this amount"
-                                                        data-parsley-errors-container="#amount-{{this.item}}" />
+                                                       type="digits"
+                                                       class="form-control slim-borders"
+                                                       required="true"
+                                                       min="1"
+                                                       data-parsley-error-message="Please only use numbers over 1 in this amount"
+                                                       data-parsley-errors-container="#amount-{{this.item}}" />
                                                 <div id="amount-{{this.item}}"></div>
                                             </div>
 
-                                    </div>
-                                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                        {{> DonationToDuplicates}}
-                                    </div>
-                                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-                                        <button name="remove-button"
-                                                type="button"
-                                                href=""
-                                                data-toggle="popover"
-                                                data-placement="bottom"
-                                                data-trigger="hover focus"
-                                                data-container="body"
-                                                data-content="Remove this designation from the list"
-                                                class="btn btn-danger top-margin"><i class="fa fa-minus"></i>
-                                        </button>
+                                        </div>
+                                        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+                                            {{> DonationToDuplicates}}
+                                        </div>
+                                        <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+                                            <button name="remove-button"
+                                                    type="button"
+                                                    href=""
+                                                    data-toggle="popover"
+                                                    data-placement="bottom"
+                                                    data-trigger="hover focus"
+                                                    data-container="body"
+                                                    data-content="Remove this designation from the list"
+                                                    class="btn btn-danger top-margin btn-for-mobile"><i class="fa fa-minus"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             {{/each}}
@@ -118,7 +120,7 @@
                                 <label for="donateWith">Method of Payment</label>
                                 <select name="donateWith"
                                         id="donateWith"
-                                        class="form-control select select-primary mbl"
+                                        class="form-control select select-primary slim-borders"
                                         required>
                                     <option value="Card">Card</option>
                                     <option value="Check">Check</option>
@@ -126,17 +128,19 @@
                             </div>
                             <div class="col-lg-6 col-md-6 col-sm-6">
                                 <label for="is_recurring" id="frequency_label">Donation Frequency
-                                    {{#if doNotShowOneTime}}<span style="font-size: .8em;">{{{onlyOneTimeIcon}}}</span> {{/if}}</label>
+                                    {{#if doNotShowOneTime}}<span style="font-size: .8em;">{{{onlyOneTimeIcon}}}</span> {{/if}}
+                                </label>
                                 {{#unless locked_frequency}}
                                         <select type="text"
                                                 name="is_recurring"
                                                 id="is_recurring"
-                                                class="form-control select select-primary mbl"
+                                                class="form-control select select-primary slim-borders"
                                                 required
                                                 data-placeholder="Select an Option"
                                                 data-parsley-error-message="  Choose one ^">
+                                            <option value=""></option>
                                         {{#unless doNotShowOneTime}}
-                                            <option selected></option>
+                                            <option value="" selected disabled>Choose one</option>
                                             <option value="one_time">One-Time</option>
                                         {{/unless}}
                                         <option value="monthly">Monthly</option>

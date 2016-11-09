@@ -1,5 +1,15 @@
 <template name="DonationToDuplicates">
-    {{setupDonateToDropdown}}
     <label for="donateToDuplicate">Donation Designation</label>
-    <input name="donateToDuplicate" required class="form-control select select-primary mbl">
+    <select name="donateToDuplicate"
+           required="true"
+           data-parsley-error-message="Choose an option from the list"
+           class="form-control select select-primary slim-borders">
+        {{#each givingOptionsGroup}}
+            <optgroup label="{{text}}">
+                {{#each givingOptionsMember}}
+                    <option value="{{id}}">{{text}}</option>
+                {{/each}}
+            </optgroup>
+        {{/each}}
+    </select>
 </template>

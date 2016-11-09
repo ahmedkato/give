@@ -11,9 +11,6 @@ Template.FixBankSubscription.onRendered(function(){
     Session.set('addingNewCreditCard', false);
   }
   $('#resubscribe').parsley();
-
-  $('select').select2({dropdownCssClass: 'dropdown-inverse'});
-
 });
 
 Template.FixBankSubscription.events({

@@ -261,55 +261,59 @@ Meteor.publish("transfersRange", function (search, limit, posted, range) {
 
   if (Roles.userIsInRole(this.userId, ['super-admin', 'admin', 'manager'])) {
 
-    logger.info("search: ", search,
+    logger.info( "search: ", search,
       "limit: ", limit,
       "posted: ", posted,
-      "range: ", range);
+      "range: ", range );
     let searchValue;
-    if (search && !isNaN(search)) {
+    if( search && !isNaN( search ) ) {
       searchValue = { 'amount': search * 100 }
     } else {
-      console.log("ID: ", search);
+      console.log( "ID: ", search );
       let thisSearch = search ? search : '';
-      searchValue = { 'id': { $regex:  thisSearch} };
+      searchValue = { 'id': { $regex: thisSearch } };
     }
     const limitValue = limit ? limit : 0;
     const options = {
-      sort: {date: -1},
-      limit: limitValue,
+      sort:   { date: -1 },
+      limit:  limitValue,
       fields: {
-        amount:           1,
-        amount_reversed:  1,
-        created:          1,
-        date:             1,
-        id:               1,
-        metadata:         1,
-        status:           1
+        amount:          1,
+        amount_reversed: 1,
+        created:         1,
+        date:            1,
+        id:              1,
+        metadata:        1,
+        status:          1
       }
     };
 
-    if (posted === "true") {
-      console.log(posted);
+    if( posted === "true" ) {
+      console.log( posted );
       postedValue = { 'metadata.posted': posted }
     } else {
-      postedValue = { $or: [{'metadata.posted': posted }, {'metadata.posted': undefined }] };
+      postedValue = {
+        $or: [{ 'metadata.posted': posted }, { 'metadata.posted': undefined }]
+      };
     }
-    let transferStart = Number(moment(new Date(range.start)).format('X'));
-    let transferEnd = Number(moment(new Date(range.end)).format('X'));
+    let transferStart = Number( moment( new Date( range.start ) ).format( 'X' ) );
+    let transferEnd = Number( moment( new Date( range.end ) ).format( 'X' ) );
 
-    logger.info(transferStart);
-    logger.info(transferEnd);
+    logger.info( transferStart );
+    logger.info( transferEnd );
 
-    return Transfers.find({$and: [
-      { date: { $gte: transferStart } },
-      { date: { $lte: transferEnd } },
-      postedValue,
-      searchValue
-      ]},
+    return Transfers.find( {
+        $and: [
+          { date: { $gte: transferStart } },
+          { date: { $lte: transferEnd } },
+          postedValue,
+          searchValue
+        ]
+      },
       { options },
     );
   } else {
-    this.ready();
+    return;
   }
 });
 

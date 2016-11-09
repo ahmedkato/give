@@ -110,7 +110,8 @@ Template.ACH.helpers({
           customer.metadata.email,
           this.customer_id,
           function ( err, res ) {
-            if( err ) console.error( err ); else console.log( res );
+            if( err ) console.error( err );
+            else console.log( res );
         } );
       }
     }
@@ -177,8 +178,6 @@ Template.ACH.events({
     });
   },
   'click .edit-ach': function(e) {
-    console.log("edit ach clicked ", $(e.currentTarget).attr("data-id"));
-
     e.preventDefault();
     let self = this;
 

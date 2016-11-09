@@ -3828,12 +3828,6 @@ fieldset[disabled] .input-group-btn .btn-default.active {
 .form-group .select > .select2-choice {
   width: 100%;
   }
-.select.form-control,
-.select.select2-search input[type="text"] {
-  height: auto;
-  padding: 0;
-  border: none;
-  }
 .select2-choice {
   position: relative;
   display: inline-block;

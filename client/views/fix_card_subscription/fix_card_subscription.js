@@ -13,10 +13,6 @@ Template.FixCardSubscription.onRendered(function(){
 
   $('#resubscribe').parsley();
 
-  Meteor.setTimeout(function() {
-    $('select').select2({dropdownCssClass: 'dropdown-inverse'});
-  }, 50);
-
 });
 
 Template.FixCardSubscription.events({

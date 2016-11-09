@@ -1,8 +1,6 @@
 import parsley from 'parsleyjs';
 
 Template.GiveDropdownGroup.onRendered(function() {
-  $('select').select2({dropdownCssClass: 'dropdown-inverse'});
-
   // show the datepicker if the frequency is monthly when the page loads
   if (Session.equals('params.recurring', 'monthly')) {
     $('#calendarSection').show();

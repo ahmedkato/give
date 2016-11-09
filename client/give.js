@@ -454,6 +454,7 @@ function OrgInfoCheck(name, namePart2) {
         let sum = amountsArray.reduce(
           function(total, num){ return total + num }
           , 0);
+        console.log(sum);
         return sum;
       }
 
@@ -465,7 +466,7 @@ function OrgInfoCheck(name, namePart2) {
       donationAmount = donationAmount.replace( /^0+/, '' );
       if( data === 'Check' ) {
         if( $.isNumeric( donationAmount ) ) {
-          donationAmount = donationAmount + clonedAmounts;
+          donationAmount = Number(donationAmount) + clonedAmounts;
           $( "#total_amount" ).val( donationAmount );
           $( "#show_total" ).hide();
           $( "#total_amount_display" ).text( "$" + donationAmount ).css( {
