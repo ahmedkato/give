@@ -207,7 +207,7 @@ Template.SubscriptionsOverview.events({
     });
 
     Meteor.setTimeout(function() {
-      $("#donateTo").val(self.metadata.donateTo).change();
+      $('[name="donateTo"]').val(self.metadata.donateTo).change();
     }, 0);
   }
 });

@@ -50,10 +50,10 @@ Template.SubscriptionModal.events({
     console.log("Submitted event started for AdminSubscriptionModal form");
     let subscription_id = Session.get("change_subscription_id");
     let customer_id = Session.get("change_customer_id");
-    let amount = parseInt(((Give.getCleanValue('#amount').replace(/[^\d\.\-\ ]/g, '')) * 100).toFixed(0));
+    let amount = parseInt(((Give.getCleanValue('[name="amount"]').replace(/[^\d\.\-\ ]/g, '')) * 100).toFixed(0));
     let note = $("#note").val();
     let trial_end = $("#start_date").val() ? moment(new Date(Give.getCleanValue('#start_date'))).format('X'): '';
-    let donateToValue = $("#designationSection").is(":visible") ? $('#donateTo').val() : Session.get("change_donateTo");
+    let donateToValue = $("#designationSection").is(":visible") ? $('[name="donateTo"]').val() : Session.get("change_donateTo");
 
     if(Session.get("change_donateTo") === donateToValue && Session.get("change_amount") === amount &&
       (Session.equals("yes_change_date", false) || !Session.get("yes_change_date"))){

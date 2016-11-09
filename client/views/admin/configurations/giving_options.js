@@ -425,7 +425,7 @@ Template.GivingOptions.onRendered(function () {
         let itemName = '#dd-' + item.groupId;
         $(itemName).ddslick({
           onSelected: function(selectedData) {
-            $('#donateTo').val(selectedData.selectedData.value);
+            $('[name="donateTo"]').val(selectedData.selectedData.value);
             if ($("#dd-" + selectedData.selectedData.value + " ul li").length === 1) {
               // select the first option in the second dropdown if there is only 1 option
               $( "#dd-" + selectedData.selectedData.value ).ddslick( 'select', { index: 1 } );

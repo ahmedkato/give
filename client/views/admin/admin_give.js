@@ -99,18 +99,18 @@ Template.AdminGive.events({
 
     Give.process_give_form(true, customer, gift_user_id);
   },
-  'keyup, change #amount': function() {
+  'keyup, change [name="amount"]': function() {
     return Give.updateTotal();
   },
   // disable mousewheel on a input number field when in focus
   // (to prevent Chromium browsers change of the value when scrolling)
-  'focus #amount': function() {
-    $('#amount').on('mousewheel.disableScroll', function(e) {
+  'focus [name="amount"]': function() {
+    $('[name="amount"]').on('mousewheel.disableScroll', function(e) {
       e.preventDefault();
     });
   },
-  'blur #amount': function() {
-    $('#amount').on('mousewheel.disableScroll', function(e) {
+  'blur [name="amount"]': function() {
+    $('[name="amount"]').on('mousewheel.disableScroll', function(e) {
       e.preventDefault();
     });
     return Give.updateTotal();

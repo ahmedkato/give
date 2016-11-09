@@ -2,6 +2,32 @@
     color: #F57F17;
 }
 
+.bottom-left-corner {
+    position: absolute;
+    bottom: -15px;
+    left: -15px;
+}
+
+.bottom-right-corner {
+    position: absolute;
+    bottom: -15px;
+    right: -15px;
+}
+
+.top-right-corner {
+    position: absolute;
+    top: -15px;
+    right: -15px;
+}
+
+.hr-in-well {
+    width: 100%;
+    color: #1abc9c;
+    height: 1px;
+    background-color:#1abc9c;
+    margin: 10px;
+}
+
 @media print {
     a[href]:after {
         content: none !important;
@@ -42,4 +68,10 @@
 
 .loading-wrapper {
     display: none;
+}
+
+@media screen and (max-width: 550px) {
+    .button-text {
+        display: none;
+    }
 }

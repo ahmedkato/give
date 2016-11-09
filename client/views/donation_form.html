@@ -4,10 +4,8 @@
             data-parsley-excluded="input[type=submit], input[type=reset], input[type=hidden], [disabled], :hidden"
             style="background-color: white;">
 
-            <div class="col-md-6 col-md-offset-3">
-            </div>
-            <div class="col-lg-8 col-md-8 col-md-offset-2">
 
+            <div class="col-lg-8 col-md-8 col-md-offset-2">
                 <fieldset>
                     {{#unless campaign}}
                         <h2 class="text-center">THANK YOU</h2>
@@ -16,10 +14,9 @@
                     {{/unless}}
 
                     <!-- Amount of donation -->
-                    <div class="donation_amount text-center well well-lg form-group">
-                        <div id='amount_width' class="{{amountWidth}}">
+                    <div class="donation_amount text-center well well-md form-group">
+                        <div id='amount_width' class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                             <label class="control-label" for="amount">Donation Amount</label>
-
                             {{#unless locked_amount}}
                                 <div class="input-group">
                                     <!--[if lt IE 9]>
@@ -28,8 +25,9 @@
                                     <span class="input-group-addon">$</span>
                                         <input {{attributes_Input_Amount}} type="digits" value="{{amount}}" class="form-control slim-borders"
                                    required data-parsley-error-message="Please only use numbers in the amount." data-parsley-errors-container="#show-amount-error-here" />
+                                    <div id="show-amount-error-here"></div>
                                 </div>
-                                <div id="show-amount-error-here"></div>
+
                             {{else}}
                                 <br>
                                 <span>$</span>{{amount}}
@@ -37,26 +35,86 @@
                             {{/unless}}
 
                         </div>
-                        <div class="text-left col-md-7 col-sm-8 col-xs-12">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            {{> DonationTo}}
+                        </div>
+                        <div class="top-right-corner">
+                            {{#if moreThanOneDesignation}}
+                                <button id="removeButton"
+                                        type="button"
+                                        href=""
+                                        data-toggle="popover"
+                                        data-placement="bottom"
+                                        data-trigger="hover focus"
+                                        data-container="body"
+                                        data-content="Remove the last designation from the list"
+                                        class="btn btn-danger"><i class="fa fa-minus"></i>
+                                </button>
+                            {{/if}}
+                            <button id="cloneButton"
+                                    type="button"
+                                    href=""
+                                    data-toggle="popover"
+                                    data-placement="bottom"
+                                    data-trigger="hover focus"
+                                    data-container="body"
+                                    data-content="Add another gift designation"
+                                    class="btn btn-primary"><i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                        <div class="clonedInputCopies">
+                            {{#each DonationFormItems}}
+                                <div class="clonedInput">
+                                    <hr class="hr-in-well" />
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <label class="control-label" for="amount">Donation Amount</label>
+                                            <div class="input-group">
+                                                <!--[if lt IE 9]>
+                                                    <label>Amount</label>
+                                                <![endif]-->
+                                                <span class="input-group-addon">$</span>
+                                                <input name="clonedAmount"
+                                                        type="digits"
+                                                        class="form-control slim-borders"
+                                                        required="true"
+                                                        min="1"
+                                                        data-parsley-error-message="Please only use numbers over 1 in this amount"
+                                                        data-parsley-errors-container="#amount-{{this.item}}" />
+                                                <div id="amount-{{this.item}}"></div>
+                                            </div>
+
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                        {{> DonationToDuplicates}}
+                                    </div>
+                                </div>
+                            {{/each}}
+                        </div>
+                        <div class="text-center col-md-12 col-sm-12 col-xs-12">
                             {{#if paymentWithCard}}
-                                <!-- Checbox for Covering related fees-->
-                                <input type="checkbox" name="coverTheFees" id="coverTheFees" data-toggle="checkbox" {{coverTheFeesChecked}} />
-                                    I'll cover the credit card processing fees. <span><i id="coverTheFeesQuestion" class="fa fa-question-circle" data-toggle="popover"
-                                     data-placement="bottom" data-trigger="hover focus" title="Processor fees" data-container="body"
-                                     data-content="Our credit card processor charges 2.9% + .30 per transaction. If you check the box to cover these fees we'll do the math and change your gift amount to reflect this amount.">
-                                </i></span>
-                                <label for="total_amount_display">&nbsp;</label>
-                                <p id="total_amount_display" class=""></p>
+                                <!--<label for="total_amount_display">&nbsp;</label>-->
+                                <h5 id="total_amount_display" class=""></h5>
                             {{/if}}
                             <input type="hidden" id="total_amount" name="total_amount" value="{{amount}}" />
                         </div>
                     </div>
+                    {{#if paymentWithCard}}
+                        <div class="row text-center">
+                            <div class="col-md-12">
+                                <!-- Checbox for Covering related fees-->
+                                <input type="checkbox" name="coverTheFees" id="coverTheFees" data-toggle="checkbox" {{coverTheFeesChecked}} />
+                                I'll cover the credit card processing fees. <span>
+                                    <i id="coverTheFeesQuestion" class="fa fa-question-circle" data-toggle="popover"
+                                       data-placement="bottom" data-trigger="hover focus" data-container="body"
+                                       data-content="Our credit card processor charges 2.2% + .30 per transaction. If you check the box to cover these fees we'll do the math and change your gift amount to reflect this amount.">
+                                    </i></span>
+                            </div>
+                        </div>
+                    {{/if}}
+                    <br>
                     <div class="form-group">
                         <div class="row">
-                            <div class="col-lg-4 col-md-4 col-sm-4">
-                                {{> DonationTo}}
-                            </div>
-                            <div class="col-lg-4 col-md-4 col-sm-4">
+                            <div class="col-lg-6 col-md-6 col-sm-6">
                                 <label for="donateWith">Method of Payment</label>
                                 <select name="donateWith"
                                         id="donateWith"
@@ -66,7 +124,7 @@
                                     <option value="Check">Check</option>
                                 </select>
                             </div>
-                            <div class="col-lg-4 col-md-4 col-sm-4">
+                            <div class="col-lg-6 col-md-6 col-sm-6">
                                 <label for="is_recurring" id="frequency_label">Donation Frequency
                                     {{#if doNotShowOneTime}}<span style="font-size: .8em;">{{{onlyOneTimeIcon}}}</span> {{/if}}</label>
                                 {{#unless locked_frequency}}

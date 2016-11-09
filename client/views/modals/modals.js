@@ -47,7 +47,7 @@ Template.Modals.events({
     if ($('#tripSelect').val() === "" || $('#participantSelect').val() === "") {
       return;
     }
-    $("#donateTo").val($("#tripSelect").val());
+    $('[name="donateTo"]').val($("#tripSelect").val());
 
     let urlText = '?note=' + $('#participantSelect').val() +
     '&donateTo=' + $("#tripSelect").val();

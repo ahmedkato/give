@@ -25,7 +25,7 @@ function OrgInfoCheck(name, namePart2) {
       return cleanString;
     },
     get_fee: function ( amount ) {
-      var r = (100 - 2.9) / 100;
+      var r = (100 - 2.2) / 100;
       var i = (parseFloat( amount ) + 0.3) / r;
       var s = i - amount;
       return {
@@ -113,9 +113,9 @@ function OrgInfoCheck(name, namePart2) {
           }
           form = {
             "paymentInformation": {
-              "amount":               parseInt( ((Give.getCleanValue( '#amount' ).replace( /[^\d\.\-\ ]/g, '' )) * 100).toFixed( 0 ), 10 ),
+              "amount":               parseInt( ((Give.getCleanValue( '[name="amount"]' ).replace( /[^\d\.\-\ ]/g, '' )) * 100).toFixed( 0 ), 10 ),
               "total_amount":         parseInt( (Give.getCleanValue( '#total_amount' ) * 100).toFixed( 0 ), 10 ),
-              "donateTo":             Give.getCleanValue( "#donateTo" ),
+              "donateTo":             Give.getCleanValue( "[name='donateTo']" ),
               "note":                 Give.getCleanValue( "#note" ),
               "donateWith":           Give.getCleanValue( '#donateWith' ),
               "is_recurring":         Give.getCleanValue( '#is_recurring' ),
@@ -155,9 +155,9 @@ function OrgInfoCheck(name, namePart2) {
 
           form = {
             "paymentInformation": {
-              "amount":       parseInt( ((Give.getCleanValue( '#amount' ).replace( /[^\d\.\-\ ]/g, '' )) * 100).toFixed( 0 ), 10 ),
+              "amount":       parseInt( ((Give.getCleanValue( '[name="amount"]' ).replace( /[^\d\.\-\ ]/g, '' )) * 100).toFixed( 0 ), 10 ),
               "total_amount": parseInt( (Give.getCleanValue( '#total_amount' ) * 100).toFixed( 0 ), 10 ),
-              "donateTo":     Give.getCleanValue( "#donateTo" ),
+              "donateTo":     Give.getCleanValue( '[name="donateTo"]' ),
               "note":         Give.getCleanValue( "#note" ),
               "donateWith":   Give.getCleanValue( '#donateWith' ),
               "is_recurring": Give.getCleanValue( '#is_recurring' ),
@@ -190,7 +190,7 @@ function OrgInfoCheck(name, namePart2) {
             "campaign":     Give.getCleanValue( '#dt_source' ),
             "coverTheFees": $( '#coverTheFees' ).is( ":checked" ),
             "created_at":   new Date().getTime() / 1000 | 0,
-            "donateTo":     Give.getCleanValue( "#donateTo" ),
+            "donateTo":     Give.getCleanValue( '[name="donateTo"]' ),
             "donateWith":   Give.getCleanValue( "#donateWith" ),
             "dt_source":    Give.getCleanValue( '#dt_source' ),
             "is_recurring": Give.getCleanValue( '#is_recurring' ),
@@ -447,12 +447,25 @@ function OrgInfoCheck(name, namePart2) {
       } );
     },
     updateTotal: function () {
+
+      function getCloneAmounts(){
+        let amountsArray = [];
+        $( '[name="clonedAmount"]' ).map(function(index, item){amountsArray.push(Number($(item).val()))});
+        let sum = amountsArray.reduce(
+          function(total, num){ return total + num }
+          , 0);
+        return sum;
+      }
+
       var data = Session.get( 'paymentMethod' );
-      var donationAmount = $( '#amount' ).val();
+      var donationAmount = $( '[name="amount"]' ).val();
+      let clonedAmounts = getCloneAmounts();
+      console.log(clonedAmounts, donationAmount);
       donationAmount = donationAmount.replace( /[^\d\.\-\ ]/g, '' );
       donationAmount = donationAmount.replace( /^0+/, '' );
       if( data === 'Check' ) {
         if( $.isNumeric( donationAmount ) ) {
+          donationAmount = donationAmount + clonedAmounts;
           $( "#total_amount" ).val( donationAmount );
           $( "#show_total" ).hide();
           $( "#total_amount_display" ).text( "$" + donationAmount ).css( {
@@ -470,13 +483,14 @@ function OrgInfoCheck(name, namePart2) {
           } );
         } else {
           if( $.isNumeric( donationAmount ) ) {
+            donationAmount = Number(donationAmount) + clonedAmounts;
             if( $( '#coverTheFees' ).prop( 'checked' ) ) {
               $( "#show_total" ).show();
               Session.set( "coverTheFees", true );
               var feeAndTotal = Give.get_fee( donationAmount );
               var fee = feeAndTotal.fee - donationAmount;
               var roundedAmount = (+donationAmount + (+fee)).toFixed( 2 );
-              $( "#total_amount_display" ).text( " + $" + fee.toFixed( 2 ) + " = $" + roundedAmount ).css( {
+              $( "#total_amount_display" ).text( "Fee calculation: $" + donationAmount + " + $" + fee.toFixed( 2 ) + " = $" + roundedAmount ).css( {
                 'color': '#34495e'
               } );
               $( "#total_amount" ).val( roundedAmount );
@@ -523,7 +537,7 @@ function OrgInfoCheck(name, namePart2) {
         $( '#city' ).val( "Topeka" );
         $( '#region' ).val( "KS" );
         $( '#postal_code' ).val( "66618" );
-        $( '#amount' ).val( "1.03" );
+        $( '[name="amount"]' ).val( "1.03" );
       } else {
         if( Session.get( "paymentMethod" ) === "Check" ) {
           $( '#routing_number' ).val( "111000025" ); // Invalid test =  fail after initial screen =  valid test = 111000025
@@ -536,7 +550,7 @@ function OrgInfoCheck(name, namePart2) {
           $( 'select#expiry_year' ).change();
           $( '#cvv' ).val( "123" ); // CVV mismatch = 200
         }
-        $( '#amount' ).val( "1.03" );
+        $( '[name="amount"]' ).val( "1.03" );
       }
     }
   };

@@ -195,7 +195,7 @@ Template.ACH.events({
     });
 
     Meteor.setTimeout(function() {
-      $("#donateTo").val(self.donateTo).change();
+      $('[name="donateTo"]').val(self.donateTo).change();
     }, 0);
   },
   'keyup, change .search': _.debounce(function () {

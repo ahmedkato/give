@@ -42,10 +42,10 @@ Template.ACHModal.events({
     console.log("Submitted event started for AdminACHModal form");
     let donation_id = Session.get("change_donation_id");
     let customer_id = Session.get("change_customer_id");
-    let amount = parseInt(((Give.getCleanValue('#amount').replace(/[^\d\.\-\ ]/g, '')) * 100).toFixed(0));
+    let amount = parseInt(((Give.getCleanValue('[name="amount"]').replace(/[^\d\.\-\ ]/g, '')) * 100).toFixed(0));
     let note = $("#note").val();
     let donationDate = $("#start_date").val() ? moment(new Date(Give.getCleanValue('#start_date'))).format('X'): '';
-    let donateToText = $("#designationSection").is(":visible") ? $('#donateTo option:selected').text() : Session.get("change_donateTo");
+    let donateToText = $("#designationSection").is(":visible") ? $('[name="donateTo"] option:selected').text() : Session.get("change_donateTo");
 
     if(Session.get("change_donateTo") === donateToText && Session.get("change_amount") === amount &&
       (Session.equals("yes_change_date", false) || !Session.get("yes_change_date"))){

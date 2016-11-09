@@ -20,7 +20,7 @@ function setupDonateTo(){
       })
         .indexOf(fund.id);
       if(fundOptionExistsInGivingOptions === -1) {
-        $( '#donateTo' ).select2( {
+        $( '[name="donateTo"]' ).select2( {
           data:             [{ id: donateTo, text: fund.name, type: "option" }],
           dropdownCssClass: 'dropdown-inverse'
         } );
@@ -28,7 +28,7 @@ function setupDonateTo(){
       }
     }
 
-    $( '#donateTo' ).select2( {
+    $( '[name="donateTo"]' ).select2( {
       data:             _.sortBy( givingOptions, 'position' ),
       dropdownCssClass: 'dropdown-inverse',
       placeholder:      "Choose one"
@@ -49,17 +49,16 @@ Template.DonationTo.helpers({
 });
 
 Template.DonationTo.events({
-  'change #donateTo': function() {
+  'change [name="donateTo"]': function() {
 
     let config = ConfigDoc();
     let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
-    console.log(writeInDonationTypeId);
 
-    if (writeInDonationTypeId.indexOf(Number($('#donateTo').val())) === -1 ) {
+    if (writeInDonationTypeId.indexOf(Number($('[name="donateTo"]').val())) === -1 ) {
       $('#giftNoteText').hide();
       Session.set('showWriteIn', 'no');
       // setup modal for entering give toward information
-      if ($('#donateTo').val().toLowerCase() === 'trips') {
+      if ($('[name="donateTo"]').val().toLowerCase() === 'trips') {
         $('#modal_for_trips').modal({
           show: true,
           backdrop: 'static'
@@ -73,7 +72,7 @@ Template.DonationTo.events({
         backdrop: 'static'
       });
     }
-    Session.set('params.donateTo', $('#donateTo').val());
+    Session.set('params.donateTo', $('[name="donateTo"]').val());
   }
 });
 
@@ -81,7 +80,7 @@ Template.DonationTo.onRendered(function() {
   setupDonateTo();
 
   if (Session.get('params.donateTo')) {
-    $("#donateTo").val(Session.get('params.donateTo'));
+    $('[name="donateTo"]').val(Session.get('params.donateTo'));
 	}
   if (Session.get('params.donateWith')) {
     $("#donateWith").val(Session.get('params.donateWith'));

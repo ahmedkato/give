@@ -69,7 +69,7 @@ Template.AdminSubscriptions.events({
     });
 
     Meteor.setTimeout(function() {
-      $("#donateTo").val(self.metadata.donateTo).change();
+      $('[name="donateTo"]').val(self.metadata.donateTo).change();
     }, 0);
   },
   'keyup, change .search': _.debounce(function () {

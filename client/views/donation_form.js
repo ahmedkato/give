@@ -8,6 +8,10 @@ $.fn.scrollView = function() {
   });
 };
 
+Template.DonationForm.onCreated(function () {
+  DonationFormItems = new Mongo.Collection(null);
+});
+
 Template.DonationForm.events({
   'submit form': function(e) {
     // prevent the default reaction to submitting this form
@@ -23,7 +27,7 @@ Template.DonationForm.events({
       $("html, body").animate({ scrollTop: 0 }, "slow");
       return;
     }
-    if ($("#donateTo").val() === '') {
+    if ($('[name="donateTo"]').val() === '') {
       $("#s2id_donateTo").children().addClass("redText");
 
       $("html, body").animate({ scrollTop: 0 }, "slow");
@@ -62,18 +66,18 @@ Template.DonationForm.events({
       $("#s2id_is_recurring").children().removeClass("redText");
     }
   },
-  'keyup, change #amount': function() {
+  'keyup, change [name="amount"]': function() {
     return Give.updateTotal();
   },
   // disable mousewheel on a input number field when in focus
   // (to prevent Chromium browsers change of the value when scrolling)
-  'focus #amount': function() {
-    $('#amount').on('mousewheel.disableScroll', function(e) {
+  'focus [name="amount"]': function() {
+    $('[name="amount"]').on('mousewheel.disableScroll', function(e) {
       e.preventDefault();
     });
   },
-  'blur #amount': function() {
-    $('#amount').on('mousewheel.disableScroll', function(e) {
+  'blur [name="amount"]': function() {
+    $('[name="amount"]').on('mousewheel.disableScroll', function(e) {
       e.preventDefault();
     });
     return Give.updateTotal();
@@ -123,10 +127,29 @@ Template.DonationForm.events({
   },
   'click #start_date_button'(){
     $("#start_date").select();
+  },
+  'click #cloneButton'(){
+    DonationFormItems.insert({item: $(".clonedInput").length++});
+    Meteor.setTimeout(()=>{
+      $('#donation_form').parsley();
+      $('[data-toggle="popover"]').popover({html: true});
+      $('select').select2({dropdownCssClass: 'dropdown-inverse'});
+    }, 500);
+  },
+  'click #removeButton'(){
+    DonationFormItems.remove({item: $(".clonedInput").length -1});
+    $('[data-toggle="popover"]').popover('destroy');
+    Meteor.setTimeout(()=>{
+      $('[data-toggle="popover"]').popover({html: true});
+      Give.updateTotal();
+    },200);
   }
 });
 
 Template.DonationForm.helpers({
+  DonationFormItems(){
+    return DonationFormItems.find();
+  },
   paymentQuestionIcon: function() {
     if (Session.equals('paymentMethod', 'Check')) {
       return "<i class='makeRightOfInput fa fa-question-circle' data-toggle='popover' " +
@@ -161,7 +184,6 @@ Template.DonationForm.helpers({
   attributes_Input_Amount: function() {
     return {
       name: "amount",
-      id: "amount",
       min: 1,
       required: true
     };
@@ -193,11 +215,8 @@ Template.DonationForm.helpers({
   today: function() {
     return moment().format('D MMM, YYYY');
   },
-  amountWidth: function() {
-    if (Session.equals("paymentMethod", "Card")) {
-      return 'form-group col-md-4 col-sm-4 col-xs-12';
-    }
-    return 'form-group';
+  moreThanOneDesignation(){
+    return DonationFormItems.findOne();
   }
 });
 

@@ -96,18 +96,18 @@ Template.UserGive.events({
       Give.process_give_form(true);
     }
   },
-  'keyup, change #amount': _.debounce(function() {
+  'keyup, change [name="amount"]': _.debounce(function() {
     return Give.updateTotal();
   }, 300),
     // disable mousewheel on a input number field when in focus
     // (to prevent Chromium browsers change of the value when scrolling)
-  'focus #amount': function() {
-    $('#amount').on('mousewheel.disableScroll', function(e) {
+  'focus [name="amount"]': function() {
+    $('[name="amount"]').on('mousewheel.disableScroll', function(e) {
       e.preventDefault();
     });
   },
-  'blur #amount': function() {
-    $('#amount').on('mousewheel.disableScroll', function(e) {
+  'blur [name="amount"]': function() {
+    $('[name="amount"]').on('mousewheel.disableScroll', function(e) {
       e.preventDefault();
     });
     return Give.updateTotal();
