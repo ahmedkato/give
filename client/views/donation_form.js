@@ -38,11 +38,11 @@ Template.DonationForm.events({
     $('[name="submitThisForm"]').button('loading');
 
     if ($('#donateWith').val() === 'Card') {
-      if (!Stripe.card.validateExpiry($('#expiry_month').val(), $('#expiry_year').val())) {
+      if (!Stripe.card.validateExpiry($('[name="cardExpirationMonth"]').val(), $('[name="cardExpirationYear"]').val())) {
         new_error = {reason: "The card expiration date you gave is either today or a day in the past.", error: "Expiration Date"};
         Give.handleErrors(new_error);
         return;
-      } else if (!Stripe.card.validateCardNumber($('#card_number').val())) {
+      } else if (!Stripe.card.validateCardNumber($('[name="cc-num"]').val())) {
         new_error = {reason: "The card number doesn't look right, please double check the number.", error: "Card Number Problem"};
         Give.handleErrors(new_error);
         return;
@@ -67,7 +67,7 @@ Template.DonationForm.events({
     }
   },
   'keyup, change [name="amount"]': function() {
-    return Give.updateTotal();
+    return Give.updateTotal(this._id);
   },
   // disable mousewheel on a input number field when in focus
   // (to prevent Chromium browsers change of the value when scrolling)
@@ -101,8 +101,8 @@ Template.DonationForm.events({
       }
     }
   },
-  'focus, blur #cvv': function() {
-    $('#cvv').on('mousewheel.disableScroll', function(e) {
+  'focus, blur [name="cvc2"]': function() {
+    $('[name="cvc2"]').on('mousewheel.disableScroll', function(e) {
       e.preventDefault();
     });
   },
@@ -162,7 +162,7 @@ Template.DonationForm.helpers({
       "Visa®, Mastercard®, and Discover® cardholders: " +
       "Turn your card over and look at the signature box. You should see either the entire 16-digit credit " +
       "card number or just the last four digits followed by a special 3-digit code. This 3-digit code is " +
-      "your CVV number / Card Security Code.  " +
+      "your CVC number / Card Security Code.  " +
       "American Express® cardholders: " +
       "Look for the 4-digit code printed on the front of your card just above and to the right of your " +
       "main credit card number. This 4-digit code is your Card Identification Number (CID). The CID is the " +
@@ -300,10 +300,10 @@ Template.cardPaymentInformation.onRendered(function() {
   $('[data-toggle="popover"]').popover();
 
   if (Session.get('params.exp_month')) {
-    $("#expiry_month").val(Session.get('params.exp_month'));
+    $('[name="cardExpirationMonth"]').val(Session.get('params.exp_month'));
   }
 
   if (Session.get('params.exp_year')) {
-    $("#expiry_year").val(Session.get('params.exp_year'));
+    $('[name="cardExpirationYear"]').val(Session.get('params.exp_year'));
   }
 });

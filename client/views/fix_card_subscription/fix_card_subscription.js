@@ -24,8 +24,8 @@ Template.FixCardSubscription.events({
       subscription_id: Subscriptions.findOne()._id,
       status: Subscriptions.findOne().status,
       card: Customers.findOne().sources.data[0].id,
-      exp_month: $('[name="expMo"]').val(),
-      exp_year: $('[name="expYr"]').val()
+      exp_month: $('[name="cardExpirationMonth"]').val(),
+      exp_year: $('[name="cardExpirationYear"]').val()
     };
     var addingNewCreditCard = Session.get('addingNewCreditCard');
     var resubscribeButton   = $(".resubscribe").button('loading');
@@ -33,10 +33,10 @@ Template.FixCardSubscription.events({
     if (addingNewCreditCard){
       // If we're adding a new card, grab our card data from the template.
       var card = {
-        number: $('[name="cardNumber"]').val(),
-        exp_month: $('[name="expMo"]').val(),
-        exp_year: $('[name="expYr"]').val(),
-        cvc: $('[name="cvc"]').val()
+        number: $('[name="cc-num"]').val(),
+        exp_month: $('[name="cardExpirationMonth"]').val(),
+        exp_year: $('[name="cardExpirationYear"]').val(),
+        cvc: $('[name="cvc2"]').val()
       };
 
 

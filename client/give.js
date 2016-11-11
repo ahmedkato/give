@@ -234,9 +234,9 @@ function OrgInfoCheck(name, namePart2) {
           cardInfo = {
             name:            userCursor.profile.fname + ' ' + userCursor.profile.lname,
             number:          Give.getCleanValue( '#card_number' ),
-            cvc:             Give.getCleanValue( '#cvv' ),
-            exp_month:       Give.getCleanValue( '#expiry_month' ),
-            exp_year:        Give.getCleanValue( '#expiry_year' ),
+            cvc:             Give.getCleanValue( '[name="cvc2"]' ),
+            exp_month:       Give.getCleanValue( '[name="cardExpirationMonth"]' ),
+            exp_year:        Give.getCleanValue( '[name="cardExpirationYear"]' ),
             address_line1:   profile.address.address_line1,
             address_line2:   addressLine2,
             address_city:    profile.address.city,
@@ -248,9 +248,9 @@ function OrgInfoCheck(name, namePart2) {
           cardInfo = {
             name:            Give.getCleanValue( '#fname' ) + ' ' + Give.getCleanValue( '#lname' ),
             number:          Give.getCleanValue( '#card_number' ),
-            cvc:             Give.getCleanValue( '#cvv' ),
-            exp_month:       Give.getCleanValue( '#expiry_month' ),
-            exp_year:        Give.getCleanValue( '#expiry_year' ),
+            cvc:             Give.getCleanValue( '[name="cvc2"]' ),
+            exp_month:       Give.getCleanValue( '[name="cardExpirationMonth"]' ),
+            exp_year:        Give.getCleanValue( '[name="cardExpirationYear"]' ),
             address_line1:   Give.getCleanValue( '#address_line1' ),
             address_line2:   Give.getCleanValue( '#address_line2' ),
             address_city:    Give.getCleanValue( '#city' ),
@@ -446,8 +446,10 @@ function OrgInfoCheck(name, namePart2) {
         }
       } );
     },
-    updateTotal: function () {
+    updateTotal: function (id) {
 
+      console.log("Update Total run");
+      console.log(id);
       function getCloneAmounts(){
         let amountsArray = [];
         $( '[name="clonedAmount"]' ).map(function(index, item){amountsArray.push(Number($(item).val()))});
@@ -521,11 +523,11 @@ function OrgInfoCheck(name, namePart2) {
           $( '#card_number' ).val( "4242424242424242" );
           // Succeeded = 4242424242424242 Failed = 4242111111111111 AMEX = 378282246310005
           // Fail after connection to customer succeeds = 4000000000000341
-          $( '#expiry_month option' ).prop( 'selected', false ).filter( '[value=12]' ).prop( 'selected', true );
-          $( 'select#expiry_month' ).change();
-          $( '#expiry_year option' ).prop( 'selected', false ).filter( '[value=2017]' ).prop( 'selected', true );
-          $( 'select#expiry_year' ).change();
-          $( '#cvv' ).val( "123" ); // CVV mismatch = 200
+          $( '[name="cardExpirationMonth"] option' ).prop( 'selected', false ).filter( '[value=12]' ).prop( 'selected', true );
+          $( 'select[name="cardExpirationMonth"]' ).change();
+          $( '[name="cardExpirationYear"] option' ).prop( 'selected', false ).filter( '[value=2017]' ).prop( 'selected', true );
+          $( 'select[name="cardExpirationYear"]' ).change();
+          $( '[name="cvc2"]' ).val( "123" ); // CVC mismatch = 200
         }
         $( '#fname' ).val( "Test" );
         $( '#lname' ).val( "Bechard" );
@@ -545,11 +547,11 @@ function OrgInfoCheck(name, namePart2) {
           $( '#account_number' ).val( "000123456789" ); // Invalid test =  fail after initial screen =  valid test = 000123456789
         } else {
           $( '#card_number' ).val( "4242424242424242" ); // Succeeded = 4242424242424242 Failed = 4242111111111111 AMEX = 378282246310005
-          $( '#expiry_month option' ).prop( 'selected', false ).filter( '[value=12]' ).prop( 'selected', true );
-          $( 'select#expiry_month' ).change();
-          $( '#expiry_year option' ).prop( 'selected', false ).filter( '[value=2017]' ).prop( 'selected', true );
-          $( 'select#expiry_year' ).change();
-          $( '#cvv' ).val( "123" ); // CVV mismatch = 200
+          $( '[name="cardExpirationMonth"] option' ).prop( 'selected', false ).filter( '[value=12]' ).prop( 'selected', true );
+          $( 'select[name="cardExpirationMonth"]' ).change();
+          $( '[name="cardExpirationYear"] option' ).prop( 'selected', false ).filter( '[value=2017]' ).prop( 'selected', true );
+          $( 'select[name="cardExpirationYear"]' ).change();
+          $( '[name="cvc2"]' ).val( "123" ); // CVC mismatch = 200
         }
         $( '[name="amount"]' ).val( "1.03" );
       }

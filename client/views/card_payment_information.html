@@ -6,20 +6,27 @@
                 <label>Card Number</label>
             <![endif]-->
             <input type="text" class="form-control slim-borders" id="card_number"
-                   placeholder="Debit/Credit Card Number" data-parsley-type="number" data-parsley-length="[14,16]" data-parsley-error-message="This should be between 14-16 numbers, no dashes or spaces." required>
+                   autocomplete="cc-number" x-autocompletetype="cc-number"
+                   placeholder="Debit/Credit Card Number"
+                   data-parsley-type="number"
+                   data-parsley-length="[14,16]"
+                   data-parsley-error-message="This should be between 14-16 numbers, no dashes or spaces."
+                   required>
         </div> <!-- 4111111111111111 -->
         <div class="col-md-3 col-sm-3 col-xs-4">
             <!--[if lt IE 9]>
-                <label>CVV Code</label>
+                <label>CV Code</label>
             <![endif]-->
-            <input type="text" class="form-control slim-borders" id="cvv"
-                   placeholder="CVV" data-parsley-type="number" data-parsley-minlength="3" required>
+            <input type="text" class="form-control slim-borders" name="cvc2"
+                   placeholder="CVC" data-parsley-type="number" data-parsley-minlength="3" required>
         </div>
     </div>
     <div class="form-group">
-        <!--<label class="col-lg-3 col-md-4 col-sm-4 col-xs-3 control-label noRightPadding" for="expiry_month">Expiration Date</label>-->
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-            <select class="form-control select select-primary slim-borders" id="expiry_month" required>
+            <select class="form-control select select-primary slim-borders"
+                    name="cardExpirationMonth"
+                    autocomplete="cc-exp-month" x-autocompletetype="cc-exp-month"
+                    required>
                 <option value="">Month</option>
                 <option value="01">Jan (01)</option>
                 <option value="02">Feb (02)</option>
@@ -36,9 +43,11 @@
             </select>
         </div>
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-            <select class="form-control select select-primary slim-borders" id="expiry_year" required>
+            <select class="form-control select select-primary slim-borders"
+                    name="cardExpirationYear"
+                    autocomplete="cc-exp-year" x-autocompletetype="cc-exp-year"
+                    required>
                 <option value="">Year</option>
-                <option value="2016">2016</option>
                 <option value="2017">2017</option>
                 <option value="2018">2018</option>
                 <option value="2019">2019</option>
