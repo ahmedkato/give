@@ -165,18 +165,13 @@ Meteor.methods({
   stripeDonation: function(data) {
     logger.info("Started stripeDonation");
     try {
-
       // Check the form to make sure nothing malicious is being submitted to the server
       Utils.checkFormFields(data);
-      if (data.paymentInformation.coverTheFees === false) {
-          data.paymentInformation.fees = '';
-      }
       logger.info(data.paymentInformation.start_date);
       let customerData = {};
-      let donateTo, user_id, dt_account_id, customerInfo, metadata;
+      let user_id, dt_account_id, customerInfo, metadata;
 
-      // Get the fund reference for this donation
-      donateTo = Utils.getDonateTo(data.paymentInformation.donateTo);
+      let donationSplitsId = DonationSplits.insert({splits: data.paymentInformation.splits});
 
       if (!data.customer.id) {
         customerData = Utils.create_customer(data.paymentInformation.token_id ? 
@@ -247,25 +242,22 @@ Meteor.methods({
       };
 
       metadata = {
-        'amount':               data.paymentInformation.amount,
         'coveredTheFees':       data.paymentInformation.coverTheFees,
         'created_at':           data.paymentInformation.created_at,
         'customer_id':          customerData.id,
-        'donateTo':             donateTo,
         'donateWith':           data.paymentInformation.donateWith,
         'dt_donation_id':       null,
         'dt_source':            data.paymentInformation.dt_source,
         'fees':                 data.paymentInformation.fees,
         'frequency':            data.paymentInformation.is_recurring,
-        'note':                 data.paymentInformation.note,
         'status':               'pending',
         'send_scheduled_email': data.paymentInformation.send_scheduled_email,
         'start_date':           data.paymentInformation.start_date,
         'total_amount':         data.paymentInformation.total_amount,
         'type':                 data.paymentInformation.type,
-        'sessionId':            data.paymentInformation.sessionId,
         'source_id':            data.paymentInformation.source_id,
-        'method':               data.paymentInformation.method
+        'method':               data.paymentInformation.method,
+        'donationSplitsId':     donationSplitsId
       };
 
       data._id = Donations.insert(metadata);
@@ -306,7 +298,7 @@ Meteor.methods({
             if( charge_object === 'scheduled' ) {
               return { c: customerData.id, don: data._id, charge: 'scheduled' };
             } else {
-              logger.error( "The charge_id object didn't have .object attached." );
+              logger.error( "The charge_id object didn't have object attached." );
               return {
                 error:   charge_object.rawType,
                 message: charge_object.message

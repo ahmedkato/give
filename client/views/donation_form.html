@@ -62,7 +62,7 @@
                                                 <label>Amount</label>
                                                 <![endif]-->
                                                 <span class="input-group-addon">$</span>
-                                                <input name="clonedAmount"
+                                                <input name="splitAmount"
                                                        type="digits"
                                                        class="form-control slim-borders"
                                                        required="true"
@@ -94,10 +94,10 @@
                         </div>
                         <div class="text-center col-md-12 col-sm-12 col-xs-12">
                             {{#if paymentWithCard}}
-                                <!--<label for="total_amount_display">&nbsp;</label>-->
                                 <h5 id="total_amount_display" class=""></h5>
                             {{/if}}
                             <input type="hidden" id="total_amount" name="total_amount" value="{{amount}}" />
+                            <input type="hidden" id="fee" />
                         </div>
                     </div>
                     {{#if paymentWithCard}}

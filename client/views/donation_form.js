@@ -10,6 +10,7 @@ $.fn.scrollView = function() {
 
 Template.DonationForm.onCreated(function () {
   DonationFormItems = new Mongo.Collection(null);
+  DonationFormItems.insert( {name: 'first'} );
 });
 
 Template.DonationForm.events({
@@ -91,6 +92,7 @@ Template.DonationForm.events({
     if (Session.equals("paymentMethod", "Check")) {
       Give.updateTotal();
       $("#show_total").hide();
+      $("#fee").val("");
     }
   },
   // keypress input detection for autofilling form with test data
@@ -106,8 +108,8 @@ Template.DonationForm.events({
       e.preventDefault();
     });
   },
-  'focus, blur #card_number': function() {
-    $('#card_number').on('mousewheel.disableScroll', function(e) {
+  'focus, blur [name="cc-num"]': function() {
+    $('[name="cc-num"]').on('mousewheel.disableScroll', function(e) {
       e.preventDefault();
     });
   },
@@ -133,21 +135,54 @@ Template.DonationForm.events({
     Meteor.setTimeout(()=>{
       $('#donation_form').parsley();
       $('[data-toggle="popover"]').popover({html: true});
+      $('[name="donateToDuplicate"]').change();
     }, 500);
   },
-  'click [name="remove-button"]'(e){
+  'click [name="remove-button"]'(){
     DonationFormItems.remove({_id: this._id});
     $('.popover').popover('destroy');
     Meteor.setTimeout(()=>{
       $('[data-toggle="popover"]').popover({html: true});
       Give.updateTotal();
     },200);
+  },
+  'change [name="donateTo"]'(e){
+    DonationFormItems.update( {name: 'first'}, {
+      $set: {
+        donateTo: $( e.target ).val(),
+      }
+    });
+  },
+  'keyup [name="amount"], change [name="amount"]'(e){
+    console.log( $( e.target ).val() );
+    DonationFormItems.update( {name: 'first'}, {
+      $set: {
+        amount: parseInt( ( Give.getCleanValue( e.target ) * 100).toFixed( 0 ), 10 ),
+      }
+    });
+  },
+  'change [name="donateToDuplicate"]'(e){
+    console.log( $( e.target ).val() );
+    console.log( this._id);
+    DonationFormItems.update( {_id: this._id }, {
+      $set: {
+        donateTo: $( e.target ).val()
+      }
+    } );
+  },
+  'keyup [name="splitAmount"], change [name="splitAmount"]'(e){
+    console.log( $( e.target ).val() );
+    DonationFormItems.update( {_id: this._id}, {
+      $set: {
+        amount: parseInt( ( Give.getCleanValue( e.target ) * 100).toFixed( 0 ), 10 ),
+      }
+    });
   }
 });
 
 Template.DonationForm.helpers({
   DonationFormItems(){
-    return DonationFormItems.find();
+    return DonationFormItems.find({item: {$exists: true}});
   },
   paymentQuestionIcon: function() {
     if (Session.equals('paymentMethod', 'Check')) {
@@ -215,7 +250,7 @@ Template.DonationForm.helpers({
     return moment().format('D MMM, YYYY');
   },
   moreThanOneDesignation(){
-    return DonationFormItems.findOne();
+    return DonationFormItems.findOne({$exists: {item: true}});
   }
 });
 
@@ -263,11 +298,8 @@ Template.DonationForm.onRendered(function() {
   }
 
   $('[name="donateTo"]').change();
-});
-
-Template.DonationForm.onDestroyed( function() {
-  $(window).unbind('beforeunload');
-  Session.delete('params.startdate')
+  $('[name="amount"]').change();
+  $('[name="splitAmount"]').change();
 });
 
 Template.checkPaymentInformation.helpers({
@@ -292,7 +324,6 @@ Template.checkPaymentInformation.helpers({
 Template.checkPaymentInformation.onRendered(function() {
   $('[data-toggle="popover"]').popover();
   $("#routing_number").mask("999999999");
-
 });
 
 // Card Payment Template mods
@@ -306,4 +337,10 @@ Template.cardPaymentInformation.onRendered(function() {
   if (Session.get('params.exp_year')) {
     $('[name="cardExpirationYear"]').val(Session.get('params.exp_year'));
   }
+});
+
+
+Template.DonationForm.onDestroyed( function() {
+  $(window).unbind('beforeunload');
+  Session.delete('params.startdate')
 });

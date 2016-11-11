@@ -54,15 +54,15 @@ Template.Receipt.helpers({
     return false;
   },
   donateTo: function() {
-    if (this.metadata && this.metadata.donateTo) {
-      if (! isNaN(this.metadata.donateTo)) {
-        if(DT_funds.findOne({_id: this.metadata.donateTo}) && DT_funds.findOne({_id: this.metadata.donateTo}).name) {
-          return DT_funds.findOne({_id: this.metadata.donateTo}).name;
+    if (this.donateTo) {
+      if (! isNaN(this.donateTo)) {
+        if(DT_funds.findOne({_id: this.donateTo}) && DT_funds.findOne({_id: this.donateTo}).name) {
+          return DT_funds.findOne({_id: this.donateTo}).name;
         } else {
           return;
         }
       } else {
-        return this.metadata.donateTo;
+        return this.donateTo;
       }
     }
     return 'Other';
@@ -82,7 +82,7 @@ Template.Receipt.helpers({
     }
   },
   amount: function() {
-    if (this.amount && this.metadata.fees) {
+    if (this.amount && this.metadata && this.metadata.fees) {
       return ((this.amount - this.metadata.fees) / 100).toFixed(2);
     } else if (this.amount) {
       return (this.amount / 100).toFixed(2);
@@ -95,20 +95,9 @@ Template.Receipt.helpers({
     }
     return '';
   },
-  fees: function() {
-    if (this.metadata.fees) {
-      return '<tr>\
-          <th>Covered fees:</th>\
-          <td></td>\
-          <td>$' + (this.metadata.fees / 100).toFixed(2) + '</td>\
-      </tr>\
-      <tr>\
-          <th>Total:</th>\
-          <td></td>\
-          <td>$' + (this.amount / 100).toFixed(2) + '</td>\
-      </tr>';
-    }
-    return '';
+  DonationSplits(){
+    let donationSplits = DonationSplits.findOne();
+    return donationSplits && donationSplits.splits;
   }
 });
 
@@ -125,6 +114,8 @@ Template.Receipt.onRendered(function() {
 
 Template.Receipt.onCreated(function() {
   this.autorun(()=>{
+    let chargeId = Router.current().params.query.charge;
     this.subscribe("userDTFunds");
+    this.subscribe("DonationSplits", chargeId);
   });
 });

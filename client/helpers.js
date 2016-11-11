@@ -452,3 +452,8 @@ Template.registerHelper('givingOptionsMember', function() {
   });
   return members;
 });
+
+
+Template.registerHelper('calculateFees', function(fees) {
+  return (fees / 100).toFixed(2);
+});

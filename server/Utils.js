@@ -80,26 +80,31 @@ Utils = {
     // Check all the form fields from the donation forms
     check( form, {
       paymentInformation: {
-        amount:               Match.Integer,
-        campaign:             Match.Optional( String ),
+        campaign:             Match.Maybe( String ),
         coverTheFees:         Boolean,
         created_at:           Number,
-        donateTo:             String,
-        donateWith:           Match.Optional( String ),
-        dt_source:            Match.Optional( String ),
-        fees:                 Match.Optional( Number ),
-        href:                 Match.Optional( String ),
+        donateWith:           Match.Maybe( String ),
+        dt_source:            Match.Maybe( String ),
+        fees:                 Match.Maybe( Number ),
+        href:                 Match.Maybe( String ),
         is_recurring:         Match.OneOf( "one_time", "monthly", "yearly", "semi-annually", "weekly", "bi-weekly" ),
-        later:                Match.Optional( Boolean ),
-        method:               Match.Optional( String ),
-        note:                 Match.Optional( String ),
+        later:                Match.Maybe( Boolean ),
+        method:               Match.Maybe( String ),
         saved:                Boolean,
-        send_scheduled_email: Match.Optional( String ),
-        source_id:            Match.Optional( String ),
-        start_date:           Match.Optional( String ),
-        token_id:             Match.Optional( String ),
+        send_scheduled_email: Match.Maybe( String ),
+        source_id:            Match.Maybe( String ),
+        start_date:           Match.Maybe( String ),
+        token_id:             Match.Maybe( String ),
         total_amount:         Match.Integer,
         type:                 String,
+        fee:                  Match.Maybe( Number ),
+        splits:               Match.Maybe( [{
+          _id:                String,
+          amount:             Number,
+          donateTo:           String,
+          name:               Match.Maybe(String),
+          item:               Match.Maybe(Number)
+        }])
       },
       customer:           {
         fname:         String,
@@ -920,14 +925,14 @@ Utils = {
       if( donorToolsIDMatch ) {
         return donorToolsIDMatch;
       } else {
-        throw new Meteor.Error( 500, "Couldn't find that number id in DT. Did it get merged? Your admin might also need to retrieve all the funds from DT via the Give dashboard. " );
+        throw new Meteor.Error( 500, "Couldn't find that number id in DT. Did it get merged? The admin might also need to retrieve all the funds from DT via the Give dashboard. " );
       }
     } else {
       let donorToolsNameMatch = Utils.checkForDTFundName( donateTo );
       if( donorToolsNameMatch ) {
         return donorToolsNameMatch;
       } else {
-        throw new Meteor.Error( 500, "Couldn't find that name in DT. Did it get changed? Your admin might also need to retrieve all the funds from DT via the Give dashboard. ");
+        throw new Meteor.Error( 500, "Couldn't find that name in DT. Did it get changed? The admin might also need to retrieve all the funds from DT via the Give dashboard. ");
       }
     }
   },

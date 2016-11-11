@@ -489,3 +489,13 @@ Meteor.publish("fundNames", function () {
 Meteor.publish('files.images.all', function () {
   return Images.find().cursor;
 });
+
+Meteor.publish('DonationSplits', function (chargeId) {
+  check(chargeId, Match.Maybe(String));
+  if(!chargeId){
+    return;
+  }
+  let charge = Charges.findOne({_id: chargeId});
+  let donationSplitId = charge.metadata && charge.metadata.donationSplitsId;
+  return DonationSplits.find({_id: donationSplitId});
+});

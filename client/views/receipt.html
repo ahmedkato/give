@@ -89,7 +89,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {{#with charges}}
+                        {{#each DonationSplits}}
                             <tr>
                                 <th>{{donateTo}}{{#if note}} -- <strong>
                                     Gift Note: {{note}}
@@ -97,12 +97,23 @@
                                     {{/if}}
                                 </th>
                                 <td class="donateWith text-left">
-                                    {{donateWith}}
+                                    {{#with charges}}{{donateWith}}{{/with}}
                                 </td>
                                 <td>${{amount}}</td>
                             </tr>
-                            {{{fees}}}
+                        {{/each}}
+                        {{#with charges}}
+                            {{#if metadata.fees}}
+                                <tr>
+                                    <td colspan="2" style="text-align: right;">Covered fees:</td>
+                                    <td>${{calculateFees this.metadata.fees}}</td>
+                                </tr>
+                            {{/if}}
                         {{/with}}
+                        <tr>
+                            <td colspan="2" style="text-align: right;">Total:</td>
+                            <td>${{#with charges}}{{total_amount}}{{/with}}</td>
+                        </tr>
                         </tbody>
                     </table>
                 </div><!-- e: invoice totals -->
