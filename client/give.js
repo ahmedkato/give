@@ -446,7 +446,7 @@ function OrgInfoCheck(name, namePart2) {
       donationAmount = donationAmount.replace( /^0+/, '' );
       if( data === 'Check' ) {
         if( $.isNumeric( donationAmount ) ) {
-          donationAmount = Number(donationAmount) + splitAmounts;
+          donationAmount = Number(donationAmount) + Number(splitAmounts);
           $( "#total_amount" ).val( donationAmount );
           $( "#show_total" ).hide();
           $( "#total_amount_display" ).text( "$" + donationAmount ).css( {
@@ -464,7 +464,7 @@ function OrgInfoCheck(name, namePart2) {
           } );
         } else {
           if( $.isNumeric( donationAmount ) ) {
-            donationAmount = Number(donationAmount) + splitAmounts;
+            donationAmount = Number(donationAmount) + Number(splitAmounts);
             if( $( '#coverTheFees' ).prop( 'checked' ) ) {
               $( "#show_total" ).show();
               Session.set( "coverTheFees", true );
@@ -519,7 +519,7 @@ function OrgInfoCheck(name, namePart2) {
         $( '#city' ).val( "Topeka" );
         $( '#region' ).val( "KS" );
         $( '#postal_code' ).val( "66618" );
-        $( '[name="amount"]' ).val( "1.03" );
+        $( '[name="amount"]' ).val( "1.03" ).change();
       } else {
         if( Session.get( "paymentMethod" ) === "Check" ) {
           $( '#routing_number' ).val( "111000025" ); // Invalid test =  fail after initial screen =  valid test = 111000025

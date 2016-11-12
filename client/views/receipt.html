@@ -80,11 +80,10 @@
         <section class="invoice-financials">
                 <div class="invoice-items">
                     <table>
-                        <caption>Your Donation:</caption>
+                        <caption>Your Donation with {{#with charges}}{{donateWith}}{{/with}}:</caption>
                         <thead>
                         <tr>
                             <th>Designation</th>
-                            <th>Donated with</th>
                             <th>Amount</th>
                         </tr>
                         </thead>
@@ -96,23 +95,20 @@
                                     </strong>
                                     {{/if}}
                                 </th>
-                                <td class="donateWith text-left">
-                                    {{#with charges}}{{donateWith}}{{/with}}
-                                </td>
                                 <td>${{amount}}</td>
                             </tr>
                         {{/each}}
                         {{#with charges}}
-                            {{#if metadata.fees}}
+                            {{#if $gt metadata.fees 0}}
                                 <tr>
-                                    <td colspan="2" style="text-align: right;">Covered fees:</td>
+                                    <td style="text-align: right;">Covered fees:</td>
                                     <td>${{calculateFees this.metadata.fees}}</td>
                                 </tr>
                             {{/if}}
                         {{/with}}
                         <tr>
-                            <td colspan="2" style="text-align: right;">Total:</td>
-                            <td>${{#with charges}}{{total_amount}}{{/with}}</td>
+                            <td style="text-align: right;"></td>
+                            <td><span style="font-weight: bold;">Total:</span>&nbsp;&nbsp;&nbsp; ${{#with charges}}{{total_amount}}{{/with}}</td>
                         </tr>
                         </tbody>
                     </table>

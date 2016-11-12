@@ -153,7 +153,7 @@ Template.DonationForm.events({
       }
     });
   },
-  'keyup [name="amount"], change [name="amount"]'(e){
+  'keyup [name="amount"], change [name="amount"], blur [name="amount"]'(e){
     console.log( $( e.target ).val() );
     DonationFormItems.update( {name: 'first'}, {
       $set: {
@@ -255,6 +255,8 @@ Template.DonationForm.helpers({
 });
 
 Template.DonationForm.onRendered(function() {
+  //DonationFormItems.insert( {name: 'first'} );
+
   let config = ConfigDoc();
   let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
 

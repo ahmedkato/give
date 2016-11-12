@@ -599,8 +599,7 @@ Utils = {
     let config = ConfigDoc();
     logger.info( "Config Settings:", config.Settings );
     logger.info( "chargeId:", chargeId, " Customer_id: ", customer_id );
-    let chargeCursor, dt_fund, donateTo, invoice_cursor,
-      fund_id, memo, source_id, newDonationResult;
+    let chargeCursor, invoice_cursor, source_id, newDonationResult;
     var metadata;
 
     chargeCursor = Charges.findOne( { _id: chargeId } );
@@ -635,35 +634,58 @@ Utils = {
       // event object id
     }
 
-    donateTo = metadata.donateTo;
+    let getFundId = (donateTo)=> {
+      let dt_fund = Utils.processDTFund( donateTo );
+      let fund_id;
 
-    dt_fund = Utils.processDTFund( donateTo );
-
-    // fund_id should be the No-Match-Found fund used to help reconcile
-    // write-in gifts and those not matching a fund in DT
-    if( !dt_fund ) {
-      fund_id = config.Settings.DonorTools.defaultFundId;
-      memo = Meteor.settings.dev +
-        (metadata &&
-        metadata.frequency &&
-        metadata.frequency.charAt( 0 ).toUpperCase() +
-        metadata.frequency.slice( 1 ) + " " + donateTo);
-    } else {
-      fund_id = dt_fund;
-      memo = Meteor.settings.dev +
-        (metadata &&
-        metadata.frequency &&
-        metadata.frequency.charAt( 0 ).toUpperCase() +
-        metadata.frequency.slice( 1 ));
-      if( metadata && metadata.note ) {
-        memo = memo + " " + metadata.note;
+      // fund_id should be the No-Match-Found fund used to help reconcile
+      // write-in gifts and those not matching a fund in DT
+      if( !dt_fund ) {
+        fund_id = config.Settings.DonorTools.defaultFundId;
+      } else {
+        fund_id = dt_fund;
       }
-    }
+      return fund_id;
+    };
+    let getMemo = (donateTo, splitMemo)=> {
+      let dt_fund = Utils.processDTFund( donateTo );
+      let memo;
 
-    if( !memo ) {
-      logger.error( chargeId, customer_id );
-      logger.error( metadata );
-      logger.error( "Something went wrong above, it looks like there is no metadata on this object." );
+      // fund_id should be the No-Match-Found fund used to help reconcile
+      // write-in gifts and those not matching a fund in DT
+      if( !dt_fund ) {
+        memo = Meteor.settings.dev +
+          (metadata &&
+          metadata.frequency &&
+          metadata.frequency.charAt( 0 ).toUpperCase() +
+          metadata.frequency.slice( 1 ) + " " + donateTo);
+      } else {
+        memo = Meteor.settings.dev +
+          (metadata &&
+          metadata.frequency &&
+          metadata.frequency.charAt( 0 ).toUpperCase() +
+          metadata.frequency.slice( 1 ));
+      }
+      if( !memo ) {
+        logger.error( chargeId, customer_id );
+        logger.error( metadata );
+        logger.error( "Something went wrong above, it looks like there is no metadata on this object." );
+      }
+      if( splitMemo ) {
+        memo = memo + " " + splitMemo;
+      }
+      return memo;
+    };
+
+    let splits = [];
+    let donationSplitsId = chargeCursor.metadata && chargeCursor.metadata.donationSplitsId;
+    if(donationSplitsId){
+      let donationSplits = DonationSplits.findOne({_id: donationSplitsId});
+      donationSplits.splits.forEach(function ( split ) {
+        splits.push({amount_in_cents: split.amount, fund_id: Number(split.donateTo), memo: getMemo(split.donateTo, split.memo)})
+      });
+    } else {
+      splits.push({amount_in_cents: chargeCursor.amount, fund_id: getFundId(metadata.donateTo), memo: getMemo(metadata.donateTo, metadata.note)})
     }
 
     if( customerCursor && customerCursor.metadata && customerCursor.metadata.business_name ) {
@@ -692,6 +714,7 @@ Utils = {
       let donationMemo = "The charge was refunded on " + createdDate +
         ". The original charge amount was $" + refundedAmount;
       memo = donationMemo;
+      //TODO: need to setup this area for splits
     }
 
     if( chargeCursor.status === 'failed' ) {
@@ -704,6 +727,8 @@ Utils = {
         chargeCursor.failure_message + '"';
 
       memo = donationMemo;
+      //TODO: need to setup this area for splits
+
     }
 
     try {
@@ -713,7 +738,7 @@ Utils = {
         customerCursor.metadata.dt_persona_id + '.json', {
         auth: DONORTOOLSAUTH
       } );
-      console.log( checkPerson.data );
+      logger.info( checkPerson.data );
     } catch( e ) {
       logger.error( "No Person with the DT ID of " +
         customerCursor.metadata.dt_persona_id + " found in DT" );
@@ -742,11 +767,7 @@ Utils = {
       data: {
         "donation": {
           "persona_id":       customerCursor.metadata.dt_persona_id,
-          "splits":           [{
-            "amount_in_cents": amount,
-            "fund_id":         fund_id,
-            "memo":            memo
-          }],
+          "splits":           splits,
           "donation_type_id": config.Settings.DonorTools.customDataTypeId,
           "received_on":      moment( new Date( chargeCursor.created * 1000 ) ).format( "YYYY/MM/DD hh:mma" ),
           "source_id":        source_id,
@@ -1882,15 +1903,6 @@ Utils = {
       case "Shelley Setchell":
         return 60465;
         break;
-      case "BaseCamp - John Kazaklis":
-        return 60480;
-        break;
-      case "Basecamp - John Kazaklis":
-        return 60480;
-        break;
-      case "John Kazaklis":
-        return 60480;
-        break;
       case "BaseCamp - Chris Mammoliti":
         return 63662;
         break;
@@ -1920,24 +1932,6 @@ Utils = {
         break;
       case "Joshua Bechard":
         return 63683;
-        break;
-      case "BaseCamp - James Hishmeh":
-        return 65262;
-        break;
-      case "Basecamp - James Hishmeh":
-        return 65262;
-        break;
-      case "James Hishmeh":
-        return 65262;
-        break;
-      case "BaseCamp - Willie Brooks":
-        return 65263;
-        break;
-      case "Basecamp - Willie Brooks":
-        return 65263;
-        break;
-      case "Willie Brooks":
-        return 65263;
         break;
       case "Int'l Field Projects - Honduras":
         return 60489;

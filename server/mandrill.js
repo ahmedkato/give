@@ -391,7 +391,7 @@ _.extend(Utils,{
           }
       };
 
-      if(charge_cursor.metadata.fees){
+      if(charge_cursor.metadata.fees && charge_cursor.metadata.fees > 0){
           data_slug.message.global_merge_vars.push(
               {
                   "name": "GiftAmountFees",
@@ -414,7 +414,7 @@ _.extend(Utils,{
           data_slug.message.global_merge_vars.push(
               {
                   "name": "ADDRESS_LINE2",
-                  "content": customer_cursor.metadata.address_line2 + "<br>"
+                  "content": customer_cursor.metadata.address_line2
               }
           );
       }
@@ -578,18 +578,40 @@ _.extend(Utils,{
                 return;
               }
           } else {
+            logger.info("donateTo: " + donation_cursor.donateTo);
+            if(!donation_cursor.donateTo){
+              let splits = DonationSplits.findOne({_id: donation_cursor.donationSplitsId})
+                && DonationSplits.findOne({_id: donation_cursor.donationSplitsId}).splits;
+              let splitsWithDetails = [];
+              splits.forEach(function ( split ) {
+                splitsWithDetails.push({donateTo: Utils.getDonateToName(split.donateTo), amount: (split.amount / 100).toFixed(2)});
+              });
               data_slug.message.global_merge_vars.push(
-                  {
-                      "name": "DonateTo",
-                      "content": Utils.getDonateToName(donation_cursor.donateTo)
-                  }
+                {
+                  "name": "splits",
+                  "content": splitsWithDetails
+                }
               );
               data_slug.message.global_merge_vars.push(
-                  {
-                      "name": "don",
-                      "content": donation_cursor._id
-                  }
+                {
+                  "name": "donationIsSplit",
+                  "content": true
+                }
               );
+            } else {
+              data_slug.message.global_merge_vars.push(
+                {
+                  "name": "donateTo",
+                  "content": Utils.getDonateToName(donation_cursor.donateTo)
+                }
+              );
+            }
+            data_slug.message.global_merge_vars.push(
+                {
+                    "name": "don",
+                    "content": donation_cursor._id
+                }
+            );
           }
       }
 
@@ -666,7 +688,8 @@ _.extend(Utils,{
       let dataSlugWithFrom = Utils.setupEmailFrom(dataSlugWithImageVars);
       let dataSlugWithTo = Utils.addRecipientToEmail(dataSlugWithFrom, to);
       let dataSlugWithOrgInfoFields = Utils.addOrgInfoFields(dataSlugWithTo);
-      dataSlugWithTo.message.subject = subject;
+      dataSlugWithOrgInfoFields.message.subject = subject;
+      dataSlugWithOrgInfoFields.message.merge_language = "handlebars";
       Mandrill.messages.sendTemplate(dataSlugWithOrgInfoFields);
     } catch (e) {
       logger.error('Mandril sendEmailOutAPI Method error message: ' + e.message);
