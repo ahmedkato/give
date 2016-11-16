@@ -1236,7 +1236,7 @@ Utils = {
     }
   },
   update_charge_metadata(event_body) {
-    logger.info( "Inside update_charge_metadata" );
+    logger.info( "Inside update_charge_metadata with: " + event_body.data.object.id );
 
     // Get the subscription cursor
     var invoice_cursor = Invoices.findOne( { _id: event_body.data.object.invoice } );
@@ -1248,7 +1248,6 @@ Utils = {
     }
     var subscription_cursor = Subscriptions.findOne( { _id: invoice_cursor.subscription } );
 
-    logger.info( "Charge id: " + event_body.data.object.id );
     // Use the metadata from the subscription to update the charge with Stripe
     if( subscription_cursor.metadata ) {
       StripeFunctions.stripe_update( 'charges', 'update', event_body.data.object.id, '', {

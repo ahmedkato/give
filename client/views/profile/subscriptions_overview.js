@@ -111,7 +111,7 @@ Template.SubscriptionsOverview.helpers({
   donations() {
     return Donations.find({}, { sort: { created_at: 1} });
   },
-  options: {
+  options:{
     id: "subscriptionsTutorial",
     steps: subscriptionsTutorialSteps(),
     onFinish: function() {
@@ -121,7 +121,7 @@ Template.SubscriptionsOverview.helpers({
         Session.set('tutorialEnabled', false);
       }, 1000);
     }
-  }
+  },
 });
 
 Template.SubscriptionsOverview.events({
@@ -223,5 +223,6 @@ Template.SubscriptionsOverview.onRendered(function() {
 Template.SubscriptionsOverview.onCreated(function() {
   this.autorun(()=>{
     this.subscribe("userDTFunds");
+    this.subscribe("donation_splits");
   });
 });

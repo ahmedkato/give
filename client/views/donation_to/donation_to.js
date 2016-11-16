@@ -4,6 +4,14 @@ Template.DonationTo.onCreated(function () {
   });
 });
 
+Template.DonationTo.helpers({
+  selected(){
+    console.log(Template.parentData(2));
+    return Session.equals("change_subscription_id", Template.parentData(2).donateTo) ? "selected" : '';
+   //if(this.donateTo && (this.donateTo === ))
+  }
+});
+
 Template.DonationTo.events({
   'change [name="donateTo"]': function() {
 
@@ -14,7 +22,7 @@ Template.DonationTo.events({
       $('#giftNoteText').hide();
       Session.set('showWriteIn', 'no');
       // setup modal for entering give toward information
-      if ($('[name="donateTo"]').val().toLowerCase() === 'trips') {
+      if ($('[name="donateTo"]').val() && $('[name="donateTo"]').val().toLowerCase() === 'trips') {
         $('#modal_for_trips').modal({
           show: true,
           backdrop: 'static'
@@ -33,6 +41,7 @@ Template.DonationTo.events({
 });
 
 Template.DonationTo.onRendered(function() {
+  console.log(this.donateTo);
   if (Session.get('params.donateTo')) {
     $('[name="donateTo"]').val(Session.get('params.donateTo'));
 	}

@@ -620,3 +620,38 @@ Meteor.publishComposite("receiptCharge", function (chargeId) {
     ]
   }
 });
+
+Meteor.publishComposite("donation_splits", function () {
+  logger.info( "Started publish function, donation_splits" );
+  console.log(this.userId);
+
+  if( this.userId ) {
+    console.log(this.userId);
+
+    return {
+      find: function(){
+        return Customers.find( { 'metadata.user_id': this.userId });
+      },
+      children: [
+        {
+          find: function (customer) {
+            // Find the charge associated with this customer
+            return Charges.find( { customer: customer._id}, {
+              fields: {
+                metadata: 1
+              }
+            } );
+          },
+          children: [
+            {
+              find: function (charge) {
+                // Find the DonationSplits associated with this Charge
+                return DonationSplits.find( { _id: charge.metadata.donationSplitsId});
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+});

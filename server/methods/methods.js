@@ -284,6 +284,7 @@ Meteor.methods({
             return { error: charge.rawType, message: charge.message };
           }
           Donations.update( { _id: data._id }, { $set: { charge_id: charge.id } } );
+          DonationSplits.update({_id:  donationSplitsId}, { $set: { charge_id: charge.id} });
 
           return { c: customerData.id, don: data._id, charge: charge.id };
         } else {
@@ -305,6 +306,7 @@ Meteor.methods({
               };
             }
           }
+          DonationSplits.update({_id:  donationSplitsId}, { $set: { charge_id: charge_object.charge} });
 
           // check for payment rather than charge id here
           var return_charge_or_payment_id;

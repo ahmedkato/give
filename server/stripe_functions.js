@@ -466,7 +466,7 @@ _.extend(StripeFunctions, {
     return stripeResourceUpdate;
   },
   'check_for_necessary_objects_before_inserting_into_dt': function (charge_id, customer_id, interval) {
-    logger.info("Started check_for_necessary_objects_before_inserting_into_dt with interval of: " + interval);
+    logger.info("Started check_for_necessary_objects_before_inserting_into_dt with charge_id: " + charge_id + " and interval of: " + interval);
 
     let chargeCursor, customerCursor, stripeCustomerRecord, dtPersonaId;
 

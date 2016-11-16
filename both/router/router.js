@@ -125,6 +125,7 @@ Router.route('/thanks', {
     this.render('Thanks', {
       data: function() {
         Session.set('print', this.params.query.print);
+        Session.set('params.charge', this.params.query.charge);
       }
     });
   }

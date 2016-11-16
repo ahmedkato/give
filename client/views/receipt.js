@@ -64,6 +64,10 @@ Template.Receipt.helpers({
       } else {
         return this.donateTo;
       }
+    } else if(this.metadata && this.metadata.donateTo){
+      if(DT_funds.findOne({_id: this.metadata.donateTo}) && DT_funds.findOne({_id: this.metadata.donateTo}).name) {
+        return DT_funds.findOne({_id: this.metadata.donateTo}).name;
+      }
     }
     return 'Other';
   },
@@ -114,8 +118,26 @@ Template.Receipt.onRendered(function() {
 
 Template.Receipt.onCreated(function() {
   this.autorun(()=>{
-    let chargeId = Router.current().params.query.charge;
     this.subscribe("userDTFunds");
-    this.subscribe("DonationSplits", chargeId);
+    this.subscribe("DonationSplits", Session.get("params.charge"));
   });
+});
+
+Template.Receipt.onDestroyed(function () {
+  Session.delete("params.charge");
+  Session.delete("params.campaign");
+  Session.delete("params.donateWith");
+  Session.delete("params.dt_source");
+  Session.delete("params.start_date");
+  Session.delete("params.note");
+  Session.delete("params.enteredCampaignValue");
+  Session.delete("params.exp_month");
+  Session.delete("params.exp_year");
+  Session.delete("params.paymentMethod");
+  Session.delete("paymentMethod");
+  Session.delete("params.recurring");
+  Session.delete("recurring");
+  Session.delete("showWriteIn");
+  Session.delete("print");
+  Session.delete("coverTheFees");
 });

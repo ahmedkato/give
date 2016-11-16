@@ -41,6 +41,17 @@ Template.SubscriptionModal.helpers({
   },
   note: function () {
     return Session.get('change_not');
+  },
+  DonationSplits(){
+    // TODO: take this subscription id and figure out which DonationSplits object we need to be looking at for this
+    // then return it below, or return false
+    return DonationSplits.find();
+  },
+  DonationSplitsData(){
+
+    // TODO: take this subscription id and figure out which DonationSplits object we need to be looking at for this
+    // then return it below
+    return DonationSplits.find({});
   }
 });
 

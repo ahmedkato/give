@@ -495,7 +495,5 @@ Meteor.publish('DonationSplits', function (chargeId) {
   if(!chargeId){
     return;
   }
-  let charge = Charges.findOne({_id: chargeId});
-  let donationSplitId = charge.metadata && charge.metadata.donationSplitsId;
-  return DonationSplits.find({_id: donationSplitId});
+  return DonationSplits.find({charge_id: chargeId});
 });
