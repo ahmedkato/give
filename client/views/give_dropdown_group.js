@@ -1,5 +1,15 @@
 import parsley from 'parsleyjs';
 
+Template.GiveDropdownGroup.onCreated(function() {
+
+  this.autorun(()=> {
+    this.subscribe( 'userStripeData' );
+    this.subscribe( 'userDT' );
+    this.subscribe( 'userDTFunds' );
+    this.subscribe( 'devices' );
+  });
+});
+
 Template.GiveDropdownGroup.onRendered(function() {
   // show the datepicker if the frequency is monthly when the page loads
   if (Session.equals('params.recurring', 'monthly')) {

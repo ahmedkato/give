@@ -224,5 +224,7 @@ Template.SubscriptionsOverview.onCreated(function() {
   this.autorun(()=>{
     this.subscribe("userDTFunds");
     this.subscribe("donation_splits");
+    this.subscribe('subscriptions');
+    this.subscribe('userDoc')
   });
 });

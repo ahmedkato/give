@@ -243,14 +243,6 @@ Router.route('/transfers/:_id', function() {
 Router.route('/user/give', {
   layoutTemplate: 'UserLayout',
 
-  subscriptions: function() {
-    return [
-      Meteor.subscribe('userStripeData'),
-      Meteor.subscribe('userDT'),
-      Meteor.subscribe('userDTFunds'),
-      Meteor.subscribe('devices')
-    ];
-  },
   action: function() {
     var params = this.params;
 
@@ -274,18 +266,12 @@ Router.route('/user/give', {
   name: 'user.give'
 });
 
-Router.route('Subscriptions', function() {
-  var params = this.params;
-  Session.set('fix_it', params.query.fix_it);
-
-  this.wait([Meteor.subscribe('subscriptions'), Meteor.subscribe('userDoc')]);
-  if (this.ready()) {
-    this.render();
-  } else {
-    this.render('Loading');
-  }
-}, {
+Router.route('Subscriptions', {
   name: 'subscriptions',
+  action: function() {
+    Session.set('fix_it', this.params.query.fix_it);
+    this.render('SubscriptionsOverview');
+  },
   layoutTemplate: 'UserLayout',
   path: '/user/subscriptions'
 });

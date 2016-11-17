@@ -1,0 +1,46 @@
+<template name="Amount">
+    <!-- Amount of donation -->
+    <div class="donation_amount text-center well well-md form-group">
+        <div id='amount_width' class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <label class="control-label" for="amount">Donation Amount</label>
+            {{#unless locked_amount}}
+                <div class="input-group">
+                    <!--[if lt IE 9]>
+                    <label>Amount</label>
+                    <![endif]-->
+                    <span class="input-group-addon">$</span>
+                    <input name="amount" min="1" required="true" type="digits" value="{{amount}}" class="form-control slim-borders"
+                           data-parsley-error-message="Please only use numbers in the amount." data-parsley-errors-container="#show-amount-error-here" />
+                    <div id="show-amount-error-here"></div>
+                </div>
+
+            {{else}}
+                <br>
+                <span>$</span>{{amount}}
+                <input name="amount" min="1" required="true" type="hidden" value="{{amount}}" />
+            {{/unless}}
+
+        </div>
+        {{> DonationToItems}}
+        <div class="text-center col-md-12 col-sm-12 col-xs-12">
+            {{#if paymentWithCard}}
+                <h5 id="total_amount_display" class=""></h5>
+            {{/if}}
+            <input type="hidden" id="total_amount" name="total_amount" value="{{amount}}" />
+            <input type="hidden" id="fee" />
+        </div>
+    </div>
+    {{#if paymentWithCard}}
+        <div class="row text-center">
+            <div class="col-md-12">
+                <!-- Checbox for Covering related fees-->
+                <input type="checkbox" name="coverTheFees" id="coverTheFees" data-toggle="checkbox" {{coverTheFeesChecked}} />
+                I'll cover the credit card processing fees. <span>
+                                    <i id="coverTheFeesQuestion" class="fa fa-question-circle" data-toggle="popover"
+                                       data-placement="bottom" data-trigger="hover focus" data-container="body"
+                                       data-content="Our credit card processor charges 2.2% + .30 per transaction. If you check the box to cover these fees we'll do the math and change your gift amount to reflect this amount.">
+                                    </i></span>
+            </div>
+        </div>
+    {{/if}}
+</template>

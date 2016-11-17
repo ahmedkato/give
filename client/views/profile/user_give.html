@@ -12,86 +12,9 @@
                     </div>
                     <div class="col-lg-8 col-md-8 col-md-offset-2 quick-give-form">
                         <fieldset>
-                            <!-- Amount of donation -->
-                            <div class="donation_amount text-center well well-lg form-group">
-                                <div id='amount_width' class="{{amountWidth}}">
-                                    <label class="control-label"
-                                           for="amount">Donation Amount</label>
 
-                                    <div class="input-group">
-                                        <span class="input-group-addon">$</span>
-                                        <input {{attributes_Input_Amount}}
-                                                type="digits"
-                                                value="{{amount}}"
-                                                class="form-control slim-borders"
-                                           required data-parsley-error-message="Please enter an amount with no commas."
-                                           data-parsley-errors-container="#show-amount-error-here" />
-                                    </div>
-                                    <div id="show-amount-error-here"></div>
-
-                                </div>
-                                <div class="text-left col-md-7 col-sm-8 col-xs-12">
-                                    {{#if paymentWithCard}}
-                                        <!-- Checkbox for Covering related fees-->
-                                        <input type="checkbox"
-                                               name="coverTheFees"
-                                               id="coverTheFees"
-                                               data-toggle="checkbox"
-                                            {{coverTheFeesChecked}}
-                                               class="cover-fees" />
-                                        <span class="cover-fees">
-                                            I'll cover the credit card processing fees.
-                                        </span>
-                                        <span>
-                                            <i id="coverTheFeesQuestion"
-                                               class="fa fa-question-circle"
-                                               data-toggle="popover"
-                                               data-placement="bottom"
-                                               data-trigger="hover focus"
-                                               title="Processor fees"
-                                               data-container="body"
-                                                 data-content="Our credit card processor charges 2.9% + .30 per transaction. If you check the box to cover these fees we'll do the math and change your gift amount to reflect this amount.">
-                                            </i>
-                                        </span>
-                                        <span ><label for="total_amount_display">&nbsp;</label>
-                                                <p id="total_amount_display" class=""></p>
-                                        </span>
-                                    {{else}}
-                                        {{#if savedDevice}}
-                                            <!-- Checbox for Covering related fees-->
-                                            <input type="checkbox"
-                                                   name="coverTheFees"
-                                                   id="coverTheFees"
-                                                   data-toggle="checkbox"
-                                                {{coverTheFeesChecked}}
-                                                   class="cover-fees" />
-                                            <span class="cover-fees">
-                                                I'll cover the credit card processing fees.
-                                            </span>
-                                            <span>
-                                                <i id="coverTheFeesQuestion"
-                                                   class="fa fa-question-circle"
-                                                   data-toggle="popover"
-                                                   data-placement="bottom"
-                                                   data-trigger="hover focus"
-                                                   title="Processor fees"
-                                                   data-container="body"
-                                                   data-content="Our credit card processor charges 2.9% + .30 per transaction. If you check the box to cover these fees we'll do the math and change your gift amount to reflect this amount.">
-                                                </i>
-                                            </span>
-                                            <span ><label for="total_amount_display">&nbsp;</label>
-                                                    <p id="total_amount_display" class=""></p>
-                                            </span>
-                                        {{/if}}
-                                    {{/if}}
-
-                                    <input type="hidden"
-                                           id="total_amount"
-                                           name="total_amount"
-                                           value="{{amount}}" />
-                                </div>
-                            </div>
-
+                            {{> Amount}}
+                            <br>
                             <!-- Show give form -->
                             {{> GiveDropdownGroup}}
                             {{#if paymentWithCard}}

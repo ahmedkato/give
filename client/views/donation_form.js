@@ -67,25 +67,6 @@ Template.DonationForm.events({
       $("#s2id_is_recurring").children().removeClass("redText");
     }
   },
-  'keyup, change [name="amount"]': function() {
-    return Give.updateTotal(this._id);
-  },
-  // disable mousewheel on a input number field when in focus
-  // (to prevent Chromium browsers change of the value when scrolling)
-  'focus [name="amount"]': function() {
-    $('[name="amount"]').on('mousewheel.disableScroll', function(e) {
-      e.preventDefault();
-    });
-  },
-  'blur [name="amount"]': function() {
-    $('[name="amount"]').on('mousewheel.disableScroll', function(e) {
-      e.preventDefault();
-    });
-    return Give.updateTotal();
-  },
-  'change #coverTheFees': function() {
-    return Give.updateTotal();
-  },
   'change [name=donateWith]': function() {
     var selectedValue = $("[name=donateWith]").val();
     Session.set("paymentMethod", selectedValue);
@@ -130,60 +111,9 @@ Template.DonationForm.events({
   'click #start_date_button'(){
     $("#start_date").select();
   },
-  'click #cloneButton'(){
-    DonationFormItems.insert({item: $(".clonedInput").length++});
-    Meteor.setTimeout(()=>{
-      $('#donation_form').parsley();
-      $('[data-toggle="popover"]').popover({html: true});
-      $('[name="donateToDuplicate"]').change();
-    }, 500);
-  },
-  'click [name="remove-button"]'(){
-    DonationFormItems.remove({_id: this._id});
-    $('.popover').popover('destroy');
-    Meteor.setTimeout(()=>{
-      $('[data-toggle="popover"]').popover({html: true});
-      Give.updateTotal();
-    },200);
-  },
-  'change [name="donateTo"]'(e){
-    DonationFormItems.update( {name: 'first'}, {
-      $set: {
-        donateTo: $( e.target ).val(),
-      }
-    });
-  },
-  'keyup [name="amount"], change [name="amount"], blur [name="amount"]'(e){
-    console.log( $( e.target ).val() );
-    DonationFormItems.update( {name: 'first'}, {
-      $set: {
-        amount: parseInt( ( Give.getCleanValue( e.target ) * 100).toFixed( 0 ), 10 ),
-      }
-    });
-  },
-  'change [name="donateToDuplicate"]'(e){
-    console.log( $( e.target ).val() );
-    console.log( this._id);
-    DonationFormItems.update( {_id: this._id }, {
-      $set: {
-        donateTo: $( e.target ).val()
-      }
-    } );
-  },
-  'keyup [name="splitAmount"], change [name="splitAmount"]'(e){
-    console.log( $( e.target ).val() );
-    DonationFormItems.update( {_id: this._id}, {
-      $set: {
-        amount: parseInt( ( Give.getCleanValue( e.target ) * 100).toFixed( 0 ), 10 ),
-      }
-    });
-  }
 });
 
 Template.DonationForm.helpers({
-  DonationFormItems(){
-    return DonationFormItems.find({item: {$exists: true}});
-  },
   paymentQuestionIcon: function() {
     if (Session.equals('paymentMethod', 'Check')) {
       return "<i class='makeRightOfInput fa fa-question-circle' data-toggle='popover' " +
@@ -209,27 +139,14 @@ Template.DonationForm.helpers({
       "data-trigger='hover focus' data-container='body' data-content='When giving by Check we can only accept monthly recurring gifts'>" +
       "</i>";
   },
-  paymentWithCard: function() {
-    return Session.equals("paymentMethod", "Card");
-  },
   coverTheFeesChecked: function() {
     return this.coverTheFees ? 'checked' : '';
-  },
-  attributes_Input_Amount: function() {
-    return {
-      name: "amount",
-      min: 1,
-      required: true
-    };
   },
   errorCategory: function() {
     return 'Error Category';
   },
   errorDescription: function() {
     return 'Error Description';
-  },
-  amount: function() {
-    return Session.get('params.amount');
   },
   campaignValue: function() {
     return Session.get('params.enteredCampaignValueignValue');
@@ -245,9 +162,6 @@ Template.DonationForm.helpers({
   },
   dt_source: function() {
     return Session.get('params.dt_source');
-  },
-  today: function() {
-    return moment().format('D MMM, YYYY');
   },
   moreThanOneDesignation(){
     return DonationFormItems.findOne({$exists: {item: true}});

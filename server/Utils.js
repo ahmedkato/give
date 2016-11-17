@@ -1077,6 +1077,8 @@ Utils = {
     logger.info( stripeChargePlan );
     // Add charge response from Stripe to the collection
     Subscriptions.insert( stripeChargePlan );
+    DonationSplits.update({_id:  metadata.donationSplitsId}, { $set: { subscription_id: stripeChargePlan.id} });
+
     Donations.update( { _id: donation_id }, { $set: { subscription_id: stripeChargePlan.id } } );
     if( start_date === 'today' ) {
       // Query Stripe to get the first invoice from this new subscription

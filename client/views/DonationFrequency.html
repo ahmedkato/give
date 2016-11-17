@@ -1,0 +1,31 @@
+<template name="DonationFrequency">
+    <label for="is_recurring" id="frequency_label">Donation Frequency
+        {{#if doNotShowOneTime}}<span style="font-size: .8em;">{{{onlyOneTimeIcon}}}</span> {{/if}}
+    </label>
+    {{#unless locked_frequency}}
+        <select type="text"
+                name="is_recurring"
+                id="is_recurring"
+                class="form-control select select-primary slim-borders"
+                required
+                data-placeholder="Select an Option"
+                data-parsley-error-message="  Choose one ^">
+            <option value=""></option>
+            {{#unless doNotShowOneTime}}
+                <option value="" selected disabled>Choose one</option>
+                <option value="one_time">One-Time</option>
+            {{/unless}}
+            <option value="monthly">Monthly</option>
+            {{#unless doNotShowOneTime}}
+                <option value="weekly">Weekly</option>
+                <option value="bi-weekly">Every other week</option>
+                <option value="semi-annually">Every 6 months</option>
+                <option value="yearly">Yearly</option>
+            {{/unless}}
+        </select>
+    {{else}}
+        <br>
+        <p class="uppercase-this">Monthly</p>
+        <input type="hidden" name="is_recurring" id="is_recurring" value="monthly" />
+    {{/unless}}
+</template>

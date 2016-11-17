@@ -92,6 +92,13 @@ Template.registerHelper('epochToString', function(timestamp) {
     return moment.unix(timestamp / 1000).format("MM/DD/YY");
   }
 });
+/*
+ * Epoch to String
+ * Convert a UNIX epoch string to human readable time.
+ */
+Template.registerHelper('today', function() {
+    return moment().format('D MMM, YYYY');
+});
 
 /*
  * If Equals
@@ -456,4 +463,9 @@ Template.registerHelper('givingOptionsMember', function() {
 
 Template.registerHelper('calculateFees', function(fees) {
   return (fees / 100).toFixed(2);
+});
+
+
+Template.registerHelper('paymentWithCard', function() {
+  return Session.equals("paymentMethod", "Card");
 });

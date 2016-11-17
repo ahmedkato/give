@@ -43,7 +43,7 @@ function OrgInfoCheck(name, namePart2) {
       var businessName;
       var addressLine2;
 
-      if (Meteor.user()) {
+      if (Meteor.userId()) {
         if (user_id && Roles.userIsInRole(Meteor.user(), ['super-admin', 'admin'])) {
           userCursor = Meteor.users.findOne(user_id);
         } else {

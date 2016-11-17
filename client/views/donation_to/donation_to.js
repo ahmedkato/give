@@ -6,9 +6,9 @@ Template.DonationTo.onCreated(function () {
 
 Template.DonationTo.helpers({
   selected(){
-    console.log(Template.parentData(2));
-    return Session.equals("change_subscription_id", Template.parentData(2).donateTo) ? "selected" : '';
-   //if(this.donateTo && (this.donateTo === ))
+    if(Session.get("change_subscription_id")){
+      return Session.equals("change_subscription_id", Template.parentData(2) && Template.parentData(2).donateTo) ? "selected" : '';
+    }
   }
 });
 
@@ -41,7 +41,6 @@ Template.DonationTo.events({
 });
 
 Template.DonationTo.onRendered(function() {
-  console.log(this.donateTo);
   if (Session.get('params.donateTo')) {
     $('[name="donateTo"]').val(Session.get('params.donateTo'));
 	}

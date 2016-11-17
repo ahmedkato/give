@@ -427,6 +427,7 @@ Meteor.publishComposite("travelDTSplits", function (tripId) {
 Meteor.publishComposite("subscriptions", function () {
   logger.info("Started publish function, subscriptions");
   if (this.userId) {
+    console.log(this.userId);
     return {
       find: function () {
         return Customers.find({'metadata.user_id': this.userId});
@@ -441,7 +442,16 @@ Meteor.publishComposite("subscriptions", function () {
             find: function ( customers ) {
               // Find the subscriptions associated with this customer
               return Subscriptions.find({$and: [{'customer': customers._id}, {'metadata.replaced': {$ne: true}}]});
-            }
+            },
+            children: [
+              {
+                find: function (subscription) {
+                  console.log(subscription);
+                  // Find the DonationSplits associated with this subscription
+                  return DonationSplits.find( { _id: subscription.metadata.donationSplitsId});
+                }
+              }
+            ]
         }, {
           find: function ( customers ) {
             // Find the devices used (payment methods) and saved with this customer
@@ -618,40 +628,5 @@ Meteor.publishComposite("receiptCharge", function (chargeId) {
         ]
       }
     ]
-  }
-});
-
-Meteor.publishComposite("donation_splits", function () {
-  logger.info( "Started publish function, donation_splits" );
-  console.log(this.userId);
-
-  if( this.userId ) {
-    console.log(this.userId);
-
-    return {
-      find: function(){
-        return Customers.find( { 'metadata.user_id': this.userId });
-      },
-      children: [
-        {
-          find: function (customer) {
-            // Find the charge associated with this customer
-            return Charges.find( { customer: customer._id}, {
-              fields: {
-                metadata: 1
-              }
-            } );
-          },
-          children: [
-            {
-              find: function (charge) {
-                // Find the DonationSplits associated with this Charge
-                return DonationSplits.find( { _id: charge.metadata.donationSplitsId});
-              }
-            }
-          ]
-        }
-      ]
-    }
   }
 });

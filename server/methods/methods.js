@@ -306,7 +306,6 @@ Meteor.methods({
               };
             }
           }
-          DonationSplits.update({_id:  donationSplitsId}, { $set: { charge_id: charge_object.charge} });
 
           // check for payment rather than charge id here
           var return_charge_or_payment_id;

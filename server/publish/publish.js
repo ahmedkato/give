@@ -50,6 +50,7 @@ Meteor.publish("devices", function() {
       customer_ids.push(element.id);
     });
 
+    console.log(customer_ids);
     return Devices.find({$and: [
       { 'customer': {
         $in: customer_ids}
@@ -61,8 +62,9 @@ Meteor.publish("devices", function() {
       fingerprint: 0,
       routing_number: 0
     }});
-	}
-  this.ready();
+	} else {
+    this.ready();
+  }
 });
 
 Meteor.publish("customer", function (customer) {
