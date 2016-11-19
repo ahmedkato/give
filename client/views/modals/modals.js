@@ -59,6 +59,7 @@ Template.Modals.events({
   'change #tripSelect'(){
     let trip = Trips.findOne({fundId: $("#tripSelect").val()});
     if (trip && trip._id) {
+      $("#participantSelect").show()
       Session.set("selectedTripId", trip._id);
       $('#participantSelect').chosen({width: "95%"});
       Meteor.setTimeout(function () {
