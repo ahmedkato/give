@@ -63,21 +63,27 @@
                         Please select the trip, then you will be able to choose
                         the participant you'd like to support.
                     </p>
-                    <select id="tripSelect"
-                            data-placeholder="Select a Trip">
-                        <option></option>
-                        {{#each trips}}
-                            <option data-trip="{{_id}}"
-                            value="{{fundId}}">{{name}}</option>
-                        {{/each}}
-                    </select>
-                    <select id="participantSelect"
-                            data-placeholder="Select a Person">
-                        <option></option>
-                        {{#each participants}}
-                            <option value="{{fname}} {{lname}}">{{fname}} {{lname}}</option>
-                        {{/each}}
-                    </select>
+                    <p>
+                        <select style="width: 95%; border: solid; border-width: thin;"
+                                id="tripSelect"
+                                data-placeholder="Select a Trip">
+                            <option></option>
+                            {{#each trips}}
+                                <option data-trip="{{_id}}"
+                                        value="{{fundId}}">{{name}}</option>
+                            {{/each}}
+                        </select>
+                    </p>
+                    <p>
+                        <select style="width: 95%; border: solid; border-width: thin;"
+                                id="participantSelect"
+                                data-placeholder="Select a Person">
+                            <option></option>
+                            {{#each participants}}
+                                <option value="{{fname}} {{lname}}">{{fname}} {{lname}}</option>
+                            {{/each}}
+                        </select>
+                    </p>
                     <p>
                         If you have questions please <a
                             href="mailto:{{contact_address}}?Subject=Donation
