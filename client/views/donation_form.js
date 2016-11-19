@@ -23,14 +23,10 @@ Template.DonationForm.events({
     let new_error;
 
     if ($("#is_recurring").val() === '') {
-      $("#s2id_is_recurring").children().addClass("redText");
-
       $("html, body").animate({ scrollTop: 0 }, "slow");
       return;
     }
     if ($('[name="donateTo"]').val() === '') {
-      $("#s2id_donateTo").children().addClass("redText");
-
       $("html, body").animate({ scrollTop: 0 }, "slow");
       return;
     }
@@ -60,11 +56,9 @@ Template.DonationForm.events({
     if ($("#is_recurring").val() !== 'one_time') {
       Session.set('recurring', true);
       $('#calendarSection').show();
-      $("#s2id_is_recurring").children().removeClass("redText");
     } else {
       Session.set('recurring', false);
       $('#calendarSection').hide();
-      $("#s2id_is_recurring").children().removeClass("redText");
     }
   },
   'change [name=donateWith]': function() {
@@ -255,8 +249,6 @@ Template.cardPaymentInformation.onRendered(function() {
   }
 });
 
-
 Template.DonationForm.onDestroyed( function() {
   $(window).unbind('beforeunload');
-  Session.delete('params.startdate')
 });

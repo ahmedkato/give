@@ -335,6 +335,7 @@ function OrgInfoCheck(name, namePart2) {
             Give.updateTotal();
           } else if( result.charge === 'scheduled' ) {
             // Send the user to the scheduled page and include the frequency and the amount in the url for displaying to them
+            Session.set("params.startdate", form.paymentInformation.start_date);
             Router.go( '/scheduled/?frequency=' + form.paymentInformation.is_recurring + '&amount=' + form.paymentInformation.total_amount / 100 + '&startdate=' + form.paymentInformation.start_date );
           } else {
             Router.go( '/thanks?c=' + result.c + "&don=" + result.don + "&charge=" + result.charge );
@@ -429,7 +430,7 @@ function OrgInfoCheck(name, namePart2) {
         }
       } );
     },
-    updateTotal: function (id) {
+    updateTotal: function () {
       function getCloneAmounts(){
         let amountsArray = [];
         $( '[name="splitAmount"]' ).map(function(index, item){amountsArray.push(Number($(item).val()))});
@@ -447,7 +448,7 @@ function OrgInfoCheck(name, namePart2) {
       if( data === 'Check' ) {
         if( $.isNumeric( donationAmount ) ) {
           donationAmount = Number(donationAmount) + Number(splitAmounts);
-          $( "#total_amount" ).val( donationAmount );
+          $( "#total_amount" ).val(donationAmount.toFixed(2));
           $( "#show_total" ).hide();
           $( "#total_amount_display" ).text( "$" + donationAmount ).css( {
             'color': '#34495e'
@@ -478,7 +479,7 @@ function OrgInfoCheck(name, namePart2) {
               return Session.set( "amount", roundedAmount );
             } else {
               Session.set( "coverTheFees", false );
-              $( "#total_amount" ).val( donationAmount );
+              $( "#total_amount" ).val( donationAmount && donationAmount.toFixed(2) );
               $( "#show_total" ).hide();
               $( "#fee" ).val("");
               return $( "#total_amount_display" ).text( "" ).css( {

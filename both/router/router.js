@@ -87,7 +87,6 @@ Router.route('', {
     Session.set('params.donateTo', params.query.donateTo);
     Session.set('params.donateWith', params.query.donateWith);
     Session.set('params.dt_source', params.query.dt_source);
-    Session.set('params.start_date', params.query.start_date);
     Session.set('params.note', params.query.note);
     Session.set('params.enteredCampaignValue', params.query.enteredCampaignValue);
     Session.set('params.exp_month', params.query.exp_month);
@@ -251,7 +250,6 @@ Router.route('/user/give', {
     Session.set('params.donateTo', params.query.donateTo);
     Session.set('params.donateWith', params.query.donateWith);
     Session.set('params.dt_source', params.query.dt_source);
-    Session.set('params.start_date', params.query.start_date);
     Session.set('params.note', params.query.note);
     Session.set('params.enteredCampaignValue', params.query.enteredCampaignValue);
     Session.set('params.exp_month', params.query.exp_month);
@@ -274,6 +272,16 @@ Router.route('Subscriptions', {
   },
   layoutTemplate: 'UserLayout',
   path: '/user/subscriptions'
+});
+
+Router.route('UpdateSubscription', {
+  name: 'UpdateSubscription',
+  action: function() {
+    Session.set('subscription', this.params.query.subscription);
+    this.render('UpdateSubscription');
+  },
+  layoutTemplate: 'UserLayout',
+  path: '/user/update-subscription'
 });
 
 Router.route('/scheduled', {

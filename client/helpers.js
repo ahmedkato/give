@@ -115,7 +115,7 @@ Template.registerHelper('equals', function(c1, c2) {
  * Take the passed value in cents and convert it to USD.
  */
 Template.registerHelper('centsToDollars', function(cents) {
-  return "$" + cents / 100;
+  return cents / 100;
 });
 
 /*
@@ -468,4 +468,13 @@ Template.registerHelper('calculateFees', function(fees) {
 
 Template.registerHelper('paymentWithCard', function() {
   return Session.equals("paymentMethod", "Card");
+});
+
+/*
+ Get the array index and return 'even' for even numbers
+ and 'odd' for odd numbers
+ */
+Template.registerHelper('oddEven', function(index) {
+  if((index % 2) === 0) return 'even';
+  else return 'odd';
 });

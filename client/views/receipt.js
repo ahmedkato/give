@@ -128,7 +128,7 @@ Template.Receipt.onDestroyed(function () {
   Session.delete("params.campaign");
   Session.delete("params.donateWith");
   Session.delete("params.dt_source");
-  Session.delete("params.start_date");
+  Session.delete("params.startdate");
   Session.delete("params.note");
   Session.delete("params.enteredCampaignValue");
   Session.delete("params.exp_month");

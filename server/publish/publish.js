@@ -214,6 +214,8 @@ Meteor.publish("userDT", function (id) {
 });
 
 Meteor.publish("userDTFunds", function () {
+  logger.info("Started userDTFunds subscription");
+
   return DT_funds.find({}, {
       fields: {
         id: 1,
@@ -440,7 +442,16 @@ Meteor.publish("trips", function (id) {
   if (id) {
     return Trips.find({_id: id});
   }
-  return Trips.find({active: true, show: true});
+  return Trips.find({active: true, show: true}, {
+    fields: {
+      fundTotal: 0,
+      startDate: 0,
+      endDate: 0,
+      expires: 0,
+      fundAdmin: 0,
+
+    }
+  });
 });
 
 Meteor.publish("fundraisers", function (id) {
@@ -460,11 +471,13 @@ Meteor.publish("fundraisersPublic", function (id) {
   check(id, Match.Optional(String));
   if (id) {
     return Fundraisers.find({'trips.id': id}, {fields: {
-      email: 0
+      email: 0,
+      addedBy: 0,
     }});
   }
   return Fundraisers.find({}, {fields: {
-    email: 0
+    email: 0,
+    addedBy: 0,
   }});
 });
 

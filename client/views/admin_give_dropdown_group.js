@@ -53,11 +53,9 @@ Template.AdminGiveDropdownGroup.events({
     if ($("#is_recurring").val() !== 'one_time') {
       Session.set('recurring', true);
       $('#calendarSection').show();
-      $("#s2id_is_recurring").children().removeClass("redText");
     } else {
       Session.set('recurring', false);
       $('#calendarSection').hide();
-      $("#s2id_is_recurring").children().removeClass("redText");
     }
   },
   'change #donateWith': function() {

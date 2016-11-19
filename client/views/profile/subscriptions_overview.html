@@ -8,16 +8,16 @@
             <div class="panel-body">
                 {{#if subscriptions}}
                     {{#each subscriptions}}
-                        <div class="col col-lg-3">
+                        <div class="col-md-4 col-sm-12">
                             <ul class="list-group">
                             {{#if equals status "trialing"}}
                                 <li class="list-group-item list-group-item-info" data-subscription-id="{{id}}">
-                                    <p>This gift is schedule for {{epochToString trial_end}}. <!--<a href="#" class="cancel-subscription">Cancel Subscription</a>--></p>
+                                    This gift is schedule for {{epochToString trial_end}}. <!--<a href="#" class="cancel-subscription">Cancel Subscription</a>-->
                                 </li>
                             {{/if}}
                             {{#if equals status "pending"}}
                                 <li class="list-group-item list-group-item-info" data-subscription-id="{{id}}">
-                                    <p>This gift is pending  {{epochToString trial_end}}. <!--<a href="#" class="cancel-subscription">Cancel Subscription</a>--></p>
+                                    This gift is pending  {{epochToString trial_end}}. <!--<a href="#" class="cancel-subscription">Cancel Subscription</a>-->
                                 </li>
                             {{/if}}
                             {{#if equals status "active"}}
@@ -43,7 +43,7 @@
                               <!--<span class="bm-block-label">Payment<strong>{{type}}</strong> {{lastFour}}</span>-->
                             <li class="list-group-item bm-block">To: <strong>{{donateTo}}</strong></li>
                             <li class="list-group-item bm-block">With: <strong>{{show_donate_with}}</strong></li>
-                            <li class="list-group-item bm-block">Amount: <strong>{{centsToDollars quantity}}</strong></li>
+                            <li class="list-group-item bm-block">Amount: <strong>${{centsToDollars quantity}}</strong></li>
                             {{#unless equals status "canceled"}}
                                 <li class="list-group-item bm-block">Next gift on: <strong>{{epochToString current_period_end}}</strong></li>
                             {{else}}
@@ -117,7 +117,7 @@
                         </li>
                         <li class="list-group-item bm-block">To: <strong>{{donateToThis this.donateTo}}</strong></li>
                         <li class="list-group-item bm-block">With: <strong>Bank Account</strong></li>
-                        <li class="list-group-item bm-block">Amount: <strong>{{centsToDollars total_amount}}</strong></li>
+                        <li class="list-group-item bm-block">Amount: <strong>${{centsToDollars total_amount}}</strong></li>
                         <li class="list-group-item bm-block">Next gift on: <strong>{{epochToString start_date}}</strong></li>
 
                             <li class="list-group-item bm-block button-blocks">
@@ -144,6 +144,5 @@
             <a href="{{pathFor 'user.give'}}?recurring=monthly" class="btn btn-primary btn-block">Setup a recurring gift</a>
         </div>
         {{> Modals}}
-        {{> SubscriptionModal}}
     {{/if}}
 </template>

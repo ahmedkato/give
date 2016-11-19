@@ -193,22 +193,7 @@ Template.SubscriptionsOverview.events({
   'click .edit-subscription': function (e) {
     e.preventDefault();
     console.log("Clicked edit");
-    let self = this;
-
-    Session.set("change_subscription_id", this._id);
-    Session.set("change_customer_id", this.customer);
-    Session.set('change_donateTo', this.metadata.donateTo);
-    Session.set('change_amount', this.quantity);
-    Session.set('change_date', this.current_period_end);
-
-    $('#modal_for_admin_subscription_change_form').modal({
-      show: true,
-      backdrop: 'static'
-    });
-
-    Meteor.setTimeout(function() {
-      $('[name="donateTo"]').val(self.metadata.donateTo).change();
-    }, 0);
+    Router.go('UpdateSubscription', {}, {query: {subscription: this._id}});
   }
 });
 
@@ -223,7 +208,6 @@ Template.SubscriptionsOverview.onRendered(function() {
 Template.SubscriptionsOverview.onCreated(function() {
   this.autorun(()=>{
     this.subscribe("userDTFunds");
-    this.subscribe("donation_splits");
     this.subscribe('subscriptions');
     this.subscribe('userDoc')
   });

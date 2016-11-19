@@ -41,14 +41,6 @@ Template.UserGive.helpers({
     }
     return;
   },
-  attributes_Input_Amount: function() {
-    return {
-      name: "amount",
-      id: "amount",
-      min: 1,
-      required: true
-    };
-  },
   amountWidth: function() {
     if (Session.equals("paymentMethod", "Card") || Session.get("paymentMethod") && Session.get("paymentMethod").slice(0,3) === 'car'){
       return 'form-group col-md-4 col-sm-4 col-xs-12';

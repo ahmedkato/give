@@ -295,6 +295,8 @@ Meteor.methods({
           var charge_object = Utils.charge_plan( data.paymentInformation.total_amount,
             data._id, customerData.id, data.paymentInformation.source_id,
             data.paymentInformation.is_recurring, data.paymentInformation.start_date, metadata );
+          DonationSplits.update({_id:  donationSplitsId}, { $set: { charge_id: charge_object.charge} });
+
           if( !charge_object.object ) {
             if( charge_object === 'scheduled' ) {
               return { c: customerData.id, don: data._id, charge: 'scheduled' };

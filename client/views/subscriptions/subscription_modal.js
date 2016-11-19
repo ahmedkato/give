@@ -149,8 +149,6 @@ Template.SubscriptionModal.onRendered(function () {
   $('#subscription_change').parsley();
 
   init_calendar();
-
-  //$("#donateTo").val()
 });
 
 Template.SubscriptionModal.onDestroyed(function() {
