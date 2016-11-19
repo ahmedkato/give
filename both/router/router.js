@@ -277,8 +277,8 @@ Router.route('Subscriptions', {
 Router.route('UpdateSubscription', {
   name: 'UpdateSubscription',
   action: function() {
-    Session.set('subscription', this.params.query.subscription);
     this.render('UpdateSubscription');
+    Session.set('subscription', this.params.query.subscription);
   },
   layoutTemplate: 'UserLayout',
   path: '/user/update-subscription'

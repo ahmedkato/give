@@ -503,7 +503,7 @@ Meteor.publishComposite("subscription_with_donation_splits", function (subscript
         {
           find: function (subscription) {
             // Find the DonationSplits associated with this subscription
-            return DonationSplits.find( { _id: subscription.metadata.donationSplitsId});
+            return DonationSplits.find( { _id: subscription.metadata.donationSplitsId}, {limit: 1} );
           }
         }
       ]

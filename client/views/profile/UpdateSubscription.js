@@ -7,12 +7,14 @@ function getSubscriptionPeriodEnd() {
 }
 
 Template.UpdateSubscription.onCreated(function () {
+  DonationFormItems = new Mongo.Collection(null);
+
   this.autorun(()=>{
     this.subscribe("userDTFunds");
-    this.subscribe('subscription_with_donation_splits', Router.current().params.query.subscription);
+    this.subscribe('subscription_with_donation_splits', Session.get("subscription"));
     this.subscribe('userDoc');
   });
-  DonationFormItems = new Mongo.Collection(null);
+
 });
 
 Template.UpdateSubscription.onRendered(function () {
@@ -27,20 +29,19 @@ Template.UpdateSubscription.onRendered(function () {
       autoclose: true
     });
   }, 500);
-  Session.get("change_subscription_id");
-});
 
-Template.UpdateSubscription.helpers({
-  updateDonationItems(){
+  this.autorun(()=>{
     let DonationSplitsData = DonationSplits && DonationSplits.findOne();
     if(DonationSplitsData){
+      DonationFormItems.remove({});
       DonationSplitsData.splits.forEach(function ( item ) {
         DonationFormItems.upsert({_id: item._id}, item);
       });
-      return "";
     }
-    return;
-  },
+  });
+});
+
+Template.UpdateSubscription.helpers({
   endSubscriptionPeriodDate: function () {
     return getSubscriptionPeriodEnd();
   },
@@ -91,4 +92,8 @@ Template.UpdateSubscription.events({
     } );
 
   },
+});
+
+Template.UpdateSubscription.onDestroyed(function () {
+  DonationFormItems.remove({});
 });
