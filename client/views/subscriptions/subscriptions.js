@@ -53,24 +53,8 @@ Template.AdminSubscriptions.events({
   },
   'click .edit-button': function (e) {
     e.preventDefault();
-    console.log("Clicked edit");
-    let self = this;
 
-    Session.set("change_subscription_id", this._id);
-    Session.set("change_customer_id", this.customer);
-    Session.set('change_donateTo', this.metadata.donateTo);
-    Session.set('change_note', this.metadata.note);
-    Session.set('change_amount', this.quantity);
-    Session.set('change_date', this.current_period_end);
-
-    $('#modal_for_admin_subscription_change_form').modal({
-      show: true,
-      backdrop: 'static'
-    });
-
-    Meteor.setTimeout(function() {
-      $('[name="donateTo"]').val(self.metadata.donateTo).change();
-    }, 0);
+    // TODO: edit this area, send admin to edit subscription page
   },
   'keyup, change .search': _.debounce(function () {
     updateSearchVal();

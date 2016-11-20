@@ -29,7 +29,6 @@ Template.UpdateSubscription.onRendered(function () {
       autoclose: true
     });
   }, 500);
-
   this.autorun(()=>{
     let DonationSplitsData = DonationSplits && DonationSplits.findOne();
     if(DonationSplitsData){
@@ -54,7 +53,7 @@ Template.UpdateSubscription.events({
   'submit form': function(e) {
     e.preventDefault();
     console.log("Submitted event started for UpdateSubscription form");
-    let subscription_id = Session.get("change_subscription_id");
+    let subscription_id = Session.get("subscription");
     let customer_id = Session.get("change_customer_id");
     let amount = parseInt(((Give.getCleanValue('[name="amount"]').replace(/[^\d\.\-\ ]/g, '')) * 100).toFixed(0));
     let note = $("#note").val();
@@ -96,4 +95,5 @@ Template.UpdateSubscription.events({
 
 Template.UpdateSubscription.onDestroyed(function () {
   DonationFormItems.remove({});
+  Session.delete("subscription");
 });

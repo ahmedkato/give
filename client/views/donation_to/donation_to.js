@@ -5,11 +5,7 @@ Template.DonationTo.onCreated(function () {
 });
 
 Template.DonationTo.helpers({
-  selected(){
-    if(Session.get("change_subscription_id")){
-      return Session.equals("change_subscription_id", Template.parentData(2) && Template.parentData(2).donateTo) ? "selected" : '';
-    }
-  }
+
 });
 
 Template.DonationTo.events({

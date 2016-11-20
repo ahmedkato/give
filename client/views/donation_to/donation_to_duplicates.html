@@ -7,7 +7,7 @@
         {{#each givingOptionsGroup}}
             <optgroup label="{{text}}">
                 {{#each givingOptionsMember}}
-                    <option value="{{id}}">{{text}}</option>
+                    <option value="{{id}}" {{selected}}>{{text}}</option>
                 {{/each}}
             </optgroup>
         {{/each}}

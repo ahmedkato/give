@@ -478,3 +478,12 @@ Template.registerHelper('oddEven', function(index) {
   if((index % 2) === 0) return 'even';
   else return 'odd';
 });
+
+Template.registerHelper('selected', function(args) {
+
+  if(Template.parentData(2) && Template.parentData(2).donateTo){
+    return Template.parentData(2) && Template.parentData(2).donateTo === this.id ? "selected" : '';
+  } else if(DonationFormItems.findOne({name: 'first'})){
+    return DonationFormItems.findOne({name: 'first'}) && DonationFormItems.findOne({name: 'first'}).donateTo === this.id ? "selected" : '';
+  }
+});
