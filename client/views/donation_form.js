@@ -133,9 +133,6 @@ Template.DonationForm.helpers({
       "data-trigger='hover focus' data-container='body' data-content='When giving by Check we can only accept monthly recurring gifts'>" +
       "</i>";
   },
-  coverTheFeesChecked: function() {
-    return this.coverTheFees ? 'checked' : '';
-  },
   errorCategory: function() {
     return 'Error Category';
   },
@@ -163,7 +160,6 @@ Template.DonationForm.helpers({
 });
 
 Template.DonationForm.onRendered(function() {
-  //DonationFormItems.insert( {name: 'first'} );
 
   let config = ConfigDoc();
   let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;

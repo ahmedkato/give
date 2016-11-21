@@ -106,7 +106,7 @@ Template.SubscriptionsOverview.helpers({
         return this.metadata.donateTo;
       }
     }
-    return 'Other';
+    return "Click edit to see the details";
   },
   donations() {
     return Donations.find({}, { sort: { created_at: 1} });

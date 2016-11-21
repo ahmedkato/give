@@ -28,6 +28,7 @@ Template.UpdateSubscription.onRendered(function () {
       endDate: '+61d',
       autoclose: true
     });
+    Session.set("yes_change_date", false);
   }, 500);
   this.autorun(()=>{
     let DonationSplitsData = DonationSplits && DonationSplits.findOne();
@@ -54,43 +55,57 @@ Template.UpdateSubscription.events({
     e.preventDefault();
     console.log("Submitted event started for UpdateSubscription form");
     let subscription_id = Session.get("subscription");
-    let customer_id = Session.get("change_customer_id");
-    let amount = parseInt(((Give.getCleanValue('[name="amount"]').replace(/[^\d\.\-\ ]/g, '')) * 100).toFixed(0));
-    let note = $("#note").val();
+    let subscriptionDoc = Subscriptions.findOne({_id: subscription_id});
+    let totalAmount = parseInt( (Give.getCleanValue( '#total_amount' ) * 100).toFixed( 0 ), 10 );
     let trial_end = $("#start_date").val() ? moment(new Date(Give.getCleanValue('#start_date'))).format('X'): '';
-    let donateToValue = $("#designationSection").is(":visible") ? $('[name="donateTo"]').val() : Session.get("change_donateTo");
-
-    if(Session.get("change_donateTo") === donateToValue && Session.get("change_amount") === amount &&
-      (Session.equals("yes_change_date", false) || !Session.get("yes_change_date"))){
-      alert("You haven't made any changes.");
-      return "No changes";
+    Session.get("yes_change_date") ? trial_end : trial_end = null;
+    let DonationSplitId = DonationSplits.findOne()._id;
+    let dateAndAmountChanged = true;
+    if(!DonationSplitId){
+      return;
     }
 
-    amount = Session.get("change_amount") === amount ? 0 : amount;
+    if((!Session.get("yes_change_date") || Session.equals("yes_change_date", false)) && totalAmount === subscriptionDoc.quantity ){
+      dateAndAmountChanged = false;
+    }
 
     $(':submit').button('loading');
-    // TODO: add note into method call
 
-    console.log(customer_id, subscription_id, amount, trial_end, donateToValue);
-    Meteor.call( "edit_subscription", customer_id, subscription_id, amount, trial_end, donateToValue, function ( error, response ) {
+    console.log(subscription_id, totalAmount, trial_end);
+    if(dateAndAmountChanged){
+      Meteor.call( "edit_subscription", subscription_id, totalAmount, trial_end, function ( error, response ) {
+        if( error ) {
+          console.error( error, error.message);
+          Bert.alert( error.message, "danger" );
+          $(':submit').button( 'reset' );
+        } else {
+          console.log( response );
+          Bert.alert( response, "success" );
+        }
+      } );
+    }
+    Meteor.call( "editDonationSplits", DonationSplitId, DonationFormItems.find().fetch(), function ( error, response ) {
       if( error ) {
         console.error( error, error.message);
-        Bert.alert( error.message, "danger" );
-        $(':submit').button( 'reset' );
       } else {
         console.log( response );
-        Bert.alert( response, "success" );
-        $(':submit').button('reset');
-
-        Session.set("yes_change_date", false);
-        Session.set("yes_change_designation", false);
-        $('#calendarSection').hide();
-        $('#designationSection').hide();
-        $('#modal_for_admin_subscription_change_form').modal('hide');
+        if(!dateAndAmountChanged){
+          Bert.alert( response, "success" );
+        }
+        Router.go("subscriptions");
       }
     } );
-
   },
+  'change #start_date'(){
+    Session.set("yes_change_date", false);
+    let subscriptionEnds = getSubscriptionPeriodEnd();
+    if(subscriptionEnds){
+      let changedDate = $("#start_date").val();
+      if(changedDate !== subscriptionEnds){
+        Session.set("yes_change_date", true);
+      }
+    }
+  }
 });
 
 Template.UpdateSubscription.onDestroyed(function () {

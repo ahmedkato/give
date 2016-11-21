@@ -487,3 +487,18 @@ Template.registerHelper('selected', function(args) {
     return DonationFormItems.findOne({name: 'first'}) && DonationFormItems.findOne({name: 'first'}).donateTo === this.id ? "selected" : '';
   }
 });
+
+
+Template.registerHelper('coverTheFeesChecked', function() {
+  if(Session.get("subscription")){
+    console.log('subscription');
+    let subscription = Subscriptions.findOne({_id: Session.get("subscription")});
+    Meteor.setTimeout(function () {
+      $("#coverTheFees").change();
+    }, 300);
+    return subscription && subscription.metadata && subscription.metadata.coveredTheFees ===  'true' ? 'checked' : '';
+  } else {
+    console.log('donation_form');
+    return this.coverTheFees ? 'checked' : '';
+  }
+});
