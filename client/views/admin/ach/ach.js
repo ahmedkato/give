@@ -18,6 +18,10 @@ Template.ACH.onCreated(function() {
   });
 });
 
+Template.ACH.onRendered(function () {
+  Session.set("ach_page", true);
+});
+
 Template.ACH.helpers({
   donations: function () {
     let searchValue = Session.get("searchValue");
@@ -222,4 +226,5 @@ Template.ACH.onDestroyed(function() {
   Session.delete('change_note');
   Session.delete('change_amount');
   Session.delete('change_date');
+  Session.delete("ach_page");
 });

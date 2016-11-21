@@ -20,8 +20,6 @@ var trusted = [
   'heapanalytics.com',
   'd2zah9y47r7bi2.cloudfront.net',
   Meteor.settings.AWS.cfdomain,
-  'localhost',
-  'localhost:3000',
 ];
 
 
@@ -42,5 +40,11 @@ _.each(trusted, function(origin) {
 });
 
 BrowserPolicy.content.allowOriginForAll("blob:");
-var constructedCsp = BrowserPolicy.content._constructCsp();
+let constructedCsp = BrowserPolicy.content._constructCsp();
 BrowserPolicy.content.setPolicy(constructedCsp +" media-src blob:;");
+
+BrowserPolicy.content.allowScriptOrigin("heapanalytics.com cdn.heapanalytics.com unsafe-inline");
+BrowserPolicy.content.allowConnectOrigin("heapanalytics.com");
+BrowserPolicy.content.allowImageOrigin("heapanalytics.com");
+BrowserPolicy.content.allowStyleOrigin("heapanalytics.com");
+BrowserPolicy.content.allowFontOrigin("heapanalytics.com");

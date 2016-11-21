@@ -480,7 +480,13 @@ Template.registerHelper('oddEven', function(index) {
 });
 
 Template.registerHelper('selected', function(args) {
-
+  if (Session.get("ach_page")){
+    if(Session.get("change_donateTo")){
+      return Session.get("change_donateTo") === this.id ? "selected" : '';
+    } else {
+      return;
+    }
+  }
   if(Template.parentData(2) && Template.parentData(2).donateTo){
     return Template.parentData(2) && Template.parentData(2).donateTo === this.id ? "selected" : '';
   } else if(DonationFormItems.findOne({name: 'first'})){

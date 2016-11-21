@@ -3,6 +3,7 @@ Template.Receipt.events({
     window.print();
   }
 });
+
 Template.Receipt.helpers({
   note(){
     if (this.metadata && this.metadata.note) {
@@ -114,6 +115,7 @@ Template.Receipt.onRendered(function() {
   if (Session.equals('print', 'yes')) {
     return window.print();
   }
+  $("#donateWith").change();
 });
 
 Template.Receipt.onCreated(function() {
@@ -126,7 +128,6 @@ Template.Receipt.onCreated(function() {
 Template.Receipt.onDestroyed(function () {
   Session.delete("params.charge");
   Session.delete("params.campaign");
-  Session.delete("params.donateWith");
   Session.delete("params.dt_source");
   Session.delete("params.startdate");
   Session.delete("params.note");
