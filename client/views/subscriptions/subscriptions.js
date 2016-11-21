@@ -53,8 +53,8 @@ Template.AdminSubscriptions.events({
   },
   'click .edit-button': function (e) {
     e.preventDefault();
-
-    // TODO: edit this area, send admin to edit subscription page
+    console.log("Clicked edit");
+    Router.go('UpdateSubscription', {}, {query: {subscription: this._id}});
   },
   'keyup, change .search': _.debounce(function () {
     updateSearchVal();
@@ -75,7 +75,7 @@ Template.AdminSubscriptions.events({
 });
 
 Template.AdminSubscriptions.helpers({
-  card_or_bank: function() {
+  card_or_bank() {
     const customer = this.customer;
     const customer_cursor = Customers.findOne({_id: customer});
     if (customer_cursor) {
@@ -88,7 +88,7 @@ Template.AdminSubscriptions.helpers({
       return 'Other';
     }
   },
-  card_subscription: function () {
+  card_subscription() {
     const customer = this.customer;
     const customer_cursor = Customers.findOne({_id: customer});
     if (customer_cursor) {
@@ -101,10 +101,10 @@ Template.AdminSubscriptions.helpers({
       return false;
     }
   },
-  subscriptions: function () {
+  subscriptions() {
     return Subscriptions.find({}, {sort: {created: -1}});
   },
-  name: function () {
+  name() {
     let name = this.metadata && this.metadata.fname + " " +
     this.metadata.lname;
 
@@ -114,22 +114,29 @@ Template.AdminSubscriptions.helpers({
     return name;
 
   },
-  trialing: function() {
+  trialing() {
     if(this.status === 'trialing') {
       return "trialing-subscription";
     }
-  }
+  },
 });
 
 Template.AdminSubscriptions.onCreated( function () {
   Session.set("documentLimit", 10);
   this.autorun(()=> {
-    Meteor.subscribe("subscriptions_and_customers", Session.get("searchValue"), Session.get("documentLimit"));
+    this.subscribe("subscriptions_and_customers", Session.get("searchValue"), Session.get("documentLimit"));
+    this.subscribe("userDTFunds");
   });
 });
 
 Template.AdminSubscriptions.onRendered(function () {
   setDocHeight();
+  Meteor.setTimeout(function(){
+    $('[data-toggle="popover"]').popover();
+  }, 500);
+  Meteor.setTimeout(function(){
+    $('[data-toggle="popover"]').popover();
+  }, 5000);
 });
 
 Template.AdminSubscriptions.onDestroyed(function() {

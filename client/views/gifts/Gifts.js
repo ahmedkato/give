@@ -3,8 +3,8 @@ import { setDocHeight, updateSearchVal } from '/imports/miscFunctions.js';
 Template.Gifts.onCreated(function(){
   Session.set("documentLimit", 10);
   this.autorun(()=> {
-    Meteor.subscribe("userDTFunds");
-    Meteor.subscribe("charges_and_customers",
+    this.subscribe("userDTFunds");
+    this.subscribe("charges_and_customers",
       Session.get("searchValue"),
       Session.get("documentLimit"),
       Session.get("refunded"));

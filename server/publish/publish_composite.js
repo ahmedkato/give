@@ -178,6 +178,15 @@ Meteor.publishComposite('subscriptions_and_customers', function (search, limit) 
                 }
               } );
           }
+        },
+        {
+          find: function ( subscriptions ) {
+            return DonationSplits.find(
+              { subscription_id: subscriptions._id },
+              {
+                limit:  1
+              } );
+          }
         }
       ]
     }
@@ -293,6 +302,14 @@ Meteor.publishComposite('charges_and_customers', function (search, limit, refund
                   subscription: 1
                 }
               } );
+          }
+        },
+        {
+          find: function ( charges ) {
+            return DonationSplits.find(
+              { charge_id: charges._id }, {
+               limit:  1
+             } );
           }
         }
       ]

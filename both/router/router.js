@@ -34,7 +34,7 @@ Router.onBeforeAction(function() {
     this.next();
   }
 }, {
-  only: ['Users', 'GivingOptions', 'OrgInfo', 'admin.ach']
+  only: ['Users', 'GivingOptions', 'OrgInfo', 'admin.ach', 'AdminSubscriptions', 'Gifts']
 });
 
 Router.onBeforeAction(function() {

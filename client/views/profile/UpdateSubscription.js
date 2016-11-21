@@ -8,13 +8,11 @@ function getSubscriptionPeriodEnd() {
 
 Template.UpdateSubscription.onCreated(function () {
   DonationFormItems = new Mongo.Collection(null);
-
   this.autorun(()=>{
     this.subscribe("userDTFunds");
     this.subscribe('subscription_with_donation_splits', Session.get("subscription"));
     this.subscribe('userDoc');
   });
-
 });
 
 Template.UpdateSubscription.onRendered(function () {
@@ -45,6 +43,15 @@ Template.UpdateSubscription.helpers({
   endSubscriptionPeriodDate: function () {
     return getSubscriptionPeriodEnd();
   },
+  subscribersName(){
+    let subscription = Subscriptions.findOne();
+    if(subscription){
+      let fname = subscription && subscription.metadata && subscription.metadata.fname;
+      let lname = subscription && subscription.metadata && subscription.metadata.lname;
+      let email = subscription && subscription.metadata && subscription.metadata.email;
+      return fname + " " + lname + " - " + email;
+    }
+  }
 });
 
 Template.UpdateSubscription.events({
@@ -92,7 +99,11 @@ Template.UpdateSubscription.events({
         if(!dateAndAmountChanged){
           Bert.alert( response, "success" );
         }
-        Router.go("subscriptions");
+        if(Roles.userIsInRole(Meteor.userId(), ['admin', 'super-admin'])){
+          Router.go("AdminSubscriptions");
+        } else {
+          Router.go("subscriptions");
+        }
       }
     } );
   },
@@ -111,4 +122,9 @@ Template.UpdateSubscription.events({
 Template.UpdateSubscription.onDestroyed(function () {
   DonationFormItems.remove({});
   Session.delete("subscription");
+  Session.delete("params.donateTo");
+  Session.delete("paymentMethod");
+  Session.delete("coverTheFees");
+  Session.delete("showWriteIn");
+  Session.delete("yes_change_date");
 });

@@ -502,3 +502,24 @@ Template.registerHelper('coverTheFeesChecked', function() {
     return this.coverTheFees ? 'checked' : '';
   }
 });
+
+Template.registerHelper('splitDesignations', function() {
+  let splitText = "";
+  let type;
+
+  if(this._id && this._id.substring(0,2) === 'ch'){
+    type = 'charge_id';
+  } else {
+    type = 'subscription_id';
+  }
+  let splits = DonationSplits.findOne({[type]: this._id});
+  if(splits){
+    splits.splits.forEach(function ( split ) {
+      let donateToText = DT_funds.findOne({id: split.donateTo}) &&
+        DT_funds.findOne({id: split.donateTo}).name;
+      if(donateToText) splitText += donateToText + " <br>";
+      else splitText += "Unknown <br>";
+    });
+    return splitText;
+  }
+});
