@@ -35,6 +35,8 @@ Template.UpdateSubscription.onRendered(function () {
       DonationSplitsData.splits.forEach(function ( item ) {
         DonationFormItems.upsert({_id: item._id}, item);
       });
+    } else {
+      DonationFormItems.remove({});
     }
   });
 });
@@ -127,4 +129,10 @@ Template.UpdateSubscription.onDestroyed(function () {
   Session.delete("coverTheFees");
   Session.delete("showWriteIn");
   Session.delete("yes_change_date");
+  Session.delete("change_amount");
+  Session.delete("change_donateTo");
+  Session.delete("change_date");
+  Session.delete("customer");
+  Session.delete("change_subscription");
+  Session.delete("change_subscription_id");
 });

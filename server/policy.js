@@ -42,9 +42,3 @@ _.each(trusted, function(origin) {
 BrowserPolicy.content.allowOriginForAll("blob:");
 let constructedCsp = BrowserPolicy.content._constructCsp();
 BrowserPolicy.content.setPolicy(constructedCsp +" media-src blob:;");
-
-BrowserPolicy.content.allowScriptOrigin("heapanalytics.com cdn.heapanalytics.com unsafe-inline");
-BrowserPolicy.content.allowConnectOrigin("heapanalytics.com");
-BrowserPolicy.content.allowImageOrigin("heapanalytics.com");
-BrowserPolicy.content.allowStyleOrigin("heapanalytics.com");
-BrowserPolicy.content.allowFontOrigin("heapanalytics.com");

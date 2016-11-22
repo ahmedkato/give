@@ -35,7 +35,7 @@ Template.SubscriptionsOverview.helpers({
         sort: {
           status: 1, start: -1
         },
-        limit: 4,
+        limit: 3,
         skip: subscription_page
       });
     } else {
@@ -133,7 +133,7 @@ Template.SubscriptionsOverview.events({
   console.log("subscription id: " + subscription_id);
   console.log("Customer id: " + customer_id);
   $(e.currentTarget).button('loading');
-  
+
   swal({
       title: "Are you sure?",
       text: "Please let us know why you are stopping your gift. (optional)",
@@ -156,10 +156,13 @@ Template.SubscriptionsOverview.events({
         $(e.currentTarget).button('reset');
       } else if (inputValue) {
         Session.set("loading", true);
+        $(".confirm").button("loading");
         console.log("Got to before method call with input of " + inputValue);
         Meteor.call("stripeCancelSubscription", customer_id, subscription_id, inputValue, function(error, response){
           if (error){
             confirm.button("reset");
+            $(".confirm").button("reset");
+
             Session.set("loading", false);
             Bert.alert(error.message, "danger");
            $(e.currentTarget).button('reset');
@@ -193,7 +196,17 @@ Template.SubscriptionsOverview.events({
   'click .edit-subscription': function (e) {
     e.preventDefault();
     console.log("Clicked edit");
-    Router.go('UpdateSubscription', {}, {query: {subscription: this._id}});
+
+    let query = {subscription: this._id, customer: this.customer};
+    Session.set("change_subscription_id", this._id);
+    if(this.metadata.donateTo) {
+      Session.set("params.donateTo", this.metadata.donateTo);
+      Session.get("change_donateTo", this.metadata.donateTo);
+      query.donateTo =  this.metadata.donateTo;
+      query.amount =    this.quantity;
+      query.date =      this.current_period_end;
+    }
+    Router.go('UpdateSubscription', {}, {query});
   }
 });
 
@@ -203,6 +216,8 @@ Template.SubscriptionsOverview.onRendered(function() {
   }
   Session.setDefault('paymentMethod', 'default');
   Session.setDefault('subscription_cursor', 0);
+  Session.delete("params.donateTo");
+
 });
 
 Template.SubscriptionsOverview.onCreated(function() {

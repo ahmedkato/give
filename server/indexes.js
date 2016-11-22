@@ -33,11 +33,15 @@ Meteor.startup(function () {
 
   Devices._ensureIndex( { 'id': 1 } );
   Devices._ensureIndex( { 'customer': 1 } );
+  Devices._ensureIndex( { 'metadata.saved': 1 } );
 
   Donations._ensureIndex( { 'charge_id': 1 } );
   Donations._ensureIndex( { 'customer_id': 1 } );
   Donations._ensureIndex( { 'method': 1 } );
   Donations._ensureIndex( { 'status': 1 } );
+
+  DonationSplits._ensureIndex( { 'subscription_id': 1} );
+  DonationSplits._ensureIndex( { 'charge_id': 1} );
 
   DT_splits._ensureIndex( { memo: "text" } );
   DT_splits._ensureIndex( { 'donation_id': 1 } );
@@ -69,6 +73,8 @@ Meteor.startup(function () {
 
   Subscriptions._ensureIndex( { 'id': 1 } );
   Subscriptions._ensureIndex( { 'customer': 1 } );
+  Subscriptions._ensureIndex( { 'status': 1 } );
+  Subscriptions._ensureIndex( { 'metadata.donationSplitsId': 1 } );
 
   Transactions._ensureIndex( { 'id': 1 } );
   Transactions._ensureIndex( { 'transfer_id': 1 } );

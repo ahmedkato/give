@@ -4,10 +4,6 @@ Template.DonationTo.onCreated(function () {
   });
 });
 
-Template.DonationTo.helpers({
-
-});
-
 Template.DonationTo.events({
   'change [name="donateTo"]': function() {
 

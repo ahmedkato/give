@@ -152,13 +152,4 @@ Template.Gifts.helpers({
   refundUnixDate(){
     return this.refunds.data[0].created;
   },
-  metadataDonateTo(){
-    if (this.metadata && this.metadata.donateTo) {
-      return this.metadata.donateTo;
-    } else if (this.invoice){
-      let invoice = Invoices.findOne({_id: this.invoice});
-      return invoice && invoice.metadata && invoice.metadata.donateTo;
-    }
-    return;
-  }
 });

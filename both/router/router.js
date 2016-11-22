@@ -279,6 +279,10 @@ Router.route('UpdateSubscription', {
   action: function() {
     this.render('UpdateSubscription');
     Session.set('subscription', this.params.query.subscription);
+    Session.set('change_amount', this.params.query.amount);
+    Session.set('customer', this.params.query.customer);
+    Session.set('change_donateTo', this.params.query.donateTo);
+    Session.set('change_date', this.params.query.date);
   },
   layoutTemplate: 'UserLayout',
   path: '/user/update-subscription'

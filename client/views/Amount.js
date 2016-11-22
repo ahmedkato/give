@@ -3,7 +3,11 @@ Template.Amount.helpers({
     if(!Session.get('subscription')){
       return Session.get('params.amount');
     } else {
-      return DonationFormItems.findOne({name: 'first'}) && DonationFormItems.findOne({name: 'first'}).amount / 100;
+      if(Session.get("change_amount")){
+        return Session.get('change_amount') / 100;
+      } else {
+        return DonationFormItems.findOne({name: 'first'}) && DonationFormItems.findOne({name: 'first'}).amount / 100;
+      }
     }
   },
 });
@@ -29,7 +33,7 @@ Template.Amount.events({
     return Give.updateTotal();
   },
   'click #cloneButton'(){
-    DonationFormItems.insert({item: $(".clonedInput").length++, amount: undefined});
+    DonationFormItems.insert({item: $(".clonedInput").length++, amount: ""});
     Meteor.setTimeout(()=>{
       $('#donation_form').parsley();
       $('[data-toggle="popover"]').popover({html: true});

@@ -115,7 +115,7 @@ Template.registerHelper('equals', function(c1, c2) {
  * Take the passed value in cents and convert it to USD.
  */
 Template.registerHelper('centsToDollars', function(cents) {
-  return cents / 100;
+  return (cents / 100) || "";
 });
 
 /*
@@ -479,8 +479,8 @@ Template.registerHelper('oddEven', function(index) {
   else return 'odd';
 });
 
-Template.registerHelper('selected', function(args) {
-  if (Session.get("ach_page")){
+Template.registerHelper('selected', function() {
+  if (Session.get("ach_page") || Session.get("change_donateTo")){
     if(Session.get("change_donateTo")){
       return Session.get("change_donateTo") === this.id ? "selected" : '';
     } else {
