@@ -74,6 +74,7 @@ Template.DonationTo.events({
       });
     }
     Session.set('params.donateTo', $('#donateTo').val());
+    Session.set('change_donateTo', $('#donateTo').val());
   }
 });
 
