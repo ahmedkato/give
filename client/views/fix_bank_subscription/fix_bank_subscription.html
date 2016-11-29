@@ -1,9 +1,13 @@
 <template name="FixBankSubscription">
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-5 col-lg-6 center-block" style="float: none;">
-            <div class="panel panel-default billing-module">
+            <div class="panel panel-primary billing-module">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Activate this subscription with the below payment details?</h3>
+                    {{#if isResubscribe}}
+                        <h3 class="panel-title">Activate this subscription with the below payment details?</h3>
+                    {{else}}
+                        <h3 class="panel-title">Update payment details</h3>
+                    {{/if}}
                 </div>
                 <form id="resubscribe">
                     <div class="panel-body">
@@ -20,9 +24,11 @@
 
                                             {{#with subscription}}
                                                 <br>
-                                                Amount: ${{twoDecimalPlaces metadata.amount}}
+                                                Amount: ${{twoDecimalPlaces this.quantity}}
                                                 <br>
-                                                Donate To: {{metadata.donateTo}}
+                                                Donate To: {{#if metadata.donateTo}}{{donateToThis metadata.donateTo}}{{else}}
+                                                    {{{splitDesignations}}}
+                                                {{/if}}
                                                 <br>
                                                 Frequency: {{capitalize metadata.frequency}}
                                                 <br>

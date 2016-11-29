@@ -1,14 +1,21 @@
 import parsley from 'parsleyjs';
 
+Template.FixCardSubscription.onCreated(function(){
+  this.autorun(()=>{
+    this.subscribe("subscription_with_donation_splits", Session.get("sub"));
+    this.subscribe("userDTFunds");
+  });
+});
+
 Template.FixCardSubscription.onRendered(function(){
 
   Session.setDefault('isRepair', true);
-  Session.set('update_this_card', Customers.findOne().sources.data[0].id);
+  Session.set('update_this_card', Customers.findOne() && Customers.findOne().sources.data[0].id);
 
-  if(Subscriptions.findOne().status === 'past_due' || Subscriptions.findOne().status === 'canceled'){
+  if(Subscriptions.findOne()){
+    if(Subscriptions.status === 'past_due' || Subscriptions.findOne().status === 'canceled'){
       Session.set('addingNewCreditCard', true);
-  } else{
-      Session.set('addingNewCreditCard', false);
+    }
   }
 
   $('#resubscribe').parsley();
@@ -130,14 +137,14 @@ Template.FixCardSubscription.helpers({
     },
     customer_device: function () {
       var return_these = {};
-      if(Customers.findOne().sources.data[0].brand){
+      if(Customers.findOne() && Customers.findOne().sources.data[0].brand){
         return_these.brand = Customers.findOne().sources.data[0].brand;
         return_these.exp_month = Customers.findOne().sources.data[0].exp_month;
         return_these.exp_year = Customers.findOne().sources.data[0].exp_year;
-      } else{
-        return_these.brand = Customers.findOne().sources.data[0].bank_name;
+      } else {
+        return_these.brand = Customers.findOne() && Customers.findOne().sources.data[0].bank_name;
       }
-      return_these.last4 = Customers.findOne().sources.data[0].last4;
+      return_these.last4 = Customers.findOne() && Customers.findOne().sources.data[0].last4;
       return return_these;
     },
     isRepair: function () {
@@ -147,6 +154,9 @@ Template.FixCardSubscription.helpers({
       return Session.get('addingNewCreditCard');
     },
     expired_class: function () {
+      if(!Customers.findOne()){
+        return;
+      }
       if(Stripe.card.validateExpiry(Customers.findOne().sources.data[0].exp_month), Customers.findOne().sources.data[0].exp_year){
         return;
       } else {
@@ -160,4 +170,15 @@ Template.FixCardSubscription.helpers({
         return false;
       }
     }
+});
+
+Template.FixCardSubscription.onDestroyed(function(){
+  Session.delete("isRepair");
+  Session.delete("update_this_card");
+  Session.delete("addingNewCreditCard");
+  Session.delete("resubscribe");
+  Session.delete("fix_it");
+  Session.delete("sub");
+  Session.delete("paymentMethod");
+  Session.delete("updateSubscription");
 });

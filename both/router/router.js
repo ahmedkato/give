@@ -346,13 +346,12 @@ if (Meteor.isServer) {
 
 Router.route('FixCardSubscription', {
   layoutTemplate: 'UserLayout',
-  path: '/user/subscriptions/card/resubscribe',
+  path: '/user/subscriptions/card/change',
   template: 'FixCardSubscription',
   subscriptions: function() {
     var query = this.params.query;
 
     return [
-      Meteor.subscribe( 'subscription', query.s ),
       Meteor.subscribe( 'customer', query.c )
     ];
    },
@@ -361,6 +360,10 @@ Router.route('FixCardSubscription', {
 
     if (this.ready()) {
       Session.set('sub', query.s);
+      Session.set('resubscribe', query.resubscribe);
+      if(query.newcard === 'true'){
+        Session.set('addingNewCreditCard', true);
+      }
       this.render();
     } else {
       this.render('Loading');
@@ -370,7 +373,7 @@ Router.route('FixCardSubscription', {
 
 Router.route('FixBankSubscription', {
     layoutTemplate: 'UserLayout',
-    path: '/user/subscriptions/bank/resubscribe',
+    path: '/user/subscriptions/bank/change',
     template: 'FixBankSubscription',
     subscriptions: function() {
       return [
@@ -382,6 +385,7 @@ Router.route('FixBankSubscription', {
       if (this.ready()) {
         var query = this.params.query;
         Session.set('sub', query.s);
+        Session.set('resubscribe', query.resubscribe);
         this.render();
       } else {
         this.render('Loading');

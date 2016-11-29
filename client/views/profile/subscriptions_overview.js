@@ -66,7 +66,7 @@ Template.SubscriptionsOverview.helpers({
     return this.plan.interval;
   },
   number_of_subscriptions: function () {
-    if (Session.get("number_of_subscriptions") > 4) {
+    if (Session.get("number_of_subscriptions") > 3) {
       return true;
     } else {
       return false;
@@ -106,7 +106,7 @@ Template.SubscriptionsOverview.helpers({
         return this.metadata.donateTo;
       }
     }
-    return "Click edit to see the details";
+    return "Click edit or activate to see the details";
   },
   donations() {
     return Donations.find({}, { sort: { created_at: 1} });
@@ -122,29 +122,38 @@ Template.SubscriptionsOverview.helpers({
       }, 1000);
     }
   },
+  resubscribeLinkParams(){
+    let returnThis = {};
+    if(this.status && this.status === 'canceled'){
+      returnThis.resubscribe = "true";
+    }
+    returnThis.s = this.id;
+    returnThis.c = this.customer;
+    return returnThis;
+  }
 });
 
 Template.SubscriptionsOverview.events({
   'click .cancel-subscription': function (e) {
-  e.preventDefault();
-  var subscription_id = this.id;
-  var customer_id = Subscriptions.findOne({_id: subscription_id}).customer;
-  console.log("Got to cancel subscription call");
-  console.log("subscription id: " + subscription_id);
-  console.log("Customer id: " + customer_id);
-  $(e.currentTarget).button('loading');
+    e.preventDefault();
+    var subscription_id = this.id;
+    var customer_id = Subscriptions.findOne({_id: subscription_id}).customer;
+    console.log("Got to cancel subscription call");
+    console.log("subscription id: " + subscription_id);
+    console.log("Customer id: " + customer_id);
+    $(e.currentTarget).button('loading');
 
-  swal({
-      title: "Are you sure?",
-      text: "Please let us know why you are stopping your gift. (optional)",
-      type: "input",
-      showCancelButton: true,
-      confirmButtonColor: "#DD6B55",
-      confirmButtonText: "Yes, stop it!",
-      cancelButtonText: "No",
-      closeOnConfirm: false,
-      closeOnCancel: false
-    }, function(inputValue){
+    swal({
+        title: "Are you sure?",
+        text: "Please let us know why you are stopping your gift. (optional)",
+        type: "input",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes, stop it!",
+        cancelButtonText: "No",
+        closeOnConfirm: false,
+        closeOnCancel: false
+      }, function(inputValue){
 
       if (inputValue === "") {
         inputValue = "Not specified";
@@ -181,13 +190,13 @@ Template.SubscriptionsOverview.events({
       evt.preventDefault();
       evt.stopPropagation();
       if(Number(Session.get('subscription_cursor')> 3)){
-          Session.set('subscription_cursor', Number(Session.get('subscription_cursor')-4));
+          Session.set('subscription_cursor', Number(Session.get('subscription_cursor')-3));
       }
   },
   'click .next': function(evt, tmpl){
       evt.preventDefault();
       evt.stopPropagation();
-      Session.set('subscription_cursor', Number(Session.get('subscription_cursor')+4));
+      Session.set('subscription_cursor', Number(Session.get('subscription_cursor')+3));
   },
   'click .btn_modal_for_add_new_bank_account': function () {
     $("#modal_for_add_new_bank_account").modal('show');

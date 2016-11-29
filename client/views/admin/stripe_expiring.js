@@ -28,7 +28,7 @@ Template.StripeExpiring.events({
     // also, looks like in some cases the customer object isn't being updated with the new subscriptions that
     // fall under this same customer since the customer 'cus_7F10SyAOabRN38' only shows one subscription
     // https://dashboard.stripe.com/test/customers/cus_7F10SyAOabRN38
-    console.log('/user/subscriptions/card/resubscribe?s=' +
+    console.log('/user/subscriptions/card/change?s=' +
     this.subscriptions.data[0].id + '&c=' +
     this._id);
   }

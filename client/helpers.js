@@ -494,6 +494,11 @@ Template.registerHelper('selected', function() {
   }
 });
 
+Template.registerHelper('selectedExpiration', function(objectKey, objectValue) {
+  let customerDeviceType = Customers.findOne() && Customers.findOne().sources.data[0][objectKey];
+  return customerDeviceType === Number(objectValue) ? "selected" : '';
+});
+
 
 Template.registerHelper('coverTheFeesChecked', function() {
   if(Session.get("subscription")){
@@ -518,8 +523,11 @@ Template.registerHelper('splitDesignations', function() {
   } else {
     type = 'subscription_id';
   }
+  console.log("Got here");
   let splits = DonationSplits.findOne({[type]: this._id});
   if(splits){
+    console.log("Got here, splits");
+
     splits.splits.forEach(function ( split ) {
       let donateToText = DT_funds.findOne({id: split.donateTo}) &&
         DT_funds.findOne({id: split.donateTo}).name;
@@ -527,5 +535,12 @@ Template.registerHelper('splitDesignations', function() {
       else splitText += "Unknown <br>";
     });
     return splitText;
+  }
+});
+
+
+Template.registerHelper('isResubscribe', function() {
+  if(Session.equals("resubscribe", "true")){
+    return true;
   }
 });

@@ -73,7 +73,6 @@
                                 {{/if}}
                             {{/if}}
                             {{#if equals status "past_due"}}
-
                                 {{#if card_subscription}}
                                     <li class="list-group-item bm-block button-blocks">
                                         <a href="{{pathFor 'FixCardSubscription'}}?s={{id}}&c={{customer}}" class="btn btn-block btn-primary update-subscription">Fix</a>
@@ -88,11 +87,11 @@
                             {{#if equals status "canceled"}}
                                 {{#if card_subscription}}
                                     <li class="list-group-item bm-block button-blocks">
-                                        <a href="{{pathFor 'FixCardSubscription'}}?s={{id}}&c={{customer}}" class="btn btn-block btn-primary activate-subscription">Activate</a>
+                                        <a href="{{pathFor 'FixCardSubscription' query=resubscribeLinkParams }}" class="btn btn-block btn-primary activate-subscription">Activate</a>
                                     </li>
                                 {{else}}
                                     <li class="list-group-item bm-block button-blocks">
-                                        <a href="{{pathFor 'FixBankSubscription'}}?s={{id}}&c={{customer}}" class="btn btn-block btn-primary activate-subscription">Activate</a>
+                                        <a href="{{pathFor 'FixBankSubscription' query=resubscribeLinkParams}}" class="btn btn-block btn-primary activate-subscription">Activate</a>
                                     </li>
                                 {{/if}}
                             {{/if}}
@@ -144,5 +143,6 @@
             <a href="{{pathFor 'user.give'}}?recurring=monthly" class="btn btn-primary btn-block">Setup a recurring gift</a>
         </div>
         {{> Modals}}
+        {{> AddNewBankAccount}}
     {{/if}}
 </template>

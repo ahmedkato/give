@@ -69,7 +69,7 @@ Template.AdminSubscriptions.events({
     Session.set('updateSubscription', this.id);
   },
   'click #go_to_resubscribe_link': function () {
-    Router.go('/user/subscriptions/card/resubscribe?s=' +
+    Router.go('/user/subscriptions/card/change?s=' +
       this.id + "&c=" + this.customer + "&admin=yes");
   }
 });

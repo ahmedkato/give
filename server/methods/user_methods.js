@@ -16,11 +16,20 @@ Meteor.methods({
         subscription_metadata.donateWith = "Card";
         var subscription_plan = Subscriptions.findOne({_id: subscription_id}).plan.name;
         var created_subscription = Utils.stripe_create_subscription(customer_id, token_id, subscription_plan, subscription_amount, subscription_metadata);
+        logger.info("created_subscription: " + created_subscription);
         if(!created_subscription.object){
           return {error: created_subscription.rawType, message: created_subscription.message};
-        }
-        else {
+        } else {
           Subscriptions.update({_id: subscription_id}, {$set: {'metadata.replaced': true, 'metadata.replaced_with': created_subscription._id}});
+
+          logger.info("created id: " + created_subscription._id);
+          logger.info(subscription_id);
+          let updateDonationSplits = DonationSplits.update( { subscription_id: subscription_id }, {
+            $set: {
+              'subscription_id': created_subscription._id
+            }
+          } );
+          logger.info(updateDonationSplits);
           return 'success';
         }
       } else {
@@ -169,7 +178,6 @@ Meteor.methods({
         status: String,
         bank: String
       } );
-      console.log( restart_data.status );
 
       if( restart_data.status === 'canceled' ) {
         var subscription_amount = Subscriptions.findOne( { _id: restart_data.subscription_id } ).quantity;
@@ -188,6 +196,11 @@ Meteor.methods({
             $set: {
               'metadata.replaced':      true,
               'metadata.replaced_with': created_subscription._id
+            }
+          } );
+          DonationSplits.update( { subscription_id: restart_data.subscription_id }, {
+            $set: {
+              'subscription_id': created_subscription._id
             }
           } );
           return 'new';
