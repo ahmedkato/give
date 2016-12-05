@@ -351,6 +351,8 @@ Template.StripeTransferDetails.helpers({
     let dTFund = DT_funds.findOne({_id: fundId.toString()});
     if (dTFund && dTFund.name) {
       return dTFund.name;
+    } else {
+      return "Fund id: " + fundId;
     }
   }
 });
