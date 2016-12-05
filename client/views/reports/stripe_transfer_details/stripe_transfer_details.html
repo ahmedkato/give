@@ -107,7 +107,15 @@
                                 id="feesCovered" data-toggle="checkbox"
                                 class="cover-fees" {{fees_covered}} disabled>
                         </td>
-                      <td class="change-td-padding">{{getFundName metadata.donateTo}}</td>
+                      {{#if metadata.donateTo}}
+                          <td class="change-td-padding">{{getFundName metadata.donateTo}}</td>
+                      {{else}}
+                          <td class="change-td-padding">
+                              {{#with dt_donation_splits}}
+                                  <td class="change-td-padding">{{#each splits}} {{{fundName}}} <br>{{/each}}</td>
+                              {{/with}}
+                          </td>
+                      {{/if}}
                       <td class="change-td-padding">{{dt_source}}</td>
                       <td class="change-td-padding">{{metadata.frequency}}</td>
                   {{/with}}

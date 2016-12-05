@@ -225,18 +225,16 @@ Router.route('/expiring',{
   name: 'stripe.expiring'
 });
 
-Router.route('/transfers/:_id', function() {
-  var params = this.params;
-  var id = params._id;
+Router.route('/transfers/:_id', {
+  layoutTemplate: 'UserLayout',
+  action: function() {
+    var params = this.params;
+    var id = params._id;
 
-  this.layout('UserLayout');
-
-  this.wait([Meteor.subscribe('transfers', id), Meteor.subscribe('transactions', id), Meteor.subscribe('DTSources') ]);
-  if (this.ready()) {
+    Session.set('transferId', id);
     this.render('StripeTransferDetails');
-  } else {
-    this.render('Loading');
-  }
+  },
+  name: 'transfer.details'
 });
 
 Router.route('/user/give', {

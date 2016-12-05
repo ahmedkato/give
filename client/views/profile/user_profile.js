@@ -84,15 +84,6 @@ Template.UserProfile.helpers({
         var page = Session.get('dt_donations_cursor');
         return DT_donations.find({'persona_id': this.id}, {sort: {received_on: -1}, limit: 10, skip: page});
     },
-    split: function () {
-        return this.splits;
-    },
-    fundName: function() {
-        if(DT_funds.findOne({_id: this.fund_id.toString()}) && DT_funds.findOne({_id: this.fund_id.toString()}).name){
-            return DT_funds.findOne({_id: this.fund_id.toString()}).name;
-        }
-        else return '<span style="color: red;">Finding fund...</span>';
-    },
     redText: function(){
         if(this.payment_status && this.payment_status === 'pending'){
             return 'orange-text';

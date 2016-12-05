@@ -28,7 +28,7 @@ Meteor.publishComposite('transactions', function (transfer_id) {
                     'charge.source': 1,
                     'charge.refunded': 1,
                     'charge.refunds': 1,
-                    description: 1
+                    description: 1,
                   }
                 } );
             } else {
@@ -87,7 +87,8 @@ Meteor.publishComposite('transactions', function (transfer_id) {
                     limit:  1,
                     fields: {
                       persona_id:       1,
-                      transaction_id:   1
+                      transaction_id:   1,
+                      splits:           1
                     }
                   } );
               }

@@ -550,3 +550,11 @@ Template.registerHelper('paramsDonateTo', function() {
     return Session.get("params.donateTo");
   }
 });
+
+
+Template.registerHelper('fundName', function() {
+  if(DT_funds.findOne({_id: this.fund_id.toString()}) && DT_funds.findOne({_id: this.fund_id.toString()}).name){
+    return DT_funds.findOne({_id: this.fund_id.toString()}).name;
+  }
+  else return '<span style="color: red;">Finding fund...</span>';
+});
