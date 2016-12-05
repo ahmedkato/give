@@ -21,15 +21,11 @@ Meteor.methods({
           return {error: created_subscription.rawType, message: created_subscription.message};
         } else {
           Subscriptions.update({_id: subscription_id}, {$set: {'metadata.replaced': true, 'metadata.replaced_with': created_subscription._id}});
-
-          logger.info("created id: " + created_subscription._id);
-          logger.info(subscription_id);
-          let updateDonationSplits = DonationSplits.update( { subscription_id: subscription_id }, {
+          DonationSplits.update( { subscription_id: subscription_id }, {
             $set: {
               'subscription_id': created_subscription._id
             }
           } );
-          logger.info(updateDonationSplits);
           return 'success';
         }
       } else {
@@ -74,9 +70,13 @@ Meteor.methods({
           var created_subscription = Utils.stripe_create_subscription(updated_data.customer_id, updated_data.card, subscription_plan, subscription_amount, subscription_metadata);
           if (!created_subscription.object) {
             return {error: created_subscription.rawType, message: created_subscription.message};
-          }
-          else {
+          } else {
             Subscriptions.update({_id: updated_data.subscription_id}, {$set: {'metadata.replaced': true, 'metadata.replaced_with': created_subscription._id}});
+            DonationSplits.update( { subscription_id: updated_data.subscription_id }, {
+              $set: {
+                'subscription_id': created_subscription._id
+              }
+            } );
             return 'new';
           }
         }
