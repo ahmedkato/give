@@ -7,21 +7,41 @@ Template.Modals.onCreated(function () {
 
 Template.Modals.events({
   'click #write_in_save': function() {
+    // TODO: update this to use the new memo on the split functionality
+    // TODO: need to change the give function, it now needs to get the memo from the DonationFormItems and not
+    // the form itself
+    // TODO: then find the area on the method on the server where this same change needs to be made (if at all)
+
+    // If there is a memo added and they change the designation, we need to remove that split memo before starting the change
+
+    if ($('#writeIn').val() === "") {
+      return;
+    }
+
+    if(Session.get("workingWithSplitID")){
+      DonationFormItems.update({_id: Session.get("workingWithSplitID")}, {
+        $set: {
+          memo:     $('#writeIn').val()
+        }
+      } );
+    } else {
+      DonationFormItems.update({name: "first"}, {
+        $set: {
+          memo:     $('#writeIn').val()
+        }
+      } );
+      Session.set("params.donateTo", $("#tripSelect").val());
+    }
+    $('#writeIn').val("");
+    Session.set('showWriteIn', 'no');
     $('#modal_for_write_in').modal('hide');
 
-    let goHere = removeParam('note', window.location.href);
-    Session.set('showWriteIn', 'no');
-    goHere = goHere + '&note=' + Give.getCleanValue("#writeIn");
-    Router.go(goHere);
-    $('#giftNoteText').show();
   },
   'click #tripsSave'() {
     if ($('#tripSelect').val() === "" || $('#participantSelect').val() === "") {
       return;
     }
     if(Session.get("workingWithSplitID")){
-      // TODO: get that id and use it to update the DonationFormItem with that id
-      // else use the DonationFormItem with name: "first"
       DonationFormItems.update({_id: Session.get("workingWithSplitID")}, {
         $set: {
           donateTo: $("#tripSelect").val(),

@@ -21,7 +21,14 @@ Template.DonationTo.helpers({
         return e.id === (DonationFormItems.findOne( { name: 'first' } ) &&
           DonationFormItems.findOne( { name: 'first' } ).donateTo);
       }).length;
-      if(itemExists !== 0){
+
+      let donationSplits = DonationSplits.findOne() && DonationSplits.findOne().splits;
+      let itemExistsInSplit;
+      if(donationSplits && donationSplits.length > 0){
+        itemExistsInSplit = $.grep(donationSplits, function(e) {return e.id ===  $("[name='donateTo']").val();}).length;
+      }
+
+      if( (itemExists !== 0) || (itemExistsInSplit && itemExistsInSplit !== 0) ){
         return true;
       } else {
         return false;
@@ -38,12 +45,11 @@ Template.DonationTo.helpers({
 
 Template.DonationTo.events({
   'change [name="donateTo"]'() {
-
     let config = ConfigDoc();
     let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
+    console.log(writeInDonationTypeId);
 
     if (writeInDonationTypeId.indexOf(Number($('[name="donateTo"]').val())) === -1 ) {
-      $('#giftNoteText').hide();
       Session.set('showWriteIn', 'no');
       // setup modal for entering give toward information
       if ($('[name="donateTo"]').val() && $('[name="donateTo"]').val().toLowerCase() === 'trips') {

@@ -35,12 +35,6 @@
                     <div class="row">
                         {{> DonationDate}}
                     </div>
-                    <div class="text-center">
-                        <label id="giftNoteText" style="display: none;">
-                            <strong>Your gift is designated to "{{noteValue}}"</strong>
-                        </label>
-                    </div>
-
                     <!--call the address portion of the form -->
                     {{> RequestAddress}}
                     <h5 class="text-center">PAYMENT DETAILS
@@ -67,7 +61,6 @@
                     </div>
                 </fieldset>
             </div>
-            <input type="hidden" id="note" value="{{noteValue}}" />
             <input type="hidden" id="dt_source" value="{{dt_source}}" />
         </form>
     </div>

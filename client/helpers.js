@@ -487,7 +487,7 @@ Template.registerHelper('selected', function() {
       return;
     }
   }
-  if(DonationFormItems.findOne()){
+  if(DonationFormItems.findOne() || Meteor.userId()){
     let id = (Template.parentData(2) && Template.parentData(2)._id) || (Template.parentData(1) && Template.parentData(1)._id);
     if(!id){
       return DonationFormItems.findOne({name: 'first'}) && DonationFormItems.findOne({name: 'first'}).donateTo === this.id ? "selected" : '';
@@ -525,11 +525,8 @@ Template.registerHelper('splitDesignations', function() {
   } else {
     type = 'subscription_id';
   }
-  console.log("Got here");
   let splits = DonationSplits.findOne({[type]: this._id});
   if(splits){
-    console.log("Got here, splits");
-
     splits.splits.forEach(function ( split ) {
       let donateToText = DT_funds.findOne({id: split.donateTo}) &&
         DT_funds.findOne({id: split.donateTo}).name;

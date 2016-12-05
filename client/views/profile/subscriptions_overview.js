@@ -189,7 +189,7 @@ Template.SubscriptionsOverview.events({
   'click .previous': function(evt){
       evt.preventDefault();
       evt.stopPropagation();
-      if(Number(Session.get('subscription_cursor')> 3)){
+      if(Number(Session.get('subscription_cursor') >= 3)){
           Session.set('subscription_cursor', Number(Session.get('subscription_cursor')-3));
       }
   },

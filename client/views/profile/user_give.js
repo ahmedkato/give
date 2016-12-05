@@ -115,10 +115,6 @@ Template.UserGive.events({
 Template.UserGive.onRendered(function () {
   $('[data-toggle="popover"]').popover();
 
-  if (Session.get("params.note")) {
-    $('#giftNoteText').show();
-  }
-
   let selectedUser = Meteor.user();
 
   let selectedPersonaInfo = selectedUser && selectedUser.persona_info;
@@ -147,7 +143,11 @@ Template.UserGive.onRendered(function () {
 
 Template.UserGive.onCreated( function() {
   DonationFormItems = new Mongo.Collection(null);
-  DonationFormItems.insert( {name: 'first'} );
+  if(Session.get("params.note")){
+    DonationFormItems.insert( {name: 'first', memo: Session.get("params.note")} );
+  } else {
+    DonationFormItems.insert( {name: 'first'} );
+  }
 });
 
 Template.UserGive.onDestroyed( function() {

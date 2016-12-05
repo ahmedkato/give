@@ -103,7 +103,8 @@ Utils = {
           amount:             Number,
           donateTo:           String,
           name:               Match.Maybe(String),
-          item:               Match.Maybe(Number)
+          item:               Match.Maybe(Number),
+          memo:               Match.Maybe(String)
         }])
       },
       customer:           {

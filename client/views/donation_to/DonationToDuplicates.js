@@ -27,6 +27,7 @@ Template.DonationToDuplicates.events({
         });
       }
     } else {
+      Session.set("workingWithSplitID", this._id);
       Session.set('showWriteIn', 'yes');
       // setup modal for entering give toward information
       $('#modal_for_write_in').modal({
@@ -34,6 +35,5 @@ Template.DonationToDuplicates.events({
         backdrop: 'static'
       });
     }
-    //Session.set('params.donateTo', $('[name="donateToDuplicate"]').val());
   }
 });

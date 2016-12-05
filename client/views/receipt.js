@@ -5,11 +5,6 @@ Template.Receipt.events({
 });
 
 Template.Receipt.helpers({
-  note(){
-    if (this.metadata && this.metadata.note) {
-      return this.metadata.note;
-    }
-  },
   customer_data: function() {
     return Customers.findOne() && Customers.findOne().metadata;
   },
@@ -113,7 +108,9 @@ Template.Receipt.onRendered(function() {
 
   // Look for print url param and if it is set to yes, send the js command to show the print dialog
   if (Session.equals('print', 'yes')) {
-    return window.print();
+    Meteor.setTimeout(function(){
+      return window.print();
+    }, 2000);
   }
   $("#donateWith").change();
 });

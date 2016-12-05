@@ -10,7 +10,11 @@ $.fn.scrollView = function() {
 
 Template.DonationForm.onCreated(function () {
   DonationFormItems = new Mongo.Collection(null);
-  DonationFormItems.insert( {name: 'first'} );
+  if(Session.get("params.note")){
+    DonationFormItems.insert( {name: 'first', memo: Session.get("params.note")} );
+  } else {
+    DonationFormItems.insert( {name: 'first'} );
+  }
 });
 
 Template.DonationForm.events({

@@ -13,6 +13,9 @@
                 </optgroup>
             {{/each}}
         </select>
+        {{#if firstMemo}}
+            <p><strong>Memo: {{firstMemo}}</strong></p>
+        {{/if}}
     {{else}}
         <p>{{donateToThis paramsDonateTo}}<input type="hidden" value="{{paramsDonateTo}}" name="donateTo"/> </p>
         <p>Memo: {{firstMemo}}</p>
