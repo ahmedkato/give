@@ -1,28 +1,3 @@
-function removeParam(key, sourceURL) {
-  // check that the query string contains a '?', if it doesn't then the router
-  // will try to take the user to a different page.
-  if (Session.get("params.donateTo"))
-    if (sourceURL.split("?").length < 2) {
-      sourceURL = sourceURL + '?placeholder=';
-    }
-  console.log(key, sourceURL);
-  var rtn = sourceURL.split("?")[0],
-    param,
-    params_arr = [],
-    queryString = (sourceURL.indexOf("?") !== -1) ? sourceURL.split("?")[1] : "";
-  if (queryString !== "") {
-    params_arr = queryString.split("&");
-    for (var i = params_arr.length - 1; i >= 0; i -= 1) {
-      param = params_arr[i].split("=")[0];
-      if (param === key) {
-        params_arr.splice(i, 1);
-      }
-    }
-    rtn = rtn + "?" + params_arr.join("&");
-  }
-  return rtn;
-}
-
 Template.Modals.onCreated(function () {
   this.autorun(()=> {
     this.subscribe("trips");
@@ -32,12 +7,9 @@ Template.Modals.onCreated(function () {
 
 Template.Modals.events({
   'click #write_in_save': function() {
-    let config = ConfigDoc();
-
     $('#modal_for_write_in').modal('hide');
 
     let goHere = removeParam('note', window.location.href);
-    console.log(goHere);
     Session.set('showWriteIn', 'no');
     goHere = goHere + '&note=' + Give.getCleanValue("#writeIn");
     Router.go(goHere);
@@ -47,19 +19,38 @@ Template.Modals.events({
     if ($('#tripSelect').val() === "" || $('#participantSelect').val() === "") {
       return;
     }
-    $('[name="donateTo"]').val($("#tripSelect").val());
+    if(Session.get("workingWithSplitID")){
+      // TODO: get that id and use it to update the DonationFormItem with that id
+      // else use the DonationFormItem with name: "first"
+      DonationFormItems.update({_id: Session.get("workingWithSplitID")}, {
+        $set: {
+          donateTo: $("#tripSelect").val(),
+          memo:     $('#participantSelect').val()
+        }
+      } );
+    } else {
+      DonationFormItems.update({name: "first"}, {
+        $set: {
+          donateTo: $("#tripSelect").val(),
+          memo:     $('#participantSelect').val()
+        }
+      } );
+      Session.set("params.donateTo", $("#tripSelect").val());
+    }
 
-    let urlText = '?note=' + $('#participantSelect').val() +
-    '&donateTo=' + $("#tripSelect").val();
+    $("#tripSelect").chosen().val("");
+    $('#participantSelect').chosen().val("");
+
+    $("#tripSelect").trigger("chosen:updated");
+    $("#participantSelect").chosen("destroy");
+    $("#participantSelect").hide();
+
     $('#modal_for_trips').modal('hide');
-    Meteor.setTimeout(()=>{
-      Router.go(Meteor.absoluteUrl() + urlText);
-    },500);
   },
   'change #tripSelect'(){
     let trip = Trips.findOne({fundId: $("#tripSelect").val()});
     if (trip && trip._id) {
-      $("#participantSelect").show()
+      $("#participantSelect").show();
       Session.set("selectedTripId", trip._id);
       $('#participantSelect').chosen({width: "95%"});
       Meteor.setTimeout(function () {
@@ -99,4 +90,8 @@ Template.Modals.onRendered( function() {
     $("#participantSelect").hide();
     $('#options').chosen({width: "95%"});
   }, 250);
+});
+
+Template.Modals.onDestroyed( function() {
+  Session.delete( "workingWithSplitID" );
 });

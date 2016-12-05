@@ -4,8 +4,45 @@ Template.DonationTo.onCreated(function () {
   });
 });
 
+Template.DonationTo.helpers({
+  selectableDesignation(){
+    if(Session.get("params.donateTo")){
+      console.log("false");
+      let config = ConfigDoc();
+      var givingOptions = config && config.Giving && config.Giving.options;
+
+      let members = [];
+      givingOptions.forEach(function ( item ) {
+        if(item.id) {
+          members.push(item);
+        }
+      });
+
+      let itemExists = $.grep(members, function(e) {
+        return e.id === (DonationFormItems.findOne( { name: 'first' } ) &&
+          DonationFormItems.findOne( { name: 'first' } ).donateTo);
+      }).length;
+      console.log(itemExists);
+      if(itemExists !== 0){
+        console.log("true");
+        return true;
+      } else {
+        console.log("false");
+
+        return false;
+      }
+    } else {
+      return true;
+    }
+  },
+  firstMemo(){
+    let donationItem = DonationFormItems.findOne({name: "first"});
+    return donationItem && donationItem.memo;
+  }
+});
+
 Template.DonationTo.events({
-  'change [name="donateTo"]': function() {
+  'change [name="donateTo"]'() {
 
     let config = ConfigDoc();
     let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;

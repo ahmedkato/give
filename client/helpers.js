@@ -356,6 +356,8 @@ Template.registerHelper('donor_tools_site', function() {
 });
 
 Template.registerHelper('donateToThis', function(idOrName) {
+  console.log(this);
+  console.log(idOrName);
   if (! isNaN(idOrName)) {
     if (DT_funds.findOne({_id: idOrName}) && DT_funds.findOne({_id: idOrName}).name) {
       return DT_funds.findOne({_id: idOrName}).name;
@@ -487,10 +489,12 @@ Template.registerHelper('selected', function() {
       return;
     }
   }
+
+  if(Template.parentData(2) && DonationFormItems.findOne({name: 'first'}) && DonationFormItems.findOne({name: 'first'})._id === Template.parentData(2)._id){
+    return DonationFormItems.findOne({name: 'first'}) && DonationFormItems.findOne({name: 'first'}).donateTo === this.id ? "selected" : '';
+  }
   if(Template.parentData(2) && Template.parentData(2).donateTo){
     return Template.parentData(2) && Template.parentData(2).donateTo === this.id ? "selected" : '';
-  } else if(DonationFormItems.findOne({name: 'first'})){
-    return DonationFormItems.findOne({name: 'first'}) && DonationFormItems.findOne({name: 'first'}).donateTo === this.id ? "selected" : '';
   }
 });
 
@@ -509,7 +513,6 @@ Template.registerHelper('coverTheFeesChecked', function() {
     }, 300);
     return subscription && subscription.metadata && subscription.metadata.coveredTheFees ===  'true' ? 'checked' : '';
   } else {
-    console.log('donation_form');
     return this.coverTheFees ? 'checked' : '';
   }
 });
@@ -542,5 +545,12 @@ Template.registerHelper('splitDesignations', function() {
 Template.registerHelper('isResubscribe', function() {
   if(Session.equals("resubscribe", "true")){
     return true;
+  }
+});
+
+
+Template.registerHelper('paramsDonateTo', function() {
+  if(Session.get("params.donateTo")){
+    return Session.get("params.donateTo");
   }
 });

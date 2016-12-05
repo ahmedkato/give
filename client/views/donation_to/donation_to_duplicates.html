@@ -1,15 +1,20 @@
 <template name="DonationToDuplicates">
     <label for="donateToDuplicate">Donation Designation</label>
-    <select name="donateToDuplicate"
+    {{#if selectableDesignation}}
+        <select name="donateToDuplicate"
            required="true"
            data-parsley-error-message="Choose an option from the list"
            class="form-control select select-primary slim-borders">
-        {{#each givingOptionsGroup}}
-            <optgroup label="{{text}}">
-                {{#each givingOptionsMember}}
-                    <option value="{{id}}" {{selected}}>{{text}}</option>
-                {{/each}}
-            </optgroup>
-        {{/each}}
-    </select>
+            {{#each givingOptionsGroup}}
+                <optgroup label="{{text}}">
+                    {{#each givingOptionsMember}}
+                        <option value="{{id}}" {{selected}}>{{text}}</option>
+                    {{/each}}
+                </optgroup>
+            {{/each}}
+        </select>
+    {{else}}
+        <p>{{donateToThis this.donateTo}}</p>
+        <p>Memo: {{this.memo}}</p>
+    {{/if}}
 </template>
