@@ -356,8 +356,6 @@ Template.registerHelper('donor_tools_site', function() {
 });
 
 Template.registerHelper('donateToThis', function(idOrName) {
-  console.log(this);
-  console.log(idOrName);
   if (! isNaN(idOrName)) {
     if (DT_funds.findOne({_id: idOrName}) && DT_funds.findOne({_id: idOrName}).name) {
       return DT_funds.findOne({_id: idOrName}).name;
@@ -489,12 +487,13 @@ Template.registerHelper('selected', function() {
       return;
     }
   }
-
-  if(Template.parentData(2) && DonationFormItems.findOne({name: 'first'}) && DonationFormItems.findOne({name: 'first'})._id === Template.parentData(2)._id){
-    return DonationFormItems.findOne({name: 'first'}) && DonationFormItems.findOne({name: 'first'}).donateTo === this.id ? "selected" : '';
-  }
-  if(Template.parentData(2) && Template.parentData(2).donateTo){
-    return Template.parentData(2) && Template.parentData(2).donateTo === this.id ? "selected" : '';
+  if(DonationFormItems.findOne()){
+    let id = (Template.parentData(2) && Template.parentData(2)._id) || (Template.parentData(1) && Template.parentData(1)._id);
+    if(!id){
+      return DonationFormItems.findOne({name: 'first'}) && DonationFormItems.findOne({name: 'first'}).donateTo === this.id ? "selected" : '';
+    } else {
+      return DonationFormItems.findOne({_id: id}) && DonationFormItems.findOne({_id: id}).donateTo === this.id ? "selected" : '';
+    }
   }
 });
 

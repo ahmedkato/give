@@ -7,7 +7,6 @@ Template.DonationTo.onCreated(function () {
 Template.DonationTo.helpers({
   selectableDesignation(){
     if(Session.get("params.donateTo")){
-      console.log("false");
       let config = ConfigDoc();
       var givingOptions = config && config.Giving && config.Giving.options;
 
@@ -22,13 +21,9 @@ Template.DonationTo.helpers({
         return e.id === (DonationFormItems.findOne( { name: 'first' } ) &&
           DonationFormItems.findOne( { name: 'first' } ).donateTo);
       }).length;
-      console.log(itemExists);
       if(itemExists !== 0){
-        console.log("true");
         return true;
       } else {
-        console.log("false");
-
         return false;
       }
     } else {
