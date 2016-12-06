@@ -171,7 +171,10 @@ Meteor.methods({
       let customerData = {};
       let user_id, dt_account_id, customerInfo, metadata;
 
-      let donationSplitsId = DonationSplits.insert({splits: data.paymentInformation.splits});
+      let donationSplitsId = DonationSplits.insert({
+        createdAt: new Date(),
+        splits: data.paymentInformation.splits
+      });
 
       if (!data.customer.id) {
         customerData = Utils.create_customer(data.paymentInformation.token_id ? 

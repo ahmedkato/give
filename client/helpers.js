@@ -505,7 +505,6 @@ Template.registerHelper('selectedExpiration', function(objectKey, objectValue) {
 
 Template.registerHelper('coverTheFeesChecked', function() {
   if(Session.get("subscription")){
-    console.log('subscription');
     let subscription = Subscriptions.findOne({_id: Session.get("subscription")});
     Meteor.setTimeout(function () {
       $("#coverTheFees").change();

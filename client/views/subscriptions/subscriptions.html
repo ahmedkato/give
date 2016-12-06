@@ -15,9 +15,9 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>Amount</th>
-                    <th>Next Gift</th>
                     <th>Designation</th>
                     <th>Note</th>
+                    <th>Next Gift</th>
                     <th>Stripe ID</th>
                     {{#if isInRole 'admin, super-admin, manager'}}
                         <th class="text-right"></th>
@@ -31,11 +31,15 @@
                             <td>{{name}}</td>
                             <td>{{metadata.email}}</td>
                             <td>${{twoDecimalPlaces quantity}}</td>
-                            <td>{{formatDate current_period_end true}}</td>
-                            <td>{{#if metadata.donateTo}}{{donateToThis metadata.donateTo}}{{else}}
-                                {{{splitDesignations}}}
-                            {{/if}}</td>
+                            <td>
+                                {{#if metadata.donateTo}}
+                                    {{donateToThis metadata.donateTo}}
+                                {{else}}
+                                    {{{splitDesignations}}}
+                                {{/if}}
+                            </td>
                             <td>{{metadata.note}}</td>
+                            <td>{{formatDate current_period_end true}}</td>
                             <td>{{_id}}</td>
                             {{#if isInRole 'admin, manager'}}
                                 <td class="text-right">

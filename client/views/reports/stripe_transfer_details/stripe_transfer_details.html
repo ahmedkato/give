@@ -46,10 +46,11 @@
               <th>ID</th>
               <th>Type</th>
               <th>Fees Covered?</th>
-              <th>DT Fund</th>
-              <th>DT Source</th>
               <th>Frequency</th>
-              <th>Donation Amount</th>
+              <th>DT Fund</th>
+              <!--<th>DT Source</th>-->
+              <th>Donation Split</th>
+              <th>Donation Total</th>
               <th>Fee</th>
               <th>Net Amount</th>
           </tr>
@@ -102,22 +103,27 @@
                         </a>
                       </td>
                       <td class="change-td-padding">{{ach_or_card}}</td>
-                        <td class="">
-                            <input type="checkbox" name="coverTheFees"
-                                id="feesCovered" data-toggle="checkbox"
-                                class="cover-fees" {{fees_covered}} disabled>
-                        </td>
-                      {{#if metadata.donateTo}}
-                          <td class="change-td-padding">{{getFundName metadata.donateTo}}</td>
-                      {{else}}
-                          <td class="change-td-padding">
-                              {{#with dt_donation_splits}}
-                                  <td class="change-td-padding">{{#each splits}} {{{fundName}}} <br>{{/each}}</td>
-                              {{/with}}
-                          </td>
-                      {{/if}}
-                      <td class="change-td-padding">{{dt_source}}</td>
+                      <td class="">
+                          <input type="checkbox" name="coverTheFees"
+                              id="feesCovered" data-toggle="checkbox"
+                              class="cover-fees" {{fees_covered}} disabled>
+                      </td>
                       <td class="change-td-padding">{{metadata.frequency}}</td>
+                      {{#with dt_donation}}
+                          <td class="change-td-padding">
+                              {{#each splits}}
+                                  {{{fundName}}}
+                                  <br>
+                              {{/each}}
+                          </td>
+                          <td>
+                              {{#each splits}}
+                                  ${{twoDecimalPlaces this.amount_in_cents}}
+                                  <br>
+                              {{/each}}
+                          </td>
+                      {{/with}}
+                      <!--<td class="change-td-padding">{{dt_source}}</td>-->
                   {{/with}}
               {{else}}
                   {{#with refunds}}
@@ -135,9 +141,9 @@
                                  id="feesCovered" data-toggle="checkbox"
                                  class="cover-fees" {{fees_covered}} disabled>
                       </td>
-                      <td class="change-td-padding">{{getFundName charge.metadata.donateTo}}</td>
-                      <td class="change-td-padding">{{dt_source}}</td>
                       <td class="change-td-padding">{{charge.metadata.frequency}}</td>
+                      <td class="change-td-padding">{{getFundName charge.metadata.donateTo}}</td>
+                      <!--<td class="change-td-padding">{{dt_source}}</td>-->
                   {{/with}}
               {{/if}}
 
@@ -148,7 +154,7 @@
             </tr>
           {{/each}}
           <tr>
-              <td class="text-right" colspan="10">Totals</td>
+              <td class="text-right" colspan="9">Totals</td>
               <td><strong>${{add amount total_fees}}</strong></td>
               <td><strong>${{twoDecimalPlaces total_fees}}</strong></td>
               <td><strong>${{twoDecimalPlaces amount}}</strong></td>

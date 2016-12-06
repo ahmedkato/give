@@ -353,7 +353,7 @@ Template.StripeTransferDetails.helpers({
       return dTFund.name;
     }
   },
-  dt_donation_splits() {
+  dt_donation() {
     return DT_donations.findOne( { 'transaction_id': this._id } ) && DT_donations.findOne( { 'transaction_id': this._id } );
   },
 });

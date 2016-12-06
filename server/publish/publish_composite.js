@@ -312,6 +312,20 @@ Meteor.publishComposite('charges_and_customers', function (search, limit, refund
                limit:  1
              } );
           }
+        },
+        {
+          find: function ( charges ) {
+            return DT_donations.find(
+              { transaction_id: charges._id },
+              {
+                limit:  1,
+                fields: {
+                  persona_id:       1,
+                  transaction_id:   1,
+                  splits:           1
+                }
+              } );
+          }
         }
       ]
     }

@@ -152,4 +152,7 @@ Template.Gifts.helpers({
   refundUnixDate(){
     return this.refunds.data[0].created;
   },
+  dt_donation() {
+    return DT_donations.findOne( { 'transaction_id': this._id } ) && DT_donations.findOne( { 'transaction_id': this._id } );
+  },
 });

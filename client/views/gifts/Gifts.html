@@ -31,7 +31,7 @@
                         <th>Name</th>
                         <th>Date</th>
                         <th>Amount</th>
-                        <th>Recurring</th>
+                        <th>Splits</th>
                         <th>Designation</th>
                         <th>Note</th>
                         <th>Stripe ID</th>
@@ -47,17 +47,33 @@
                                 {{#with thisCustomer}}
                                     <td>{{name}}</td>
                                 {{/with}}
-                                <td>{{formatDate created true}}
+                                <td>
+                                    {{formatDate created true}}
                                     {{#if refunded}}
                                         - Refunded on: {{formatDate refundUnixDate true}}
                                     {{/if}}
                                 </td>
                                 <td>${{twoDecimalPlaces amount}}</td>
-                                <td>{{recurring}}</td>
-                                <td>{{#if metadata.donateTo}}{{donateToThis metadata.donateTo}}{{else}}
-                                    {{{splitDesignations}}}
-                                {{/if}}</td>
-                                <td>{{metadata.note}}</td>
+                                {{#with dt_donation}}
+                                    <td>
+                                        {{#each splits}}
+                                            ${{twoDecimalPlaces this.amount_in_cents}}
+                                            <br>
+                                        {{/each}}
+                                    </td>
+                                    <td class="change-td-padding">
+                                        {{#each splits}}
+                                            {{{fundName}}}
+                                            <br>
+                                        {{/each}}
+                                    </td>
+                                    <td>
+                                        {{#each splits}}
+                                            {{memo}}
+                                            <br>
+                                        {{/each}}
+                                    </td>
+                                {{/with}}
                                 <td>{{_id}}</td>
                                 {{#if isInRole 'admin, manager'}}
                                     <td class="text-right">

@@ -37,6 +37,10 @@ Template.UpdateSubscription.onRendered(function () {
       });
     } else {
       DonationFormItems.remove({});
+      let subscription = Subscriptions.findOne();
+      if(subscription && subscription.metadata && subscription.metadata.donateTo){
+        DonationFormItems.upsert({name: 'first'}, {name: 'first', donateTo: subscription.metadata.donateTo, amount: subscription.quantity });
+      }
     }
   });
 });

@@ -47,7 +47,6 @@ Template.DonationTo.events({
   'change [name="donateTo"]'() {
     let config = ConfigDoc();
     let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
-    console.log(writeInDonationTypeId);
 
     if (writeInDonationTypeId.indexOf(Number($('[name="donateTo"]').val())) === -1 ) {
       Session.set('showWriteIn', 'no');
