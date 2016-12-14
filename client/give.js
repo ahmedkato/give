@@ -476,12 +476,12 @@ function OrgInfoCheck(name, namePart2) {
                 'color': '#34495e'
               } );
               $( "#total_amount" ).val( roundedAmount );
-              console.log($( "#total_amount" ).val());
+              Session.set("giftAmount", roundedAmount);
               return Session.set( "amount", roundedAmount );
             } else {
               Session.set( "coverTheFees", false );
               $( "#total_amount" ).val( donationAmount && donationAmount.toFixed(2) );
-              console.log($( "#total_amount" ).val());
+              Session.set("giftAmount", donationAmount && donationAmount.toFixed(2));
               $( "#show_total" ).hide();
               $( "#fee" ).val("");
               return $( "#total_amount_display" ).text( "" ).css( {

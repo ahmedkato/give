@@ -325,7 +325,6 @@ _.extend(Utils,{
       }
     
       let charge_cursor = Charges.findOne({_id: id});
-      logger.info("**********LOOK HERE**");
       logger.info(charge_cursor);
 
       if (!charge_cursor) {

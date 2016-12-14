@@ -1,4 +1,5 @@
 import parsley from 'parsleyjs';
+import '/imports/ui/stylesheets/top.css';
 
 $.fn.scrollView = function() {
   return this.each(function() {
@@ -112,6 +113,18 @@ Template.DonationForm.events({
 });
 
 Template.DonationForm.helpers({
+  giftTotal(){
+    let total = Session.get("giftAmount");
+    console.log(total);
+    if(total){
+      return total;
+    }
+  },
+  showGiftTotal(){
+    if(DonationFormItems.find() && DonationFormItems.find().count() > 1){
+      return true;
+    }
+  },
   paymentQuestionIcon: function() {
     if (Session.equals('paymentMethod', 'Check')) {
       return "<i class='makeRightOfInput fa fa-question-circle' data-toggle='popover' " +

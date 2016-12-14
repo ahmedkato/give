@@ -715,7 +715,6 @@ Utils = {
       let donationMemo = "The charge was refunded on " + createdDate +
         ". The original charge amount was $" + refundedAmount;
       memo = donationMemo;
-      //TODO: need to setup this area for splits
     }
 
     if( chargeCursor.status === 'failed' ) {
@@ -728,8 +727,6 @@ Utils = {
         chargeCursor.failure_message + '"';
 
       memo = donationMemo;
-      //TODO: need to setup this area for splits
-
     }
 
     try {
@@ -740,6 +737,26 @@ Utils = {
         auth: DONORTOOLSAUTH
       } );
       logger.info( checkPerson.data );
+
+
+      let data = {
+        "donation": {
+          "persona_id":       customerCursor.metadata.dt_persona_id,
+          "splits":           splits,
+          "donation_type_id": config.Settings.DonorTools.customDataTypeId,
+          "received_on":      moment( new Date( chargeCursor.created * 1000 ) ).format( "YYYY/MM/DD hh:mma" ),
+          "source_id":        source_id,
+          "payment_status":   chargeCursor.status,
+          "transaction_id":   chargeId
+        }
+      };
+      logger.info("LOOK HERE");
+      logger.info(data);
+      logger.info(config.Settings.DonorTools.url);
+      newDonationResult = HTTP.post( config.Settings.DonorTools.url + '/donations.json', {
+        data: data,
+        auth: DONORTOOLSAUTH
+      } );
     } catch( e ) {
       logger.error( "No Person with the DT ID of " +
         customerCursor.metadata.dt_persona_id + " found in DT" );
@@ -750,8 +767,8 @@ Utils = {
         to: to,
         type:    'Failed to add a gift to Donor Tools.',
         emailMessage: "I tried to add a gift with PersonaID of: " + customerCursor.metadata.dt_persona_id +
-                      " to Donor Tools, but for some reason I wasn't able to." +
-                      " Click the button to see the Stripe Charge",
+            " to Donor Tools, but for some reason I wasn't able to." +
+            " Click the button to see the Stripe Charge",
         buttonText:   "Stripe Charge",
         buttonURL:    "https://dashboard.stripe.com/payments/" + chargeId
       };
@@ -763,22 +780,6 @@ Utils = {
       } );
       throw new Meteor.Error( e );
     }
-
-    newDonationResult = HTTP.post( config.Settings.DonorTools.url + '/donations.json', {
-      data: {
-        "donation": {
-          "persona_id":       customerCursor.metadata.dt_persona_id,
-          "splits":           splits,
-          "donation_type_id": config.Settings.DonorTools.customDataTypeId,
-          "received_on":      moment( new Date( chargeCursor.created * 1000 ) ).format( "YYYY/MM/DD hh:mma" ),
-          "source_id":        source_id,
-          "payment_status":   chargeCursor.status,
-          "transaction_id":   chargeId
-        }
-      },
-      auth: DONORTOOLSAUTH
-    } );
-
     newDonationResult.data.donation._id = newDonationResult.data.donation.id;
     DT_donations.upsert( { _id: newDonationResult.data.donation.id }, newDonationResult.data.donation );
 

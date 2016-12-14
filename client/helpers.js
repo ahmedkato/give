@@ -452,6 +452,7 @@ Template.registerHelper('givingOptionsMember', function() {
 
   let groupId = this.groupId;
   let members = [];
+  //console.log(Session.get("SelectedDonateTo"));
   givingOptions.forEach(function ( item ) {
     if(item.currentGroup === groupId) {
       members.push(item);
