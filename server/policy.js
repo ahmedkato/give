@@ -42,7 +42,6 @@ _.each(trusted, function(origin) {
 BrowserPolicy.content.allowOriginForAll("blob:");
 let constructedCsp = BrowserPolicy.content._constructCsp();
 BrowserPolicy.content.setPolicy(constructedCsp +" media-src blob:;");
-<<<<<<< HEAD
 
 /*
 BrowserPolicy.content.allowScriptOrigin("heapanalytics.com cdn.heapanalytics.com 'unsafe-inline' 'unsafe-eval'");
@@ -50,5 +49,3 @@ BrowserPolicy.content.allowConnectOrigin("heapanalytics.com");
 BrowserPolicy.content.allowImageOrigin("heapanalytics.com");
 BrowserPolicy.content.allowStyleOrigin("heapanalytics.com");
 BrowserPolicy.content.allowFontOrigin("heapanalytics.com");*/
-=======
->>>>>>> split-donation-small-button-for-each
