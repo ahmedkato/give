@@ -18,6 +18,10 @@ Template.ACH.onCreated(function() {
   });
 });
 
+Template.ACH.onRendered(function () {
+  Session.set("ach_page", true);
+});
+
 Template.ACH.helpers({
   donations: function () {
     let searchValue = Session.get("searchValue");
@@ -110,7 +114,8 @@ Template.ACH.helpers({
           customer.metadata.email,
           this.customer_id,
           function ( err, res ) {
-            if( err ) console.error( err ); else console.log( res );
+            if( err ) console.error( err );
+            else console.log( res );
         } );
       }
     }
@@ -177,8 +182,6 @@ Template.ACH.events({
     });
   },
   'click .edit-ach': function(e) {
-    console.log("edit ach clicked ", $(e.currentTarget).attr("data-id"));
-
     e.preventDefault();
     let self = this;
 
@@ -195,7 +198,7 @@ Template.ACH.events({
     });
 
     Meteor.setTimeout(function() {
-      $("#donateTo").val(self.donateTo).change();
+      $('[name="donateTo"]').val(self.donateTo).change();
     }, 0);
   },
   'keyup, change .search': _.debounce(function () {
@@ -223,4 +226,5 @@ Template.ACH.onDestroyed(function() {
   Session.delete('change_note');
   Session.delete('change_amount');
   Session.delete('change_date');
+  Session.delete("ach_page");
 });

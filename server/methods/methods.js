@@ -165,18 +165,16 @@ Meteor.methods({
   stripeDonation: function(data) {
     logger.info("Started stripeDonation");
     try {
-
       // Check the form to make sure nothing malicious is being submitted to the server
       Utils.checkFormFields(data);
-      if (data.paymentInformation.coverTheFees === false) {
-          data.paymentInformation.fees = '';
-      }
       logger.info(data.paymentInformation.start_date);
       let customerData = {};
-      let donateTo, user_id, dt_account_id, customerInfo, metadata;
+      let user_id, dt_account_id, customerInfo, metadata;
 
-      // Get the fund reference for this donation
-      donateTo = Utils.getDonateTo(data.paymentInformation.donateTo);
+      let donationSplitsId = DonationSplits.insert({
+        createdAt: new Date(),
+        splits: data.paymentInformation.splits
+      });
 
       if (!data.customer.id) {
         customerData = Utils.create_customer(data.paymentInformation.token_id ? 
@@ -247,25 +245,22 @@ Meteor.methods({
       };
 
       metadata = {
-        'amount':               data.paymentInformation.amount,
         'coveredTheFees':       data.paymentInformation.coverTheFees,
         'created_at':           data.paymentInformation.created_at,
         'customer_id':          customerData.id,
-        'donateTo':             donateTo,
         'donateWith':           data.paymentInformation.donateWith,
         'dt_donation_id':       null,
         'dt_source':            data.paymentInformation.dt_source,
         'fees':                 data.paymentInformation.fees,
         'frequency':            data.paymentInformation.is_recurring,
-        'note':                 data.paymentInformation.note,
         'status':               'pending',
         'send_scheduled_email': data.paymentInformation.send_scheduled_email,
         'start_date':           data.paymentInformation.start_date,
         'total_amount':         data.paymentInformation.total_amount,
         'type':                 data.paymentInformation.type,
-        'sessionId':            data.paymentInformation.sessionId,
         'source_id':            data.paymentInformation.source_id,
-        'method':               data.paymentInformation.method
+        'method':               data.paymentInformation.method,
+        'donationSplitsId':     donationSplitsId
       };
 
       data._id = Donations.insert(metadata);
@@ -292,6 +287,7 @@ Meteor.methods({
             return { error: charge.rawType, message: charge.message };
           }
           Donations.update( { _id: data._id }, { $set: { charge_id: charge.id } } );
+          DonationSplits.update({_id:  donationSplitsId}, { $set: { charge_id: charge.id} });
 
           return { c: customerData.id, don: data._id, charge: charge.id };
         } else {
@@ -302,11 +298,13 @@ Meteor.methods({
           var charge_object = Utils.charge_plan( data.paymentInformation.total_amount,
             data._id, customerData.id, data.paymentInformation.source_id,
             data.paymentInformation.is_recurring, data.paymentInformation.start_date, metadata );
+          DonationSplits.update({_id:  donationSplitsId}, { $set: { charge_id: charge_object.charge} });
+
           if( !charge_object.object ) {
             if( charge_object === 'scheduled' ) {
               return { c: customerData.id, don: data._id, charge: 'scheduled' };
             } else {
-              logger.error( "The charge_id object didn't have .object attached." );
+              logger.error( "The charge_id object didn't have object attached." );
               return {
                 error:   charge_object.rawType,
                 message: charge_object.message
@@ -767,48 +765,62 @@ Meteor.methods({
       return;
     }
   },
-  edit_subscription: function (customer_id, subscription_id, quantity, trial_end, donateTo) {
-    logger.info("Started edit_subscription method");
-    logger.info(customer_id, subscription_id, quantity, trial_end, donateTo);
-    
+  edit_subscription: function (subscription_id, quantity, trial_end) {
     check(subscription_id, String);
-    check(customer_id, String);
     check(quantity, Match.Optional(Number));
-    check(trial_end, Match.Optional(String));
-    check(donateTo, Match.Optional(String));
+    check(trial_end, Match.Maybe(String));
+
+    logger.info("Started edit_subscription method");
+    logger.info(subscription_id, quantity, trial_end);
 
     let fields = {};
     quantity && quantity !== 0 ? fields.quantity = quantity : null;
-    quantity && quantity !== 0 ? fields.metadata = {amount: quantity} : null;
     quantity && quantity !== 0 ? fields.prorate = false : trial_end ? fields.prorate = false : null;
     trial_end ? fields.trial_end = trial_end : null;
-    donateTo ? fields.metadata ? fields.metadata.donateTo = donateTo: fields.metadata = {donateTo: donateTo} : null;
+    logger.info("fields: ");
     logger.info(fields);
     this.unblock();
 
+    let subscription = Subscriptions.findOne({_id: subscription_id});
     if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
       let newSubscription =
-        Utils.update_stripe_subscription_amount_or_designation_or_date(subscription_id,
-        customer_id, fields);
+        Utils.update_stripe_subscription_amount_or_designation_or_date(subscription_id, subscription.customer, fields);
       Subscriptions.upsert({_id: subscription_id}, newSubscription);
       console.log(newSubscription);
-      return "Edited that subscription";
+      return "Edited that recurring gift";
     } else if(this.userId){
       let user_email = Meteor.users.findOne({_id: this.userId}).emails[0].address;
       let subscription_email = Subscriptions.findOne({_id: subscription_id}).metadata.email;
       if(user_email === subscription_email){
         let newSubscription =
-          Utils.update_stripe_subscription_amount_or_designation_or_date(subscription_id,
-            customer_id, fields);
+          Utils.update_stripe_subscription_amount_or_designation_or_date(subscription_id, subscription.customer, fields);
         Subscriptions.upsert({_id: subscription_id}, newSubscription);
         console.log(newSubscription);
-        return "Edited that subscription";
+        return "Edited that recurring gift";
       } else {
-        return;
+        throw new Meteor.Error("403", "Unathorized");
       }
     }
   },
-  post_dt_note: function (to_persona, note) {
+  editDonationSplits(DonationSplitId, DonationFormItems){
+    check(DonationSplitId, String);
+    check(DonationFormItems, [{
+      _id:       String,
+      amount:   Number,
+      donateTo: String,
+      name:     Match.Maybe(String),
+      item:     Match.Maybe(Number)
+    }]);
+
+    logger.info("Started editDonationSplits method");
+    logger.info(DonationSplitId);
+    logger.info(DonationFormItems);
+    DonationSplits.update({_id: DonationSplitId}, { $set: { splits: DonationFormItems } });
+    // The return text is really just for the case where the user doesn't change the amount or date
+    // in that case this text will be used to show the user their changes went through
+    return "Edited that recurring gift";
+  },
+  post_dt_note(to_persona, note) {
     logger.info("Started post_dt_note method");
 
     check(to_persona, String);

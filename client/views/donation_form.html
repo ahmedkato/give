@@ -1,13 +1,14 @@
 <template name="DonationForm">
+    <!--{{#if showGiftTotal}}
+        <div class="amount-dialog text-center">Total Gift Amount: ${{giftTotal}}</div>
+    {{/if}}-->
     <div class="container form-container">
         <form class="form-horizontal donation-form" role="form" id="donation_form" name="donation_form" data-parsley-focus="first"
             data-parsley-excluded="input[type=submit], input[type=reset], input[type=hidden], [disabled], :hidden"
             style="background-color: white;">
 
-            <div class="col-md-6 col-md-offset-3">
-            </div>
-            <div class="col-lg-8 col-md-8 col-md-offset-2">
 
+            <div class="col-lg-8 col-md-8 col-md-offset-2">
                 <fieldset>
                     {{#unless campaign}}
                         <h2 class="text-center">THANK YOU</h2>
@@ -15,110 +16,31 @@
                         {{> Progress}}
                     {{/unless}}
 
-                    <!-- Amount of donation -->
-                    <div class="donation_amount text-center well well-lg form-group">
-                        <div id='amount_width' class="{{amountWidth}}">
-                            <label class="control-label" for="amount">Donation Amount</label>
-
-                            {{#unless locked_amount}}
-                                <div class="input-group">
-                                    <!--[if lt IE 9]>
-                                        <label>Amount</label>
-                                    <![endif]-->
-                                    <span class="input-group-addon">$</span>
-                                        <input {{attributes_Input_Amount}} type="digits" value="{{amount}}" class="form-control slim-borders"
-                                   required data-parsley-error-message="Please only use numbers in the amount." data-parsley-errors-container="#show-amount-error-here" />
-                                </div>
-                                <div id="show-amount-error-here"></div>
-                            {{else}}
-                                <br>
-                                <span>$</span>{{amount}}
-                                <input {{attributes_Input_Amount}} type="hidden" value="{{amount}}" />
-                            {{/unless}}
-
-                        </div>
-                        <div class="text-left col-md-7 col-sm-8 col-xs-12">
-                            {{#if paymentWithCard}}
-                                <!-- Checbox for Covering related fees-->
-                                <input type="checkbox" name="coverTheFees" id="coverTheFees" data-toggle="checkbox" {{coverTheFeesChecked}} />
-                                    I'll cover the credit card processing fees. <span><i id="coverTheFeesQuestion" class="fa fa-question-circle" data-toggle="popover"
-                                     data-placement="bottom" data-trigger="hover focus" title="Processor fees" data-container="body"
-                                     data-content="Our credit card processor charges 2.9% + .30 per transaction. If you check the box to cover these fees we'll do the math and change your gift amount to reflect this amount.">
-                                </i></span>
-                                <label for="total_amount_display">&nbsp;</label>
-                                <p id="total_amount_display" class=""></p>
-                            {{/if}}
-                            <input type="hidden" id="total_amount" name="total_amount" value="{{amount}}" />
-                        </div>
-                    </div>
+                    {{> Amount}}
+                    <br>
                     <div class="form-group">
                         <div class="row">
-                            <div class="col-lg-4 col-md-4 col-sm-4">
-                                {{> DonationTo}}
-                            </div>
-                            <div class="col-lg-4 col-md-4 col-sm-4">
+                            <div class="col-lg-6 col-md-6 col-sm-6">
                                 <label for="donateWith">Method of Payment</label>
                                 <select name="donateWith"
                                         id="donateWith"
-                                        class="form-control select select-primary mbl"
+                                        class="form-control select select-primary slim-borders"
                                         required>
                                     <option value="Card">Card</option>
                                     <option value="Check">Check</option>
                                 </select>
                             </div>
-                            <div class="col-lg-4 col-md-4 col-sm-4">
-                                <label for="is_recurring" id="frequency_label">Donation Frequency
-                                    {{#if doNotShowOneTime}}<span style="font-size: .8em;">{{{onlyOneTimeIcon}}}</span> {{/if}}</label>
-                                {{#unless locked_frequency}}
-                                        <select type="text"
-                                                name="is_recurring"
-                                                id="is_recurring"
-                                                class="form-control select select-primary mbl"
-                                                required
-                                                data-placeholder="Select an Option"
-                                                data-parsley-error-message="  Choose one ^">
-                                        {{#unless doNotShowOneTime}}
-                                            <option selected></option>
-                                            <option value="one_time">One-Time</option>
-                                        {{/unless}}
-                                        <option value="monthly">Monthly</option>
-                                        {{#unless doNotShowOneTime}}
-                                            <option value="weekly">Weekly</option>
-                                            <option value="bi-weekly">Every other week</option>
-                                            <option value="semi-annually">Every 6 months</option>
-                                            <option value="yearly">Yearly</option>
-                                        {{/unless}}
-                                        </select>
-                                {{else}}
-                                    <br>
-                                    <p class="uppercase-this">Monthly</p>
-                                    <input type="hidden" name="is_recurring" id="is_recurring" value="monthly" />
-                                {{/unless}}
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                {{> DonationFrequency}}
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-lg-4 col-lg-offset-4 col-md-4 col-md-offset-4 col-sm-4 col-sm-offset-4 col-xs-10 col-xs-offset-1" style="{{#unless locked}}display: none;{{/unless}}" id="calendarSection">
-                            <div class="form-group">
-                                <label>{{#if forceACHDay}}{{else}}Choose {{/if}}Your Donation Start Date {{#if forceACHDay}}<span style="font-size: .8em;">{{{onlyOnSpecificDay}}}</span> {{/if}}</label>
-                                <div class="input-group">
-                                    <span class="input-group-btn">
-                                        <button class="btn" type="button" id="start_date_button"><span class="fui-calendar"></span></button>
-                                    </span>
-                                    <input type="text"  class="form-control" {{forceACHDay}} value="{{today}}" id="start_date" />
-                                </div>
-                            </div>
-                        </div>
+                        {{> DonationDate}}
                     </div>
-                    <div class="text-center">
-                        <label id="giftNoteText" style="display: none;">
-                            <strong>Your gift is designated to "{{noteValue}}"</strong>
-                        </label>
-                    </div>
-
                     <!--call the address portion of the form -->
                     {{> RequestAddress}}
-                    <h5>PAYMENT DETAILS
+                    <h5 class="text-center">PAYMENT DETAILS
                         <span style="font-size: .6em;">{{{paymentQuestionIcon}}}</span>
                     </h5>
 
@@ -142,7 +64,6 @@
                     </div>
                 </fieldset>
             </div>
-            <input type="hidden" id="note" value="{{noteValue}}" />
             <input type="hidden" id="dt_source" value="{{dt_source}}" />
         </form>
     </div>

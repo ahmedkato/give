@@ -31,7 +31,9 @@
                             {{#each donations}}
                                 <tr class="{{donationFrequency}}" data-id="{{_id}}">
                                     <td>{{donorName}}</td>
-                                    <td>{{donateToThis donateTo}}</td>
+                                    <td>{{#if donateTo}}{{donateToThis donateTo}}{{else}}
+                                        {{{splitDesignations}}}
+                                    {{/if}}</td>
                                     <td>{{donationAmount}}</td>
                                     <td>{{donationDate}}</td>
                                     <td>{{status}}</td>

@@ -1,0 +1,40 @@
+<template name="UpdateSubscription">
+    <div class="col-lg-8 col-md-8 col-md-offset-2">
+        {{#if isInRole 'admin, super-admin, manager'}}
+            <h4 class="text-center" style="border: solid; border-color: red; border-width: 2px;">Editing a recurring gift from: {{subscribersName}}</h4>
+        {{/if}}
+        <form class="form-horizontal" id="subscription_change">
+            <fieldset>
+                {{> Amount}}
+                <br>
+                <div class="row">
+                    <div class="col-lg-4 col-lg-offset-4 col-md-4 col-md-offset-4 col-sm-4 col-sm-offset-4 col-xs-10 col-xs-offset-1"
+                         id="calendarSection">
+                        <div class="form-group">
+                            <label>{{#if forceACHDay}}{{else}}Choose {{/if}}Your Donation Start Date {{#if forceACHDay}}<span style="font-size: .8em;">{{{onlyOnSpecificDay}}}</span> {{/if}}</label>
+                            <div class="input-group">
+                                    <span class="input-group-btn">
+                                        <button class="btn" type="button" id="start_date_button"><span class="fui-calendar"></span></button>
+                                    </span>
+                                <input type="text" class="form-control" {{forceACHDay}} value="{{endSubscriptionPeriodDate}}" id="start_date" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-8">
+                        <button type="submit"
+                                class="btn btn-block btn-hg btn-primary"
+                                data-toggle="modal"
+                                data-target=".bs-example-modal-lg"
+                                data-loading-text="Processing... <i class='fa fa-spinner fa-spin'></i>">
+                            <span class="fa fa-paper-plane-o"></span>
+                            Send Change(s)</button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    {{> Modals}}
+</template>

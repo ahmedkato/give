@@ -69,12 +69,6 @@ Template.OtherUserProfile.helpers({
   split: function () {
     return this.splits;
   },
-  fundName: function() {
-    if(DT_funds.findOne({_id: this.fund_id.toString()}) && DT_funds.findOne({_id: this.fund_id.toString()}).name){
-      return DT_funds.findOne({_id: this.fund_id.toString()}).name;
-    }
-    else return '<span style="color: red;">Finding fund...</span>';
-  },
   redText: function(){
     if(this.payment_status && this.payment_status === 'pending'){
       return 'orange-text';

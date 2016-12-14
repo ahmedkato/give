@@ -95,7 +95,8 @@ Template.AddNewBankAccount.events({
       return;
     }
     Meteor.setTimeout(() => {
-      Router.go("/user/subscriptions/card/resubscribe" + "?s=" + this.id + "&c=" + this.customer);
+      Router.go("/user/subscriptions/card/change" + "?s=" + this.id + "&c=" +
+        this.customer + "&newcard=true");
     }, 500);
     $('#modal_for_add_new_bank_account').modal('hide');
   }

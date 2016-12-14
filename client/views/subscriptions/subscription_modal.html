@@ -11,35 +11,29 @@
                 <div class="modal-body">
                     <form class="form-horizontal" id="subscription_change">
                         <fieldset>
-                            <!-- Amount of donation -->
-                            <div class="donation_amount text-center well well-lg form-group">
-                                <div id='amount_width' class="{{amountWidth}}">
-                                    <label class="control-label" for="amount">Donation Amount</label>
-                                    <div class="input-group">
-                                        <!--[if lt IE 9]>
-                                            <label>Amount</label>
-                                        <![endif]-->
-                                        <span class="input-group-addon">$</span>
-                                        <input {{attributes_Input_Amount}} value="{{twoDecimalPlaces amount}}" class="form-control slim-borders"
-                                               required data-parsley-error-message="Please enter an amount with no commas." data-parsley-errors-container="#show-amount-error-here" />
-                                    </div>
-                                    <div id="show-amount-error-here"></div>
-                                </div>
-                            </div>
+                            {{> Amount}}
                             <div class="row">
                                 <div class="col-lg-6">
                                     {{#unless changeDesignation}}
                                         <button id="showDesignation"
-                                                class="btn btn-block btn-success">Change Designation</button>
+                                                class="btn btn-block btn-success">Change Designation(s)</button>
                                     {{else}}
                                         <button id="hideDesignation"
-                                                class="btn btn-block btn-success">Don't Change Designation</button>
+                                                class="btn btn-block btn-success">Don't Change Designation(s)</button>
                                     {{/unless}}
                                 </div>
                                 <div class="col col-lg-6"
                                      style="display: none;"
                                      id="designationSection">
-                                    {{> DonationTo}}
+                                    {{#if DonationSplits}}
+                                        {{#with DonationSplitsData}}
+                                            {{#each splits}}
+                                                {{> DonationTo}}
+                                            {{/each}}
+                                        {{/with}}
+                                    {{else}}
+                                        {{> DonationTo}}
+                                    {{/if}}
                                 </div>
                             </div>
                             <br>
@@ -73,9 +67,9 @@
                             <div class="row">
                                 <div class="col-lg-6">
                                     {{#unless changeNote}}
-                                        <button id="showNote" class="btn btn-block btn-success">Change Note</button>
+                                        <button id="showNote" class="btn btn-block btn-success">Change Note(s)</button>
                                     {{else}}
-                                        <button id="hideNote" class="btn btn-block btn-success">Don't Change Note</button>
+                                        <button id="hideNote" class="btn btn-block btn-success">Don't Change Note(s)</button>
                                     {{/unless}}
                                 </div>
                                 <div class="col col-lg-6"

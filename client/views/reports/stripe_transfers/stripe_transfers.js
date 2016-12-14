@@ -74,7 +74,7 @@ Template.StripeTransfers.events({
 
 Template.StripeTransfers.helpers({
   transfer: function () {
-    return Transfers.find( {}, {
+    return Transfers.find() && Transfers.find( {}, {
       sort: { date: -1 }
     } );
   },

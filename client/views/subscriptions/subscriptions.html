@@ -1,7 +1,6 @@
 <template name="AdminSubscriptions">
     <div class="row">
         <div class="col col-md-12 col-sm-12 col-lg-12">
-            {{> SubscriptionModal}}
             <div class="form-group floating-label">
                 <input type="text" class="form-control search" placeholder="Search by; id, name, org. or email">
                 <label>*Only Active or <span class="trialing-subscription">Trialing</span> Subscriptions are Shown</label>
@@ -16,9 +15,9 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>Amount</th>
-                    <th>Next Gift</th>
                     <th>Designation</th>
                     <th>Note</th>
+                    <th>Next Gift</th>
                     <th>Stripe ID</th>
                     {{#if isInRole 'admin, super-admin, manager'}}
                         <th class="text-right"></th>
@@ -32,9 +31,15 @@
                             <td>{{name}}</td>
                             <td>{{metadata.email}}</td>
                             <td>${{twoDecimalPlaces quantity}}</td>
-                            <td>{{formatDate current_period_end true}}</td>
-                            <td>{{donateToThis metadata.donateTo}}</td>
+                            <td>
+                                {{#if metadata.donateTo}}
+                                    {{donateToThis metadata.donateTo}}
+                                {{else}}
+                                    {{{splitDesignations}}}
+                                {{/if}}
+                            </td>
                             <td>{{metadata.note}}</td>
+                            <td>{{formatDate current_period_end true}}</td>
                             <td>{{_id}}</td>
                             {{#if isInRole 'admin, manager'}}
                                 <td class="text-right">

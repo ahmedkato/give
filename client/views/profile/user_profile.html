@@ -92,8 +92,8 @@
                                             {{#each dt_donations}}
                                                 <tr class="responsiveFont {{redText}} {{clickable_row}}" data-href="{{receipt_link}}" data-dt-transaction-id="{{transaction_id}}">
                                                     <td class="change-td-padding">{{formatDate received_on null}}</td>
-                                                    <td class="change-td-padding">{{#each split}} {{{fundName}}} <br>{{/each}}</td>
-                                                    <td class="text-right">${{#each split}}{{twoDecimalPlaces this.amount_in_cents}} <br>{{/each}}</td>
+                                                    <td class="change-td-padding">{{#each splits}} {{{fundName}}} <br>{{/each}}</td>
+                                                    <td class="text-right">{{#each splits}}${{twoDecimalPlaces this.amount_in_cents}} <br>{{/each}}</td>
                                                 </tr>
                                             {{/each}}
                                         </tbody>

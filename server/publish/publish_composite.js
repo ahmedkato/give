@@ -28,7 +28,7 @@ Meteor.publishComposite('transactions', function (transfer_id) {
                     'charge.source': 1,
                     'charge.refunded': 1,
                     'charge.refunds': 1,
-                    description: 1
+                    description: 1,
                   }
                 } );
             } else {
@@ -87,7 +87,8 @@ Meteor.publishComposite('transactions', function (transfer_id) {
                     limit:  1,
                     fields: {
                       persona_id:       1,
-                      transaction_id:   1
+                      transaction_id:   1,
+                      splits:           1
                     }
                   } );
               }
@@ -176,6 +177,15 @@ Meteor.publishComposite('subscriptions_and_customers', function (search, limit) 
                   sources: 1,
                   subscriptions: 1
                 }
+              } );
+          }
+        },
+        {
+          find: function ( subscriptions ) {
+            return DonationSplits.find(
+              { subscription_id: subscriptions._id },
+              {
+                limit:  1
               } );
           }
         }
@@ -291,6 +301,28 @@ Meteor.publishComposite('charges_and_customers', function (search, limit, refund
                 fields: {
                   metadata:     1,
                   subscription: 1
+                }
+              } );
+          }
+        },
+        {
+          find: function ( charges ) {
+            return DonationSplits.find(
+              { charge_id: charges._id }, {
+               limit:  1
+             } );
+          }
+        },
+        {
+          find: function ( charges ) {
+            return DT_donations.find(
+              { transaction_id: charges._id },
+              {
+                limit:  1,
+                fields: {
+                  persona_id:       1,
+                  transaction_id:   1,
+                  splits:           1
                 }
               } );
           }
@@ -437,12 +469,22 @@ Meteor.publishComposite("subscriptions", function () {
             // Find the charges associated with this customer
             return Charges.find( { 'customer': customers._id } );
           }
-        }, {
-            find: function ( customers ) {
-              // Find the subscriptions associated with this customer
-              return Subscriptions.find({$and: [{'customer': customers._id}, {'metadata.replaced': {$ne: true}}]});
+        },
+        {
+          find: function ( customers ) {
+            // Find the subscriptions associated with this customer
+            return Subscriptions.find({$and: [{'customer': customers._id}, {'metadata.replaced': {$ne: true}}]});
+          },
+          children: [
+            {
+              find: function (subscription) {
+                // Find the DonationSplits associated with this subscription
+                return DonationSplits.find( { _id: subscription.metadata.donationSplitsId});
+              }
             }
-        }, {
+          ]
+        },
+        {
           find: function ( customers ) {
             // Find the devices used (payment methods) and saved with this customer
             return Devices.find({ $and: [{
@@ -480,12 +522,34 @@ Meteor.publishComposite("subscriptions", function () {
   }
 });
 
+Meteor.publishComposite("subscription_with_donation_splits", function (subscription_id) {
+  logger.info("Started publish function, subscription_with_donation_splits");
+  check(subscription_id, String);
+
+  if (this.userId) {
+    return {
+      find: function () {
+        return Subscriptions.find({_id: subscription_id});
+      },
+      children: [
+        {
+          find: function (subscription) {
+            // Find the DonationSplits associated with this subscription
+            return DonationSplits.find( { _id: subscription.metadata.donationSplitsId}, {limit: 1} );
+          }
+        }
+      ]
+    }
+  } else {
+    this.ready();
+  }
+});
+
 Meteor.publishComposite("tripsMember", function (id) {
   logger.info( "Started publish function, tripsMember" );
   check(id, Match.Optional(String));
 
   if( this.userId ) {
-    console.log(this.userId);
     let user = Meteor.users.findOne({_id: this.userId});
     return {
       find: function () {
@@ -504,7 +568,6 @@ Meteor.publishComposite("tripsMember", function (id) {
       ]
     }
   } else if (id && Roles.userIsInRole(this.userId, ['admin', 'trips-manager'])) {
-    console.log(id);
     let user = Meteor.users.findOne({_id: id});
     return {
       find: function () {
@@ -568,7 +631,6 @@ Meteor.publishComposite("auditTrail", function (limit) {
 });
 
 Meteor.publishComposite("receiptCharge", function (chargeId) {
-  console.log(chargeId);
   check(chargeId, String);
 
   logger.info("Started publish function, receiptCharge");

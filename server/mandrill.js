@@ -285,7 +285,7 @@ _.extend(Utils,{
       logger.info("id:", id);
       logger.info("amount:", amount);
       logger.info("type:", type);
-      logger.info("body:", body);
+      logger.info("event body:", body);
       logger.info("frequency:", frequency);
       logger.info("subscription:", subscription);
       let config = ConfigDoc();
@@ -302,9 +302,9 @@ _.extend(Utils,{
         logger.info("Don't need to send an email when a charge is updated, exiting the send_donation_email method.");
         return;
       }
-      var donation_cursor;
+      let donation_cursor;
       let splitType = type.split(".");
-      var auditTrailDoc = Audit_trail.findOne({relatedDoc: id, subtype: splitType[1]});
+      let auditTrailDoc = Audit_trail.findOne({relatedDoc: id, subtype: splitType[1]});
       if (auditTrailDoc) {
         logger.info("Already have this record in the audit trail, escaping function");
         return;
@@ -324,20 +324,21 @@ _.extend(Utils,{
         Utils.audit_event(event);
       }
     
-      var charge_cursor = Charges.findOne({_id: id});
+      let charge_cursor = Charges.findOne({_id: id});
+      logger.info(charge_cursor);
 
       if (!charge_cursor) {
           logger.error("No charge found here, exiting.");
           return;
       }
 
-      var customer_cursor = Customers.findOne({_id: charge_cursor.customer});
+      let customer_cursor = Customers.findOne({_id: charge_cursor.customer});
       if (!customer_cursor) {
           logger.error("No customer found here, exiting.");
           return;
       }
 
-      var data_slug = {
+      let data_slug = {
           "template_name": "",
           "template_content": [
               {}
@@ -391,7 +392,7 @@ _.extend(Utils,{
           }
       };
 
-      if(charge_cursor.metadata.fees){
+      if(charge_cursor.metadata.fees && charge_cursor.metadata.fees > 0){
           data_slug.message.global_merge_vars.push(
               {
                   "name": "GiftAmountFees",
@@ -414,7 +415,7 @@ _.extend(Utils,{
           data_slug.message.global_merge_vars.push(
               {
                   "name": "ADDRESS_LINE2",
-                  "content": customer_cursor.metadata.address_line2 + "<br>"
+                  "content": customer_cursor.metadata.address_line2
               }
           );
       }
@@ -523,7 +524,7 @@ _.extend(Utils,{
                   data_slug.message.global_merge_vars.push(
                       {
                           "name": "URL",
-                          "content": Meteor.absoluteUrl("user/subscriptions/" + payment_type.toLowerCase() + "/resubscribe?s=" +
+                          "content": Meteor.absoluteUrl("user/subscriptions/" + payment_type.toLowerCase() + "/change?s=" +
                               subscription + "&c=" + subscription_cursor.customer)
                       }
                   );
@@ -533,36 +534,81 @@ _.extend(Utils,{
               data_slug.message.global_merge_vars.push(
                   {
                       "name": "URL",
-                      "content": Meteor.absoluteUrl("user/subscriptions/" + payment_type.toLowerCase() +  "/resubscribe?s=" +
+                      "content": Meteor.absoluteUrl("user/subscriptions/" + payment_type.toLowerCase() +  "/change?s=" +
                           subscription + "&c=" + subscription_cursor.customer)
                   }
               );
+            if(subscription_cursor.metadata.donateTo) {
+
               data_slug.message.global_merge_vars.push(
-                  {
-                      "name": "DonateTo",
-                      "content": Utils.getDonateToName(subscription_cursor.metadata.donateTo)
-                  }
+                {
+                  "name":    "DonateTo",
+                  "content": Utils.getDonateToName( subscription_cursor.metadata.donateTo )
+                }
+              );
+            } else {
+              logger.info("donationSplitsId: " + subscription_cursor.metadata.donationSplitsId);
+              let splits = DonationSplits.findOne({_id: subscription_cursor.metadata.donationSplitsId})
+                && DonationSplits.findOne({_id: subscription_cursor.metadata.donationSplitsId}).splits;
+              let splitsWithDetails = [];
+              splits.forEach(function ( split ) {
+                splitsWithDetails.push({donateTo: Utils.getDonateToName(split.donateTo), amount: (split.amount / 100).toFixed(2)});
+              });
+              data_slug.message.global_merge_vars.push(
+                {
+                  "name": "splits",
+                  "content": splitsWithDetails
+                }
               );
               data_slug.message.global_merge_vars.push(
-                  {
-                      "name": "don",
-                      "content": donation_cursor._id
-                  }
+                {
+                  "name": "donationIsSplit",
+                  "content": true
+                }
               );
+            }
+            data_slug.message.global_merge_vars.push(
+                {
+                    "name": "don",
+                    "content": donation_cursor._id
+                }
+            );
           } else if ( type === 'charge.succeeded' || 
                       type === 'large_gift' ) {
+            if(subscription_cursor.metadata.donateTo) {
               data_slug.message.global_merge_vars.push(
-                  {
-                      "name": "DonateTo",
-                      "content": Utils.getDonateToName(subscription_cursor.metadata.donateTo)
-                  }
+                {
+                  "name":    "DonateTo",
+                  "content": Utils.getDonateToName( subscription_cursor.metadata.donateTo )
+                }
               );
-              data_slug.message.global_merge_vars.push(
+            } else {
+              logger.info("donationSplitsId: " + subscription_cursor.metadata.donationSplitsId);
+                let splits = DonationSplits.findOne({_id: subscription_cursor.metadata.donationSplitsId})
+                  && DonationSplits.findOne({_id: subscription_cursor.metadata.donationSplitsId}).splits;
+                let splitsWithDetails = [];
+                splits.forEach(function ( split ) {
+                  splitsWithDetails.push({donateTo: Utils.getDonateToName(split.donateTo), amount: (split.amount / 100).toFixed(2)});
+                });
+                data_slug.message.global_merge_vars.push(
                   {
-                      "name": "don",
-                      "content": donation_cursor._id
+                    "name": "splits",
+                    "content": splitsWithDetails
                   }
-              );
+                );
+                data_slug.message.global_merge_vars.push(
+                  {
+                    "name": "donationIsSplit",
+                    "content": true
+                  }
+                );
+              }
+            data_slug.message.global_merge_vars.push(
+              {
+                "name": "don",
+                "content": donation_cursor._id
+              }
+            );
           } 
       } else {
           donation_cursor = Donations.findOne({charge_id: id});
@@ -578,18 +624,40 @@ _.extend(Utils,{
                 return;
               }
           } else {
+            logger.info("donateTo: " + donation_cursor.donateTo);
+            if(!donation_cursor.donateTo){
+              let splits = DonationSplits.findOne({_id: donation_cursor.donationSplitsId})
+                && DonationSplits.findOne({_id: donation_cursor.donationSplitsId}).splits;
+              let splitsWithDetails = [];
+              splits.forEach(function ( split ) {
+                splitsWithDetails.push({donateTo: Utils.getDonateToName(split.donateTo), amount: (split.amount / 100).toFixed(2)});
+              });
               data_slug.message.global_merge_vars.push(
-                  {
-                      "name": "DonateTo",
-                      "content": Utils.getDonateToName(donation_cursor.donateTo)
-                  }
+                {
+                  "name": "splits",
+                  "content": splitsWithDetails
+                }
               );
               data_slug.message.global_merge_vars.push(
-                  {
-                      "name": "don",
-                      "content": donation_cursor._id
-                  }
+                {
+                  "name": "donationIsSplit",
+                  "content": true
+                }
               );
+            } else {
+              data_slug.message.global_merge_vars.push(
+                {
+                  "name": "donateTo",
+                  "content": Utils.getDonateToName(donation_cursor.donateTo)
+                }
+              );
+            }
+            data_slug.message.global_merge_vars.push(
+                {
+                    "name": "don",
+                    "content": donation_cursor._id
+                }
+            );
           }
       }
 
@@ -666,7 +734,8 @@ _.extend(Utils,{
       let dataSlugWithFrom = Utils.setupEmailFrom(dataSlugWithImageVars);
       let dataSlugWithTo = Utils.addRecipientToEmail(dataSlugWithFrom, to);
       let dataSlugWithOrgInfoFields = Utils.addOrgInfoFields(dataSlugWithTo);
-      dataSlugWithTo.message.subject = subject;
+      dataSlugWithOrgInfoFields.message.subject = subject;
+      dataSlugWithOrgInfoFields.message.merge_language = "handlebars";
       Mandrill.messages.sendTemplate(dataSlugWithOrgInfoFields);
     } catch (e) {
       logger.error('Mandril sendEmailOutAPI Method error message: ' + e.message);

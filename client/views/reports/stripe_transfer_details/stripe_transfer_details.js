@@ -354,11 +354,17 @@ Template.StripeTransferDetails.helpers({
     } else {
       return "Fund id: " + fundId;
     }
-  }
+  },
+  dt_donation() {
+    return DT_donations.findOne( { 'transaction_id': this._id } ) && DT_donations.findOne( { 'transaction_id': this._id } );
+  },
 });
 
 Template.StripeTransferDetails.onCreated(function () {
   this.autorun(()=>{
     this.subscribe("fundNames");
+    this.subscribe('transfers', Session.get("transferId"));
+    this.subscribe('transactions', Session.get("transferId"));
+    this.subscribe('DTSources');
   });
 });

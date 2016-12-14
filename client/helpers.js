@@ -92,6 +92,13 @@ Template.registerHelper('epochToString', function(timestamp) {
     return moment.unix(timestamp / 1000).format("MM/DD/YY");
   }
 });
+/*
+ * Epoch to String
+ * Convert a UNIX epoch string to human readable time.
+ */
+Template.registerHelper('today', function() {
+    return moment().format('D MMM, YYYY');
+});
 
 /*
  * If Equals
@@ -108,7 +115,7 @@ Template.registerHelper('equals', function(c1, c2) {
  * Take the passed value in cents and convert it to USD.
  */
 Template.registerHelper('centsToDollars', function(cents) {
-  return "$" + cents / 100;
+  return (cents / 100) || "";
 });
 
 /*
@@ -422,4 +429,132 @@ Template.registerHelper('imageUploadCallback', function() {
         return;
       }
     };
+});
+
+Template.registerHelper('givingOptionsGroup', function() {
+  let config = ConfigDoc();
+  var givingOptions = config && config.Giving && config.Giving.options;
+
+  if( givingOptions && givingOptions.length > 0 ) {
+    let groups = [];
+    givingOptions.forEach(function ( item ) {
+      if(item.type === 'group') {
+        groups.push(item);
+      }
+    });
+    return groups;
+  }
+});
+
+Template.registerHelper('givingOptionsMember', function() {
+  let config = ConfigDoc();
+  var givingOptions = config && config.Giving && config.Giving.options;
+
+  let groupId = this.groupId;
+  let members = [];
+  //console.log(Session.get("SelectedDonateTo"));
+  givingOptions.forEach(function ( item ) {
+    if(item.currentGroup === groupId) {
+      members.push(item);
+    }
+  });
+  return members;
+});
+
+
+Template.registerHelper('calculateFees', function(fees) {
+  return (fees / 100).toFixed(2);
+});
+
+
+Template.registerHelper('paymentWithCard', function() {
+  return Session.equals("paymentMethod", "Card");
+});
+
+/*
+ Get the array index and return 'even' for even numbers
+ and 'odd' for odd numbers
+ */
+Template.registerHelper('oddEven', function(index) {
+  if((index % 2) === 0) return 'even';
+  else return 'odd';
+});
+
+Template.registerHelper('selected', function() {
+  if (Session.get("ach_page") || Session.get("change_donateTo")){
+    if(Session.get("change_donateTo")){
+      return Session.get("change_donateTo") === this.id ? "selected" : '';
+    } else {
+      return;
+    }
+  }
+  if(DonationFormItems.findOne() || Meteor.userId()){
+    let id = (Template.parentData(2) && Template.parentData(2)._id) || (Template.parentData(1) && Template.parentData(1)._id);
+    if(!id){
+      return DonationFormItems.findOne({name: 'first'}) && DonationFormItems.findOne({name: 'first'}).donateTo === this.id ? "selected" : '';
+    } else {
+      return DonationFormItems.findOne({_id: id}) && DonationFormItems.findOne({_id: id}).donateTo === this.id ? "selected" : '';
+    }
+  }
+});
+
+Template.registerHelper('selectedExpiration', function(objectKey, objectValue) {
+  let customerDeviceType = Customers.findOne() && Customers.findOne().sources.data[0][objectKey];
+  return customerDeviceType === Number(objectValue) ? "selected" : '';
+});
+
+
+Template.registerHelper('coverTheFeesChecked', function() {
+  if(Session.get("subscription")){
+    let subscription = Subscriptions.findOne({_id: Session.get("subscription")});
+    Meteor.setTimeout(function () {
+      $("#coverTheFees").change();
+    }, 300);
+    return subscription && subscription.metadata && subscription.metadata.coveredTheFees ===  'true' ? 'checked' : '';
+  } else {
+    return this.coverTheFees ? 'checked' : '';
+  }
+});
+
+Template.registerHelper('splitDesignations', function() {
+  let splitText = "";
+  let type;
+
+  if(this._id && this._id.substring(0,2) === 'ch'){
+    type = 'charge_id';
+  } else {
+    type = 'subscription_id';
+  }
+  let splits = DonationSplits.findOne({[type]: this._id});
+  if(splits){
+    splits.splits.forEach(function ( split ) {
+      let donateToText = DT_funds.findOne({id: split.donateTo}) &&
+        DT_funds.findOne({id: split.donateTo}).name;
+      if(donateToText) splitText += donateToText + " <br>";
+      else splitText += "Unknown <br>";
+    });
+    return splitText;
+  }
+});
+
+
+Template.registerHelper('isResubscribe', function() {
+  if(Session.equals("resubscribe", "true")){
+    return true;
+  }
+});
+
+
+Template.registerHelper('paramsDonateTo', function() {
+  if(Session.get("params.donateTo")){
+    return Session.get("params.donateTo");
+  }
+});
+
+
+Template.registerHelper('fundName', function() {
+  if(DT_funds.findOne({_id: this.fund_id.toString()}) && DT_funds.findOne({_id: this.fund_id.toString()}).name){
+    return DT_funds.findOne({_id: this.fund_id.toString()}).name;
+  }
+  else return '<span style="color: red;">Finding fund...</span>';
 });

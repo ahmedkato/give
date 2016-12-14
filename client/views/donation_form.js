@@ -1,4 +1,5 @@
 import parsley from 'parsleyjs';
+import '/imports/ui/stylesheets/top.css';
 
 $.fn.scrollView = function() {
   return this.each(function() {
@@ -7,6 +8,15 @@ $.fn.scrollView = function() {
     }, 1000);
   });
 };
+
+Template.DonationForm.onCreated(function () {
+  DonationFormItems = new Mongo.Collection(null);
+  if(Session.get("params.note")){
+    DonationFormItems.insert( {name: 'first', memo: Session.get("params.note")} );
+  } else {
+    DonationFormItems.insert( {name: 'first'} );
+  }
+});
 
 Template.DonationForm.events({
   'submit form': function(e) {
@@ -18,14 +28,10 @@ Template.DonationForm.events({
     let new_error;
 
     if ($("#is_recurring").val() === '') {
-      $("#s2id_is_recurring").children().addClass("redText");
-
       $("html, body").animate({ scrollTop: 0 }, "slow");
       return;
     }
-    if ($("#donateTo").val() === '') {
-      $("#s2id_donateTo").children().addClass("redText");
-
+    if ($('[name="donateTo"]').val() === '') {
       $("html, body").animate({ scrollTop: 0 }, "slow");
       return;
     }
@@ -34,11 +40,11 @@ Template.DonationForm.events({
     $('[name="submitThisForm"]').button('loading');
 
     if ($('#donateWith').val() === 'Card') {
-      if (!Stripe.card.validateExpiry($('#expiry_month').val(), $('#expiry_year').val())) {
+      if (!Stripe.card.validateExpiry($('[name="cardExpirationMonth"]').val(), $('[name="cardExpirationYear"]').val())) {
         new_error = {reason: "The card expiration date you gave is either today or a day in the past.", error: "Expiration Date"};
         Give.handleErrors(new_error);
         return;
-      } else if (!Stripe.card.validateCardNumber($('#card_number').val())) {
+      } else if (!Stripe.card.validateCardNumber($('[name="cc-num"]').val())) {
         new_error = {reason: "The card number doesn't look right, please double check the number.", error: "Card Number Problem"};
         Give.handleErrors(new_error);
         return;
@@ -55,31 +61,10 @@ Template.DonationForm.events({
     if ($("#is_recurring").val() !== 'one_time') {
       Session.set('recurring', true);
       $('#calendarSection').show();
-      $("#s2id_is_recurring").children().removeClass("redText");
     } else {
       Session.set('recurring', false);
       $('#calendarSection').hide();
-      $("#s2id_is_recurring").children().removeClass("redText");
     }
-  },
-  'keyup, change #amount': function() {
-    return Give.updateTotal();
-  },
-  // disable mousewheel on a input number field when in focus
-  // (to prevent Chromium browsers change of the value when scrolling)
-  'focus #amount': function() {
-    $('#amount').on('mousewheel.disableScroll', function(e) {
-      e.preventDefault();
-    });
-  },
-  'blur #amount': function() {
-    $('#amount').on('mousewheel.disableScroll', function(e) {
-      e.preventDefault();
-    });
-    return Give.updateTotal();
-  },
-  'change #coverTheFees': function() {
-    return Give.updateTotal();
   },
   'change [name=donateWith]': function() {
     var selectedValue = $("[name=donateWith]").val();
@@ -87,6 +72,7 @@ Template.DonationForm.events({
     if (Session.equals("paymentMethod", "Check")) {
       Give.updateTotal();
       $("#show_total").hide();
+      $("#fee").val("");
     }
   },
   // keypress input detection for autofilling form with test data
@@ -97,13 +83,13 @@ Template.DonationForm.events({
       }
     }
   },
-  'focus, blur #cvv': function() {
-    $('#cvv').on('mousewheel.disableScroll', function(e) {
+  'focus, blur [name="cvc2"]': function() {
+    $('[name="cvc2"]').on('mousewheel.disableScroll', function(e) {
       e.preventDefault();
     });
   },
-  'focus, blur #card_number': function() {
-    $('#card_number').on('mousewheel.disableScroll', function(e) {
+  'focus, blur [name="cc-num"]': function() {
+    $('[name="cc-num"]').on('mousewheel.disableScroll', function(e) {
       e.preventDefault();
     });
   },
@@ -123,10 +109,22 @@ Template.DonationForm.events({
   },
   'click #start_date_button'(){
     $("#start_date").select();
-  }
+  },
 });
 
 Template.DonationForm.helpers({
+  giftTotal(){
+    let total = Session.get("giftAmount");
+    console.log(total);
+    if(total){
+      return total;
+    }
+  },
+  showGiftTotal(){
+    if(DonationFormItems.find() && DonationFormItems.find().count() > 1){
+      return true;
+    }
+  },
   paymentQuestionIcon: function() {
     if (Session.equals('paymentMethod', 'Check')) {
       return "<i class='makeRightOfInput fa fa-question-circle' data-toggle='popover' " +
@@ -140,7 +138,7 @@ Template.DonationForm.helpers({
       "Visa®, Mastercard®, and Discover® cardholders: " +
       "Turn your card over and look at the signature box. You should see either the entire 16-digit credit " +
       "card number or just the last four digits followed by a special 3-digit code. This 3-digit code is " +
-      "your CVV number / Card Security Code.  " +
+      "your CVC number / Card Security Code.  " +
       "American Express® cardholders: " +
       "Look for the 4-digit code printed on the front of your card just above and to the right of your " +
       "main credit card number. This 4-digit code is your Card Identification Number (CID). The CID is the " +
@@ -152,28 +150,11 @@ Template.DonationForm.helpers({
       "data-trigger='hover focus' data-container='body' data-content='When giving by Check we can only accept monthly recurring gifts'>" +
       "</i>";
   },
-  paymentWithCard: function() {
-    return Session.equals("paymentMethod", "Card");
-  },
-  coverTheFeesChecked: function() {
-    return this.coverTheFees ? 'checked' : '';
-  },
-  attributes_Input_Amount: function() {
-    return {
-      name: "amount",
-      id: "amount",
-      min: 1,
-      required: true
-    };
-  },
   errorCategory: function() {
     return 'Error Category';
   },
   errorDescription: function() {
     return 'Error Description';
-  },
-  amount: function() {
-    return Session.get('params.amount');
   },
   campaignValue: function() {
     return Session.get('params.enteredCampaignValueignValue');
@@ -190,18 +171,13 @@ Template.DonationForm.helpers({
   dt_source: function() {
     return Session.get('params.dt_source');
   },
-  today: function() {
-    return moment().format('D MMM, YYYY');
-  },
-  amountWidth: function() {
-    if (Session.equals("paymentMethod", "Card")) {
-      return 'form-group col-md-4 col-sm-4 col-xs-12';
-    }
-    return 'form-group';
+  moreThanOneDesignation(){
+    return DonationFormItems.findOne({$exists: {item: true}});
   }
 });
 
 Template.DonationForm.onRendered(function() {
+
   let config = ConfigDoc();
   let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
 
@@ -245,11 +221,8 @@ Template.DonationForm.onRendered(function() {
   }
 
   $('[name="donateTo"]').change();
-});
-
-Template.DonationForm.onDestroyed( function() {
-  $(window).unbind('beforeunload');
-  Session.delete('params.startdate')
+  $('[name="amount"]').change();
+  $('[name="splitAmount"]').change();
 });
 
 Template.checkPaymentInformation.helpers({
@@ -274,20 +247,21 @@ Template.checkPaymentInformation.helpers({
 Template.checkPaymentInformation.onRendered(function() {
   $('[data-toggle="popover"]').popover();
   $("#routing_number").mask("999999999");
-
-  $('select').select2({dropdownCssClass: 'dropdown-inverse'});
 });
 
 // Card Payment Template mods
 Template.cardPaymentInformation.onRendered(function() {
   $('[data-toggle="popover"]').popover();
-  $('select').select2({dropdownCssClass: 'dropdown-inverse'});
 
   if (Session.get('params.exp_month')) {
-    $("#expiry_month").val(Session.get('params.exp_month'));
+    $('[name="cardExpirationMonth"]').val(Session.get('params.exp_month'));
   }
 
   if (Session.get('params.exp_year')) {
-    $("#expiry_year").val(Session.get('params.exp_year'));
+    $('[name="cardExpirationYear"]').val(Session.get('params.exp_year'));
   }
+});
+
+Template.DonationForm.onDestroyed( function() {
+  $(window).unbind('beforeunload');
 });

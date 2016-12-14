@@ -26,6 +26,7 @@ function setDocHeight() {
     if( ($( window ).scrollTop() + $( window ).height() == getDocHeight()) ||
       ($( window ).scrollTop() + window.innerHeight == getDocHeight()) ) {
       console.log( "bottom!" );
+      $('[data-toggle="popover"]').popover();
       let documentLimit = Session.get( "documentLimit" );
       Session.set( "documentLimit", documentLimit += 10 );
     }

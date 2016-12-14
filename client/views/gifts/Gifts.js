@@ -3,8 +3,8 @@ import { setDocHeight, updateSearchVal } from '/imports/miscFunctions.js';
 Template.Gifts.onCreated(function(){
   Session.set("documentLimit", 10);
   this.autorun(()=> {
-    Meteor.subscribe("userDTFunds");
-    Meteor.subscribe("charges_and_customers",
+    this.subscribe("userDTFunds");
+    this.subscribe("charges_and_customers",
       Session.get("searchValue"),
       Session.get("documentLimit"),
       Session.get("refunded"));
@@ -152,13 +152,7 @@ Template.Gifts.helpers({
   refundUnixDate(){
     return this.refunds.data[0].created;
   },
-  metadataDonateTo(){
-    if (this.metadata && this.metadata.donateTo) {
-      return this.metadata.donateTo;
-    } else if (this.invoice){
-      let invoice = Invoices.findOne({_id: this.invoice});
-      return invoice && invoice.metadata && invoice.metadata.donateTo;
-    }
-    return;
-  }
+  dt_donation() {
+    return DT_donations.findOne( { 'transaction_id': this._id } ) && DT_donations.findOne( { 'transaction_id': this._id } );
+  },
 });

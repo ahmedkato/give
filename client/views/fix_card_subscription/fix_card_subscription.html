@@ -1,8 +1,11 @@
 <template name="FixCardSubscription">
     <div class="row">
-        <div class="col-xs-12 col-sm-6 col-md-5 col-lg-4 center-block" style="float: none;">
-            <h4>{{#if addNew}} Complete Card Form {{else}} Update Expiration Date {{/if}}</h4>
-            <div class="panel panel-info billing-module">
+        <div class="col-xs-12 col-sm-6 col-md-5 col-lg-6 center-block" style="float: none;">
+            <div class="panel panel-primary billing-module">
+                <div class="panel-heading">
+                    {{#if isResubscribe}}<h3 class="panel-title">Activate this subscription with the below payment details?</h3>{{/if}}
+                    {{#if addNew}} Complete Card Form {{else}} Update Expiration Date {{/if}}
+                </div>
                 <form id="resubscribe">
                     <div class="panel-body">
                         <div class="row">
@@ -11,7 +14,10 @@
                                     {{#if isRepair}}
                                         {{#if addNewCard}}
                                             <label class="text-success"><i class="fa fa-lock"></i> Card Number</label>
-                                            <input type="text" name="cardNumber" class="form-control card-number" placeholder="Card Number"><br>
+                                            <input type="text" name="cc-num"
+                                                   autocomplete="cc-number"
+                                                   x-autocompletetype="cc-number"
+                                                   class="form-control card-number" placeholder="Card Number"><br>
                                             {{#if customer_device.exp_month}}
                                                 <a class="cancel-new-card btn btn-primary btn-block" href="">
                                                     Switch to update expiration form
@@ -25,7 +31,10 @@
                                             {{/if}}
                                         {{/if}}
                                     {{else}}
-                                        <input type="text" name="cardNumber" class="form-control card-number" placeholder="Card Number">
+                                        <input type="text" name="cc-num"
+                                               autocomplete="cc-number"
+                                               x-autocompletetype="cc-number"
+                                               class="form-control card-number" placeholder="Card Number">
                                     {{/if}}
                                 </div>
                             </div>
@@ -35,38 +44,77 @@
                             {{#if isRepair}}
                                 <div class="col-xs-12 col-md-12">
                                     <div class="form-group">
-                                        <div class="col" id="expiry_monthDiv">
-                                            <select class="form-control  select select-primary select-block mbl" name="expMo" required>
-                                                <option value="">Month</option>
-                                                <option value="01">Jan (01)</option>
-                                                <option value="02">Feb (02)</option>
-                                                <option value="03">Mar (03)</option>
-                                                <option value="04">Apr (04)</option>
-                                                <option value="05">May (05)</option>
-                                                <option value="06">June (06)</option>
-                                                <option value="07">July (07)</option>
-                                                <option value="08">Aug (08)</option>
-                                                <option value="09">Sep (09)</option>
-                                                <option value="10">Oct (10)</option>
-                                                <option value="11">Nov (11)</option>
-                                                <option value="12">Dec (12)</option>
-                                            </select>
-                                        </div>
-                                        <div class="col" name="expiry_yearDiv">
-                                            <select class="form-control select select-primary select-block mbl" name="expYr" required>
-                                                <option value="">Year</option>
-                                                <option value="2016">2016</option>
-                                                <option value="2017">2017</option>
-                                                <option value="2018">2018</option>
-                                                <option value="2019">2019</option>
-                                                <option value="2020">2020</option>
-                                                <option value="2021">2021</option>
-                                                <option value="2022">2022</option>
-                                                <option value="2023">2023</option>
-                                                <option value="2024">2024</option>
-                                                <option value="2024">2025</option>
-                                            </select>
-                                        </div>
+                                        {{#if customer_device}}
+                                            <div class="col" id="expiry_monthDiv">
+                                                <select class="form-control select select-primary select-block mbl" name="cardExpirationMonth" autocomplete="cc-exp-month" x-autocompletetype="cc-exp-month" required>
+                                                    <option value="">Month</option>
+                                                    <option {{selectedExpiration "exp_month" "01"}} value="01">Jan (01)</option>
+                                                    <option {{selectedExpiration "exp_month" "02"}} value="02">Feb (02)</option>
+                                                    <option {{selectedExpiration "exp_month" "03"}} value="03">Mar (03)</option>
+                                                    <option {{selectedExpiration "exp_month" "04"}} value="04">Apr (04)</option>
+                                                    <option {{selectedExpiration "exp_month" "05"}} value="05">May (05)</option>
+                                                    <option {{selectedExpiration "exp_month" "06"}} value="06">June (06)</option>
+                                                    <option {{selectedExpiration "exp_month" "07"}} value="07">July (07)</option>
+                                                    <option {{selectedExpiration "exp_month" "08"}} value="08">Aug (08)</option>
+                                                    <option {{selectedExpiration "exp_month" "09"}} value="09">Sep (09)</option>
+                                                    <option {{selectedExpiration "exp_month" "10"}} value="10">Oct (10)</option>
+                                                    <option {{selectedExpiration "exp_month" "11"}} value="11">Nov (11)</option>
+                                                    <option {{selectedExpiration "exp_month" "12"}} value="12">Dec (12)</option>
+                                                </select>
+                                            </div>
+                                            <div class="col" name="expiry_yearDiv">
+                                                <select class="form-control select select-primary select-block mbl"
+                                                        name="cardExpirationYear"
+                                                        autocomplete="cc-exp-year" x-autocompletetype="cc-exp-year"
+                                                        required>
+                                                    <option value="">Year</option>
+                                                    <option {{selectedExpiration "exp_year" "2017"}} value="2017">2017</option>
+                                                    <option {{selectedExpiration "exp_year" "2018"}} value="2018">2018</option>
+                                                    <option {{selectedExpiration "exp_year" "2019"}} value="2019">2019</option>
+                                                    <option {{selectedExpiration "exp_year" "2020"}} value="2020">2020</option>
+                                                    <option {{selectedExpiration "exp_year" "2021"}} value="2021">2021</option>
+                                                    <option {{selectedExpiration "exp_year" "2022"}} value="2022">2022</option>
+                                                    <option {{selectedExpiration "exp_year" "2023"}} value="2023">2023</option>
+                                                    <option {{selectedExpiration "exp_year" "2024"}} value="2024">2024</option>
+                                                    <option {{selectedExpiration "exp_year" "2024"}} value="2024">2025</option>
+                                                </select>
+                                            </div>
+                                        {{else}}
+                                            <div class="col" id="expiry_monthDiv">
+                                                <select class="form-control select select-primary select-block mbl" name="cardExpirationMonth" autocomplete="cc-exp-month" x-autocompletetype="cc-exp-month" required>
+                                                    <option value="">Month</option>
+                                                    <option value="01">Jan (01)</option>
+                                                    <option value="02">Feb (02)</option>
+                                                    <option value="03">Mar (03)</option>
+                                                    <option value="04">Apr (04)</option>
+                                                    <option value="05">May (05)</option>
+                                                    <option value="06">June (06)</option>
+                                                    <option value="07">July (07)</option>
+                                                    <option value="08">Aug (08)</option>
+                                                    <option value="09">Sep (09)</option>
+                                                    <option value="10">Oct (10)</option>
+                                                    <option value="11">Nov (11)</option>
+                                                    <option value="12">Dec (12)</option>
+                                                </select>
+                                            </div>
+                                            <div class="col" name="expiry_yearDiv">
+                                                <select class="form-control select select-primary select-block mbl"
+                                                        name="cardExpirationYear"
+                                                        autocomplete="cc-exp-year" x-autocompletetype="cc-exp-year"
+                                                        required>
+                                                    <option value="">Year</option>
+                                                    <option value="2017">2017</option>
+                                                    <option value="2018">2018</option>
+                                                    <option value="2019">2019</option>
+                                                    <option value="2020">2020</option>
+                                                    <option value="2021">2021</option>
+                                                    <option value="2022">2022</option>
+                                                    <option value="2023">2023</option>
+                                                    <option value="2024">2024</option>
+                                                    <option value="2024">2025</option>
+                                                </select>
+                                            </div>
+                                        {{/if}}
                                     </div>
                                 </div>
                                 {{#if addNewCard}}
@@ -76,7 +124,11 @@
                                                 <img src="/images/cvv.jpg" height="150px">
                                             </div>
                                             <div class="col-md-6">
-                                                <input type="password" class="form-control pull-right" data-parsley-type="number" data-parsley-minlength="3" name="cvCode" placeholder="CVV" required />
+                                                <input type="password" class="form-control pull-right"
+                                                       data-parsley-type="number"
+                                                       data-parsley-minlength="3"
+                                                       name="cvc2"
+                                                       placeholder="CVC" required />
                                             </div>
                                         </div>
                                     </div>
@@ -85,8 +137,8 @@
                         </div>
                     </div> <!-- end .panel-body -->
                     <div class="panel-footer">
-                        <button name="submitCardForm" class="btn btn-primary resubscribe" data-loading-text="Processing...">Update</button>
-                        <a href="{{pathFor 'subscriptions'}}" class="btn btn-warning">Cancel</a>
+                        <button name="submitCardForm" class="btn btn-primary resubscribe" data-loading-text="Processing...">{{#if isResubscribe}}Activate{{else}}Update{{/if}}</button>
+                        <a href="{{pathFor 'subscriptions'}}" class="btn btn-danger">Cancel</a>
 
                         {{> AddNewBankAccount}}
                         <a class="btn btn-primary btn_modal_for_add_new_bank_account pull-right">

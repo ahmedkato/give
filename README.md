@@ -136,8 +136,9 @@ Mandrill (MailChimp's transactional email service) - Transactional emails (used 
 DonorTools, a CRM for non-profits.
 
 You will need an account with each of these providers in order to use Give. 
-The accounts are free up to a point. Stripe doesn't charge you a monthly fee, 
-only a fee per transaction (2.9% + .30 per transaction for credit/debit cards). 
+The accounts are free up to a point. Stripe does not charge you a monthly fee, 
+only a fee per transaction (2.9% + .30 per transaction for credit/debit cards or 
+2.2% + .30 per transaction for non-profits). 
 ACH fees are $0.80 per charge and there is no fee for transfers to your own bank account after charging the customer. 
 
 ## License

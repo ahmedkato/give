@@ -11,17 +11,17 @@ session@1.1.7                 # Client-side reactive dictionary for your app
 jquery@1.11.10                  # Helpful client-side library
 tracker@1.1.1                 # Meteor's client-side reactive programming library
 
-ecmascript@0.5.9
+ecmascript@0.6.1
 reactive-var@1.0.11
 
 email@1.1.18
 http@1.2.10
 pfafman:font-awesome-4
-less@2.7.7
+less@2.7.8
 iron:router
 useraccounts:bootstrap
 useraccounts:iron-routing
-accounts-password@1.3.2
+accounts-password@1.3.3
 zimme:iron-router-active
 browser-policy@1.0.9
 

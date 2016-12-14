@@ -1,4 +1,3 @@
-
 function OrgInfoCheck(name, namePart2) {
   let config = ConfigDoc();
   if (name && namePart2){
@@ -16,8 +15,8 @@ function OrgInfoCheck(name, namePart2) {
 };
 
   Give = {
-    getCleanValue: function ( id ) {
-      var jqueryObjectVal = $( id ).val();
+    getCleanValue: function ( selector ) {
+      var jqueryObjectVal = $( selector ).val();
       return Give.cleanupString( jqueryObjectVal );
     },
     cleanupString: function ( string ) {
@@ -25,13 +24,17 @@ function OrgInfoCheck(name, namePart2) {
       return cleanString;
     },
     get_fee: function ( amount ) {
-      var r = (100 - 2.9) / 100;
+      var r = (100 - 2.2) / 100;
       var i = (parseFloat( amount ) + 0.3) / r;
       var s = i - amount;
+      Give.set_fee(s.toFixed(2));
       return {
         fee:   i,
         total: s
       };
+    },
+    set_fee(fee){
+      $("#fee").val(fee);
     },
     process_give_form: function( quickForm, customer, user_id ) {
       var form = {};
@@ -40,7 +43,7 @@ function OrgInfoCheck(name, namePart2) {
       var businessName;
       var addressLine2;
 
-      if (Meteor.user()) {
+      if (Meteor.userId()) {
         if (user_id && Roles.userIsInRole(Meteor.user(), ['super-admin', 'admin'])) {
           userCursor = Meteor.users.findOne(user_id);
         } else {
@@ -78,7 +81,6 @@ function OrgInfoCheck(name, namePart2) {
                   .street_address.indexOf('\n')+1);
           } else {
             console.log("no second line found");
-            //profile.address.address_line2 = '';
           }
         }
 
@@ -113,17 +115,16 @@ function OrgInfoCheck(name, namePart2) {
           }
           form = {
             "paymentInformation": {
-              "amount":               parseInt( ((Give.getCleanValue( '#amount' ).replace( /[^\d\.\-\ ]/g, '' )) * 100).toFixed( 0 ), 10 ),
               "total_amount":         parseInt( (Give.getCleanValue( '#total_amount' ) * 100).toFixed( 0 ), 10 ),
-              "donateTo":             Give.getCleanValue( "#donateTo" ),
-              "note":                 Give.getCleanValue( "#note" ),
               "donateWith":           Give.getCleanValue( '#donateWith' ),
               "is_recurring":         Give.getCleanValue( '#is_recurring' ),
               "coverTheFees":         $( '#coverTheFees' ).is( ":checked" ),
               "created_at":           new Date().getTime() / 1000 | 0,
               "start_date":           moment( new Date( Give.getCleanValue( '#start_date' ) ) ).format( 'X' ),
               "saved":                $( '#save_payment' ).is( ":checked" ),
-              "send_scheduled_email": "no"
+              "send_scheduled_email": "no",
+              "fees":                  parseInt( ( Give.getCleanValue( "#fee" ) * 100).toFixed( 0 ), 10 ),
+              "splits":               DonationFormItems.find().fetch()
             },
             "customer":           {
               "fname":         customerCursor.metadata.fname,
@@ -141,31 +142,18 @@ function OrgInfoCheck(name, namePart2) {
             sessionId: Meteor.default_connection._lastSessionId
           };
         } else {
-          // TODO: change the customer part above to accommodate the admin use case. For both saved devices and new devices.
-          
-          // TODO:
-          // 1. can we remove the customer part? 
-          // 2. if so, how do we ensure that only admins can use other user ids
-          // 3. If not, how can we get the userCursor and profile info.
-          
-          // I think the best way is to pull the contact info from the user's profile anyway, but for saved devices
-          // this might not be right. Since that saved device could have a different zip code tied to it
-          
-          
-
           form = {
             "paymentInformation": {
-              "amount":       parseInt( ((Give.getCleanValue( '#amount' ).replace( /[^\d\.\-\ ]/g, '' )) * 100).toFixed( 0 ), 10 ),
               "total_amount": parseInt( (Give.getCleanValue( '#total_amount' ) * 100).toFixed( 0 ), 10 ),
-              "donateTo":     Give.getCleanValue( "#donateTo" ),
-              "note":         Give.getCleanValue( "#note" ),
               "donateWith":   Give.getCleanValue( '#donateWith' ),
               "is_recurring": Give.getCleanValue( '#is_recurring' ),
               "coverTheFees": $( '#coverTheFees' ).is( ":checked" ),
               "created_at":   new Date().getTime() / 1000 | 0,
               "dt_source":    Give.getCleanValue( '#dt_source' ),
               "start_date":   moment( new Date( Give.getCleanValue( '#start_date' ) ) ).format( 'X' ),
-              "saved":        $( '#save_payment' ).is( ":checked" )
+              "saved":        $( '#save_payment' ).is( ":checked" ),
+              "fees":          parseInt( ( Give.getCleanValue( "#fee" ) * 100).toFixed( 0 ), 10 ),
+              "splits":       DonationFormItems.find().fetch()
             },
             "customer": {
               "fname":         profile.fname,
@@ -186,18 +174,17 @@ function OrgInfoCheck(name, namePart2) {
       } else {
         form = {
           "paymentInformation": {
-            "amount":       parseInt( ((Give.getCleanValue( '#amount' ).replace( /[^\d\.\-\ ]/g, '' )) * 100).toFixed( 0 ), 10 ),
             "campaign":     Give.getCleanValue( '#dt_source' ),
             "coverTheFees": $( '#coverTheFees' ).is( ":checked" ),
             "created_at":   new Date().getTime() / 1000 | 0,
-            "donateTo":     Give.getCleanValue( "#donateTo" ),
             "donateWith":   Give.getCleanValue( "#donateWith" ),
             "dt_source":    Give.getCleanValue( '#dt_source' ),
             "is_recurring": Give.getCleanValue( '#is_recurring' ),
             "saved":        $( '#save_payment' ).is( ":checked" ),
             "start_date":   moment( new Date( Give.getCleanValue( '#start_date' ) ) ).format( 'X' ),
             "total_amount": parseInt( (Give.getCleanValue( '#total_amount' ) * 100).toFixed( 0 ), 10 ),
-            "note":      Give.getCleanValue( "#note" )
+            "fees":          parseInt( ( Give.getCleanValue( "#fee" ) * 100).toFixed( 0 ), 10 ),
+            "splits":       DonationFormItems.find().fetch()
           },
           "customer":           {
             "fname":         Give.getCleanValue( '#fname' ),
@@ -222,10 +209,6 @@ function OrgInfoCheck(name, namePart2) {
         form.paymentInformation.start_date = 'today';
       }
 
-      if( form.paymentInformation.total_amount !== form.paymentInformation.amount ) {
-        form.paymentInformation.fees = (form.paymentInformation.total_amount - form.paymentInformation.amount);
-      }
-
       if( form.paymentInformation.donateWith === "Card" ) {
         form.paymentInformation.type = "card";
         form.customer.created_at = new Date().getTime() / 1000 | 0;
@@ -233,10 +216,10 @@ function OrgInfoCheck(name, namePart2) {
         if( quickForm ) {
           cardInfo = {
             name:            userCursor.profile.fname + ' ' + userCursor.profile.lname,
-            number:          Give.getCleanValue( '#card_number' ),
-            cvc:             Give.getCleanValue( '#cvv' ),
-            exp_month:       Give.getCleanValue( '#expiry_month' ),
-            exp_year:        Give.getCleanValue( '#expiry_year' ),
+            number:          Give.getCleanValue( '[name="cc-num"]' ),
+            cvc:             Give.getCleanValue( '[name="cvc2"]' ),
+            exp_month:       Give.getCleanValue( '[name="cardExpirationMonth"]' ),
+            exp_year:        Give.getCleanValue( '[name="cardExpirationYear"]' ),
             address_line1:   profile.address.address_line1,
             address_line2:   addressLine2,
             address_city:    profile.address.city,
@@ -247,10 +230,10 @@ function OrgInfoCheck(name, namePart2) {
         } else {
           cardInfo = {
             name:            Give.getCleanValue( '#fname' ) + ' ' + Give.getCleanValue( '#lname' ),
-            number:          Give.getCleanValue( '#card_number' ),
-            cvc:             Give.getCleanValue( '#cvv' ),
-            exp_month:       Give.getCleanValue( '#expiry_month' ),
-            exp_year:        Give.getCleanValue( '#expiry_year' ),
+            number:          Give.getCleanValue( '[name="cc-num"]' ),
+            cvc:             Give.getCleanValue( '[name="cvc2"]' ),
+            exp_month:       Give.getCleanValue( '[name="cardExpirationMonth"]' ),
+            exp_year:        Give.getCleanValue( '[name="cardExpirationYear"]' ),
             address_line1:   Give.getCleanValue( '#address_line1' ),
             address_line2:   Give.getCleanValue( '#address_line2' ),
             address_city:    Give.getCleanValue( '#city' ),
@@ -352,6 +335,7 @@ function OrgInfoCheck(name, namePart2) {
             Give.updateTotal();
           } else if( result.charge === 'scheduled' ) {
             // Send the user to the scheduled page and include the frequency and the amount in the url for displaying to them
+            Session.set("params.startdate", form.paymentInformation.start_date);
             Router.go( '/scheduled/?frequency=' + form.paymentInformation.is_recurring + '&amount=' + form.paymentInformation.total_amount / 100 + '&startdate=' + form.paymentInformation.start_date );
           } else {
             Router.go( '/thanks?c=' + result.c + "&don=" + result.don + "&charge=" + result.charge );
@@ -447,13 +431,24 @@ function OrgInfoCheck(name, namePart2) {
       } );
     },
     updateTotal: function () {
+      function getCloneAmounts(){
+        let amountsArray = [];
+        $( '[name="splitAmount"]' ).map(function(index, item){amountsArray.push(Number($(item).val()))});
+        let sum = amountsArray.reduce(
+          function(total, num){ return total + num }
+          , 0);
+        return sum;
+      }
+
       var data = Session.get( 'paymentMethod' );
-      var donationAmount = $( '#amount' ).val();
+      var donationAmount = $( '[name="amount"]' ).val();
+      let splitAmounts = getCloneAmounts();
       donationAmount = donationAmount.replace( /[^\d\.\-\ ]/g, '' );
       donationAmount = donationAmount.replace( /^0+/, '' );
       if( data === 'Check' ) {
         if( $.isNumeric( donationAmount ) ) {
-          $( "#total_amount" ).val( donationAmount );
+          donationAmount = Number(donationAmount) + Number(splitAmounts);
+          $( "#total_amount" ).val(donationAmount.toFixed(2));
           $( "#show_total" ).hide();
           $( "#total_amount_display" ).text( "$" + donationAmount ).css( {
             'color': '#34495e'
@@ -470,21 +465,25 @@ function OrgInfoCheck(name, namePart2) {
           } );
         } else {
           if( $.isNumeric( donationAmount ) ) {
+            donationAmount = Number(donationAmount) + Number(splitAmounts);
             if( $( '#coverTheFees' ).prop( 'checked' ) ) {
               $( "#show_total" ).show();
               Session.set( "coverTheFees", true );
               var feeAndTotal = Give.get_fee( donationAmount );
               var fee = feeAndTotal.fee - donationAmount;
               var roundedAmount = (+donationAmount + (+fee)).toFixed( 2 );
-              $( "#total_amount_display" ).text( " + $" + fee.toFixed( 2 ) + " = $" + roundedAmount ).css( {
+              $( "#total_amount_display" ).text( "Fee calculation: $" + donationAmount + " + $" + fee.toFixed( 2 ) + " = $" + roundedAmount ).css( {
                 'color': '#34495e'
               } );
               $( "#total_amount" ).val( roundedAmount );
+              Session.set("giftAmount", roundedAmount);
               return Session.set( "amount", roundedAmount );
             } else {
               Session.set( "coverTheFees", false );
-              $( "#total_amount" ).val( donationAmount );
+              $( "#total_amount" ).val( donationAmount && donationAmount.toFixed(2) );
+              Session.set("giftAmount", donationAmount && donationAmount.toFixed(2));
               $( "#show_total" ).hide();
+              $( "#fee" ).val("");
               return $( "#total_amount_display" ).text( "" ).css( {
                 'color': '#34495e'
               } );
@@ -503,14 +502,14 @@ function OrgInfoCheck(name, namePart2) {
           $( '#routing_number' ).val( "111000025" ); // Invalid test =  fail after initial screen =  valid test = 111000025
           $( '#account_number' ).val( "000123456789" ); // Invalid test =  fail after initial screen =  valid test = 000123456789
         } else {
-          $( '#card_number' ).val( "4242424242424242" );
+          $( '[name="cc-num"]' ).val( "4242424242424242" );
           // Succeeded = 4242424242424242 Failed = 4242111111111111 AMEX = 378282246310005
           // Fail after connection to customer succeeds = 4000000000000341
-          $( '#expiry_month option' ).prop( 'selected', false ).filter( '[value=12]' ).prop( 'selected', true );
-          $( 'select#expiry_month' ).change();
-          $( '#expiry_year option' ).prop( 'selected', false ).filter( '[value=2017]' ).prop( 'selected', true );
-          $( 'select#expiry_year' ).change();
-          $( '#cvv' ).val( "123" ); // CVV mismatch = 200
+          $( '[name="cardExpirationMonth"] option' ).prop( 'selected', false ).filter( '[value=12]' ).prop( 'selected', true );
+          $( 'select[name="cardExpirationMonth"]' ).change();
+          $( '[name="cardExpirationYear"] option' ).prop( 'selected', false ).filter( '[value=2017]' ).prop( 'selected', true );
+          $( 'select[name="cardExpirationYear"]' ).change();
+          $( '[name="cvc2"]' ).val( "123" ); // CVC mismatch = 200
         }
         $( '#fname' ).val( "Test" );
         $( '#lname' ).val( "Bechard" );
@@ -523,20 +522,20 @@ function OrgInfoCheck(name, namePart2) {
         $( '#city' ).val( "Topeka" );
         $( '#region' ).val( "KS" );
         $( '#postal_code' ).val( "66618" );
-        $( '#amount' ).val( "1.03" );
+        $( '[name="amount"]' ).val( "1.03" ).change();
       } else {
         if( Session.get( "paymentMethod" ) === "Check" ) {
           $( '#routing_number' ).val( "111000025" ); // Invalid test =  fail after initial screen =  valid test = 111000025
           $( '#account_number' ).val( "000123456789" ); // Invalid test =  fail after initial screen =  valid test = 000123456789
         } else {
-          $( '#card_number' ).val( "4242424242424242" ); // Succeeded = 4242424242424242 Failed = 4242111111111111 AMEX = 378282246310005
-          $( '#expiry_month option' ).prop( 'selected', false ).filter( '[value=12]' ).prop( 'selected', true );
-          $( 'select#expiry_month' ).change();
-          $( '#expiry_year option' ).prop( 'selected', false ).filter( '[value=2017]' ).prop( 'selected', true );
-          $( 'select#expiry_year' ).change();
-          $( '#cvv' ).val( "123" ); // CVV mismatch = 200
+          $( '[name="cc-num"]' ).val( "4242424242424242" ); // Succeeded = 4242424242424242 Failed = 4242111111111111 AMEX = 378282246310005
+          $( '[name="cardExpirationMonth"] option' ).prop( 'selected', false ).filter( '[value=12]' ).prop( 'selected', true );
+          $( 'select[name="cardExpirationMonth"]' ).change();
+          $( '[name="cardExpirationYear"] option' ).prop( 'selected', false ).filter( '[value=2017]' ).prop( 'selected', true );
+          $( 'select[name="cardExpirationYear"]' ).change();
+          $( '[name="cvc2"]' ).val( "123" ); // CVC mismatch = 200
         }
-        $( '#amount' ).val( "1.03" );
+        $( '[name="amount"]' ).val( "1.03" );
       }
     }
   };

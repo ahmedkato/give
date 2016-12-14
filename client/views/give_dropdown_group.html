@@ -1,57 +1,24 @@
 <template name="GiveDropdownGroup">
     <div class="form-group">
         <div class="row">
-            <div class="text-center col-lg-4 col-md-4 col-sm-4">
-                {{> DonationTo}}
-            </div>
-            <div class="text-center col-lg-4 col-md-4 col-sm-4">
-                <label for="is_recurring" id="frequency_label">Donation Frequency</label>
-                <select type="text"
-                        name="is_recurring"
-                        id="is_recurring"
-                        class="form-control select select-primary mbl"
-                        required
-                        data-placeholder="Select an Option"
-                        data-parsley-error-message="  Choose one ^" >
-                    {{#unless doNotShowOneTime}}
-                        <option selected></option>
-                    {{/unless}}
-                    <!--<option value="daily">Daily</option>-->
-                    <option value="monthly">Monthly</option>
-                    {{#unless doNotShowOneTime}}
-                        <option value="one_time">One-Time</option>
-                    {{/unless}}
-                </select>
-            </div>
-            <div class="text-center col-lg-4 col-md-4 col-sm-4 donateWithDiv">
+            <div class="col-lg-6 col-md-6 col-sm-6">
                 <label for="donateWith" id="donateWith_label">Pay With</label>
-                <select name="donateWith" id="donateWith" class="form-control select select-primary mbl" required data-placeholder="Select an Option">
+                <select name="donateWith" id="donateWith"
+                        class="form-control select select-primary slim-borders"
+                        required>
                     <option value="Card">New Card</option>
                     <option value="Check">New Bank</option>
                     {{#each device}}
-                        <option value="{{this.id}}" {{selected}}>{{brand}} - {{last4}}</option>
+                        <option value="{{this.id}}" {{selected_device}}>{{brand}} - {{last4}}</option>
                     {{/each}}
                 </select>
             </div>
-            <div class="row">
-                <div class="col-lg-4 col-lg-offset-4 col-md-4 col-md-offset-4 col-sm-4 col-sm-offset-4 col-xs-10 col-xs-offset-1" style="{{#unless locked}}display: none;{{/unless}}" id="calendarSection">
-                    <div class="form-group">
-                        <label>{{#if forceACHDay}}{{else}}Choose {{/if}}Your Donation Start Date {{#if forceACHDay}}<span style="font-size: .8em;">{{{onlyOnSpecificDay}}}</span> {{/if}}</label>
-                        <div class="input-group">
-
-                                <span class="input-group-btn">
-                                    <button class="btn" type="button" id="start_date_button"><span class="fui-calendar"></span></button>
-                                </span>
-                            <input type="text"  class="form-control" {{forceACHDay}} value="{{today}}" id="start_date" />
-                        </div>
-                    </div>
-                </div>
+            <div class="col-lg-6 col-md-6 col-sm-6">
+                {{> DonationFrequency}}
             </div>
-            <div class="text-center">
-                <label id="giftNoteText" style="display: none;">
-                    <strong>Your gift is designated to "{{noteValue}}"</strong>
-                </label>
-            </div>
+        </div>
+        <div class="row">
+            {{> DonationDate}}
         </div>
     </div>
 </template>

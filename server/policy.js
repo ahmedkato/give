@@ -20,8 +20,6 @@ var trusted = [
   'heapanalytics.com',
   'd2zah9y47r7bi2.cloudfront.net',
   Meteor.settings.AWS.cfdomain,
-  'localhost',
-  'localhost:3000',
 ];
 
 
@@ -44,6 +42,7 @@ _.each(trusted, function(origin) {
 BrowserPolicy.content.allowOriginForAll("blob:");
 let constructedCsp = BrowserPolicy.content._constructCsp();
 BrowserPolicy.content.setPolicy(constructedCsp +" media-src blob:;");
+<<<<<<< HEAD
 
 /*
 BrowserPolicy.content.allowScriptOrigin("heapanalytics.com cdn.heapanalytics.com 'unsafe-inline' 'unsafe-eval'");
@@ -51,3 +50,5 @@ BrowserPolicy.content.allowConnectOrigin("heapanalytics.com");
 BrowserPolicy.content.allowImageOrigin("heapanalytics.com");
 BrowserPolicy.content.allowStyleOrigin("heapanalytics.com");
 BrowserPolicy.content.allowFontOrigin("heapanalytics.com");*/
+=======
+>>>>>>> split-donation-small-button-for-each

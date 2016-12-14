@@ -397,12 +397,6 @@ legend {
     color: black!important;
 }
 
-.select2-container {
-    background-color: transparent;
-}
-
-
-
 .fadeMe {
     opacity:    0.5;
     background: #000;

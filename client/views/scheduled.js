@@ -36,3 +36,7 @@ Template.DonationScheduled.onRendered(function() {
   $('.modal-backdrop').remove();
   Session.set("loading", false);
 });
+
+Template.DonationScheduled.onDestroyed(function () {
+  Session.delete("params.startdate");
+});

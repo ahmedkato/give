@@ -80,26 +80,32 @@ Utils = {
     // Check all the form fields from the donation forms
     check( form, {
       paymentInformation: {
-        amount:               Match.Integer,
-        campaign:             Match.Optional( String ),
+        campaign:             Match.Maybe( String ),
         coverTheFees:         Boolean,
         created_at:           Number,
-        donateTo:             String,
-        donateWith:           Match.Optional( String ),
-        dt_source:            Match.Optional( String ),
-        fees:                 Match.Optional( Number ),
-        href:                 Match.Optional( String ),
+        donateWith:           Match.Maybe( String ),
+        dt_source:            Match.Maybe( String ),
+        fees:                 Match.Maybe( Number ),
+        href:                 Match.Maybe( String ),
         is_recurring:         Match.OneOf( "one_time", "monthly", "yearly", "semi-annually", "weekly", "bi-weekly" ),
-        later:                Match.Optional( Boolean ),
-        method:               Match.Optional( String ),
-        note:                 Match.Optional( String ),
+        later:                Match.Maybe( Boolean ),
+        method:               Match.Maybe( String ),
         saved:                Boolean,
-        send_scheduled_email: Match.Optional( String ),
-        source_id:            Match.Optional( String ),
-        start_date:           Match.Optional( String ),
-        token_id:             Match.Optional( String ),
+        send_scheduled_email: Match.Maybe( String ),
+        source_id:            Match.Maybe( String ),
+        start_date:           Match.Maybe( String ),
+        token_id:             Match.Maybe( String ),
         total_amount:         Match.Integer,
         type:                 String,
+        fee:                  Match.Maybe( Number ),
+        splits:               Match.Maybe( [{
+          _id:                String,
+          amount:             Number,
+          donateTo:           String,
+          name:               Match.Maybe(String),
+          item:               Match.Maybe(Number),
+          memo:               Match.Maybe(String)
+        }])
       },
       customer:           {
         fname:         String,
@@ -594,8 +600,7 @@ Utils = {
     let config = ConfigDoc();
     logger.info( "Config Settings:", config.Settings );
     logger.info( "chargeId:", chargeId, " Customer_id: ", customer_id );
-    let chargeCursor, dt_fund, donateTo, invoice_cursor,
-      fund_id, memo, source_id, newDonationResult;
+    let chargeCursor, invoice_cursor, source_id, newDonationResult;
     var metadata;
 
     chargeCursor = Charges.findOne( { _id: chargeId } );
@@ -630,35 +635,58 @@ Utils = {
       // event object id
     }
 
-    donateTo = metadata.donateTo;
+    let getFundId = (donateTo)=> {
+      let dt_fund = Utils.processDTFund( donateTo );
+      let fund_id;
 
-    dt_fund = Utils.processDTFund( donateTo );
-
-    // fund_id should be the No-Match-Found fund used to help reconcile
-    // write-in gifts and those not matching a fund in DT
-    if( !dt_fund ) {
-      fund_id = config.Settings.DonorTools.defaultFundId;
-      memo = Meteor.settings.dev +
-        (metadata &&
-        metadata.frequency &&
-        metadata.frequency.charAt( 0 ).toUpperCase() +
-        metadata.frequency.slice( 1 ) + " " + donateTo);
-    } else {
-      fund_id = dt_fund;
-      memo = Meteor.settings.dev +
-        (metadata &&
-        metadata.frequency &&
-        metadata.frequency.charAt( 0 ).toUpperCase() +
-        metadata.frequency.slice( 1 ));
-      if( metadata && metadata.note ) {
-        memo = memo + " " + metadata.note;
+      // fund_id should be the No-Match-Found fund used to help reconcile
+      // write-in gifts and those not matching a fund in DT
+      if( !dt_fund ) {
+        fund_id = config.Settings.DonorTools.defaultFundId;
+      } else {
+        fund_id = dt_fund;
       }
-    }
+      return fund_id;
+    };
+    let getMemo = (donateTo, splitMemo)=> {
+      let dt_fund = Utils.processDTFund( donateTo );
+      let memo;
 
-    if( !memo ) {
-      logger.error( chargeId, customer_id );
-      logger.error( metadata );
-      logger.error( "Something went wrong above, it looks like there is no metadata on this object." );
+      // fund_id should be the No-Match-Found fund used to help reconcile
+      // write-in gifts and those not matching a fund in DT
+      if( !dt_fund ) {
+        memo = Meteor.settings.dev +
+          (metadata &&
+          metadata.frequency &&
+          metadata.frequency.charAt( 0 ).toUpperCase() +
+          metadata.frequency.slice( 1 ) + " " + donateTo);
+      } else {
+        memo = Meteor.settings.dev +
+          (metadata &&
+          metadata.frequency &&
+          metadata.frequency.charAt( 0 ).toUpperCase() +
+          metadata.frequency.slice( 1 ));
+      }
+      if( !memo ) {
+        logger.error( chargeId, customer_id );
+        logger.error( metadata );
+        logger.error( "Something went wrong above, it looks like there is no metadata on this object." );
+      }
+      if( splitMemo ) {
+        memo = memo + " " + splitMemo;
+      }
+      return memo;
+    };
+
+    let splits = [];
+    let donationSplitsId = chargeCursor.metadata && chargeCursor.metadata.donationSplitsId;
+    if(donationSplitsId){
+      let donationSplits = DonationSplits.findOne({_id: donationSplitsId});
+      donationSplits.splits.forEach(function ( split ) {
+        splits.push({amount_in_cents: split.amount, fund_id: Number(split.donateTo), memo: getMemo(split.donateTo, split.memo)})
+      });
+    } else {
+      splits.push({amount_in_cents: chargeCursor.amount, fund_id: getFundId(metadata.donateTo), memo: getMemo(metadata.donateTo, metadata.note)})
     }
 
     if( customerCursor && customerCursor.metadata && customerCursor.metadata.business_name ) {
@@ -708,7 +736,27 @@ Utils = {
         customerCursor.metadata.dt_persona_id + '.json', {
         auth: DONORTOOLSAUTH
       } );
-      console.log( checkPerson.data );
+      logger.info( checkPerson.data );
+
+
+      let data = {
+        "donation": {
+          "persona_id":       customerCursor.metadata.dt_persona_id,
+          "splits":           splits,
+          "donation_type_id": config.Settings.DonorTools.customDataTypeId,
+          "received_on":      moment( new Date( chargeCursor.created * 1000 ) ).format( "YYYY/MM/DD hh:mma" ),
+          "source_id":        source_id,
+          "payment_status":   chargeCursor.status,
+          "transaction_id":   chargeId
+        }
+      };
+      logger.info("LOOK HERE");
+      logger.info(data);
+      logger.info(config.Settings.DonorTools.url);
+      newDonationResult = HTTP.post( config.Settings.DonorTools.url + '/donations.json', {
+        data: data,
+        auth: DONORTOOLSAUTH
+      } );
     } catch( e ) {
       logger.error( "No Person with the DT ID of " +
         customerCursor.metadata.dt_persona_id + " found in DT" );
@@ -719,8 +767,8 @@ Utils = {
         to: to,
         type:    'Failed to add a gift to Donor Tools.',
         emailMessage: "I tried to add a gift with PersonaID of: " + customerCursor.metadata.dt_persona_id +
-                      " to Donor Tools, but for some reason I wasn't able to." +
-                      " Click the button to see the Stripe Charge",
+            " to Donor Tools, but for some reason I wasn't able to." +
+            " Click the button to see the Stripe Charge",
         buttonText:   "Stripe Charge",
         buttonURL:    "https://dashboard.stripe.com/payments/" + chargeId
       };
@@ -732,26 +780,6 @@ Utils = {
       } );
       throw new Meteor.Error( e );
     }
-
-    newDonationResult = HTTP.post( config.Settings.DonorTools.url + '/donations.json', {
-      data: {
-        "donation": {
-          "persona_id":       customerCursor.metadata.dt_persona_id,
-          "splits":           [{
-            "amount_in_cents": amount,
-            "fund_id":         fund_id,
-            "memo":            memo
-          }],
-          "donation_type_id": config.Settings.DonorTools.customDataTypeId,
-          "received_on":      moment( new Date( chargeCursor.created * 1000 ) ).format( "YYYY/MM/DD hh:mma" ),
-          "source_id":        source_id,
-          "payment_status":   chargeCursor.status,
-          "transaction_id":   chargeId
-        }
-      },
-      auth: DONORTOOLSAUTH
-    } );
-
     newDonationResult.data.donation._id = newDonationResult.data.donation.id;
     DT_donations.upsert( { _id: newDonationResult.data.donation.id }, newDonationResult.data.donation );
 
@@ -920,14 +948,14 @@ Utils = {
       if( donorToolsIDMatch ) {
         return donorToolsIDMatch;
       } else {
-        throw new Meteor.Error( 500, "Couldn't find that number id in DT. Did it get merged? Your admin might also need to retrieve all the funds from DT via the Give dashboard. " );
+        throw new Meteor.Error( 500, "Couldn't find that number id in DT. Did it get merged? The admin might also need to retrieve all the funds from DT via the Give dashboard. " );
       }
     } else {
       let donorToolsNameMatch = Utils.checkForDTFundName( donateTo );
       if( donorToolsNameMatch ) {
         return donorToolsNameMatch;
       } else {
-        throw new Meteor.Error( 500, "Couldn't find that name in DT. Did it get changed? Your admin might also need to retrieve all the funds from DT via the Give dashboard. ");
+        throw new Meteor.Error( 500, "Couldn't find that name in DT. Did it get changed? The admin might also need to retrieve all the funds from DT via the Give dashboard. ");
       }
     }
   },
@@ -1051,6 +1079,8 @@ Utils = {
     logger.info( stripeChargePlan );
     // Add charge response from Stripe to the collection
     Subscriptions.insert( stripeChargePlan );
+    DonationSplits.update({_id:  metadata.donationSplitsId}, { $set: { subscription_id: stripeChargePlan.id} });
+
     Donations.update( { _id: donation_id }, { $set: { subscription_id: stripeChargePlan.id } } );
     if( start_date === 'today' ) {
       // Query Stripe to get the first invoice from this new subscription
@@ -1210,7 +1240,7 @@ Utils = {
     }
   },
   update_charge_metadata(event_body) {
-    logger.info( "Inside update_charge_metadata" );
+    logger.info( "Inside update_charge_metadata with: " + event_body.data.object.id );
 
     // Get the subscription cursor
     var invoice_cursor = Invoices.findOne( { _id: event_body.data.object.invoice } );
@@ -1222,7 +1252,6 @@ Utils = {
     }
     var subscription_cursor = Subscriptions.findOne( { _id: invoice_cursor.subscription } );
 
-    logger.info( "Charge id: " + event_body.data.object.id );
     // Use the metadata from the subscription to update the charge with Stripe
     if( subscription_cursor.metadata ) {
       StripeFunctions.stripe_update( 'charges', 'update', event_body.data.object.id, '', {
@@ -1877,15 +1906,6 @@ Utils = {
       case "Shelley Setchell":
         return 60465;
         break;
-      case "BaseCamp - John Kazaklis":
-        return 60480;
-        break;
-      case "Basecamp - John Kazaklis":
-        return 60480;
-        break;
-      case "John Kazaklis":
-        return 60480;
-        break;
       case "BaseCamp - Chris Mammoliti":
         return 63662;
         break;
@@ -1915,24 +1935,6 @@ Utils = {
         break;
       case "Joshua Bechard":
         return 63683;
-        break;
-      case "BaseCamp - James Hishmeh":
-        return 65262;
-        break;
-      case "Basecamp - James Hishmeh":
-        return 65262;
-        break;
-      case "James Hishmeh":
-        return 65262;
-        break;
-      case "BaseCamp - Willie Brooks":
-        return 65263;
-        break;
-      case "Basecamp - Willie Brooks":
-        return 65263;
-        break;
-      case "Willie Brooks":
-        return 65263;
         break;
       case "Int'l Field Projects - Honduras":
         return 60489;

@@ -41,6 +41,17 @@ Template.SubscriptionModal.helpers({
   },
   note: function () {
     return Session.get('change_not');
+  },
+  DonationSplits(){
+    // TODO: take this subscription id and figure out which DonationSplits object we need to be looking at for this
+    // then return it below, or return false
+    return DonationSplits.find();
+  },
+  DonationSplitsData(){
+
+    // TODO: take this subscription id and figure out which DonationSplits object we need to be looking at for this
+    // then return it below
+    return DonationSplits.find({});
   }
 });
 
@@ -50,10 +61,10 @@ Template.SubscriptionModal.events({
     console.log("Submitted event started for AdminSubscriptionModal form");
     let subscription_id = Session.get("change_subscription_id");
     let customer_id = Session.get("change_customer_id");
-    let amount = parseInt(((Give.getCleanValue('#amount').replace(/[^\d\.\-\ ]/g, '')) * 100).toFixed(0));
+    let amount = parseInt(((Give.getCleanValue('[name="amount"]').replace(/[^\d\.\-\ ]/g, '')) * 100).toFixed(0));
     let note = $("#note").val();
     let trial_end = $("#start_date").val() ? moment(new Date(Give.getCleanValue('#start_date'))).format('X'): '';
-    let donateToValue = $("#designationSection").is(":visible") ? $('#donateTo').val() : Session.get("change_donateTo");
+    let donateToValue = $("#designationSection").is(":visible") ? $('[name="donateTo"]').val() : Session.get("change_donateTo");
 
     if(Session.get("change_donateTo") === donateToValue && Session.get("change_amount") === amount &&
       (Session.equals("yes_change_date", false) || !Session.get("yes_change_date"))){
@@ -137,11 +148,7 @@ Template.SubscriptionModal.onRendered(function () {
   // Setup parsley form validation
   $('#subscription_change').parsley();
 
-  $('select').select2({dropdownCssClass: 'dropdown-inverse'});
-
   init_calendar();
-
-  //$("#donateTo").val()
 });
 
 Template.SubscriptionModal.onDestroyed(function() {

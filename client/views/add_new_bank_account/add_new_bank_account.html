@@ -21,7 +21,7 @@
                     </div>
                     <div class="modal-footer" style="background-color: white;">
                         <button type="submit" class="btn btn-primary pull-left">
-                            Update Account
+                            {{#if isResubscribe}}Activate{{else}}Update Account{{/if}}
                         </button>
                         <button id="go-to-card" class="btn btn-primary">
                             Use Card instead

@@ -1,6 +1,4 @@
 Template.AdminGiveDropdownGroup.onRendered(function() {
-  $('select').select2({dropdownCssClass: 'dropdown-inverse', DropdownAdapter: 'DropdownSearch'});
-
   // show the datepicker if the frequency is monthly when the page loads
   if(Session.equals('params.recurring', 'monthly')){
     $('#calendarSection').show();
@@ -55,11 +53,9 @@ Template.AdminGiveDropdownGroup.events({
     if ($("#is_recurring").val() !== 'one_time') {
       Session.set('recurring', true);
       $('#calendarSection').show();
-      $("#s2id_is_recurring").children().removeClass("redText");
     } else {
       Session.set('recurring', false);
       $('#calendarSection').hide();
-      $("#s2id_is_recurring").children().removeClass("redText");
     }
   },
   'change #donateWith': function() {

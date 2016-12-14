@@ -171,6 +171,8 @@ Stripe_Events = {
   },
   'customer.updated': function (stripeEvent) {
     logEvent(stripeEvent.type);
+    /*let customer = Utils.get_stripe_customer(stripeEvent.data.object.id);
+    Customers.update({_id: customer.id}, {$set: customer});*/
     return;
   },
   'customer.deleted': function (stripeEvent) {

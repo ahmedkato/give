@@ -1,32 +1,32 @@
 Template.PaymentDevice.onRendered(function(){
   $('#billing-card').validate({
     rules: {
-      cardNumber: {
+      "cc-num": {
         creditcard: true,
         required: true
       },
-      expMo: {
+      cardExpirationMonth: {
         required: true
       },
-      expYr: {
+      cardExpirationYear: {
         required: true
       },
-      cvc: {
+      cvc2: {
         required: true
       }
     },
     messages: {
-      cardNumber: {
+      "cc-num": {
         creditcard: "Please enter a valid credit card.",
         required: "Required."
       },
-      expMo: {
+      cardExpirationMonth: {
         required: "Required."
       },
-      expYr: {
+      cardExpirationYear: {
         required: "Required."
       },
-      cvc: {
+      cvc2: {
         required: "Required."
       }
     },
@@ -44,10 +44,10 @@ Template.PaymentDevice.onRendered(function(){
       if (newCard){
         // If we're adding a new card, grab the card's details...
         var card = {
-          number: $('[name="cardNumber"]').val(),
-          exp_month: $('[name="expMo"]').val(),
-          exp_year: $('[name="expYr"]').val(),
-          cvc: $('[name="cvc"]').val()
+          number: $('[name="cc-num"]').val(),
+          exp_month: $('[name="cardExpirationMonth"]').val(),
+          exp_year: $('[name="cardExpirationYear"]').val(),
+          cvc: $('[name="cvc2"]').val()
         }
         // Call to update our customer's "default" card with what they've passed.
         Meteor.call('stripeSwapCard', card, function(error, response){
@@ -69,8 +69,8 @@ Template.PaymentDevice.onRendered(function(){
       } else {
         // Get our updates from the form.
         var updates = {
-          exp_month: $('[name="expMo"]').val(),
-          exp_year: $('[name="expYr"]').val()
+          exp_month: $('[name="cardExpirationMonth"]').val(),
+          exp_year: $('[name="cardExpirationYear"]').val()
         };
         // If we're just updating an existing card
         Meteor.call('stripeUpdateCard', updates, function(error, response){

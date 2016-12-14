@@ -1,11 +1,20 @@
 import parsley from 'parsleyjs';
 
-Template.GiveDropdownGroup.onRendered(function() {
-  $('select').select2({dropdownCssClass: 'dropdown-inverse'});
+Template.GiveDropdownGroup.onCreated(function() {
 
+  this.autorun(()=> {
+    this.subscribe( 'userStripeData' );
+    this.subscribe( 'userDT' );
+    this.subscribe( 'userDTFunds' );
+    this.subscribe( 'devices' );
+  });
+});
+
+Template.GiveDropdownGroup.onRendered(function() {
   // show the datepicker if the frequency is monthly when the page loads
   if (Session.equals('params.recurring', 'monthly')) {
     $('#calendarSection').show();
+    $("#is_recurring").val("monthly");
   }
 
   var datepickerSelector = $('#start_date');
@@ -56,9 +65,14 @@ Template.GiveDropdownGroup.helpers({
       return Devices.find();
     }
   },
-  selected: function() {
-    var customer = Customers.find({_id: this.customer});
-    if (this.id === customer.default_source) {
+  selected_device: function() {
+    let customer = Customers.find({_id: this.customer}).fetch();
+    if (this.id === customer[0].default_source) {
+      // The change event is being watched and we need to trigger it so that
+      // the card number area doesn't show up here
+      Meteor.setTimeout(function () {
+        $("#donateWith").change();
+      },200);
       return 'selected';
     }
   },
@@ -75,11 +89,9 @@ Template.GiveDropdownGroup.events({
     if ($("#is_recurring").val() !== 'one_time') {
       Session.set('recurring', true);
       $('#calendarSection').show();
-      $("#s2id_is_recurring").children().removeClass("redText");
     } else {
       Session.set('recurring', false);
       $('#calendarSection').hide();
-      $("#s2id_is_recurring").children().removeClass("redText");
     }
   },
   'change #donateWith': function() {

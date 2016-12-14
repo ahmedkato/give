@@ -41,14 +41,6 @@ Template.UserGive.helpers({
     }
     return;
   },
-  attributes_Input_Amount: function() {
-    return {
-      name: "amount",
-      id: "amount",
-      min: 1,
-      required: true
-    };
-  },
   amountWidth: function() {
     if (Session.equals("paymentMethod", "Card") || Session.get("paymentMethod") && Session.get("paymentMethod").slice(0,3) === 'car'){
       return 'form-group col-md-4 col-sm-4 col-xs-12';
@@ -96,25 +88,6 @@ Template.UserGive.events({
       Give.process_give_form(true);
     }
   },
-  'keyup, change #amount': _.debounce(function() {
-    return Give.updateTotal();
-  }, 300),
-    // disable mousewheel on a input number field when in focus
-    // (to prevent Chromium browsers change of the value when scrolling)
-  'focus #amount': function() {
-    $('#amount').on('mousewheel.disableScroll', function(e) {
-      e.preventDefault();
-    });
-  },
-  'blur #amount': function() {
-    $('#amount').on('mousewheel.disableScroll', function(e) {
-      e.preventDefault();
-    });
-    return Give.updateTotal();
-  },
-  'change #coverTheFees': function() {
-    return Give.updateTotal();
-  },
   'change [name=donateWith]': function() {
     var selectedValue = $("#donateWith").val();
     Session.set("paymentMethod", selectedValue);
@@ -140,22 +113,7 @@ Template.UserGive.events({
 });
 
 Template.UserGive.onRendered(function () {
-  let config = ConfigDoc();
-  let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
-
   $('[data-toggle="popover"]').popover();
-
-  // setup modal for entering give toward information
-  if (writeInDonationTypeId.indexOf(Session.get('params.donateTo')) !== -1 && !(Session.equals('showWriteIn', 'no'))) {
-    $('#modal_for_write_in').modal({
-      show: true,
-      backdrop: 'static'
-    });
-  }
-
-  if (Session.get("params.note")) {
-    $('#giftNoteText').show();
-  }
 
   let selectedUser = Meteor.user();
 
@@ -181,14 +139,14 @@ Template.UserGive.onRendered(function () {
   }
 
   $('#donateWith').change();
-  $("[name='donateTo']").change();
+});
 
-  // setup modal for entering give toward information
-  if (Session.equals('params.donateTo', 'trips')) {
-    $('#modal_for_trips').modal({
-      show: true,
-      backdrop: 'static'
-    });
+Template.UserGive.onCreated( function() {
+  DonationFormItems = new Mongo.Collection(null);
+  if(Session.get("params.note")){
+    DonationFormItems.insert( {name: 'first', memo: Session.get("params.note")} );
+  } else {
+    DonationFormItems.insert( {name: 'first'} );
   }
 });
 

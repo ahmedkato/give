@@ -34,7 +34,7 @@ Router.onBeforeAction(function() {
     this.next();
   }
 }, {
-  only: ['Users', 'GivingOptions', 'OrgInfo', 'admin.ach']
+  only: ['Users', 'GivingOptions', 'OrgInfo', 'admin.ach', 'AdminSubscriptions', 'Gifts']
 });
 
 Router.onBeforeAction(function() {
@@ -87,7 +87,6 @@ Router.route('', {
     Session.set('params.donateTo', params.query.donateTo);
     Session.set('params.donateWith', params.query.donateWith);
     Session.set('params.dt_source', params.query.dt_source);
-    Session.set('params.start_date', params.query.start_date);
     Session.set('params.note', params.query.note);
     Session.set('params.enteredCampaignValue', params.query.enteredCampaignValue);
     Session.set('params.exp_month', params.query.exp_month);
@@ -125,6 +124,7 @@ Router.route('/thanks', {
     this.render('Thanks', {
       data: function() {
         Session.set('print', this.params.query.print);
+        Session.set('params.charge', this.params.query.charge);
       }
     });
   }
@@ -225,31 +225,21 @@ Router.route('/expiring',{
   name: 'stripe.expiring'
 });
 
-Router.route('/transfers/:_id', function() {
-  var params = this.params;
-  var id = params._id;
+Router.route('/transfers/:_id', {
+  layoutTemplate: 'UserLayout',
+  action: function() {
+    var params = this.params;
+    var id = params._id;
 
-  this.layout('UserLayout');
-
-  this.wait([Meteor.subscribe('transfers', id), Meteor.subscribe('transactions', id), Meteor.subscribe('DTSources') ]);
-  if (this.ready()) {
+    Session.set('transferId', id);
     this.render('StripeTransferDetails');
-  } else {
-    this.render('Loading');
-  }
+  },
+  name: 'transfer.details'
 });
 
 Router.route('/user/give', {
   layoutTemplate: 'UserLayout',
 
-  subscriptions: function() {
-    return [
-      Meteor.subscribe('userStripeData'),
-      Meteor.subscribe('userDT'),
-      Meteor.subscribe('userDTFunds'),
-      Meteor.subscribe('devices')
-    ];
-  },
   action: function() {
     var params = this.params;
 
@@ -258,7 +248,6 @@ Router.route('/user/give', {
     Session.set('params.donateTo', params.query.donateTo);
     Session.set('params.donateWith', params.query.donateWith);
     Session.set('params.dt_source', params.query.dt_source);
-    Session.set('params.start_date', params.query.start_date);
     Session.set('params.note', params.query.note);
     Session.set('params.enteredCampaignValue', params.query.enteredCampaignValue);
     Session.set('params.exp_month', params.query.exp_month);
@@ -273,20 +262,28 @@ Router.route('/user/give', {
   name: 'user.give'
 });
 
-Router.route('Subscriptions', function() {
-  var params = this.params;
-  Session.set('fix_it', params.query.fix_it);
-
-  this.wait([Meteor.subscribe('subscriptions'), Meteor.subscribe('userDoc')]);
-  if (this.ready()) {
-    this.render();
-  } else {
-    this.render('Loading');
-  }
-}, {
+Router.route('Subscriptions', {
   name: 'subscriptions',
+  action: function() {
+    Session.set('fix_it', this.params.query.fix_it);
+    this.render('SubscriptionsOverview');
+  },
   layoutTemplate: 'UserLayout',
   path: '/user/subscriptions'
+});
+
+Router.route('UpdateSubscription', {
+  name: 'UpdateSubscription',
+  action: function() {
+    this.render('UpdateSubscription');
+    Session.set('subscription', this.params.query.subscription);
+    Session.set('change_amount', this.params.query.amount);
+    Session.set('customer', this.params.query.customer);
+    Session.set('change_donateTo', this.params.query.donateTo);
+    Session.set('change_date', this.params.query.date);
+  },
+  layoutTemplate: 'UserLayout',
+  path: '/user/update-subscription'
 });
 
 Router.route('/scheduled', {
@@ -347,13 +344,12 @@ if (Meteor.isServer) {
 
 Router.route('FixCardSubscription', {
   layoutTemplate: 'UserLayout',
-  path: '/user/subscriptions/card/resubscribe',
+  path: '/user/subscriptions/card/change',
   template: 'FixCardSubscription',
   subscriptions: function() {
     var query = this.params.query;
 
     return [
-      Meteor.subscribe( 'subscription', query.s ),
       Meteor.subscribe( 'customer', query.c )
     ];
    },
@@ -362,6 +358,10 @@ Router.route('FixCardSubscription', {
 
     if (this.ready()) {
       Session.set('sub', query.s);
+      Session.set('resubscribe', query.resubscribe);
+      if(query.newcard === 'true'){
+        Session.set('addingNewCreditCard', true);
+      }
       this.render();
     } else {
       this.render('Loading');
@@ -371,7 +371,7 @@ Router.route('FixCardSubscription', {
 
 Router.route('FixBankSubscription', {
     layoutTemplate: 'UserLayout',
-    path: '/user/subscriptions/bank/resubscribe',
+    path: '/user/subscriptions/bank/change',
     template: 'FixBankSubscription',
     subscriptions: function() {
       return [
@@ -383,6 +383,7 @@ Router.route('FixBankSubscription', {
       if (this.ready()) {
         var query = this.params.query;
         Session.set('sub', query.s);
+        Session.set('resubscribe', query.resubscribe);
         this.render();
       } else {
         this.render('Loading');

@@ -1,5 +1,11 @@
 import parsley from 'parsleyjs';
 
+Template.FixBankSubscription.onCreated(function () {
+  this.autorun(()=>{
+    this.subscribe("userDTFunds");
+  });
+});
+
 Template.FixBankSubscription.onRendered(function(){
   Session.setDefault('isRepair', true);
 
@@ -11,9 +17,6 @@ Template.FixBankSubscription.onRendered(function(){
     Session.set('addingNewCreditCard', false);
   }
   $('#resubscribe').parsley();
-
-  $('select').select2({dropdownCssClass: 'dropdown-inverse'});
-
 });
 
 Template.FixBankSubscription.events({
@@ -97,4 +100,15 @@ Template.FixBankSubscription.helpers({
       return false;
     }
   }
+});
+
+Template.FixBankSubscription.onDestroyed(function(){
+  Session.delete("isRepair");
+  Session.delete("update_this_card");
+  Session.delete("addingNewCreditCard");
+  Session.delete("resubscribe");
+  Session.delete("fix_it");
+  Session.delete("sub");
+  Session.delete("paymentMethod");
+  Session.delete("updateSubscription");
 });

@@ -35,7 +35,7 @@ Template.SubscriptionsOverview.helpers({
         sort: {
           status: 1, start: -1
         },
-        limit: 4,
+        limit: 3,
         skip: subscription_page
       });
     } else {
@@ -66,7 +66,7 @@ Template.SubscriptionsOverview.helpers({
     return this.plan.interval;
   },
   number_of_subscriptions: function () {
-    if (Session.get("number_of_subscriptions") > 4) {
+    if (Session.get("number_of_subscriptions") > 3) {
       return true;
     } else {
       return false;
@@ -106,12 +106,12 @@ Template.SubscriptionsOverview.helpers({
         return this.metadata.donateTo;
       }
     }
-    return 'Other';
+    return "Click edit or activate to see the details";
   },
   donations() {
     return Donations.find({}, { sort: { created_at: 1} });
   },
-  options: {
+  options:{
     id: "subscriptionsTutorial",
     steps: subscriptionsTutorialSteps(),
     onFinish: function() {
@@ -121,30 +121,39 @@ Template.SubscriptionsOverview.helpers({
         Session.set('tutorialEnabled', false);
       }, 1000);
     }
+  },
+  resubscribeLinkParams(){
+    let returnThis = {};
+    if(this.status && this.status === 'canceled'){
+      returnThis.resubscribe = "true";
+    }
+    returnThis.s = this.id;
+    returnThis.c = this.customer;
+    return returnThis;
   }
 });
 
 Template.SubscriptionsOverview.events({
   'click .cancel-subscription': function (e) {
-  e.preventDefault();
-  var subscription_id = this.id;
-  var customer_id = Subscriptions.findOne({_id: subscription_id}).customer;
-  console.log("Got to cancel subscription call");
-  console.log("subscription id: " + subscription_id);
-  console.log("Customer id: " + customer_id);
-  $(e.currentTarget).button('loading');
-  
-  swal({
-      title: "Are you sure?",
-      text: "Please let us know why you are stopping your gift. (optional)",
-      type: "input",
-      showCancelButton: true,
-      confirmButtonColor: "#DD6B55",
-      confirmButtonText: "Yes, stop it!",
-      cancelButtonText: "No",
-      closeOnConfirm: false,
-      closeOnCancel: false
-    }, function(inputValue){
+    e.preventDefault();
+    var subscription_id = this.id;
+    var customer_id = Subscriptions.findOne({_id: subscription_id}).customer;
+    console.log("Got to cancel subscription call");
+    console.log("subscription id: " + subscription_id);
+    console.log("Customer id: " + customer_id);
+    $(e.currentTarget).button('loading');
+
+    swal({
+        title: "Are you sure?",
+        text: "Please let us know why you are stopping your gift. (optional)",
+        type: "input",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes, stop it!",
+        cancelButtonText: "No",
+        closeOnConfirm: false,
+        closeOnCancel: false
+      }, function(inputValue){
 
       if (inputValue === "") {
         inputValue = "Not specified";
@@ -156,10 +165,13 @@ Template.SubscriptionsOverview.events({
         $(e.currentTarget).button('reset');
       } else if (inputValue) {
         Session.set("loading", true);
+        $(".confirm").button("loading");
         console.log("Got to before method call with input of " + inputValue);
         Meteor.call("stripeCancelSubscription", customer_id, subscription_id, inputValue, function(error, response){
           if (error){
             confirm.button("reset");
+            $(".confirm").button("reset");
+
             Session.set("loading", false);
             Bert.alert(error.message, "danger");
            $(e.currentTarget).button('reset');
@@ -177,14 +189,14 @@ Template.SubscriptionsOverview.events({
   'click .previous': function(evt){
       evt.preventDefault();
       evt.stopPropagation();
-      if(Number(Session.get('subscription_cursor')> 3)){
-          Session.set('subscription_cursor', Number(Session.get('subscription_cursor')-4));
+      if(Number(Session.get('subscription_cursor') >= 3)){
+          Session.set('subscription_cursor', Number(Session.get('subscription_cursor')-3));
       }
   },
   'click .next': function(evt, tmpl){
       evt.preventDefault();
       evt.stopPropagation();
-      Session.set('subscription_cursor', Number(Session.get('subscription_cursor')+4));
+      Session.set('subscription_cursor', Number(Session.get('subscription_cursor')+3));
   },
   'click .btn_modal_for_add_new_bank_account': function () {
     $("#modal_for_add_new_bank_account").modal('show');
@@ -193,22 +205,17 @@ Template.SubscriptionsOverview.events({
   'click .edit-subscription': function (e) {
     e.preventDefault();
     console.log("Clicked edit");
-    let self = this;
 
+    let query = {subscription: this._id, customer: this.customer};
     Session.set("change_subscription_id", this._id);
-    Session.set("change_customer_id", this.customer);
-    Session.set('change_donateTo', this.metadata.donateTo);
-    Session.set('change_amount', this.quantity);
-    Session.set('change_date', this.current_period_end);
-
-    $('#modal_for_admin_subscription_change_form').modal({
-      show: true,
-      backdrop: 'static'
-    });
-
-    Meteor.setTimeout(function() {
-      $("#donateTo").val(self.metadata.donateTo).change();
-    }, 0);
+    if(this.metadata.donateTo) {
+      Session.set("params.donateTo", this.metadata.donateTo);
+      Session.get("change_donateTo", this.metadata.donateTo);
+      query.donateTo =  this.metadata.donateTo;
+      query.amount =    this.quantity;
+      query.date =      this.current_period_end;
+    }
+    Router.go('UpdateSubscription', {}, {query});
   }
 });
 
@@ -218,10 +225,14 @@ Template.SubscriptionsOverview.onRendered(function() {
   }
   Session.setDefault('paymentMethod', 'default');
   Session.setDefault('subscription_cursor', 0);
+  Session.delete("params.donateTo");
+
 });
 
 Template.SubscriptionsOverview.onCreated(function() {
   this.autorun(()=>{
     this.subscribe("userDTFunds");
+    this.subscribe('subscriptions');
+    this.subscribe('userDoc')
   });
 });

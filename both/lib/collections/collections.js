@@ -56,6 +56,8 @@ Customers = new Mongo.Collection('customers');
 
 Devices = new Mongo.Collection('devices');
 
+DonationSplits = new Mongo.Collection('donation_splits');
+
 Donate = new Mongo.Collection('donate');
 
 Donations = new Mongo.Collection('donations');
@@ -85,6 +87,5 @@ Transactions = new Mongo.Collection('transactions');
 
 // Used to collect Stripe transfers
 Transfers = new Mongo.Collection('transfers');
-
 // Used to store mission trip information
 Trips = new Mongo.Collection('trips');

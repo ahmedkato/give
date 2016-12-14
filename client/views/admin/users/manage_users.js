@@ -1,27 +1,5 @@
-function updateSearchVal(){
-  let searchValue = $( ".search" ).val();
+import { setDocHeight, updateSearchVal } from '/imports/miscFunctions';
 
-  if (searchValue) {
-    // Remove punctuation and make it into an array of words
-    searchValue = searchValue
-      .replace( /[^\w\s]|_/g, "" )
-      .replace( /\s+/g, " " );
-    Session.set( "searchValue", searchValue );
-    Session.delete("documentLimit");
-  } else {
-    Session.set("documentLimit", 100);
-    Session.set( "searchValue", searchValue );
-  }
-};
-
-function getDocHeight() {
-  var D = document;
-  return Math.max(
-    D.body.scrollHeight, D.documentElement.scrollHeight,
-    D.body.offsetHeight, D.documentElement.offsetHeight,
-    D.body.clientHeight, D.documentElement.clientHeight
-  );
-};
 
 AutoForm.hooks({
   'edit-user-form': {
@@ -107,16 +85,6 @@ Template.ManageUsers.helpers({
   },
   persona_info: function () {
     return Session.equals("persona_info_exists", true);
-  },
-  searchUsers: function() {
-    if (Session.equals("searchValue", "")) {
-      return false;
-    } else if (!Session.get("searchValue")) {
-      return false;
-    } else if (Meteor.users.findFromPublication('all_users').count()) {
-      return Meteor.users.findFromPublication('all_users');
-    }
-    return false;
   },
   showAdminModal(){
     return Session.get("gift_user_id");
@@ -277,14 +245,7 @@ Template.ManageUsers.onCreated(function () {
 });
 
 Template.ManageUsers.onRendered(function () {
-  $(window).scroll(function() {
-    if(($(window).scrollTop() + $(window).height() == getDocHeight()) ||
-      ($(window).scrollTop() + window.innerHeight == getDocHeight())) {
-      console.log("bottom!");
-      let documentLimit = Session.get("documentLimit");
-      Session.set("documentLimit", documentLimit += 10);
-    }
-  });
+  setDocHeight();
 });
 
 Template.ManageUsers.onDestroyed(function() {

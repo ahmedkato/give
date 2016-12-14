@@ -54,23 +54,7 @@ Template.AdminSubscriptions.events({
   'click .edit-button': function (e) {
     e.preventDefault();
     console.log("Clicked edit");
-    let self = this;
-
-    Session.set("change_subscription_id", this._id);
-    Session.set("change_customer_id", this.customer);
-    Session.set('change_donateTo', this.metadata.donateTo);
-    Session.set('change_note', this.metadata.note);
-    Session.set('change_amount', this.quantity);
-    Session.set('change_date', this.current_period_end);
-
-    $('#modal_for_admin_subscription_change_form').modal({
-      show: true,
-      backdrop: 'static'
-    });
-
-    Meteor.setTimeout(function() {
-      $("#donateTo").val(self.metadata.donateTo).change();
-    }, 0);
+    Router.go('UpdateSubscription', {}, {query: {subscription: this._id}});
   },
   'keyup, change .search': _.debounce(function () {
     updateSearchVal();
@@ -85,13 +69,13 @@ Template.AdminSubscriptions.events({
     Session.set('updateSubscription', this.id);
   },
   'click #go_to_resubscribe_link': function () {
-    Router.go('/user/subscriptions/card/resubscribe?s=' +
+    Router.go('/user/subscriptions/card/change?s=' +
       this.id + "&c=" + this.customer + "&admin=yes");
   }
 });
 
 Template.AdminSubscriptions.helpers({
-  card_or_bank: function() {
+  card_or_bank() {
     const customer = this.customer;
     const customer_cursor = Customers.findOne({_id: customer});
     if (customer_cursor) {
@@ -104,7 +88,7 @@ Template.AdminSubscriptions.helpers({
       return 'Other';
     }
   },
-  card_subscription: function () {
+  card_subscription() {
     const customer = this.customer;
     const customer_cursor = Customers.findOne({_id: customer});
     if (customer_cursor) {
@@ -117,10 +101,10 @@ Template.AdminSubscriptions.helpers({
       return false;
     }
   },
-  subscriptions: function () {
+  subscriptions() {
     return Subscriptions.find({}, {sort: {created: -1}});
   },
-  name: function () {
+  name() {
     let name = this.metadata && this.metadata.fname + " " +
     this.metadata.lname;
 
@@ -130,22 +114,29 @@ Template.AdminSubscriptions.helpers({
     return name;
 
   },
-  trialing: function() {
+  trialing() {
     if(this.status === 'trialing') {
       return "trialing-subscription";
     }
-  }
+  },
 });
 
 Template.AdminSubscriptions.onCreated( function () {
   Session.set("documentLimit", 10);
   this.autorun(()=> {
-    Meteor.subscribe("subscriptions_and_customers", Session.get("searchValue"), Session.get("documentLimit"));
+    this.subscribe("subscriptions_and_customers", Session.get("searchValue"), Session.get("documentLimit"));
+    this.subscribe("userDTFunds");
   });
 });
 
 Template.AdminSubscriptions.onRendered(function () {
   setDocHeight();
+  Meteor.setTimeout(function(){
+    $('[data-toggle="popover"]').popover();
+  }, 500);
+  Meteor.setTimeout(function(){
+    $('[data-toggle="popover"]').popover();
+  }, 5000);
 });
 
 Template.AdminSubscriptions.onDestroyed(function() {
