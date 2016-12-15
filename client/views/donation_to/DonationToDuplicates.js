@@ -13,7 +13,6 @@ Template.DonationToDuplicates.events({
   'change [name="donateToDuplicate"]'(e) {
     let config = ConfigDoc();
     let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
-    console.log($(e.currentTarget).val());
 
     if (writeInDonationTypeId.indexOf(Number($('[name="donateToDuplicate"]').val())) === -1 ) {
       $('#giftNoteText').hide();
