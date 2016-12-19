@@ -72,14 +72,16 @@ Template.UpdateSubscription.helpers({
 Template.UpdateSubscription.events({
   'click #changeDateButton'() {
     Session.set("changeEndSubscriptionPeriodDate", true);
-    const datepickerSelector = $('#start_date');
-    datepickerSelector.datepicker( {
-      format: 'MM d, yyyy',
-      startDate: '+1d',
-      endDate: '+61d',
-      autoclose: true
-    });
-    Session.set("yes_change_date", false);
+    Meteor.setTimeout(function() {
+      $('#start_date').datepicker( {
+        format: 'MM d, yyyy',
+        startDate: '+1d',
+        endDate: '+61d',
+        autoclose: true
+      });
+      Session.set("yes_change_date", false);
+    }, 0);
+
   },
   'click #start_date_button'() {
     $("#start_date").select();
