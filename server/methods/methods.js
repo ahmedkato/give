@@ -1425,8 +1425,9 @@ Meteor.methods({
     if (Roles.userIsInRole(this.userId, ['admin'])) {
       logger.info("Started method fixSubscriptions");
 
-      const subscriptions = Subscriptions.find({$or: [{status: 'active'}, {status: 'past_due'}]});
+      const subscriptions = Subscriptions.find({$and: [{'metadata.donateTo': {$exists: true}}, {'metadata.donationSplitsId': {$exists: false}}, {$or: [{status: 'active'}, {status: 'past_due'}]}]});
       subscriptions.forEach(function(subscription) {
+        logger.info("Subscription ID: " + subscription._id);
         const donationSplitsId = DonationSplits.insert(
           {
             "createdAt": new Date().toISOString(),
