@@ -1,7 +1,8 @@
 {
   "env": {
     "browser": true,
-    "meteor": true
+    "meteor": true,
+    "es6": true
   },
   "globals": {
     "Meteor": true,
@@ -16,7 +17,6 @@
     "destructuring": true,
     "forOf": true,
     "generators": false,
-    "modules": true,
     "objectLiteralComputedProperties": true,
     "objectLiteralDuplicateProperties": false,
     "objectLiteralShorthandMethods": true,
@@ -25,6 +25,10 @@
     "superInFunctions": true,
     "templateStrings": true,
     "jsx": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module"
   },
   "rules": {
     /**

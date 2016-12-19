@@ -13,10 +13,14 @@
                         <div class="form-group">
                             <label>{{#if forceACHDay}}{{else}}Choose {{/if}}Your Donation Start Date {{#if forceACHDay}}<span style="font-size: .8em;">{{{onlyOnSpecificDay}}}</span> {{/if}}</label>
                             <div class="input-group">
+                                {{#if changeEndSubscriptionPeriodDate}}
                                     <span class="input-group-btn">
                                         <button class="btn" type="button" id="start_date_button"><span class="fui-calendar"></span></button>
                                     </span>
-                                <input type="text" class="form-control" {{forceACHDay}} value="{{endSubscriptionPeriodDate}}" id="start_date" />
+                                    <input type="text" class="form-control" {{forceACHDay}} value="{{endSubscriptionPeriodDate}}" id="start_date" />
+                                {{else}}
+                                    <button class="btn btn-hg btn-primary" type="button" id="changeDateButton">Change Date</button>
+                                {{/if}}
                             </div>
                         </div>
                     </div>

@@ -1,12 +1,12 @@
 function getSubscriptionPeriodEnd() {
-  let subscriptionDoc = Subscriptions.findOne();
-  if(subscriptionDoc){
-    let currentDate = moment.unix(subscriptionDoc.current_period_end).format('MMMM D, YYYY');
+  const subscriptionDoc = Subscriptions.findOne();
+  if (subscriptionDoc) {
+    const currentDate = moment.unix(subscriptionDoc.current_period_end).format('MMMM D, YYYY');
     return currentDate;
   }
 }
 
-Template.UpdateSubscription.onCreated(function () {
+Template.UpdateSubscription.onCreated(function() {
   DonationFormItems = new Mongo.Collection(null);
   this.autorun(()=>{
     this.subscribe("userDTFunds");
@@ -15,11 +15,10 @@ Template.UpdateSubscription.onCreated(function () {
   });
 });
 
-Template.UpdateSubscription.onRendered(function () {
+Template.UpdateSubscription.onRendered(function() {
   Session.delete("params.amount");
-
-  Meteor.setTimeout(function () {
-    var datepickerSelector = $('#start_date');
+  Meteor.setTimeout(function() {
+    const datepickerSelector = $('#start_date');
     datepickerSelector.datepicker( {
       format: 'MM d, yyyy',
       startDate: '+1d',
@@ -27,18 +26,18 @@ Template.UpdateSubscription.onRendered(function () {
       autoclose: true
     });
     Session.set("yes_change_date", false);
-  }, 500);
+  }, 1000);
   this.autorun(()=>{
-    let DonationSplitsData = DonationSplits && DonationSplits.findOne();
-    if(DonationSplitsData){
+    const DonationSplitsData = DonationSplits && DonationSplits.findOne();
+    if (DonationSplitsData) {
       DonationFormItems.remove({});
-      DonationSplitsData.splits.forEach(function ( item ) {
+      DonationSplitsData.splits.forEach(function( item ) {
         DonationFormItems.upsert({_id: item._id}, item);
       });
     } else {
       DonationFormItems.remove({});
-      let subscription = Subscriptions.findOne();
-      if(subscription && subscription.metadata && subscription.metadata.donateTo){
+      const subscription = Subscriptions.findOne();
+      if (subscription && subscription.metadata && subscription.metadata.donateTo) {
         DonationFormItems.upsert({name: 'first'}, {name: 'first', donateTo: subscription.metadata.donateTo, amount: subscription.quantity });
       }
     }
@@ -46,48 +45,67 @@ Template.UpdateSubscription.onRendered(function () {
 });
 
 Template.UpdateSubscription.helpers({
-  endSubscriptionPeriodDate: function () {
-    return getSubscriptionPeriodEnd();
+  endSubscriptionPeriodDate() {
+    const subscriptionDoc = Subscriptions.findOne();
+    if (subscriptionDoc) {
+      const currentDate = moment.unix(subscriptionDoc.current_period_end).format('MMMM D, YYYY');
+      Session.set("date", currentDate);
+    } else {
+      Session.set("date", "");
+    }
+    return Session.get("date");
   },
-  subscribersName(){
-    let subscription = Subscriptions.findOne();
-    if(subscription){
-      let fname = subscription && subscription.metadata && subscription.metadata.fname;
-      let lname = subscription && subscription.metadata && subscription.metadata.lname;
-      let email = subscription && subscription.metadata && subscription.metadata.email;
+  subscribersName() {
+    const subscription = Subscriptions.findOne();
+    if (subscription) {
+      const fname = subscription && subscription.metadata && subscription.metadata.fname;
+      const lname = subscription && subscription.metadata && subscription.metadata.lname;
+      const email = subscription && subscription.metadata && subscription.metadata.email;
       return fname + " " + lname + " - " + email;
     }
+  },
+  changeEndSubscriptionPeriodDate() {
+    return Session.get("changeEndSubscriptionPeriodDate") || false;
   }
 });
 
 Template.UpdateSubscription.events({
-  'click #start_date_button'(){
+  'click #changeDateButton'() {
+    Session.set("changeEndSubscriptionPeriodDate", true);
+    const datepickerSelector = $('#start_date');
+    datepickerSelector.datepicker( {
+      format: 'MM d, yyyy',
+      startDate: '+1d',
+      endDate: '+61d',
+      autoclose: true
+    });
+    Session.set("yes_change_date", false);
+  },
+  'click #start_date_button'() {
     $("#start_date").select();
   },
   'submit form': function(e) {
     e.preventDefault();
     console.log("Submitted event started for UpdateSubscription form");
-    let subscription_id = Session.get("subscription");
-    let subscriptionDoc = Subscriptions.findOne({_id: subscription_id});
-    let totalAmount = parseInt( (Give.getCleanValue( '#total_amount' ) * 100).toFixed( 0 ), 10 );
-    let trial_end = $("#start_date").val() ? moment(new Date(Give.getCleanValue('#start_date'))).format('X'): '';
+    const subscription_id = Session.get("subscription");
+    const subscriptionDoc = Subscriptions.findOne({_id: subscription_id});
+    const totalAmount = parseInt( (Give.getCleanValue( '#total_amount' ) * 100).toFixed( 0 ), 10 );
+    let trial_end = $("#start_date").val() ? moment(new Date(Give.getCleanValue('#start_date'))).format('X') : '';
     Session.get("yes_change_date") ? trial_end : trial_end = null;
-    let DonationSplitId = DonationSplits.findOne()._id;
+    const DonationSplitId = DonationSplits.findOne()._id;
     let dateAndAmountChanged = true;
-    if(!DonationSplitId){
+    if (!DonationSplitId) {
       return;
     }
-
-    if((!Session.get("yes_change_date") || Session.equals("yes_change_date", false)) && totalAmount === subscriptionDoc.quantity ){
+    if ((!Session.get("yes_change_date") || Session.equals("yes_change_date", false)) && totalAmount === subscriptionDoc.quantity ) {
       dateAndAmountChanged = false;
     }
-
     $(':submit').button('loading');
 
     console.log(subscription_id, totalAmount, trial_end);
-    if(dateAndAmountChanged){
-      Meteor.call( "edit_subscription", subscription_id, totalAmount, trial_end, function ( error, response ) {
-        if( error ) {
+    if (dateAndAmountChanged) {
+      Meteor.call( "edit_subscription", subscription_id, totalAmount, trial_end, function( error, response ) {
+        if ( error ) {
           console.error( error, error.message);
           Bert.alert( error.message, "danger" );
           $(':submit').button( 'reset' );
@@ -97,15 +115,15 @@ Template.UpdateSubscription.events({
         }
       } );
     }
-    Meteor.call( "editDonationSplits", DonationSplitId, DonationFormItems.find().fetch(), function ( error, response ) {
-      if( error ) {
+    Meteor.call( "editDonationSplits", DonationSplitId, DonationFormItems.find().fetch(), function( error, response ) {
+      if ( error ) {
         console.error( error, error.message);
       } else {
         console.log( response );
-        if(!dateAndAmountChanged){
+        if (!dateAndAmountChanged) {
           Bert.alert( response, "success" );
         }
-        if(Roles.userIsInRole(Meteor.userId(), ['admin', 'super-admin'])){
+        if (Roles.userIsInRole(Meteor.userId(), ['admin', 'super-admin'])) {
           Router.go("AdminSubscriptions");
         } else {
           Router.go("subscriptions");
@@ -113,19 +131,19 @@ Template.UpdateSubscription.events({
       }
     } );
   },
-  'change #start_date'(){
+  'change #start_date'() {
     Session.set("yes_change_date", false);
-    let subscriptionEnds = getSubscriptionPeriodEnd();
-    if(subscriptionEnds){
-      let changedDate = $("#start_date").val();
-      if(changedDate !== subscriptionEnds){
+    const subscriptionEnds = getSubscriptionPeriodEnd();
+    if (subscriptionEnds) {
+      const changedDate = $("#start_date").val();
+      if (changedDate !== subscriptionEnds) {
         Session.set("yes_change_date", true);
       }
     }
   }
 });
 
-Template.UpdateSubscription.onDestroyed(function () {
+Template.UpdateSubscription.onDestroyed(function() {
   DonationFormItems.remove({});
   Session.delete("subscription");
   Session.delete("params.donateTo");
@@ -139,4 +157,5 @@ Template.UpdateSubscription.onDestroyed(function () {
   Session.delete("customer");
   Session.delete("change_subscription");
   Session.delete("change_subscription_id");
+  Session.delete("changeEndSubscriptionPeriodDate");
 });

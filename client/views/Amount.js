@@ -32,7 +32,7 @@ Template.Amount.events({
   'change #coverTheFees': function() {
     return Give.updateTotal();
   },
-  'click #cloneButton'(){
+  'click #cloneButton'() {
     DonationFormItems.insert({item: $(".clonedInput").length++, amount: ""});
     Meteor.setTimeout(()=>{
       $('#donation_form').parsley();

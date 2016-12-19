@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 Template.registerHelper('formatTime', function(context) {
   if (context) {
     return moment( context ).format( 'MM/DD/YYYY, hh:mma' );
@@ -19,7 +21,7 @@ Template.registerHelper('formatDate', function(date, unix) {
   if (date && unix) {
     return moment.unix(new Date(date)).format('MMM DD, YYYY');
   } else if (date) {
-    return moment(new Date(date)).format('MMM DD, YYYY');
+    return moment.utc(new Date(date)).format('MMM DD, YYYY');
   }
 });
 
@@ -32,48 +34,37 @@ Template.registerHelper('noteValue', function() {
 });
 
 Template.registerHelper('logged_in', function(context) {
-  let user = Meteor.user();
+  const user = Meteor.user();
   if (user && user.profile) {
     switch (context) {
-      case "fname":
-        return user.profile.fname;
-        break;
-      case "lname":
-        return user.profile.lname;
-        break;
-      case "email":
-        return user.emails[0].address;
-        break;
-      case "line1":
-        return user.profile.address && user.profile.address.line1;
-        break;
-      case "line2":
-        return user.profile.address && user.profile.address.line2;
-        break;
-      case "city":
-        return user.profile.address && user.profile.address.city;
-        break;
-      case "state":
-        return user.profile.address && user.profile.address.state;
-        break;
-      case "postal_code":
-        return user.profile.address && user.profile.address.postal_code;
-        break;
-      case "phone":
-        return user.profile.address && user.profile.phone;
-        break;
-      case "business_name":
-        if (user.profile.business_name) {
-          return  user.profile.business_name;
-        }
-        break;
-      default:
-        return;
+    case "fname":
+      return user.profile.fname;
+    case "lname":
+      return user.profile.lname;
+    case "email":
+      return user.emails[0].address;
+    case "line1":
+      return user.profile.address && user.profile.address.line1;
+    case "line2":
+      return user.profile.address && user.profile.address.line2;
+    case "city":
+      return user.profile.address && user.profile.address.city;
+    case "state":
+      return user.profile.address && user.profile.address.state;
+    case "postal_code":
+      return user.profile.address && user.profile.address.postal_code;
+    case "phone":
+      return user.profile.address && user.profile.phone;
+    case "business_name":
+      if (user.profile.business_name) {
+        return user.profile.business_name;
+      }
+      break;
+    default:
+      return;
     }
   }
-  else {
-    return;
-  }
+  return;
 });
 
 /*
@@ -85,7 +76,7 @@ Template.registerHelper('epochToString', function(timestamp) {
     return moment().format('MM/DD/YY');
   }
   if (timestamp) {
-    var length = timestamp.toString().length;
+    const length = timestamp.toString().length;
     if ( length === 10 ) {
       return moment.unix(timestamp).format("MM/DD/YY");
     }
@@ -97,7 +88,7 @@ Template.registerHelper('epochToString', function(timestamp) {
  * Convert a UNIX epoch string to human readable time.
  */
 Template.registerHelper('today', function() {
-    return moment().format('D MMM, YYYY');
+  return moment().format('D MMM, YYYY');
 });
 
 /*
@@ -164,7 +155,7 @@ Template.registerHelper('MeteorUser', function() {
 
 
 Template.registerHelper('campaign', function() {
-  var campaign = Session.get('params.campaign');
+  const campaign = Session.get('params.campaign');
   if (campaign === '') {
     return false;
   }
@@ -172,7 +163,7 @@ Template.registerHelper('campaign', function() {
 
 
 Template.registerHelper('locked_amount', function() {
-  var locked = Session.get("params.locked_amount");
+  const locked = Session.get("params.locked_amount");
   if (locked === 'true') {
     return true;
   } else {
@@ -181,7 +172,7 @@ Template.registerHelper('locked_amount', function() {
 });
 
 Template.registerHelper('locked_frequency', function() {
-  var locked = Session.get("params.locked_frequency");
+  const locked = Session.get("params.locked_frequency");
   if (locked === 'true') {
     return true;
   }
@@ -189,14 +180,14 @@ Template.registerHelper('locked_frequency', function() {
 });
 
 Template.registerHelper('doNotShowOneTime', function() {
-  let paymentMethod = Session.get("paymentMethod");
+  const paymentMethod = Session.get("paymentMethod");
   if (paymentMethod) {
-    if( paymentMethod === "Card" || paymentMethod.slice( 0, 4 ) === 'card' ) {
+    if ( paymentMethod === "Card" || paymentMethod.slice( 0, 4 ) === 'card' ) {
       return false;
     } else {
-      let config = ConfigDoc();
+      const config = ConfigDoc();
 
-      if( config && config.Settings && config.Settings.doNotAllowOneTimeACH ) {
+      if ( config && config.Settings && config.Settings.doNotAllowOneTimeACH ) {
         // set monthly
         $( "#is_recurring" ).val( "monthly" );
         $( "#is_recurring" ).change();
@@ -208,31 +199,29 @@ Template.registerHelper('doNotShowOneTime', function() {
 
 Template.registerHelper('forceACHDay', function() {
   let newRecurringDate;
-  let config = ConfigDoc();
-  let paymentMethod = Session.get("paymentMethod");
+  const config = ConfigDoc();
+  const paymentMethod = Session.get("paymentMethod");
 
   if (paymentMethod) {
-    if (paymentMethod === "Card" || paymentMethod.slice(0,4) === 'card' ||
+    if (paymentMethod === "Card" || paymentMethod.slice(0, 4) === 'card' ||
       (config && config.Settings && config.Settings.forceACHDay === 'any')) {
-      newRecurringDate =  moment().format('D MMM, YYYY');
+      newRecurringDate = moment().format('D MMM, YYYY');
       $("#start_date").val(newRecurringDate);
       return '';
-    } else {
-      if (config && config.Settings &&
-        config.Settings.ach_verification_type === 'manual' &&
-        config.Settings.forceACHDay) {
-        // set monthly
-        $("#is_recurring").val("monthly");
-        $("#is_recurring").change();
-        let thisDay = Number(moment().format("D"));
-        if(thisDay > Number(config.Settings.forceACHDay)) {
-          newRecurringDate = moment().add(1, 'months').format(Number(config.Settings.forceACHDay) + " MMM, YYYY");
-        } else {
-          newRecurringDate = moment().format(Number(config.Settings.forceACHDay) + " MMM, YYYY");
-        }
-        $("#start_date").val(newRecurringDate);
-        return 'disabled';
+    } else if (config && config.Settings &&
+      config.Settings.ach_verification_type === 'manual' &&
+      config.Settings.forceACHDay) {
+      // set monthly
+      $("#is_recurring").val("monthly");
+      $("#is_recurring").change();
+      const thisDay = Number(moment().format("D"));
+      if (thisDay > Number(config.Settings.forceACHDay)) {
+        newRecurringDate = moment().add(1, 'months').format(Number(config.Settings.forceACHDay) + " MMM, YYYY");
+      } else {
+        newRecurringDate = moment().format(Number(config.Settings.forceACHDay) + " MMM, YYYY");
       }
+      $("#start_date").val(newRecurringDate);
+      return 'disabled';
     }
   }
   return;
@@ -246,7 +235,7 @@ Template.registerHelper('onlyOnSpecificDay', function() {
 });
 
 Template.registerHelper('collectBankAccountType', function() {
-  let config = ConfigDoc();
+  const config = ConfigDoc();
 
   if (config && config.Settings && config.Settings.collectBankAccountType) {
     return true;
@@ -255,7 +244,7 @@ Template.registerHelper('collectBankAccountType', function() {
 });
 
 Template.registerHelper('cleanupString', function(string) {
-  var cleanString = s(string).stripTags().trim().value();
+  const cleanString = s(string).stripTags().trim().value();
   return cleanString;
 });
 
@@ -309,16 +298,16 @@ Template.registerHelper( 'tutorialEnabled', ( ) => {
 });
 
 Template.registerHelper( 'contact_us', () => {
-  let config = ConfigDoc();
+  const config = ConfigDoc();
 
-  return '<a class="email" href="mailto:' +  config.OrgInfo.emails.contact + '">' +
+  return '<a class="email" href="mailto:' + config.OrgInfo.emails.contact + '">' +
     config.OrgInfo.emails.contact + '</a><div class="tel">' +
     config.OrgInfo.phone + '</div>';
 });
 
 Template.registerHelper( 'not_safari', () => {
-  let user_agent = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  return user_agent;
+  const userAgent = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  return userAgent;
 });
 
 /*
@@ -336,12 +325,12 @@ Template.registerHelper( 'searchValue', function() {
 });
 
 Template.registerHelper('configExists', function() {
-  let config = ConfigDoc();
+  const config = ConfigDoc();
   return config;
 });
 
 Template.registerHelper( 'stripe_ach_verification_type', () => {
-  let config = ConfigDoc();
+  const config = ConfigDoc();
 
   return config &&
     config.Settings &&
@@ -349,7 +338,7 @@ Template.registerHelper( 'stripe_ach_verification_type', () => {
 });
 
 Template.registerHelper('donor_tools_site', function() {
-  let config = ConfigDoc();
+  const config = ConfigDoc();
   if (config && config.Settings && config.Settings.DonorTools && config.Settings.DonorTools.url) {
     return config.Settings.DonorTools.url;
   }
@@ -359,86 +348,77 @@ Template.registerHelper('donateToThis', function(idOrName) {
   if (! isNaN(idOrName)) {
     if (DT_funds.findOne({_id: idOrName}) && DT_funds.findOne({_id: idOrName}).name) {
       return DT_funds.findOne({_id: idOrName}).name;
-    } else {
-      return idOrName;
     }
-  } else {
-    return idOrName;
   }
+  return idOrName;
 });
 
 Template.registerHelper('imageExists', function(type) {
-    let config = ConfigDoc();
-    if (config && config._id) {
-      let imageDoc = Images.findOne({$and: [{configId: config._id},{meta: {[type]: "_true"}}]});
-      if (imageDoc && imageDoc._id) {
-        return imageDoc;
-      }
+  const config = ConfigDoc();
+  if (config && config._id) {
+    const imageDoc = Images.findOne({$and: [{configId: config._id}, {meta: {[type]: "_true"}}]});
+    if (imageDoc && imageDoc._id) {
+      return imageDoc;
     }
-    return;
+  }
+  return;
 });
 
 Template.registerHelper('imageSrc', function(type) {
-  if(!type){
+  if (!type) {
     return;
   }
-  let config = ConfigDoc();
+  const config = ConfigDoc();
   if (config && config._id) {
-    let imageDoc = Images.findOne({$and: [{configId: config._id},{meta: {[type]: "_true"}}]});
+    const imageDoc = Images.findOne({$and: [{configId: config._id}, {meta: {[type]: "_true"}}]});
     if (imageDoc && imageDoc._id) {
-      if( imageDoc
+      if ( imageDoc
         && imageDoc.versions
         && imageDoc.versions.thumbnail
         && imageDoc.versions.thumbnail.meta
         && imageDoc.versions.thumbnail.meta.pipeFrom ) {
         return imageDoc.versions.thumbnail.meta.pipeFrom;
-      } else {
-        return '/images/spin.gif';
       }
+      return '/images/spin.gif';
     }
   }
   return;
 });
 
 Template.registerHelper('imageUploadCallback', function() {
-    return {
-      validate: function(file) {
+  return {
+    validate: function(file) {
         // 10485760 = 10 Megabytes
-        let maxFileSize = 10485760;
-        let sizeInMB = maxFileSize/1048576;
-        if (!file) {
-          console.log("Failed");
-        }
-        // Check to see if the type of the file matches one of the image types listed in this array
-        if (['image/gif','image/png','image/jpg', 'image/jpeg'].indexOf(file[0].type) === -1) {
-          alert("The only image types you can use are png, gif, jpg or jpeg");
-          return false;
-        }
-        if (maxFileSize < file[0].size) {
-          console.warn("File is to large");
-          alert("The file size is to large, it must be under " + sizeInMB+ "MB");
-          return false;
-        }
-        console.log("validate area");
-        console.log(file);
-        return 'all done';
-      },
-      finished: function( index, fileInfo, context ) {
-        console.log("finished area");
-        console.log(index, fileInfo, context);
-        return;
+      const maxFileSize = 10485760;
+      const sizeInMB = maxFileSize / 1048576;
+      if (!file) {
+        alert("Sorry, that failed. Make sure you are using a .gif, .png, .jpg or .jpeg file.");
       }
-    };
+        // Check to see if the type of the file matches one of the image types listed in this array
+      if (['image/gif', 'image/png', 'image/jpg', 'image/jpeg'].indexOf(file[0].type) === -1) {
+        alert("The only image types you can use are png, gif, jpg or jpeg");
+        return false;
+      }
+      if (maxFileSize < file[0].size) {
+        alert("The file size is to large, it must be under " + sizeInMB + "MB");
+        return false;
+      }
+      return 'all done';
+    },
+    finished: function( index, fileInfo, context ) {
+      return;
+    }
+  };
 });
 
 Template.registerHelper('givingOptionsGroup', function() {
-  let config = ConfigDoc();
-  var givingOptions = config && config.Giving && config.Giving.options;
+  const config = ConfigDoc();
+  const givingOptions = config && config.Giving && config.Giving.options;
 
-  if( givingOptions && givingOptions.length > 0 ) {
-    let groups = [];
-    givingOptions.forEach(function ( item ) {
-      if(item.type === 'group') {
+  if ( givingOptions && givingOptions.length > 0 ) {
+    const groups = [];
+    givingOptions.forEach(function( item ) {
+      if (item.type === 'group') {
         groups.push(item);
       }
     });
@@ -447,14 +427,13 @@ Template.registerHelper('givingOptionsGroup', function() {
 });
 
 Template.registerHelper('givingOptionsMember', function() {
-  let config = ConfigDoc();
-  var givingOptions = config && config.Giving && config.Giving.options;
+  const config = ConfigDoc();
+  const givingOptions = config && config.Giving && config.Giving.options;
 
-  let groupId = this.groupId;
-  let members = [];
-  //console.log(Session.get("SelectedDonateTo"));
-  givingOptions.forEach(function ( item ) {
-    if(item.currentGroup === groupId) {
+  const groupId = this.groupId;
+  const members = [];
+  givingOptions.forEach(function( item ) {
+    if (item.currentGroup === groupId) {
       members.push(item);
     }
   });
@@ -476,61 +455,58 @@ Template.registerHelper('paymentWithCard', function() {
  and 'odd' for odd numbers
  */
 Template.registerHelper('oddEven', function(index) {
-  if((index % 2) === 0) return 'even';
-  else return 'odd';
+  if ((index % 2) === 0) return 'even';
+  return 'odd';
 });
 
 Template.registerHelper('selected', function() {
-  if (Session.get("ach_page") || Session.get("change_donateTo")){
-    if(Session.get("change_donateTo")){
+  if (Session.get("ach_page") || Session.get("change_donateTo")) {
+    if (Session.get("change_donateTo")) {
       return Session.get("change_donateTo") === this.id ? "selected" : '';
-    } else {
-      return;
     }
+    return;
   }
-  if(DonationFormItems.findOne() || Meteor.userId()){
-    let id = (Template.parentData(2) && Template.parentData(2)._id) || (Template.parentData(1) && Template.parentData(1)._id);
-    if(!id){
+  if (DonationFormItems.findOne() || Meteor.userId()) {
+    const id = (Template.parentData(2) && Template.parentData(2)._id) || (Template.parentData(1) && Template.parentData(1)._id);
+    if (!id) {
       return DonationFormItems.findOne({name: 'first'}) && DonationFormItems.findOne({name: 'first'}).donateTo === this.id ? "selected" : '';
-    } else {
-      return DonationFormItems.findOne({_id: id}) && DonationFormItems.findOne({_id: id}).donateTo === this.id ? "selected" : '';
     }
+    return DonationFormItems.findOne({_id: id}) && DonationFormItems.findOne({_id: id}).donateTo === this.id ? "selected" : '';
   }
 });
 
 Template.registerHelper('selectedExpiration', function(objectKey, objectValue) {
-  let customerDeviceType = Customers.findOne() && Customers.findOne().sources.data[0][objectKey];
+  const customerDeviceType = Customers.findOne() && Customers.findOne().sources.data[0][objectKey];
   return customerDeviceType === Number(objectValue) ? "selected" : '';
 });
 
 
 Template.registerHelper('coverTheFeesChecked', function() {
-  if(Session.get("subscription")){
-    let subscription = Subscriptions.findOne({_id: Session.get("subscription")});
-    Meteor.setTimeout(function () {
+  if (Session.get("subscription")) {
+    const subscription = Subscriptions.findOne({_id: Session.get("subscription")});
+    Meteor.setTimeout(function() {
       $("#coverTheFees").change();
     }, 300);
-    return subscription && subscription.metadata && subscription.metadata.coveredTheFees ===  'true' ? 'checked' : '';
-  } else {
-    return this.coverTheFees ? 'checked' : '';
+    return subscription && subscription.metadata && subscription.metadata.coveredTheFees === 'true' ? 'checked' : '';
   }
+  return this.coverTheFees ? 'checked' : '';
 });
 
 Template.registerHelper('splitDesignations', function() {
   let splitText = "";
   let type;
 
-  if(this._id && this._id.substring(0,2) === 'ch'){
+  if (this._id && this._id.substring(0, 2) === 'ch') {
     type = 'charge_id';
   } else {
     type = 'subscription_id';
   }
-  let splits = DonationSplits.findOne({[type]: this._id});
-  if(splits){
-    splits.splits.forEach(function ( split ) {
-      let donateToText = DT_funds.findOne({id: split.donateTo}) &&
+  const splits = DonationSplits.findOne({[type]: this._id});
+  if (splits) {
+    splits.splits.forEach(function( split ) {
+      const donateToText = DT_funds.findOne({id: split.donateTo}) &&
         DT_funds.findOne({id: split.donateTo}).name;
-      if(donateToText) splitText += donateToText + " <br>";
+      if (donateToText) splitText += donateToText + " <br>";
       else splitText += "Unknown <br>";
     });
     return splitText;
@@ -539,22 +515,22 @@ Template.registerHelper('splitDesignations', function() {
 
 
 Template.registerHelper('isResubscribe', function() {
-  if(Session.equals("resubscribe", "true")){
+  if (Session.equals("resubscribe", "true")) {
     return true;
   }
 });
 
 
 Template.registerHelper('paramsDonateTo', function() {
-  if(Session.get("params.donateTo")){
+  if (Session.get("params.donateTo")) {
     return Session.get("params.donateTo");
   }
 });
 
 
 Template.registerHelper('fundName', function() {
-  if(DT_funds.findOne({_id: this.fund_id.toString()}) && DT_funds.findOne({_id: this.fund_id.toString()}).name){
+  if (DT_funds.findOne({_id: this.fund_id.toString()}) && DT_funds.findOne({_id: this.fund_id.toString()}).name) {
     return DT_funds.findOne({_id: this.fund_id.toString()}).name;
   }
-  else return '<span style="color: red;">Finding fund...</span>';
+  return '<span style="color: red;">Finding fund...</span>';
 });

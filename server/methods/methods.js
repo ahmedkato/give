@@ -1,5 +1,4 @@
-import FS from 'fs';
-let config = ConfigDoc();
+const config = ConfigDoc();
 
 Meteor.methods({
   /**
@@ -19,7 +18,6 @@ Meteor.methods({
       check( groupId, String );
       check( type, String );
       check( value, Match.OneOf( String, Boolean ) );
-
       this.unblock();
 
       let existingGuideObject = _.findWhere(config.Giving.options, {'groupId': groupId})
@@ -1409,20 +1407,46 @@ Meteor.methods({
    * @param {String} email        - The email of the customer
    * @param {String} customer_id  - The Stripe customer id
    */
-  addDTPersonaIDToCustomer: function (email, customer_id) {
+  addDTPersonaIDToCustomer: function(email, customerId) {
     if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
       check( email, String );
-      check( customer_id, String );
+      check( customerId, String );
       logger.info("Started method addDTPersonaIDToCustomer with email: " +
         email +
         " and customer_id: " +
-        customer_id);
-      let dt_persona_id = Utils.find_dt_persona_flow( email, customer_id );
-
-      let customer = StripeFunctions.update_customer_metadata(customer_id, dt_persona_id);
-      return Customers.upsert({_id: customer_id}, customer);
-    } else {
-      throw new Meteor.Error(403, "Not logged in");
+        customerId);
+      const dtPersonaId = Utils.find_dt_persona_flow( email, customerId );
+      const customer = StripeFunctions.update_customer_metadata(customerId, dtPersonaId);
+      return Customers.upsert({_id: customerId}, customer);
     }
+    throw new Meteor.Error(403, "Not logged in");
+  },
+  fixSubscriptions: function() {
+    if (Roles.userIsInRole(this.userId, ['admin'])) {
+      logger.info("Started method fixSubscriptions");
+
+      const subscriptions = Subscriptions.find({status: 'active'});
+      subscriptions.forEach(function(subscription) {
+        const donationSplitsId = DonationSplits.insert(
+          {
+            "createdAt": new Date().toISOString(),
+            "splits": [
+              {
+                "_id": Random.id(17),
+                "name": "first",
+                "donateTo": subscription.metadata.donateTo,
+                "amount": subscription.quantity
+              }
+            ],
+            "subscription_id": subscription._id
+          });
+
+        StripeFunctions.stripe_update('customers', 'updateSubscription', subscription.customer, subscription._id, {
+          metadata: {donationSplitsId, donateTo: null, amount: null, send_scheduled_email: null}
+        });
+      });
+      return "Completed Updating " + subscriptions.count() + " records.";
+    }
+    throw new Meteor.Error(403, "Not allowed");
   },
 });

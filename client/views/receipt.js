@@ -52,16 +52,14 @@ Template.Receipt.helpers({
   donateTo: function() {
     if (this.donateTo) {
       if (! isNaN(this.donateTo)) {
-        if(DT_funds.findOne({_id: this.donateTo}) && DT_funds.findOne({_id: this.donateTo}).name) {
+        if (DT_funds.findOne({_id: this.donateTo}) && DT_funds.findOne({_id: this.donateTo}).name) {
           return DT_funds.findOne({_id: this.donateTo}).name;
-        } else {
-          return;
         }
-      } else {
-        return this.donateTo;
+        return "Other";
       }
-    } else if(this.metadata && this.metadata.donateTo){
-      if(DT_funds.findOne({_id: this.metadata.donateTo}) && DT_funds.findOne({_id: this.metadata.donateTo}).name) {
+      return this.donateTo;
+    } else if (this.metadata && this.metadata.donateTo) {
+      if (DT_funds.findOne({_id: this.metadata.donateTo}) && DT_funds.findOne({_id: this.metadata.donateTo}).name) {
         return DT_funds.findOne({_id: this.metadata.donateTo}).name;
       }
     }

@@ -8,18 +8,18 @@ Router.configure({
 
 Router.plugin('ensureSignedIn', {
   except: ['donation.form', 'donation.landing', 'donation.thanks',
-           'donation.gift', 'donation.scheduled', 'enrollAccount',
-           'forgotPwd', 'resetPwd', 'stripe_webhooks', 'signIn']
+    'donation.gift', 'donation.scheduled', 'enrollAccount',
+    'forgotPwd', 'resetPwd', 'stripe_webhooks', 'signIn']
 });
 
 Router.onAfterAction(function() {
   Meteor.setTimeout(() => {
-    let config = ConfigDoc();
+    const config = ConfigDoc();
 
-    if (!(config && config.Settings && config.Settings.showDonatePage)){
+    if (!(config && config.Settings && config.Settings.showDonatePage)) {
       if (!Meteor.user() && !Meteor.loggingIn() && !(Router.current().route.getName() === 'signIn')) {
         // TODO: fix this area, it is coming up to much...
-        //this.render("SetupNotComplete");
+        // this.render("SetupNotComplete");
       }
     }
   }, 3000);
@@ -81,7 +81,7 @@ Router.route('', {
   name: 'donation.form',
   path: '',
   action: function() {
-    var params = this.params;
+    const params = this.params;
     Session.set('params.amount', params.query.amount);
     Session.set('params.campaign', params.query.campaign);
     Session.set('params.donateTo', params.query.donateTo);
@@ -131,7 +131,7 @@ Router.route('/thanks', {
 });
 
 Router.route('/gift/:_id', function() {
-  var params = this.params;
+  const params = this.params;
 
   this.subscribe('donate', params._id);
 
@@ -144,7 +144,7 @@ Router.route('/gift/:_id', function() {
       }
     });
     this.next();
-  }else {
+  } else {
     this.render('Loading');
     this.next();
   }
@@ -169,7 +169,6 @@ Router.route('/reports', function() {
 
 
 Router.route('/user', function() {
-
   this.layout('UserLayout');
 
   this.wait([
@@ -207,10 +206,10 @@ Router.route('/transfers', {
   name: 'stripe.transfers'
 });
 
-Router.route('/expiring',{
+Router.route('/expiring', {
   layoutTemplate: 'UserLayout',
 
-  subscriptions: function(){
+  subscriptions: function() {
     return [
       Meteor.subscribe('subscriptions_and_customers')
     ];
@@ -228,8 +227,8 @@ Router.route('/expiring',{
 Router.route('/transfers/:_id', {
   layoutTemplate: 'UserLayout',
   action: function() {
-    var params = this.params;
-    var id = params._id;
+    const params = this.params;
+    const id = params._id;
 
     Session.set('transferId', id);
     this.render('StripeTransferDetails');
@@ -241,7 +240,7 @@ Router.route('/user/give', {
   layoutTemplate: 'UserLayout',
 
   action: function() {
-    var params = this.params;
+    const params = this.params;
 
     Session.set('params.amount', params.query.amount);
     Session.set('params.campaign', params.query.campaign);
@@ -257,7 +256,6 @@ Router.route('/user/give', {
     Session.set('params.recurring', params.query.recurring);
 
     this.render('UserGive');
-
   },
   name: 'user.give'
 });
@@ -299,11 +297,10 @@ Router.route('/scheduled', {
 });
 
 if (Meteor.isServer) {
-
-  Router.route( '/webhooks/stripe', function () {
+  Router.route( '/webhooks/stripe', function() {
     // Receive an event, check that it contains a data.object object and send along to appropriate function
-    var request = this.request.body;
-    var dtStatus;
+    const request = this.request.body;
+    let dtStatus;
 
     // This shouldn't be considered a security precaution since anyone can forge these headers
     // we just use it here to weed out any traffic that hits the URL without trying to forge
@@ -312,16 +309,16 @@ if (Meteor.isServer) {
     // response inside the app
     this.response.setHeader( 'access-control-allow-origin', 'https://stripe.com' );
 
-    if( request.data && request.data.object ) {
-      Meteor.call( "checkDonorTools", function ( err, res ) {
-        if( res && res === true ) {
+    if ( request.data && request.data.object ) {
+      Meteor.call( "checkDonorTools", function( err, res ) {
+        if ( res && res === true ) {
           dtStatus = true;
         } else {
           logger.info( "DT connection is down" );
           dtStatus = false;
         }
       } );
-      if( dtStatus ) {
+      if ( dtStatus ) {
         // Got it, let the Stripe server go
         this.response.statusCode = 200;
         this.response.end( 'Oh hai Stripe!\n' );
@@ -338,7 +335,7 @@ if (Meteor.isServer) {
     }
   }, {
     where: 'server',
-    name:  'stripe_webhooks'
+    name: 'stripe_webhooks'
   } );
 }
 
@@ -347,19 +344,19 @@ Router.route('FixCardSubscription', {
   path: '/user/subscriptions/card/change',
   template: 'FixCardSubscription',
   subscriptions: function() {
-    var query = this.params.query;
+    const query = this.params.query;
 
     return [
       Meteor.subscribe( 'customer', query.c )
     ];
-   },
+  },
   action: function() {
-    var query = this.params.query;
+    const query = this.params.query;
 
     if (this.ready()) {
       Session.set('sub', query.s);
       Session.set('resubscribe', query.resubscribe);
-      if(query.newcard === 'true'){
+      if (query.newcard === 'true') {
         Session.set('addingNewCreditCard', true);
       }
       this.render();
@@ -370,25 +367,25 @@ Router.route('FixCardSubscription', {
 });
 
 Router.route('FixBankSubscription', {
-    layoutTemplate: 'UserLayout',
-    path: '/user/subscriptions/bank/change',
-    template: 'FixBankSubscription',
-    subscriptions: function() {
-      return [
-        Meteor.subscribe('subscription', this.params.query.s),
-        Meteor.subscribe('customer', this.params.query.c)
-      ];
-    },
-    action: function() {
-      if (this.ready()) {
-        var query = this.params.query;
-        Session.set('sub', query.s);
-        Session.set('resubscribe', query.resubscribe);
-        this.render();
-      } else {
-        this.render('Loading');
-      }
+  layoutTemplate: 'UserLayout',
+  path: '/user/subscriptions/bank/change',
+  template: 'FixBankSubscription',
+  subscriptions: function() {
+    return [
+      Meteor.subscribe('subscription', this.params.query.s),
+      Meteor.subscribe('customer', this.params.query.c)
+    ];
+  },
+  action: function() {
+    if (this.ready()) {
+      const query = this.params.query;
+      Session.set('sub', query.s);
+      Session.set('resubscribe', query.resubscribe);
+      this.render();
+    } else {
+      this.render('Loading');
     }
+  }
 });
 
 Router.route('/dashboard/giving_options', {
@@ -443,7 +440,7 @@ Router.route('/dashboard/subscriptions', {
   where: 'client',
   template: 'AdminSubscriptions',
   data: function() {
-    var query = this.params.query;
+    const query = this.params.query;
     Session.set("searchValue", query.sub);
   }
 });
@@ -454,16 +451,16 @@ Router.route('/dashboard/users', {
   where: 'client',
   template: 'ManageUsers',
   waitOn: function() {
-    var query = this.params.query;
-    var id = query.userID;
+    const query = this.params.query;
+    const id = query.userID;
     if (id) {
       Session.set( 'params.userID', id );
       Session.set( "showSingleUserDashboard", true );
     }
   },
   data: function() {
-    var query = this.params.query;
-    var id = query.userID;
+    const query = this.params.query;
+    const id = query.userID;
     if (id) {
       return Meteor.users.findOne({_id: id});
     } else if (Session.get('params.userID')) {
@@ -490,7 +487,7 @@ Router.route('/dashboard/gifts', {
   layoutTemplate: 'AdminLayout',
   name: 'Gifts',
   where: 'client',
-  template: 'Gifts',
+  template: 'Gifts'
 });
 
 Router.route('/trips', {
@@ -511,8 +508,8 @@ Router.route('/trips/admin/:_id', {
   layoutTemplate: 'AdminLayout',
   name: 'TripAdmin',
   template: 'TripAdmin',
-  waitOn: function () {
-    var params = this.params;
+  waitOn: function() {
+    const params = this.params;
     Meteor.subscribe('trips', params._id);
   }
 });
@@ -528,8 +525,8 @@ Router.route('/trips/member/:_id', {
   layoutTemplate: 'AdminLayout',
   name: 'TripMember',
   template: 'TripMember',
-  waitOn: function(){
-    var params = this.params;
+  waitOn: function() {
+    const params = this.params;
     Meteor.subscribe('trips', params._id);
   }
 });
