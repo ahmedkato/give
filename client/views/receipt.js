@@ -82,6 +82,7 @@ Template.Receipt.helpers({
       source = this.payment_source;
       return source.bank_name + ", ending in " + source.last4;
     }
+    return null;
   },
   amount() {
     if (this.amount && this.metadata && this.metadata.fees) {

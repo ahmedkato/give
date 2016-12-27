@@ -1,42 +1,42 @@
 <template name="Amount">
     <!-- Amount of donation -->
     <div class="donation_amount text-center well well-md form-group">
-        <div id='amount_width' class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-            <label class="control-label" for="amount">Donation Amount</label>
-            {{#unless locked_amount}}
-                <div class="input-group">
-                    <!--[if lt IE 9]>
-                    <label>Amount</label>
-                    <![endif]-->
-                    <span class="input-group-addon">$</span>
-                    <input name="amount"
-                           min="1"
-                           step="0.01"
-                           required="true"
-                           type="number"
-                           data-parsley-type="number"
-                           value="{{amount}}"
-                           class="form-control slim-borders"
-                           data-parsley-error-message="Please only use numbers in the amount."
-                           data-parsley-errors-container="#show-amount-error-here" />
-                    <div id="show-amount-error-here"></div>
-                </div>
+            <div id='amount_width' class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <label class="control-label" for="amount">Donation Amount</label>
+                {{#unless locked_amount}}
+                    <div class="input-group">
+                        <!--[if lt IE 9]>
+                        <label>Amount</label>
+                        <![endif]-->
+                        <span class="input-group-addon">$</span>
+                        <input name="amount"
+                               min="1"
+                               step="0.01"
+                               required="true"
+                               type="number"
+                               data-parsley-type="number"
+                               value="{{amount}}"
+                               class="form-control slim-borders"
+                               data-parsley-error-message="Please only use numbers in the amount."
+                               data-parsley-errors-container="#show-amount-error-here" />
+                        <div id="show-amount-error-here"></div>
+                    </div>
 
-            {{else}}
-                <br>
-                <span>$</span>{{amount}}
-                <input name="amount" min="1" required="true" type="hidden" value="{{amount}}" />
-            {{/unless}}
+                {{else}}
+                    <br>
+                    <span>$</span>{{amount}}
+                    <input name="amount" min="1" required="true" type="hidden" value="{{amount}}" />
+                {{/unless}}
 
-        </div>
-        {{> DonationToItems}}
-        <div class="text-center col-md-12 col-sm-12 col-xs-12">
-            {{#if paymentWithCard}}
-                <h5 id="total_amount_display" class=""></h5>
-            {{/if}}
-            <input type="hidden" id="total_amount" name="total_amount" value="{{amount}}" />
-            <input type="hidden" id="fee" />
-        </div>
+            </div>
+            {{> DonationToItems}}
+            <div class="text-center col-md-12 col-sm-12 col-xs-12">
+                {{#if paymentWithCard}}
+                    <h5 id="total_amount_display" class=""></h5>
+                {{/if}}
+                <input type="hidden" id="total_amount" name="total_amount" value="{{amount}}" />
+                <input type="hidden" id="fee" />
+            </div>
     </div>
     {{#if paymentWithCard}}
         <div class="row text-center">

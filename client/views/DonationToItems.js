@@ -1,6 +1,6 @@
-Template.DonationToItems.onRendered(function () {
-  let config = ConfigDoc();
-  let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
+Template.DonationToItems.onRendered(function() {
+  const config = ConfigDoc();
+  const writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
 
   $('[data-toggle="popover"]').popover();
 
@@ -13,19 +13,18 @@ Template.DonationToItems.onRendered(function () {
   }
 
   // setup modal for entering give toward information
-  if( Session.equals( 'params.donateTo', 'trips' ) ) {
+  if ( Session.equals( 'params.donateTo', 'trips' ) ) {
     $( '#modal_for_trips' ).modal( {
-      show:     true,
+      show: true,
       backdrop: 'static'
     } );
   }
 
   $( "[name='donateTo']" ).change();
-
 });
 
 Template.DonationToItems.helpers( {
-  DonationFormItems(){
+  DonationFormItems() {
     return DonationFormItems.find( { item: { $exists: true } } );
-  },
+  }
 });
