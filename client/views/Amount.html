@@ -9,8 +9,16 @@
                     <label>Amount</label>
                     <![endif]-->
                     <span class="input-group-addon">$</span>
-                    <input name="amount" min="1" step="0.01" required="true" type="number" data-parsley-type="number" value="{{amount}}" class="form-control slim-borders"
-                           data-parsley-error-message="Please only use numbers in the amount." data-parsley-errors-container="#show-amount-error-here" />
+                    <input name="amount"
+                           min="1"
+                           step="0.01"
+                           required="true"
+                           type="number"
+                           data-parsley-type="number"
+                           value="{{amount}}"
+                           class="form-control slim-borders"
+                           data-parsley-error-message="Please only use numbers in the amount."
+                           data-parsley-errors-container="#show-amount-error-here" />
                     <div id="show-amount-error-here"></div>
                 </div>
 
