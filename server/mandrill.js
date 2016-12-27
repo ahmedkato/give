@@ -92,9 +92,9 @@ _.extend(Utils, {
             "name": "ButtonURL",
             "content": emailObject.buttonURL
           }, {
-              "name": "AppURL",
-              "content": Meteor.absoluteUrl()
-            }
+            "name": "AppURL",
+            "content": Meteor.absoluteUrl()
+          }
         ]
       }
     };
@@ -364,30 +364,30 @@ _.extend(Utils, {
             "name": "REGION",
             "content": customer_cursor.metadata.state
           }, {
-              "name": "POSTAL_CODE",
-              "content": customer_cursor.metadata.postal_code
-            }, {
-              "name": "PHONE",
-              "content": customer_cursor.metadata.phone
-            }, {
-                "name": "c",
-                "content": charge_cursor.customer
-              }, {
-                  "name": "charge",
-                  "content": charge_cursor._id
-                }, {
-                    "name": "CHARGEID",
-                    "content": charge_cursor._id
-                  }, {
-                    "name": "failure_message",
-                    "content": charge_cursor.failure_message
-                  }, {
-                    "name": "failure_code",
-                    "content": charge_cursor.failure_code
-                  }, {
-                    "name": "URL",
-                    "content": Meteor.absoluteUrl()
-                  }
+            "name": "POSTAL_CODE",
+            "content": customer_cursor.metadata.postal_code
+          }, {
+            "name": "PHONE",
+            "content": customer_cursor.metadata.phone
+          }, {
+            "name": "c",
+            "content": charge_cursor.customer
+          }, {
+            "name": "charge",
+            "content": charge_cursor._id
+          }, {
+            "name": "CHARGEID",
+            "content": charge_cursor._id
+          }, {
+            "name": "failure_message",
+            "content": charge_cursor.failure_message
+          }, {
+            "name": "failure_code",
+            "content": charge_cursor.failure_code
+          }, {
+            "name": "URL",
+            "content": Meteor.absoluteUrl()
+          }
         ]
       }
     };

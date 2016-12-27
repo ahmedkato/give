@@ -9,9 +9,9 @@ $.fn.scrollView = function() {
   });
 };
 
-Template.DonationForm.onCreated(function () {
+Template.DonationForm.onCreated(function() {
   DonationFormItems = new Mongo.Collection(null);
-  if(Session.get("params.note")){
+  if (Session.get("params.note")) {
     DonationFormItems.insert( {name: 'first', memo: Session.get("params.note")} );
   } else {
     DonationFormItems.insert( {name: 'first'} );
@@ -25,7 +25,7 @@ Template.DonationForm.events({
     // Stop propagation prevents the form from being submitted more than once.
     e.stopPropagation();
 
-    let new_error;
+    let newError;
 
     if ($("#is_recurring").val() === '') {
       $("html, body").animate({ scrollTop: 0 }, "slow");
@@ -41,12 +41,12 @@ Template.DonationForm.events({
 
     if ($('#donateWith').val() === 'Card') {
       if (!Stripe.card.validateExpiry($('[name="cardExpirationMonth"]').val(), $('[name="cardExpirationYear"]').val())) {
-        new_error = {reason: "The card expiration date you gave is either today or a day in the past.", error: "Expiration Date"};
-        Give.handleErrors(new_error);
+        newError = {reason: "The card expiration date you gave is either today or a day in the past.", error: "Expiration Date"};
+        Give.handleErrors(newError);
         return;
       } else if (!Stripe.card.validateCardNumber($('[name="cc-num"]').val())) {
-        new_error = {reason: "The card number doesn't look right, please double check the number.", error: "Card Number Problem"};
-        Give.handleErrors(new_error);
+        newError = {reason: "The card number doesn't look right, please double check the number.", error: "Card Number Problem"};
+        Give.handleErrors(newError);
         return;
       }
     }
@@ -67,7 +67,7 @@ Template.DonationForm.events({
     }
   },
   'change [name=donateWith]': function() {
-    var selectedValue = $("[name=donateWith]").val();
+    const selectedValue = $("[name=donateWith]").val();
     Session.set("paymentMethod", selectedValue);
     if (Session.equals("paymentMethod", "Check")) {
       Give.updateTotal();
@@ -96,7 +96,7 @@ Template.DonationForm.events({
   'blur #donation_form input': function() {
     if (window.location.pathname !== "/give/user") {
       $(window).on('beforeunload', function() {
-        return "It looks like you have input you haven't submitted."
+        return "It looks like you have input you haven't submitted.";
       });
     }
   },
@@ -107,28 +107,28 @@ Template.DonationForm.events({
     e.stopPropagation();
     Router.go('user.profile');
   },
-  'click #start_date_button'(){
+  'click #start_date_button'() {
     $("#start_date").select();
-  },
+  }
 });
 
 Template.DonationForm.helpers({
-  giftTotal(){
-    let total = Session.get("giftAmount");
-    console.log(total);
-    if(total){
+  giftTotal() {
+    const total = Session.get("giftAmount");
+    if (total) {
       return total;
     }
   },
-  showGiftTotal(){
-    if(DonationFormItems.find() && DonationFormItems.find().count() > 1){
+  showGiftTotal() {
+    if (DonationFormItems.find() && DonationFormItems.find().count() > 1) {
       return true;
     }
+    return false;
   },
   paymentQuestionIcon: function() {
     if (Session.equals('paymentMethod', 'Check')) {
       return "<i class='makeRightOfInput fa fa-question-circle' data-toggle='popover' " +
-        "data-trigger='hover focus' data-container='body' data-content='There are usually 3 sets of "+
+        "data-trigger='hover focus' data-container='body' data-content='There are usually 3 sets of " +
         "numbers at the bottom of a check. The short check number, the 9 digit routing number and the " +
         "account number.'>" +
         "</i>";
@@ -171,15 +171,14 @@ Template.DonationForm.helpers({
   dt_source: function() {
     return Session.get('params.dt_source');
   },
-  moreThanOneDesignation(){
+  moreThanOneDesignation() {
     return DonationFormItems.findOne({$exists: {item: true}});
   }
 });
 
 Template.DonationForm.onRendered(function() {
-
-  let config = ConfigDoc();
-  let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
+  const config = ConfigDoc();
+  const writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
 
   // Setup parsley form validation
   $('#donation_form').parsley();
@@ -208,7 +207,7 @@ Template.DonationForm.onRendered(function() {
     });
   }
 
-  var datepickerSelector = $('#start_date');
+  const datepickerSelector = $('#start_date');
   datepickerSelector.datepicker( {
     format: 'd MM, yyyy',
     startDate: '+0d',
@@ -264,4 +263,6 @@ Template.cardPaymentInformation.onRendered(function() {
 
 Template.DonationForm.onDestroyed( function() {
   $(window).unbind('beforeunload');
+  Session.delete("giftAmount");
+  DonationFormItems.remove({});
 });
