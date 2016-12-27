@@ -50,7 +50,6 @@ Template.Receipt.helpers({
     return false;
   },
   donateTo() {
-    console.log(this.metadata.donateTo);
     if (this.donateTo) {
       if (! isNaN(this.donateTo)) {
         if (DT_funds.findOne({_id: this.donateTo}) && DT_funds.findOne({_id: this.donateTo}).name) {
@@ -60,7 +59,7 @@ Template.Receipt.helpers({
       }
       return this.donateTo;
     } else if (this.metadata && this.metadata.donateTo) {
-      if (! isNaN(this.donateTo)) {
+      if (! isNaN(this.metadata.donateTo)) {
         if (DT_funds.findOne({_id: this.metadata.donateTo}) && DT_funds.findOne({_id: this.metadata.donateTo}).name) {
           return DT_funds.findOne({_id: this.metadata.donateTo}).name;
         }
