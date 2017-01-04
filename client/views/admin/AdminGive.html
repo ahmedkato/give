@@ -1,0 +1,51 @@
+<template name="AdminGive">
+    {{#if Template.subscriptionsReady}}
+        {{#if $and notDTUser ($not userIDParam)}}
+            {{> DonationForm}}
+        {{else}}
+            {{#if userIDParam}}
+                {{#with user userIDParam}}
+                    <div class="container form-container">
+                        <form class="form-horizontal" id="quick_give">
+                            <div class="col-md-6 col-md-offset-3"></div>
+                            <div class="col-lg-8 col-md-8 col-md-offset-2 quick-give-form">
+                                <fieldset>
+
+                                    {{> Amount}}
+                                    <br>
+                                    <!-- Show give form -->
+                                    {{> GiveDropdownGroup}}
+                                    {{#if paymentWithCard}}
+                                        {{> cardPaymentInformation}}
+                                    {{else}}
+                                        {{#if paymentWithCheck}}
+                                            {{> checkPaymentInformation}}
+                                        {{/if}}
+                                    {{/if}}
+                                    <input type="hidden" id="total_amount"
+                                           name="total_amount" value="{{amount}}" />
+
+                                    <div class="form-group padBottom">
+                                        <div class="col-sm-offset-2 col-sm-8">
+                                            <button name="submitQuickGive"
+                                                    type="submit"
+                                                    class="btn btn-block btn-hg btn-primary"
+                                                    data-toggle="modal"
+                                                    data-target=".bs-example-modal-lg"
+                                                    data-loading-text="Processing..."> <span class="fa fa-paper-plane-o"></span> Send Donation</button>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </form>
+                    </div>
+                {{/with}}
+            {{/if}}
+        {{/if}}
+        {{> Modals}}
+    {{/if}}
+    {{#if loading}}
+        <div id="spinDiv" class="fadeMe"></div>
+        {{> spinner}}
+    {{/if}}
+</template>

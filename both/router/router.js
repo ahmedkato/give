@@ -254,10 +254,36 @@ Router.route('/user/give', {
     Session.set('params.locked_amount', params.query.locked_amount);
     Session.set('params.locked_frequency', params.query.locked_frequency);
     Session.set('params.recurring', params.query.recurring);
+    Session.set('params.userID', params.query.userID);
 
     this.render('UserGive');
   },
   name: 'user.give'
+});
+
+Router.route('/admin/give', {
+  layoutTemplate: 'UserLayout',
+
+  action: function() {
+    const params = this.params;
+
+    Session.set('params.amount', params.query.amount);
+    Session.set('params.campaign', params.query.campaign);
+    Session.set('params.donateTo', params.query.donateTo);
+    Session.set('params.donateWith', params.query.donateWith);
+    Session.set('params.dt_source', params.query.dt_source);
+    Session.set('params.note', params.query.note);
+    Session.set('params.enteredCampaignValue', params.query.enteredCampaignValue);
+    Session.set('params.exp_month', params.query.exp_month);
+    Session.set('params.exp_year', params.query.exp_year);
+    Session.set('params.locked_amount', params.query.locked_amount);
+    Session.set('params.locked_frequency', params.query.locked_frequency);
+    Session.set('params.recurring', params.query.recurring);
+    Session.set('params.userID', params.query.userID);
+
+    this.render('AdminGive');
+  },
+  name: 'admin.give'
 });
 
 Router.route('Subscriptions', {

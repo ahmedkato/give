@@ -253,7 +253,6 @@ Meteor.publish("transfers", function (id) {
   }
 });
 
-
 Meteor.publish("transfersRange", function (search, limit, posted, range) {
   check(search, Match.Maybe(String));
   check(limit, Match.Maybe(Number));

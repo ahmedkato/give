@@ -352,10 +352,9 @@ Meteor.publishComposite("publish_for_admin_give_form", function(id) {
         }
       ]
     };
-  } else {
-    // user not authorized. do not publish
-    this.ready();
   }
+  // user not authorized. do not publish
+  this.ready();
 });
 
 Meteor.publishComposite('ach', function() {
