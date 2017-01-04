@@ -1,5 +1,4 @@
-
-function updateSearchVal(){
+function updateSearchVal() {
   console.log("Got to updateSearchVal function");
   let searchValue = $(".search").val();
   if (searchValue) {
@@ -10,60 +9,58 @@ function updateSearchVal(){
 
     Session.set( "searchValue", searchValue );
   }
-};
+}
 
 Template.ACH.onCreated(function() {
   this.autorun(() => {
     this.subscribe("ach");
+    this.subscribe("userDTFunds");
   });
 });
 
-Template.ACH.onRendered(function () {
+Template.ACH.onRendered(function() {
   Session.set("ach_page", true);
 });
 
 Template.ACH.helpers({
-  donations: function () {
-    let searchValue = Session.get("searchValue");
-    let customers;
+  donations() {
+    const searchValue = Session.get("searchValue");
     if (!searchValue) {
       return Donations.find({}, { sort: { created_at: 1} });
-    } else {
-      customers = Customers.find({
-        $or: [
-          { 'metadata.fname': { $regex: searchValue, $options: 'i' } },
-          { 'metadata.lname': { $regex: searchValue, $options: 'i' } },
-          { 'metadata.business_name': { $regex: searchValue, $options: 'i' } },
-          { 'emails': { $regex: searchValue, $options: 'i' } }
-        ]
-      }, { sort: { createdAt: 1} });
-      if (customers.count()) {
-        return Donations.find({'customer_id': {$in: customers.map(function ( item ) {
-          return item._id;
-        })} });
-      }
-      return false;
     }
+    const customers = Customers.find({
+      $or: [
+        { 'metadata.fname': { $regex: searchValue, $options: 'i' } },
+        { 'metadata.lname': { $regex: searchValue, $options: 'i' } },
+        { 'metadata.business_name': { $regex: searchValue, $options: 'i' } },
+        { 'emails': { $regex: searchValue, $options: 'i' } }
+      ]
+    }, { sort: { createdAt: 1} });
+    if (customers.count()) {
+      return Donations.find({'customer_id': {$in: customers.map(function( item ) {
+        return item._id;
+      })} });
+    }
+    return false;
   },
-  'donationFrequency': function() {
-    if (this.frequency && !(this.frequency === 'one_time')) { 
+  donationFrequency() {
+    if (this.frequency && !(this.frequency === 'one_time')) {
       return 'recurring';
     }
-    return 'one-time'
+    return 'one-time';
   },
-  'pendingSetupTitle'() {
+  pendingSetupTitle() {
     if (!this.iterationCount) {
       return {
         title: "Send new gift to Donor Tools"
-      }
-    } else {
-      return {
-        title: "Send new instance of recurring gift to Donor Tools"
-      }
+      };
     }
+    return {
+      title: "Send new instance of recurring gift to Donor Tools"
+    };
   },
-  'donorName': function() {
-    let customer = Customers.findOne({_id: this.customer_id});
+  donorName() {
+    const customer = Customers.findOne({_id: this.customer_id});
     let name;
     if (customer) {
       if (customer.metadata.business_name) {
@@ -73,61 +70,60 @@ Template.ACH.helpers({
       return name;
     }
   },
-  'donationAmount': function() {
+  donationAmount() {
     return (this.total_amount / 100).toFixed(2);
   },
-  'donationDate': function() {
-    if (this.start_date === 'today'){
+  donationDate() {
+    if (this.start_date === 'today') {
       return moment(this.created_at * 1000).format("MM/DD/YYYY");
-    } else {
-      return this.start_date  > this.created_at ?
-        moment(new Date(this.start_date * 1000)).format("MM/DD/YYYY") :
-        moment(new Date(this.created_at * 1000)).format("MM/DD/YYYY");
     }
+    return this.start_date > this.created_at ?
+      moment(new Date(this.start_date * 1000)).format("MM/DD/YYYY") :
+      moment(new Date(this.created_at * 1000)).format("MM/DD/YYYY");
   },
-  'disableSendIfNotReady'() {
-    if(this.start_date === 'today') {
+  disableSendIfNotReady() {
+    if (this.start_date === 'today') {
       return;
     }
-    let dateToUse = this.start_date > this.created_at ? this.start_date : this.created_at;
-    return (dateToUse > (new Date().getTime() / 1000 | 0)) ? 'disabled': '';
+    const dateToUse = this.start_date > this.created_at ? this.start_date : this.created_at;
+    return (dateToUse > (new Date().getTime() / 1000 | 0)) ? 'disabled' : '';
   },
-  'routingNumber': function() {
-    let bankInfo = BankAccounts.findOne({_id: this.source_id});
+  routingNumber() {
+    const bankInfo = BankAccounts.findOne({_id: this.source_id});
     if (bankInfo) {
       return bankInfo.routing_number;
     }
   },
-  'accountType': function() {
-    let bankInfo = BankAccounts.findOne({_id: this.source_id});
+  accountType() {
+    const bankInfo = BankAccounts.findOne({_id: this.source_id});
     if (bankInfo) {
       return bankInfo.account_type;
     }
   },
-  'personaId': function() {
-    let customer = Customers.findOne({_id: this.customer_id});
+  personaId() {
+    const customer = Customers.findOne({_id: this.customer_id});
     if (customer) {
-      if(customer.metadata.dt_persona_id){
+      if (customer.metadata.dt_persona_id) {
         return customer.metadata.dt_persona_id;
       } else {
         Meteor.call( "addDTPersonaIDToCustomer",
           customer.metadata.email,
           this.customer_id,
-          function ( err, res ) {
-            if( err ) console.error( err );
+          function( err, res ) {
+            if ( err ) console.error( err );
             else console.log( res );
-        } );
+          } );
       }
     }
   },
-  'showSingleRecord': function() {
+  showSingleRecord() {
     return false;
   }
 });
 
 Template.ACH.events({
-  'click .pending-setup': function() {
-    let self = this;
+  'click .pending-setup'() {
+    const self = this;
 
     swal({
       title: "Have you manually setup this ACH?",
@@ -141,7 +137,6 @@ Template.ACH.events({
       showLoaderOnConfirm: true
     }, function(isConfirm) {
       if (isConfirm) {
-
         Meteor.call( 'manual_gift_processed', self._id, function( error, response ) {
           if ( error ) {
             console.log(error);
@@ -158,7 +153,7 @@ Template.ACH.events({
       }
     });
   },
-  'click .stop-recurring': function(e) {
+  'click .stop-recurring'(e) {
     console.log("stop recurring clicked ", $(e.currentTarget).attr("data-id"));
     swal({
       title: "Are you sure?",
@@ -169,7 +164,7 @@ Template.ACH.events({
       confirmButtonText: "Yes",
       cancelButtonText: "No",
       closeOnConfirm: false,
-      closeOnCancel: true,
+      closeOnCancel: true
     }, function(isConfirm) {
       if (isConfirm) {
         Donations.remove({_id: $(e.currentTarget).attr("data-id")});
@@ -181,38 +176,22 @@ Template.ACH.events({
       }
     });
   },
-  'click .edit-ach': function(e) {
+  'click .edit-ach'(e) {
     e.preventDefault();
-    let self = this;
-
-    Session.set("change_donation_id", this._id);
-    Session.set("change_customer_id", this.customer_id);
-    Session.set('change_donateTo', this.donateTo);
-    Session.set('change_note', this.note);
-    Session.set('change_amount', this.total_amount);
-    Session.set('change_date', this.start_date);
-
-    $('#modal_for_admin_ach_change_form').modal({
-      show: true,
-      backdrop: 'static'
-    });
-
-    Meteor.setTimeout(function() {
-      $('[name="donateTo"]').val(self.donateTo).change();
-    }, 0);
+    Router.go('UpdateDonation', {}, {query: {donation: this._id, customer: this.customer_id}});
   },
-  'keyup, change .search': _.debounce(function () {
+  'keyup, change .search': _.debounce(function() {
     updateSearchVal();
   }, 300),
-  'submit form': function ( e ) {
+  'submit form'( e ) {
     e.preventDefault();
   },
-  'click .clear-button': function () {
+  'click .clear-button'() {
     $(".search").val("").change();
   },
-  'click .show-account-number': function (e) {
+  'click .show-account-number'(e) {
     console.log("show account number clicked");
-    let bankInfo = BankAccounts.findOne({_id: this.source_id});
+    const bankInfo = BankAccounts.findOne({_id: this.source_id});
     $(e.currentTarget).html(bankInfo.account_number);
     $(e.currentTarget).removeClass('show-account-number');
   }

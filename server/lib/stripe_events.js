@@ -3,35 +3,35 @@ function logEvent(type) {
 }
 
 Stripe_Events = {
-  'account.updated': function (stripeEvent) {
+  'account.updated': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'account.application.deauthorized': function (stripeEvent) {
+  'account.application.deauthorized': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'application_fee.created': function (stripeEvent) {
+  'application_fee.created': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'application_fee.refunded': function (stripeEvent) {
+  'application_fee.refunded': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'balance.available': function (stripeEvent) {
+  'balance.available': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'charge.pending': function (stripeEvent) {
+  'charge.pending': function(stripeEvent) {
     logEvent( stripeEvent.type + ': event processed' );
 
     let subscription_cursor, invoice_cursor, subscription_id, interval, invoice_object;
 
-    if( stripeEvent.data.object.invoice ) {
+    if ( stripeEvent.data.object.invoice ) {
       invoice_cursor = Invoices.findOne({_id: stripeEvent.data.object.invoice});
       // It is possible that the invoice event hasn't been received by our server
-      if(invoice_cursor && invoice_cursor.id) {
+      if (invoice_cursor && invoice_cursor.id) {
         subscription_cursor = Subscriptions.findOne({_id: invoice_cursor.subscription});
         subscription_id = invoice_cursor.subscription;
       } else {
@@ -40,49 +40,48 @@ Stripe_Events = {
         console.log(invoice_object);
         subscription_id = invoice_object.subscription;
       }
-      let intervalCount = subscription_cursor.plan.interval_count;
+      const intervalCount = subscription_cursor.plan.interval_count;
       interval = subscription_cursor.plan.interval;
-      if(intervalCount === 6 && interval === 'month'){
+      if (intervalCount === 6 && interval === 'month') {
         interval = 'semi-annual';
-      } else if(intervalCount === 2 && interval === 'week'){
+      } else if (intervalCount === 2 && interval === 'week') {
         interval = 'bi-week';
       }
 
-        Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
+      Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, interval, subscription_id );
-
     } else {
       Utils.send_donation_email(false, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, "One Time", null);
     }
     return;
   },
-  'charge.succeeded': function (stripeEvent) {
+  'charge.succeeded': function(stripeEvent) {
     logEvent(stripeEvent.type);
 
     let send_successful_email;
-    let config = ConfigDoc();
+    const config = ConfigDoc();
 
     if (stripeEvent.data.object.refunded) {
       logger.warn("This successful charge has been refunded.");
     }
     if (stripeEvent.data.object.invoice) {
-      let wait_for_metadata_update = Utils.update_charge_metadata(stripeEvent);
+      const wait_for_metadata_update = Utils.update_charge_metadata(stripeEvent);
 
-      let invoice_cursor = Invoices.findOne({_id: stripeEvent.data.object.invoice});
-      let subscription_cursor = Subscriptions.findOne({_id: invoice_cursor.subscription});
+      const invoice_cursor = Invoices.findOne({_id: stripeEvent.data.object.invoice});
+      const subscription_cursor = Subscriptions.findOne({_id: invoice_cursor.subscription});
 
-      let intervalCount = subscription_cursor.plan.interval_count;
+      const intervalCount = subscription_cursor.plan.interval_count;
       let interval = subscription_cursor.plan.interval;
-      if(intervalCount === 6 && interval === 'month'){
+      if (intervalCount === 6 && interval === 'month') {
         interval = 'semi-annual';
-      } else if(intervalCount === 2 && interval === 'week'){
+      } else if (intervalCount === 2 && interval === 'week') {
         interval = 'bi-week';
       }
       Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, interval, invoice_cursor.subscription );
       if (config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.largeGiftThreshold) {
-        if(stripeEvent.data.object.amount >= (config.OrgInfo.emails.largeGiftThreshold * 100)) {
+        if (stripeEvent.data.object.amount >= (config.OrgInfo.emails.largeGiftThreshold * 100)) {
           send_successful_email = Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, 'large_gift',
             stripeEvent, interval, invoice_cursor.subscription );
         }
@@ -91,7 +90,7 @@ Stripe_Events = {
       send_successful_email = Utils.send_donation_email(false, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, "One Time", null);
       if (config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.largeGiftThreshold) {
-        if( stripeEvent.data.object.amount >= (config.OrgInfo.emails.largeGiftThreshold * 100) ) {
+        if ( stripeEvent.data.object.amount >= (config.OrgInfo.emails.largeGiftThreshold * 100) ) {
           Utils.send_donation_email( false, stripeEvent.data.object.id, stripeEvent.data.object.amount, 'large_gift',
             stripeEvent, "One Time", null );
         }
@@ -99,10 +98,10 @@ Stripe_Events = {
     }
     return;
   },
-  'charge.failed': function (stripeEvent) {
+  'charge.failed': function(stripeEvent) {
     logEvent(stripeEvent.type);
 
-    let event = {
+    const event = {
       relatedDoc: stripeEvent.data.object.id,
       category: 'Stripe',
       relatedCollection: 'Charges',
@@ -113,14 +112,14 @@ Stripe_Events = {
 
     if (stripeEvent.data.object.refunds && stripeEvent.data.object.refunds.data &&
       stripeEvent.data.object.refunds.data[0] && stripeEvent.data.object.refunds.data[0].id) {
-      let refund_object = Utils.stripe_get_refund(stripeEvent.data.object.refunds.data[0].id);
+      const refund_object = Utils.stripe_get_refund(stripeEvent.data.object.refunds.data[0].id);
       Refunds.upsert({_id: refund_object.id}, refund_object);
     }
     if (stripeEvent.data.object.invoice) {
-      let wait_for_metadata_update = Utils.update_charge_metadata( stripeEvent );
+      const wait_for_metadata_update = Utils.update_charge_metadata( stripeEvent );
 
-      let invoice_cursor = Invoices.findOne( { _id: stripeEvent.data.object.invoice } );
-      let subscription_cursor = Subscriptions.findOne( { _id: invoice_cursor.subscription } );
+      const invoice_cursor = Invoices.findOne( { _id: stripeEvent.data.object.invoice } );
+      const subscription_cursor = Subscriptions.findOne( { _id: invoice_cursor.subscription } );
 
       Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, subscription_cursor.plan.interval, invoice_cursor.subscription );
@@ -130,10 +129,10 @@ Stripe_Events = {
     }
     return;
   },
-  'charge.refunded': function (stripeEvent) {
+  'charge.refunded': function(stripeEvent) {
     logEvent(stripeEvent.type);
 
-    let event = {
+    const event = {
       id: stripeEvent.data.object.id,
       category: 'Stripe',
       relatedCollection: 'Charges',
@@ -141,106 +140,106 @@ Stripe_Events = {
       page: '/thanks?charge=' + stripeEvent.data.object.id
     };
     Utils.audit_event(event);
-    let refund_object = Utils.stripe_get_refund(stripeEvent.data.object.refunds.data[0].id);
+    const refund_object = Utils.stripe_get_refund(stripeEvent.data.object.refunds.data[0].id);
     Refunds.upsert({_id: refund_object.id}, refund_object);
     return;
   },
-  'charge.captured': function (stripeEvent) {
+  'charge.captured': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'charge.updated': function (stripeEvent) {
+  'charge.updated': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'charge.dispute.created': function (stripeEvent) {
+  'charge.dispute.created': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'charge.dispute.updated': function (stripeEvent) {
+  'charge.dispute.updated': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'charge.dispute.closed': function (stripeEvent) {
+  'charge.dispute.closed': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'customer.created': function (stripeEvent) {
+  'customer.created': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'customer.updated': function (stripeEvent) {
+  'customer.updated': function(stripeEvent) {
     logEvent(stripeEvent.type);
-    /*let customer = Utils.get_stripe_customer(stripeEvent.data.object.id);
+    /* let customer = Utils.get_stripe_customer(stripeEvent.data.object.id);
     Customers.update({_id: customer.id}, {$set: customer});*/
     return;
   },
-  'customer.deleted': function (stripeEvent) {
-    var user_with_customer_email = Meteor.users.findOne({'emails.address': stripeEvent.data.object.email});
+  'customer.deleted': function(stripeEvent) {
+    const user_with_customer_email = Meteor.users.findOne({'emails.address': stripeEvent.data.object.email});
 
     Customers.remove({_id: stripeEvent.data.object.id});
 
     // Remove the devices associated with this customer
-    stripeEvent.data.object.sources.data.forEach(function(element){
-        console.log("Removing this device: " + element.id);
-        Devices.remove({_id: element.id});
+    stripeEvent.data.object.sources.data.forEach(function(element) {
+      console.log("Removing this device: " + element.id);
+      Devices.remove({_id: element.id});
     });
 
-    var other_customers = Customers.findOne({email: stripeEvent.data.object.email});
+    const other_customers = Customers.findOne({email: stripeEvent.data.object.email});
 
     // check to see if the customer that was deleted was also set as the primary customer for this user
     // if so, put the next customer record in its place, copying the data from the first into the second.
-    if(other_customers && user_with_customer_email.primary_customer_id === stripeEvent.data.object.id){
-        Meteor.users.update({'emails.address': stripeEvent.data.object.email}, {$set: {primary_customer_id: other_customers._id}});
+    if (other_customers && user_with_customer_email.primary_customer_id === stripeEvent.data.object.id) {
+      Meteor.users.update({'emails.address': stripeEvent.data.object.email}, {$set: {primary_customer_id: other_customers._id}});
     }
 
     logEvent(stripeEvent.type);
     return;
   },
-  'customer.card.created': function (stripeEvent) {
+  'customer.card.created': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'customer.card.updated': function (stripeEvent) {
+  'customer.card.updated': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'customer.source.deleted': function (stripeEvent) {
+  'customer.source.deleted': function(stripeEvent) {
     Devices.remove({_id: stripeEvent.data.object.id});
     logEvent(stripeEvent.type);
     return;
   },
-  'customer.bank_account.deleted': function (stripeEvent) {
+  'customer.bank_account.deleted': function(stripeEvent) {
     Devices.remove({_id: stripeEvent.data.object.id});
     logEvent(stripeEvent.type);
     return;
   },
-  'customer.card.deleted': function (stripeEvent) {
+  'customer.card.deleted': function(stripeEvent) {
     Devices.remove({_id: stripeEvent.data.object.id});
     logEvent(stripeEvent.type);
     return;
   },
-  'customer.source.created': function (stripeEvent) {
+  'customer.source.created': function(stripeEvent) {
     StripeFunctions.store_stripe_event(stripeEvent);
     logEvent(stripeEvent.type);
     return;
   },
-  'customer.source.updated': function (stripeEvent) {
+  'customer.source.updated': function(stripeEvent) {
     StripeFunctions.store_stripe_event(stripeEvent);
     logEvent(stripeEvent.type);
     return;
   },
-  'customer.subscription.created': function (stripeEvent) {
+  'customer.subscription.created': function(stripeEvent) {
     StripeFunctions.store_stripe_event(stripeEvent);
     logEvent(stripeEvent.type);
     return;
   },
-  'customer.subscription.updated': function (stripeEvent) {
+  'customer.subscription.updated': function(stripeEvent) {
     StripeFunctions.store_stripe_event(stripeEvent);
     logEvent(stripeEvent.type);
     return;
   },
-  'customer.subscription.deleted': function (stripeEvent) {
+  'customer.subscription.deleted': function(stripeEvent) {
     StripeFunctions.store_stripe_event(stripeEvent);
 
     Utils.send_cancelled_email_to_admin(stripeEvent.data.object.id, stripeEvent);
@@ -252,115 +251,115 @@ Stripe_Events = {
     logEvent(stripeEvent.type);
     return;
   },
-  'customer.subscription.trial_will_end': function (stripeEvent) {
+  'customer.subscription.trial_will_end': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'customer.discount.created': function (stripeEvent) {
+  'customer.discount.created': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'customer.discount.updated': function (stripeEvent) {
+  'customer.discount.updated': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'customer.discount.deleted': function (stripeEvent) {
+  'customer.discount.deleted': function(stripeEvent) {
     StripeFunctions.store_stripe_event(stripeEvent);
     logEvent(stripeEvent.type);
     return;
   },
-  'invoice.created': function (stripeEvent) {
+  'invoice.created': function(stripeEvent) {
     Utils.add_meta_from_subscription_to_charge(stripeEvent);
 
     logEvent(stripeEvent.type);
     return;
   },
-  'invoice.updated': function (stripeEvent) {
+  'invoice.updated': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'invoice.payment_succeeded': function (stripeEvent) {
+  'invoice.payment_succeeded': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'invoice.payment_failed': function (stripeEvent) {
+  'invoice.payment_failed': function(stripeEvent) {
     // TODO: Need to handle this
     logEvent(stripeEvent.type);
     return;
   },
-  'invoiceitem.created': function (stripeEvent) {
+  'invoiceitem.created': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'invoiceitem.updated': function (stripeEvent) {
+  'invoiceitem.updated': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'invoiceitem.deleted': function (stripeEvent) {
+  'invoiceitem.deleted': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'plan.created': function (stripeEvent) {
+  'plan.created': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'plan.updated': function (stripeEvent) {
+  'plan.updated': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'plan.deleted': function (stripeEvent) {
+  'plan.deleted': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'coupon.created': function (stripeEvent) {
+  'coupon.created': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'coupon.deleted': function (stripeEvent) {
+  'coupon.deleted': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'recipient.created': function (stripeEvent) {
+  'recipient.created': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'recipient.updated': function (stripeEvent) {
+  'recipient.updated': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'recipient.deleted': function (stripeEvent) {
+  'recipient.deleted': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'transfer.created': function (stripeEvent) {
+  'transfer.created': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'transfer.updated': function (stripeEvent) {
+  'transfer.updated': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'transfer.paid': function (stripeEvent) {
+  'transfer.paid': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'transfer.failed': function (stripeEvent) {
+  'transfer.failed': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'bitcoin.receiver.created': function (stripeEvent) {
+  'bitcoin.receiver.created': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'bitcoin.receiver.transaction.created': function (stripeEvent) {
+  'bitcoin.receiver.transaction.created': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'bitcoin.receiver.filled': function (stripeEvent) {
+  'bitcoin.receiver.filled': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   },
-  'ping': function (stripeEvent) {
+  'ping': function(stripeEvent) {
     logEvent(stripeEvent.type);
     return;
   }

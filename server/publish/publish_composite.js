@@ -1,20 +1,20 @@
-Meteor.publishComposite('transactions', function (transfer_id) {
+Meteor.publishComposite('transactions', function(transfer_id) {
   check(transfer_id, Match.Optional(String));
   if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
     return {
-      find: function () {
+      find: function() {
         return Transactions.find( {
           $and: [{ transfer_id: transfer_id }, { type: { $ne: 'transfer' } }]
         } );
       },
       children: [
         {
-          find: function ( transactions ) {
-            if(transactions.source.slice(0,3) === 'pyr' || transactions.source.slice(0,3) === 're_'){
+          find: function( transactions ) {
+            if (transactions.source.slice(0, 3) === 'pyr' || transactions.source.slice(0, 3) === 're_') {
               return Refunds.find(
                 { _id: transactions.source },
                 {
-                  limit:  1,
+                  limit: 1,
                   fields: {
                     id: 1,
                     object: 1,
@@ -28,14 +28,14 @@ Meteor.publishComposite('transactions', function (transfer_id) {
                     'charge.source': 1,
                     'charge.refunded': 1,
                     'charge.refunds': 1,
-                    description: 1,
+                    description: 1
                   }
                 } );
             } else {
               return Charges.find(
                 { _id: transactions.source },
                 {
-                  limit:  1,
+                  limit: 1,
                   fields: {
                     id: 1,
                     object: 1,
@@ -53,15 +53,15 @@ Meteor.publishComposite('transactions', function (transfer_id) {
           },
           children: [
             {
-              find: function ( charges ) {
+              find: function( charges ) {
                 if (charges.object === 'refund') {
                   return Customers.find(
                     { _id: charges.charge.customer },
                     {
-                      limit:  1,
+                      limit: 1,
                       fields: {
                         id: 1,
-                        email:    1,
+                        email: 1,
                         metadata: 1
                       }
                     } );
@@ -69,10 +69,10 @@ Meteor.publishComposite('transactions', function (transfer_id) {
                   return Customers.find(
                     { _id: charges.customer },
                     {
-                      limit:  1,
+                      limit: 1,
                       fields: {
                         id: 1,
-                        email:    1,
+                        email: 1,
                         metadata: 1
                       }
                     } );
@@ -80,15 +80,15 @@ Meteor.publishComposite('transactions', function (transfer_id) {
               }
             },
             {
-              find: function ( charges ) {
+              find: function( charges ) {
                 return DT_donations.find(
                   { transaction_id: charges._id },
                   {
-                    limit:  1,
+                    limit: 1,
                     fields: {
-                      persona_id:       1,
-                      transaction_id:   1,
-                      splits:           1
+                      persona_id: 1,
+                      transaction_id: 1,
+                      splits: 1
                     }
                   } );
               }
@@ -96,14 +96,14 @@ Meteor.publishComposite('transactions', function (transfer_id) {
           ]
         }
       ]
-    }
+    };
   } else {
     this.stop();
     return;
   }
 });
 
-Meteor.publishComposite('subscriptions_and_customers', function (search, limit) {
+Meteor.publishComposite('subscriptions_and_customers', function(search, limit) {
   check(search, Match.Maybe(String));
   check(limit, Match.Maybe(Number));
 
@@ -117,7 +117,7 @@ Meteor.publishComposite('subscriptions_and_customers', function (search, limit) 
     };
 
     return {
-      find: function () {
+      find: function() {
         // Find posts made by user. Note arguments for callback function
         // being used in query.
         return Subscriptions.find( {
@@ -131,7 +131,7 @@ Meteor.publishComposite('subscriptions_and_customers', function (search, limit) 
             $or: [
               {
                 'metadata.fname': {
-                $regex: searchValue, $options: 'i'
+                  $regex: searchValue, $options: 'i'
                 }
               },
               {
@@ -141,19 +141,19 @@ Meteor.publishComposite('subscriptions_and_customers', function (search, limit) 
               },
               {
                 'metadata.business_name': {
-                  $regex:   searchValue,
+                  $regex: searchValue,
                   $options: 'i'
                 }
               },
               {
                 'metadata.email': {
-                  $regex:   searchValue,
+                  $regex: searchValue,
                   $options: 'i'
                 }
               },
               {
                 'id': {
-                  $regex:   searchValue
+                  $regex: searchValue
                 }
               }
             ]
@@ -162,16 +162,16 @@ Meteor.publishComposite('subscriptions_and_customers', function (search, limit) 
       },
       children: [
         {
-          find: function ( subscriptions ) {
+          find: function( subscriptions ) {
             // Find post author. Even though we only want to return
             // one record here, we use "find" instead of "findOne"
             // since this function should return a cursor.
             return Customers.find(
               { _id: subscriptions.customer },
               {
-                limit:  1,
+                limit: 1,
                 fields: {
-                  metadata:       1,
+                  metadata: 1,
                   default_source: 1,
                   default_source_type: 1,
                   sources: 1,
@@ -181,23 +181,22 @@ Meteor.publishComposite('subscriptions_and_customers', function (search, limit) 
           }
         },
         {
-          find: function ( subscriptions ) {
+          find: function( subscriptions ) {
             return DonationSplits.find(
               { subscription_id: subscriptions._id },
               {
-                limit:  1
+                limit: 1
               } );
           }
         }
       ]
-    }
-  } else {
-    this.stop();
-    return;
+    };
   }
+  this.stop();
+  return;
 });
 
-Meteor.publishComposite('charges_and_customers', function (search, limit, refunded) {
+Meteor.publishComposite('charges_and_customers', function(search, limit, refunded) {
   check(search, Match.Maybe(String));
   check(limit, Match.Maybe(Number));
   check(refunded, Match.OneOf(null, "_true", "_false"));
@@ -215,22 +214,22 @@ Meteor.publishComposite('charges_and_customers', function (search, limit, refund
       sort: {created: -1},
       limit: limitValue,
       fields: {
-        amount:           1,
-        amount_refunded:  1,
-        created:          1,
-        customer:         1,
-        failure_code:     1,
-        failure_message:  1,
-        invoice:          1,
-        metadata:         1,
-        refunded:         1,
-        refunds:          1,
-        status:           1
+        amount: 1,
+        amount_refunded: 1,
+        created: 1,
+        customer: 1,
+        failure_code: 1,
+        failure_message: 1,
+        invoice: 1,
+        metadata: 1,
+        refunded: 1,
+        refunds: 1,
+        status: 1
       }
     };
 
     return {
-      find: function () {
+      find: function() {
         // Find posts made by user. Note arguments for callback function
         // being used in query.
         return Charges.find( {
@@ -240,7 +239,7 @@ Meteor.publishComposite('charges_and_customers', function (search, limit, refund
             $or: [
               {
                 'metadata.fname': {
-                $regex: searchValue, $options: 'i'
+                  $regex: searchValue, $options: 'i'
                 }
               },
               {
@@ -250,19 +249,19 @@ Meteor.publishComposite('charges_and_customers', function (search, limit, refund
               },
               {
                 'metadata.business_name': {
-                  $regex:   searchValue,
+                  $regex: searchValue,
                   $options: 'i'
                 }
               },
               {
                 'metadata.email': {
-                  $regex:   searchValue,
+                  $regex: searchValue,
                   $options: 'i'
                 }
               },
               {
                 'id': {
-                  $regex:   searchValue
+                  $regex: searchValue
                 }
               }
             ]
@@ -271,64 +270,64 @@ Meteor.publishComposite('charges_and_customers', function (search, limit, refund
       },
       children: [
         {
-          find: function ( charges ) {
+          find: function( charges ) {
             // Find post author. Even though we only want to return
             // one record here, we use "find" instead of "findOne"
             // since this function should return a cursor.
             return Customers.find(
               { _id: charges.customer },
               {
-                limit:  1,
+                limit: 1,
                 fields: {
-                  email:                1,
-                  metadata:             1,
-                  default_source:       1,
-                  default_source_type:  1,
-                  sources:              1,
-                  subscriptions:        1
+                  email: 1,
+                  metadata: 1,
+                  default_source: 1,
+                  default_source_type: 1,
+                  sources: 1,
+                  subscriptions: 1
                 }
               } );
           }
         }, {
-          find: function ( charges ) {
+          find: function( charges ) {
             // Find post author. Even though we only want to return
             // one record here, we use "find" instead of "findOne"
             // since this function should return a cursor.
             return Invoices.find(
               { _id: charges.invoice },
               {
-                limit:  1,
+                limit: 1,
                 fields: {
-                  metadata:     1,
+                  metadata: 1,
                   subscription: 1
                 }
               } );
           }
         },
         {
-          find: function ( charges ) {
+          find: function( charges ) {
             return DonationSplits.find(
               { charge_id: charges._id }, {
-               limit:  1
-             } );
+                limit: 1
+              } );
           }
         },
         {
-          find: function ( charges ) {
+          find: function( charges ) {
             return DT_donations.find(
               { transaction_id: charges._id },
               {
-                limit:  1,
+                limit: 1,
                 fields: {
-                  persona_id:       1,
-                  transaction_id:   1,
-                  splits:           1
+                  persona_id: 1,
+                  transaction_id: 1,
+                  splits: 1
                 }
               } );
           }
         }
       ]
-    }
+    };
   } else {
     this.stop();
     return;
@@ -339,12 +338,12 @@ Meteor.publishComposite("publish_for_admin_give_form", function(id) {
   check(id, String);
   if (Roles.userIsInRole(this.userId, ['admin'])) {
     return {
-      find:     function () {
+      find: function() {
         return Customers.find( { 'metadata.user_id': id } );
       },
       children: [
         {
-          find: function ( customers ) {
+          find: function( customers ) {
             // Find post author. Even though we only want to return
             // one record here, we use "find" instead of "findOne"
             // since this function should return a cursor.
@@ -352,20 +351,18 @@ Meteor.publishComposite("publish_for_admin_give_form", function(id) {
           }
         }
       ]
-    }
+    };
   } else {
     // user not authorized. do not publish
     this.ready();
   }
 });
 
-Meteor.publishComposite('ach', function () {
-
+Meteor.publishComposite('ach', function() {
   // Publish the nearly expired or expired card data to the admin dashboard
   if (Roles.userIsInRole(this.userId, ['admin'])) {
-
     return {
-      find: function () {
+      find: function() {
         return Donations.find({
           $and: [
             {
@@ -381,7 +378,7 @@ Meteor.publishComposite('ach', function () {
       },
       children: [
         {
-          find: function ( donations ) {
+          find: function( donations ) {
             // Find post author. Even though we only want to return
             // one record here, we use "find" instead of "findOne"
             // since this function should return a cursor.
@@ -389,39 +386,43 @@ Meteor.publishComposite('ach', function () {
           }
         },
         {
-          find: function ( donations ) {
+          find: function( donations ) {
             // Find post author. Even though we only want to return
             // one record here, we use "find" instead of "findOne"
             // since this function should return a cursor.
             return BankAccounts.find({ _id: donations.source_id});
           }
+        },
+        {
+          find: function( donations ) {
+            return DonationSplits.find( { _id: donations.donationSplitsId});
+          }
         }
       ]
-    }
-  } else {
-    this.stop();
-    return;
+    };
   }
+  this.stop();
+  return;
 });
 
-Meteor.publishComposite("travelDTSplits", function (tripId) {
+Meteor.publishComposite("travelDTSplits", function(tripId) {
   check(tripId, Match.Optional(String));
 
   if (Roles.userIsInRole(this.userId, ['admin', 'trips-manager', 'trips-member'])) {
     logger.info("Inside correct role section of travelDTSplits");
-    var funds = [];
+    let funds = [];
     if (tripId) {
-      let fundId = Trips.findOne({_id: tripId}) && Trips.findOne({_id: tripId}).fundId;
+      const fundId = Trips.findOne({_id: tripId}) && Trips.findOne({_id: tripId}).fundId;
       funds[0] = Number(fundId);
     } else {
-      funds = Trips.find().map(function ( item ) {
+      funds = Trips.find().map(function( item ) {
         return Number(item.fundId);
-      });  
+      });
     }
     logger.info("funds: ", funds);
 
     return {
-      find: function () {
+      find: function() {
         return DT_splits.find({
           fund_id: {
             $in: funds
@@ -430,16 +431,16 @@ Meteor.publishComposite("travelDTSplits", function (tripId) {
       },
       children: [
         {
-          find: function ( split ) {
+          find: function( split ) {
             return DT_donations.find({ _id: split.donation_id });
           },
           children: [
             {
-              find: function ( donation ) {
+              find: function( donation ) {
                 // Find the person associated with this donation
                 return DT_personas.find(
                   { _id: donation.persona_id }, {
-                    limit:  1,
+                    limit: 1,
                     fields: {
                       persona_id: 1,
                       recognition_name: 1
@@ -450,34 +451,34 @@ Meteor.publishComposite("travelDTSplits", function (tripId) {
           ]
         }
       ]
-    }
+    };
   } else {
     this.ready();
   }
 });
 
-Meteor.publishComposite("subscriptions", function () {
+Meteor.publishComposite("subscriptions", function() {
   logger.info("Started publish function, subscriptions");
   if (this.userId) {
     return {
-      find: function () {
+      find: function() {
         return Customers.find({'metadata.user_id': this.userId});
       },
       children: [
         {
-          find: function ( customers ) {
+          find: function( customers ) {
             // Find the charges associated with this customer
             return Charges.find( { 'customer': customers._id } );
           }
         },
         {
-          find: function ( customers ) {
+          find: function( customers ) {
             // Find the subscriptions associated with this customer
             return Subscriptions.find({$and: [{'customer': customers._id}, {'metadata.replaced': {$ne: true}}]});
           },
           children: [
             {
-              find: function (subscription) {
+              find: function(subscription) {
                 // Find the DonationSplits associated with this subscription
                 return DonationSplits.find( { _id: subscription.metadata.donationSplitsId});
               }
@@ -485,13 +486,13 @@ Meteor.publishComposite("subscriptions", function () {
           ]
         },
         {
-          find: function ( customers ) {
+          find: function( customers ) {
             // Find the devices used (payment methods) and saved with this customer
             return Devices.find({ $and: [{
-                'customer': customers._id
-                }, {
-                'metadata.saved': 'true'
-              }]
+              'customer': customers._id
+            }, {
+              'metadata.saved': 'true'
+            }]
             }, {
               fields: {
                 fingerprint: 0,
@@ -502,119 +503,139 @@ Meteor.publishComposite("subscriptions", function () {
             });
           }
         }, {
-          find: function ( customers ) {
+          find: function( customers ) {
             // Find the donation document for any manualACH transactions
             // only show the pending status since that is what shows the next months gift
             return Donations.find({ $and: [{
-                'customer_id': customers._id
-                }, {
-                'method': 'manualACH'
-                }, {
-                'status': 'pending'
+              'customer_id': customers._id
+            }, {
+              'method': 'manualACH'
+            }, {
+              'status': 'pending'
             }]
             });
           }
         }
       ]
-    }
+    };
   } else {
     this.ready();
   }
 });
 
-Meteor.publishComposite("subscription_with_donation_splits", function (subscription_id) {
+Meteor.publishComposite("subscription_with_donation_splits", function(subscriptionId) {
   logger.info("Started publish function, subscription_with_donation_splits");
-  check(subscription_id, String);
+  check(subscriptionId, String);
 
   if (this.userId) {
     return {
-      find: function () {
-        return Subscriptions.find({_id: subscription_id});
+      find: function() {
+        return Subscriptions.find({_id: subscriptionId});
       },
       children: [
         {
-          find: function (subscription) {
+          find: function(subscription) {
             // Find the DonationSplits associated with this subscription
             return DonationSplits.find( { _id: subscription.metadata.donationSplitsId}, {limit: 1} );
           }
         }
       ]
-    }
-  } else {
-    this.ready();
+    };
   }
+  this.ready();
 });
 
-Meteor.publishComposite("tripsMember", function (id) {
+Meteor.publishComposite("donation_with_donation_splits", function(donationId) {
+  logger.info("Started publish function, donation_with_donation_splits");
+  check(donationId, String);
+
+  if (this.userId) {
+    return {
+      find: function() {
+        return Donations.find({_id: donationId});
+      },
+      children: [
+        {
+          find: function(donation) {
+            // Find the DonationSplits associated with this subscription
+            return DonationSplits.find( { _id: donation.donationSplitsId}, {limit: 1} );
+          }
+        }
+      ]
+    };
+  }
+  this.ready();
+});
+
+Meteor.publishComposite("tripsMember", function(id) {
   logger.info( "Started publish function, tripsMember" );
   check(id, Match.Optional(String));
 
-  if( this.userId ) {
-    let user = Meteor.users.findOne({_id: this.userId});
+  if ( this.userId ) {
+    const user = Meteor.users.findOne({_id: this.userId});
     return {
-      find: function () {
+      find: function() {
         return Fundraisers.find( { email: user.emails[0].address } );
       },
       children: [
         {
-          find: function (fundraiser) {
+          find: function(fundraiser) {
             if (fundraiser && fundraiser.trips) {
               // Find the person associated with this donation
-              return Trips.find( { _id: {$in: fundraiser.trips.map(function(item){return item.id}) }} );
+              return Trips.find( { _id: {$in: fundraiser.trips.map(function(item) {return item.id;}) }} );
             }
             return;
           }
         }
       ]
-    }
+    };
   } else if (id && Roles.userIsInRole(this.userId, ['admin', 'trips-manager'])) {
-    let user = Meteor.users.findOne({_id: id});
+    const user = Meteor.users.findOne({_id: id});
     return {
-      find: function () {
+      find: function() {
         return Fundraisers.find( { email: user.emails[0].address } );
       },
       children: [
         {
-          find: function (fundraiser) {
+          find: function(fundraiser) {
             if (fundraiser && fundraiser.trips) {
               // Find the person associated with this donation
-              return Trips.find( { _id: {$in: fundraiser.trips.map(function(item){return item.id}) }} );
+              return Trips.find( { _id: {$in: fundraiser.trips.map(function(item) {return item.id;}) }} );
             }
             return;
           }
         }
       ]
-    }
+    };
   }
 });
 
-Meteor.publishComposite("auditTrail", function (limit) {
+Meteor.publishComposite("auditTrail", function(limit) {
   check(limit, Number);
   logger.info("Started publish function, auditTrail");
   if (Roles.userIsInRole(this.userId, ['admin', 'super-admin', 'manager'])) {
     return {
-      find: function () {
+      find: function() {
         return Audit_trail.find({show: true}, {sort: {time: -1}, limit: limit});
       },
       children: [
         {
-          find: function (auditDoc) {
+          find: function(auditDoc) {
             if (auditDoc && auditDoc.relatedDoc) {
               if (auditDoc.relatedCollection.indexOf(".") > -1) {
-                let collectionNameSplit = auditDoc.relatedCollection.split(".");
+                const collectionNameSplit = auditDoc.relatedCollection.split(".");
                 // Find the related Document associated with this audit doc
                 return GLOBAL[collectionNameSplit[0]][collectionNameSplit[1]].find( { _id: auditDoc.relatedDoc} );
               } else {
                 // Find the related Document associated with this audit doc
-                return GLOBAL[auditDoc.relatedCollection].find( { _id: auditDoc.relatedDoc} );  
+                return GLOBAL[auditDoc.relatedCollection].find( { _id: auditDoc.relatedDoc} );
               }
-              
             }
             return;
           },
           children: [
             {
-              find: function (relatedDoc) {
+              find: function(relatedDoc) {
                 if (relatedDoc && relatedDoc.object && relatedDoc.object === 'charge') {
                   // If we find ourselves looking at a charge doc from the step above
                   // then get the customer related to that charge
@@ -626,16 +647,16 @@ Meteor.publishComposite("auditTrail", function (limit) {
           ]
         }
       ]
-    }
+    };
   }
 });
 
-Meteor.publishComposite("receiptCharge", function (chargeId) {
+Meteor.publishComposite("receiptCharge", function(chargeId) {
   check(chargeId, String);
 
   logger.info("Started publish function, receiptCharge");
   return {
-    find: function () {
+    find: function() {
       return Charges.find({_id: chargeId},
         {
           fields:
@@ -660,7 +681,7 @@ Meteor.publishComposite("receiptCharge", function (chargeId) {
     },
     children: [
       {
-        find: function (charge) {
+        find: function(charge) {
           return Customers.find({_id: charge.customer},
             {
               fields: {
@@ -673,12 +694,12 @@ Meteor.publishComposite("receiptCharge", function (chargeId) {
         },
         children: [
           {
-            find: function (charge) {
+            find: function(charge) {
               return Donations.find( { charge_id: charge._id} );
             }
           }
         ]
       }
     ]
-  }
+  };
 });

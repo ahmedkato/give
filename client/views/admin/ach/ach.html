@@ -31,9 +31,13 @@
                             {{#each donations}}
                                 <tr class="{{donationFrequency}}" data-id="{{_id}}">
                                     <td>{{donorName}}</td>
-                                    <td>{{#if donateTo}}{{donateToThis donateTo}}{{else}}
-                                        {{{splitDesignations}}}
-                                    {{/if}}</td>
+                                    <td>
+                                        {{#if donateTo}}
+                                            {{donateToThis donateTo}}
+                                        {{else}}
+                                            {{{splitDesignations}}}
+                                        {{/if}}
+                                    </td>
                                     <td>{{donationAmount}}</td>
                                     <td>{{donationDate}}</td>
                                     <td>{{status}}</td>
@@ -46,15 +50,14 @@
                                         <label class="label label-important">{{donationFrequency}}</label>
                                     </td>
                                     <td class="text-center">
-
-                                            <button type="button" {{disableSendIfNotReady}}
-                                                    class="btn btn-primary pending-setup"
-                                                    {{pendingSetupTitle}}
-                                                    data-toggle="confirmation"
-                                                    data-loading-text="<i class='fa fa-spinner fa-spin'></i>"
-                                                    aria-expanded="true">
-                                                <i class="fa fa-paper-plane"></i>
-                                            </button>
+                                        <button type="button" {{disableSendIfNotReady}}
+                                                class="btn btn-primary pending-setup"
+                                                {{pendingSetupTitle}}
+                                                data-toggle="confirmation"
+                                                data-loading-text="<i class='fa fa-spinner fa-spin'></i>"
+                                                aria-expanded="true">
+                                            <i class="fa fa-paper-plane"></i>
+                                        </button>
                                         <button type="button"
                                                 title="Edit the gift details"
                                                 class="btn btn-primary edit-ach"
@@ -90,5 +93,5 @@
             {{/if}}
         </div>
     </div>
-    {{> ACHModal}}
+    <!--{{> ACHModal}}-->
 </template>

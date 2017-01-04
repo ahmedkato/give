@@ -284,6 +284,20 @@ Router.route('UpdateSubscription', {
   path: '/user/update-subscription'
 });
 
+Router.route('UpdateDonation', {
+  name: 'UpdateDonation',
+  action: function() {
+    this.render('UpdateDonation');
+    Session.set('donation', this.params.query.donation);
+    Session.set('change_amount', this.params.query.amount);
+    Session.set('customer', this.params.query.customer);
+    Session.set('change_donateTo', this.params.query.donateTo);
+    Session.set('change_date', this.params.query.date);
+  },
+  layoutTemplate: 'UserLayout',
+  path: '/user/update-donation'
+});
+
 Router.route('/scheduled', {
   name: 'donation.scheduled',
 

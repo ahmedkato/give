@@ -37,7 +37,7 @@ Template.DonationTo.helpers({
       return true;
     }
   },
-  firstMemo(){
+  firstMemo() {
     let donationItem = DonationFormItems.findOne({name: "first"});
     return donationItem && donationItem.memo;
   }

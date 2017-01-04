@@ -11,6 +11,93 @@ const DONORTOOLSORGSOURCEID = config &&
   config.Settings.DonorTools &&
   config.Settings.DonorTools.defaultSourceIdForOrganizationDonor;
 
+const getFundId = (donateTo)=> {
+  const dtFund = Utils.processDTFund( donateTo );
+
+  if ( !dtFund ) {
+    return config.Settings.DonorTools.defaultFundId;
+  }
+  return dtFund;
+};
+
+const getMemo = (donateTo, splitMemo, chargeId, customerId, metadata)=> {
+  const dtFund = Utils.processDTFund( donateTo );
+  let memo;
+
+  // fund_id should be the No-Match-Found fund used to help reconcile
+  // write-in gifts and those not matching a fund in DT
+  if ( !dtFund ) {
+    memo = Meteor.settings.dev +
+      (metadata &&
+      metadata.frequency &&
+      metadata.frequency.charAt( 0 ).toUpperCase() +
+      metadata.frequency.slice( 1 ) + " " + donateTo);
+  } else {
+    memo = Meteor.settings.dev +
+      (metadata &&
+      metadata.frequency &&
+      metadata.frequency.charAt( 0 ).toUpperCase() +
+      metadata.frequency.slice( 1 ));
+  }
+  if ( !memo ) {
+    logger.error( chargeId || "Not using a chargeId", customerId );
+    logger.error( metadata );
+    logger.error( "Something went wrong above, it looks like there is no metadata on this object." );
+  }
+  if ( splitMemo ) {
+    memo = memo + " " + splitMemo;
+  }
+  return memo;
+};
+
+const getMetadata = (chargeCursor) => {
+  let metadata, invoiceCursor;
+  if ( chargeCursor.id.slice( 0, 2 ) === 'ch' || chargeCursor.id.slice( 0, 2 ) === 'py' ) {
+    if ( chargeCursor.invoice ) {
+      invoiceCursor = Invoices.findOne( { _id: chargeCursor.invoice } );
+      if ( invoiceCursor &&
+        invoiceCursor.lines &&
+        invoiceCursor.lines.data[0] &&
+        invoiceCursor.lines.data[0].metadata ) {
+        metadata = invoiceCursor.lines.data[0].metadata;
+      } else {
+        metadata = chargeCursor.metadata;
+      }
+    } else {
+      metadata = chargeCursor.metadata;
+    }
+  } else {
+    // TODO: this area is to be used in case we start excepting bitcoin or
+    // other payment methods that return something other than a ch_  or py_
+    // event object id
+  }
+  return metadata;
+};
+
+getSourceId = (customerCursor, metadata) => {
+  let sourceId;
+  if ( customerCursor && customerCursor.metadata && customerCursor.metadata.business_name ) {
+    if (metadata.dt_source) {
+      sourceId = metadata.dt_source;
+    } else {
+      sourceId = DONORTOOLSORGSOURCEID;
+    }
+  } else if ( metadata && metadata.dt_source ) {
+    sourceId = metadata.dt_source;
+  } else {
+    sourceId = DONORTOOLSINDVSOURCEID;
+  }
+  return sourceId;
+};
+
+getBusinessName = (customerCursor) => {
+  let businessName;
+  if ( customerCursor && customerCursor.metadata && customerCursor.metadata.business_name ) {
+    businessName = customerCursor.metadata.business_name;
+  }
+  return businessName;
+};
+
 /**
  * Utils is the main function object on the server side
  * it contains most of the functions we might use inside our Methods or
@@ -591,106 +678,32 @@ Utils = {
     const config = ConfigDoc();
     logger.info( "Config Settings:", config.Settings );
     logger.info( "chargeId:", chargeId, " Customer_id: ", customer_id );
-    let chargeCursor, invoice_cursor, source_id, newDonationResult;
-    let metadata;
+    let newDonationResult;
 
-    chargeCursor = Charges.findOne( { _id: chargeId } );
-
+    const chargeCursor = Charges.findOne( { _id: chargeId } );
     const customerCursor = Customers.findOne( { _id: customer_id } );
 
     if ( Audit_trail.findOne( { _id: chargeCursor._id } ) && Audit_trail.findOne( { _id: chargeCursor._id } ).dt_donation_inserted ) {
       logger.info( "Already inserted the donation into DT." );
       return;
-    } else {
-      Audit_trail.upsert( { _id: chargeCursor._id }, { $set: { dt_donation_inserted: true } } );
     }
+    Audit_trail.upsert( { _id: chargeCursor._id }, { $set: { dt_donation_inserted: true } } );
 
-    if ( chargeId.slice( 0, 2 ) === 'ch' || chargeId.slice( 0, 2 ) === 'py' ) {
-      if ( chargeCursor.invoice ) {
-        invoice_cursor = Invoices.findOne( { _id: chargeCursor.invoice } );
-        if ( invoice_cursor &&
-          invoice_cursor.lines &&
-          invoice_cursor.lines.data[0] &&
-          invoice_cursor.lines.data[0].metadata &&
-          invoice_cursor.lines.data[0].metadata.donateTo ) {
-          metadata = invoice_cursor.lines.data[0].metadata;
-        } else {
-          metadata = chargeCursor.metadata;
-        }
-      } else {
-        metadata = chargeCursor.metadata;
-      }
-    } else {
-      // TODO: this area is to be used in case we start excepting bitcoin or
-      // other payment methods that return something other than a ch_  or py_
-      // event object id
-    }
-
-    const getFundId = (donateTo)=> {
-      const dt_fund = Utils.processDTFund( donateTo );
-      let fund_id;
-
-      // fund_id should be the No-Match-Found fund used to help reconcile
-      // write-in gifts and those not matching a fund in DT
-      if ( !dt_fund ) {
-        fund_id = config.Settings.DonorTools.defaultFundId;
-      } else {
-        fund_id = dt_fund;
-      }
-      return fund_id;
-    };
-    const getMemo = (donateTo, splitMemo)=> {
-      const dt_fund = Utils.processDTFund( donateTo );
-      let memo;
-
-      // fund_id should be the No-Match-Found fund used to help reconcile
-      // write-in gifts and those not matching a fund in DT
-      if ( !dt_fund ) {
-        memo = Meteor.settings.dev +
-          (metadata &&
-          metadata.frequency &&
-          metadata.frequency.charAt( 0 ).toUpperCase() +
-          metadata.frequency.slice( 1 ) + " " + donateTo);
-      } else {
-        memo = Meteor.settings.dev +
-          (metadata &&
-          metadata.frequency &&
-          metadata.frequency.charAt( 0 ).toUpperCase() +
-          metadata.frequency.slice( 1 ));
-      }
-      if ( !memo ) {
-        logger.error( chargeId, customer_id );
-        logger.error( metadata );
-        logger.error( "Something went wrong above, it looks like there is no metadata on this object." );
-      }
-      if ( splitMemo ) {
-        memo = memo + " " + splitMemo;
-      }
-      return memo;
-    };
+    const metadata = getMetadata(chargeCursor);
 
     const splits = [];
-    const donationSplitsId = chargeCursor.metadata && chargeCursor.metadata.donationSplitsId;
+    const donationSplitsId = metadata && metadata.donationSplitsId;
     if (donationSplitsId) {
+      logger.info("donationSplitsId: " + donationSplitsId);
       const donationSplits = DonationSplits.findOne({_id: donationSplitsId});
       donationSplits.splits.forEach(function( split ) {
-        splits.push({amount_in_cents: split.amount, fund_id: Number(split.donateTo), memo: getMemo(split.donateTo, split.memo)});
+        splits.push({amount_in_cents: split.amount, fund_id: Number(split.donateTo), memo: getMemo(split.donateTo, split.memo, chargeId, customer_id, metadata)});
       });
     } else {
-      splits.push({amount_in_cents: chargeCursor.amount, fund_id: getFundId(metadata.donateTo), memo: getMemo(metadata.donateTo, metadata.note)});
+      throw new Meteor.Error( "Couldn't find the donationSplitsId inside of insert_gift_into_donor_tools with charge.id: " + chargeCursor.id );
     }
 
-    if ( customerCursor && customerCursor.metadata && customerCursor.metadata.business_name ) {
-      if (metadata.dt_source) {
-        source_id = metadata.dt_source;
-      } else {
-        source_id = DONORTOOLSORGSOURCEID;
-      }
-    } else if ( metadata && metadata.dt_source ) {
-      source_id = metadata.dt_source;
-    } else {
-      source_id = DONORTOOLSINDVSOURCEID;
-    }
+    const source_id = getSourceId(customerCursor, metadata);
 
     logger.info( "Persona ID is: ", customerCursor.metadata.dt_persona_id );
 
@@ -728,6 +741,9 @@ Utils = {
           auth: DONORTOOLSAUTH
         } );
       logger.info( checkPerson.data );
+      if(!checkPerson) {
+        logger.warn("No person found, not sure if this will work, but I'll attempt to insert this donation without a person with this record in DT.");
+      }
 
 
       const data = {
@@ -785,91 +801,63 @@ Utils = {
       throw new Meteor.Error( "Couldn't get the persona_id for some reason" );
     }
   },
-  insert_manual_gift_into_donor_tools(donation_id, customer_id, dt_persona_id) {
-    logger.info( "Started insert_gift_into_donor_tools" );
-    logger.info( "Donation_id: ", donation_id, " Customer_id: ", customer_id );
+  insert_manual_gift_into_donor_tools(donationId, customerId, dtPersonaId) {
+    logger.info( "Started insert_manual_gift_into_donor_tools" );
+    logger.info( "donationId: ", donationId, " customerId: ", customerId, "DT Persona ID: ", dtPersonaId);
     const config = ConfigDoc();
-    let donationCursor, dt_fund, donateTo, fund_id, memo, source_id,
-      newDonationResult, metadata;
+    let metadata;
 
-    donationCursor = Donations.findOne( { _id: donation_id } );
+    const donationCursor = Donations.findOne( { _id: donationId } );
+    const customerCursor = Customers.findOne( { _id: customerId } );
 
-    const customerCursor = Customers.findOne( { _id: customer_id } );
-
-    if ( Audit_trail.findOne( { donation_id: donation_id } ) &&
-      Audit_trail.findOne( { donation_id: donation_id } ).dt_donation_inserted ) {
+    if ( Audit_trail.findOne( { donation_id: donationId } ) &&
+      Audit_trail.findOne( { donation_id: donationId } ).dt_donation_inserted ) {
       logger.info( "Already inserted the donation into DT." );
       return;
+    }
+    Audit_trail.upsert( { _id: donationCursor._id }, { $set: { dt_donation_inserted: true } } );
+
+    const splits = [];
+    const donationSplitsId = donationCursor && donationCursor.donationSplitsId;
+    if (donationSplitsId) {
+      logger.info("donationSplitsId: " + donationSplitsId);
+      const donationSplits = DonationSplits.findOne({_id: donationSplitsId});
+      donationSplits.splits.forEach(function( split ) {
+        splits.push({amount_in_cents: split.amount, fund_id: Number(split.donateTo), memo: getMemo(split.donateTo, split.memo, null, customerCursor.id, donationCursor)});
+      });
     } else {
-      Audit_trail.upsert( { _id: donationCursor._id }, { $set: { dt_donation_inserted: true } } );
+      throw new Meteor.Error( "Couldn't find the donationSplitsId inside of insert_manual_gift_into_donor_tools with donation.id: " + donationCursor.id );
     }
 
-    donateTo = donationCursor.donateTo;
+    const sourceId = getSourceId(customerCursor, {dt_source: donationCursor.dt_source});
 
-    dt_fund = Utils.processDTFund( donateTo );
-
-    // write-in gifts and those not matching a fund in DT
-    if ( !dt_fund ) {
-      fund_id = config.Settings.DonorTools.defaultFundId;
-      memo = Meteor.settings.dev +
-        (donationCursor &&
-        donationCursor.frequency &&
-        donationCursor.frequency.charAt( 0 ).toUpperCase() +
-        donationCursor.frequency.slice( 1 ) + " " + donateTo);
-    } else {
-      fund_id = dt_fund;
-      memo = Meteor.settings.dev +
-        (donationCursor &&
-        donationCursor.frequency &&
-        donationCursor.frequency.charAt( 0 ).toUpperCase() +
-        donationCursor.frequency.slice( 1 ));
-      if ( donationCursor && donationCursor.note ) {
-        memo = memo + " " + donationCursor.note;
-      }
-    }
-    if ( !memo ) {
-      logger.error( donation_id, customer_id );
-      logger.error( "Something went wrong above, it looks like there is no metadata on this object." );
-    }
-
-    if ( customerCursor && customerCursor.metadata && customerCursor.metadata.business_name ) {
-      if (donationCursor.dt_source) {
-        source_id = donationCursor.dt_source;
-      } else {
-        source_id = DONORTOOLSORGSOURCEID;
-      }
-    } else if ( donationCursor && donationCursor.dt_source ) {
-      source_id = donationCursor.dt_source;
-    } else {
-      source_id = DONORTOOLSINDVSOURCEID;
-    }
+    logger.info( "Persona ID is: ", customerCursor.metadata.dt_persona_id );
 
     try {
       logger.info( "Started checking for this person in DT" );
-      let checkPerson;
-      checkPerson = HTTP.get( config.Settings.DonorTools.url + '/people/' +
-        dt_persona_id + '.json', {
+      const checkPerson = HTTP.get( config.Settings.DonorTools.url + '/people/' +
+        dtPersonaId + '.json', {
           auth: DONORTOOLSAUTH
         } );
       console.log( checkPerson.data );
     } catch ( e ) {
       logger.error( "No Person with the DT ID of " +
-        dt_persona_id + " found in DT" );
+        dtPersonaId + " found in DT" );
       const to = config && config.OrgInfo &&
         config.OrgInfo.emails && config.OrgInfo.emails &&
         config.OrgInfo.emails.support;
       const emailObject = {
         to: to,
         type: 'Failed to add a gift to Donor Tools.',
-        emailMessage: "I tried to add a gift with PersonaID of: " + dt_persona_id +
+        emailMessage: "I tried to add a gift with PersonaID of: " + dtPersonaId +
                       " to Donor Tools, but for some reason I wasn't able to." +
                       " Click the button to see the Stripe Charge",
         buttonText: "Stripe Charge",
-        buttonURL: "https://dashboard.stripe.com/payments/" + donation_id
+        buttonURL: "https://dashboard.stripe.com/payments/" + donationId
       };
       Utils.sendEmailNotice( emailObject );
 
-      Audit_trail.update( { donation_id: donation_id }, {
+      Audit_trail.update( { donation_id: donationId }, {
         $set: {
           "dt_donation_inserted": false
         }
@@ -877,20 +865,16 @@ Utils = {
       throw new Meteor.Error( e );
     }
 
-    newDonationResult = HTTP.post( config.Settings.DonorTools.url + '/donations.json', {
+    const newDonationResult = HTTP.post( config.Settings.DonorTools.url + '/donations.json', {
       data: {
         "donation": {
-          "persona_id": dt_persona_id,
-          "splits": [{
-            "amount_in_cents": donationCursor.total_amount,
-            "fund_id": fund_id,
-            "memo": memo
-          }],
+          "persona_id": dtPersonaId,
+          "splits": splits,
           "donation_type_id": config.Settings.DonorTools.achFundIDForNonStripe,
           "received_on": moment( new Date( donationCursor.created_at * 1000 ) ).format( "YYYY/MM/DD hh:mma" ),
-          "source_id": source_id,
+          "source_id": sourceId,
           "payment_status": 'succeeded',
-          "transaction_id": donation_id
+          "transaction_id": donationId
         }
       },
       auth: DONORTOOLSAUTH
@@ -901,7 +885,7 @@ Utils = {
 
     if ( newDonationResult && newDonationResult.data && newDonationResult.data.donation && newDonationResult.data.donation.persona_id ) {
       // add this dt_donation_id to the donation
-      Donations.update( { _id: donation_id }, { $set: { dt_donation_id: newDonationResult.data.donation.id } } );
+      Donations.update( { _id: donationId }, { $set: { dt_donation_id: newDonationResult.data.donation.id } } );
     } else {
       logger.error( "The persona ID wasn't returned from DT, or something else happened with the connection to DT." );
       throw new Meteor.Error( "Couldn't get the persona_id for some reason" );
@@ -1076,10 +1060,9 @@ Utils = {
         limit: 1
       }, '' );
       return stripeInvoiceList.data[0];
-    } else {
-      Utils.send_scheduled_email( donation_id, stripeChargePlan.id, subscription_frequency, total );
-      return 'scheduled';
     }
+    Utils.send_scheduled_email( donation_id, stripeChargePlan.id, subscription_frequency, total );
+    return 'scheduled';
   },
   audit_event(event) {
     logger.info( "Inside audit_event." );
@@ -1839,232 +1822,17 @@ Utils = {
     }
     return;
   },
-  get_fund_id(donateTo) {
-    logger.info( "Started get_fund_id" );
-    // Take the text of donateTo and associate that with a fund id
-    // don't delete any cases below, simply add new ones. If the name
-    // changes on new gifts it may still be there on old gifts.
-
-    // If a fund id changes you'll need to go into every case that fits that fund id and update the id
-    switch ( donateTo ) {
-    case "Aquaponics":
-      return 63660;
-      break;
-    case "BaseCamp":
-      return 63656;
-      break;
-    case "Basecamp":
-      return 63656;
-      break;
-    case "Basecamp - Operations Expenses":
-      return 63656;
-      break;
-    case "Urgent Operational Needs":
-      return 63656;
-      break;
-    case "Basecamp - Russell West":
-      return 67649;
-      break;
-    case "BaseCamp - Russell West":
-      return 67649;
-      break;
-    case "BaseCamp - Brett Durbin":
-      return 60463;
-      break;
-    case "Basecamp - Brett Durbin":
-      return 60463;
-      break;
-    case "Brett Durbin":
-      return 60463;
-      break;
-    case "BaseCamp - Shelley Setchell":
-      return 60465;
-      break;
-    case "Basecamp - Shelley Setchell":
-      return 60465;
-      break;
-    case "Shelley Setchell":
-      return 60465;
-      break;
-    case "BaseCamp - Chris Mammoliti":
-      return 63662;
-      break;
-    case "Basecamp - Chris Mammoliti":
-      return 63662;
-      break;
-    case "Chris Mammoliti":
-      return 63662;
-      break;
-    case "Basecamp - Dave Henry":
-      return 69626;
-      break;
-    case "BaseCamp - Timm Collins":
-      return 63665;
-      break;
-    case "Basecamp - Timm Collins":
-      return 63665;
-      break;
-    case "Timm Collins":
-      return 63665;
-      break;
-    case "BaseCamp - Joshua Bechard":
-      return 63683;
-      break;
-    case "Basecamp - Joshua Bechard":
-      return 63683;
-      break;
-    case "Joshua Bechard":
-      return 63683;
-      break;
-    case "Int'l Field Projects - Honduras":
-      return 60489;
-      break;
-    case "International Field Projects - Honduras":
-      return 60489;
-      break;
-    case "Honduras Urgent":
-      return 60489;
-      break;
-    case "Urgent Field Needs":
-      return 63659;
-      break;
-    case "Int'l Field Projects - Where Needed Most":
-      return 63659;
-      break;
-    case "International Field Projects - Where Most Needed":
-      return 63659;
-      break;
-    case "Int'l Field Projects - Bolivia":
-      return 67281;
-      break;
-    case "International Field Projects - Bolivia":
-      return 67281;
-      break;
-    case "Int'l Field Projects - DR":
-      return 67322;
-      break;
-    case "DR Urgent":
-      return 67322;
-      break;
-    case "International Field Projects - Dominican Republic":
-      return 67322;
-      break;
-    case "Int'l Field Projects - Kenya":
-      return 67124;
-      break;
-    case "International Field Projects - Kenya":
-      return 67124;
-      break;
-    case "Philippines Urgent":
-      return 63689;
-      break;
-    case "Int'l Field Projects - Philippines":
-      return 63689;
-      break;
-    case "International Field Projects - Philippines":
-      return 63689;
-      break;
-    case "Comm Spon - Where Most Needed":
-      return 67273;
-      break;
-    case "Community Sponsorship - Where Most Needed":
-      return 67273;
-      break;
-    case "Comm Spon - Cochabamba, Bolivia":
-      return 64197;
-      break;
-    case "Community Sponsorship - Bolivia - Cochabamba":
-      return 64197;
-      break;
-    case "Comm Spon - Santiago, DR":
-      return 63667;
-      break;
-    case "Community Sponsorship - Santiago":
-      return 63667;
-      break;
-    case "Community Sponsorship - Dominican Republic - Santiago":
-      return 63667;
-      break;
-    case "Santiago, DR - Community Sponsorship":
-      return 63667;
-      break;
-    case "Honduras Community Sponsorship":
-      return 63695;
-      break;
-    case "Comm Spon - Tegucigalpa, Honduras":
-      return 63695;
-      break;
-    case "Community Sponsorship - Honduras - Tegucigalpa":
-      return 63695;
-      break;
-    case "Comm Spon - Dandora, Kenya":
-      return 67274;
-      break;
-    case "Community Sponsorship - Kenya - Dandora":
-      return 67274;
-      break;
-    case "Comm Spon - Payatas, Philippines":
-      return 67276;
-      break;
-    case "Community Sponsorship - Philippines - Payatas":
-      return 67276;
-      break;
-    case "Comm Spon - San Mateo, Philippines":
-      return 67282;
-      break;
-    case "Community Sponsorship - Philippines - San Mateo":
-      return 67282;
-      break;
-    case "Comm Spon - Sant-Isabela, Philippines":
-      return 67277;
-      break;
-    case "Community Sponsorship - Philippines - Santiago City/Isabella":
-      return 67277;
-      break;
-    case "Comm Spon - Smokey Mtn, Philippines":
-      return 64590;
-      break;
-    case "Community Sponsorship - Philippines - Smokey Mountain":
-      return 64590;
-      break;
-    case "Tanza, Philippines - Community Sponsorship":
-      return 63692;
-      break;
-    case "Comm Spon - Tanza, Philippines":
-      return 63692;
-      break;
-    case "Community Sponsorship - Philippines - Tanza":
-      return 63692;
-      break;
-    case "Where Most Needed":
-      return 63661;
-      break;
-    }
-  },
   insert_donation_and_donor_into_dt(customer_id, user_id, charge_id) {
-    /* try {*/
     logger.info( "Started insert_donation_and_donor_into_dt" );
     const config = ConfigDoc();
 
     const customer = Customers.findOne( customer_id );
     const charge = Charges.findOne( charge_id );
 
-    let source_id, business_name, payment_status, received_on;
-
-    if ( customer && customer.metadata.business_name ) {
-      business_name = customer.metadata.business_name;
-      if (charge.metadata && charge.metadata.dt_source) {
-        source_id = charge.metadata.dt_source;
-      } else {
-        source_id = DONORTOOLSORGSOURCEID;
-      }
-    }
-    if ( charge.metadata && charge.metadata.dt_source ) {
-      source_id = charge.metadata.dt_source;
-    } else {
-      source_id = DONORTOOLSINDVSOURCEID;
-    }
-
+    let payment_status, received_on;
+    const metadata = getMetadata(charge);
+    const source_id = getSourceId(customer, metadata);
+    const business_name = getBusinessName(customer);
     let recognition_name;
     if ( business_name ) {
       recognition_name = business_name;
@@ -2075,19 +1843,17 @@ Utils = {
     payment_status = charge.status;
     received_on = moment( new Date( charge.created * 1000 ) ).format( "YYYY/MM/DD hh:mma" );
 
-    let dt_fund, invoice_cursor, donateTo;
-    if ( charge_id.slice( 0, 2 ) === 'ch' || charge_id.slice( 0, 2 ) === 'py' ) {
-      invoice_cursor = Invoices.findOne( { _id: charge.invoice } );
-      if ( invoice_cursor && invoice_cursor.lines && invoice_cursor.lines.data[0] && invoice_cursor.lines.data[0].metadata && invoice_cursor.lines.data[0].metadata.donateTo ) {
-        donateTo = invoice_cursor.lines.data[0].metadata.donateTo;
-      } else {
-        donateTo = charge && charge.metadata && charge.metadata.donateTo;
-      }
+    const splits = [];
+    const donationSplitsId = metadata && metadata.donationSplitsId;
+    if (donationSplitsId) {
+      logger.info("donationSplitsId: " + donationSplitsId);
+      const donationSplits = DonationSplits.findOne({_id: donationSplitsId});
+      donationSplits.splits.forEach(function( split ) {
+        splits.push({amount_in_cents: split.amount, fund_id: Number(split.donateTo), memo: getMemo(split.donateTo, split.memo, charge.id, customer.id, metadata)});
+      });
     } else {
-      // TODO: this area is to be used in case we start excepting bitcoin or other payment methods that return something other than a ch_ event object id
+      throw new Meteor.Error( "Couldn't find the donationSplitsId inside of insert_donation_and_donor_into_dt with charge.id: " + charge.id );
     }
-
-    dt_fund = Utils.processDTFund( donateTo );
 
     if ( customer.metadata.address_line2 ) {
       address_line2 = customer.metadata.address_line2;
@@ -2095,66 +1861,45 @@ Utils = {
       address_line2 = '';
     }
 
-    // write-in gifts and those not matching a fund in DT
-    let fund_id, memo;
-    if ( !dt_fund ) {
-      fund_id = config.Settings.DonorTools.defaultFundId;
-      memo = Meteor.settings.dev + charge.metadata.frequency.charAt( 0 ).toUpperCase() + charge.metadata.frequency.slice( 1 ) + " " +
-        donateTo;
-    } else {
-      fund_id = dt_fund;
-      memo = Meteor.settings.dev + charge.metadata.frequency.charAt( 0 ).toUpperCase() + charge.metadata.frequency.slice( 1 );
-
-      if ( charge && charge.metadata && charge.metadata.note ) {
-        memo = memo + " " + charge.metadata.note;
-      }
-    }
-
-    let newDonationResult;
-    newDonationResult = HTTP.post( config.Settings.DonorTools.url + '/donations.json', {
-      data: {
-        "donation": {
-          "splits": [{
-            "amount_in_cents": charge.amount,
-            "fund_id": fund_id,
-            "memo": memo
-          }],
-          "donation_type_id": config.Settings.DonorTools.customDataTypeId,
-          "received_on": received_on,
-          "source_id": source_id,
-          "payment_status": payment_status,
-          "transaction_id": charge_id,
-          "find_or_create_person": {
-            "company_name": business_name,
-            "full_name": customer.metadata.fname + " " + customer.metadata.lname,
-            "email_address": customer.metadata.email,
-            "street_address": customer.metadata.address_line1 + " \n" + address_line2,
-            "city": customer.metadata.city,
-            "state": customer.metadata.state,
-            "postal_code": customer.metadata.postal_code,
-            "phone_number": customer.metadata.phone,
-            "web_address": Meteor.absoluteUrl( "dashboard/users?userID=" + user_id ),
-            "salutation_formal": customer.metadata.fname + " " + customer.metadata.lname,
-            "recognition_name": recognition_name
+    try {
+      let newDonationResult = HTTP.post(config.Settings.DonorTools.url + '/donations.json', {
+        data: {
+          "donation": {
+            "splits": splits,
+            "donation_type_id": config.Settings.DonorTools.customDataTypeId,
+            "received_on": received_on,
+            "source_id": source_id,
+            "payment_status": payment_status,
+            "transaction_id": charge_id,
+            "find_or_create_person": {
+              "company_name": business_name,
+              "full_name": customer.metadata.fname + " " + customer.metadata.lname,
+              "email_address": customer.metadata.email,
+              "street_address": customer.metadata.address_line1 + " \n" + address_line2,
+              "city": customer.metadata.city,
+              "state": customer.metadata.state,
+              "postal_code": customer.metadata.postal_code,
+              "phone_number": customer.metadata.phone,
+              "web_address": Meteor.absoluteUrl("dashboard/users?userID=" + user_id),
+              "salutation_formal": customer.metadata.fname + " " + customer.metadata.lname,
+              "recognition_name": recognition_name
+            }
           }
-        }
-      },
-      auth: DONORTOOLSAUTH
-    } );
+        },
+        auth: DONORTOOLSAUTH
+      });
 
-    if ( newDonationResult && newDonationResult.data && newDonationResult.data.donation && newDonationResult.data.donation.persona_id ) {
-      return newDonationResult.data.donation.persona_id;
-    } else {
-      logger.error( "The persona ID wasn't returned from DT, or something else happened with the connection to DT." );
-      throw new Meteor.Error( "Couldn't get the persona_id for some reason" );
+      if (newDonationResult && newDonationResult.data && newDonationResult.data.donation && newDonationResult.data.donation.persona_id) {
+        return newDonationResult.data.donation.persona_id;
+      }
+      logger.error("The persona ID wasn't returned from DT, or something else happened with the connection to DT.");
+      throw new Meteor.Error("Couldn't get the persona_id for some reason");
+
+    } catch (e) {
+      logger.error(e);
+      var error = (e.response);
+      throw new Meteor.Error(error, e._id);
     }
-
-    /* }
-     catch (e) {
-     logger.info(e);
-     var error = (e.response);
-     throw new Meteor.Error(error, e._id);
-     }*/
   },
   separate_donations(serverResponse) {
     logger.info( "Inside separate_donations" );
@@ -2436,7 +2181,7 @@ Utils = {
       if ( !isNaN( donateTo ) ) {
         dt_fund = Number( donateTo );
       } else {
-        dt_fund = Utils.get_fund_id( donateTo );
+        dt_fund = null;
       }
     } else {
       dt_fund = null;

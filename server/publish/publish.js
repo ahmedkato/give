@@ -71,7 +71,7 @@ Meteor.publish("customer", function (customer) {
   //Check the subscription_id that came from the client
   check(customer, String);
 
-	if (this.userId && Customers.find({_id: customer}, {'metadata.user_id': this.userId})) {
+	if ((this.userId && Customers.find({_id: customer}, {'metadata.user_id': this.userId})) || (Roles.userIsInRole(this.userId, ['super-admin', 'admin'])) ){
     return Customers.find({
       _id: customer
     }, {

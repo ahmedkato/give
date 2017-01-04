@@ -495,13 +495,20 @@ Template.registerHelper('coverTheFeesChecked', function() {
 Template.registerHelper('splitDesignations', function() {
   let splitText = "";
   let type;
+  let thisQueryValue;
 
   if (this._id && this._id.substring(0, 2) === 'ch') {
     type = 'charge_id';
-  } else {
+    thisQueryValue = this._id;
+  } else if (this._id && this._id.substring(0, 3) === 'sub') {
     type = 'subscription_id';
+    thisQueryValue = this._id;
+  } else if (this.method && this.method === 'manualACH') {
+    type = null;
+    thisQueryValue = this.donationSplitsId;
   }
-  const splits = DonationSplits.findOne({[type]: this._id});
+  const thisQueryKey = type ? type : '_id';
+  const splits = DonationSplits.findOne({[thisQueryKey]: thisQueryValue});
   if (splits) {
     splits.splits.forEach(function( split ) {
       const donateToText = DT_funds.findOne({id: split.donateTo}) &&

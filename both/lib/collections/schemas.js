@@ -381,23 +381,6 @@ Schema.Services = new SimpleSchema({
     label: "The template name of an email notice for new fundraisers.",
     optional: true
   },
-  Kadira: {
-    type: Object,
-    optional: true,
-    autoform: {
-      panelClass: "panel-info"
-    }
-  },
-  "Kadira.appId": {
-    type: String,
-    label: "App ID",
-    optional: true
-  },
-  "Kadira.appSecret": {
-    type: String,
-    label: "App Secret",
-    optional: true
-  },
   Papertrail: {
     type: Object,
     optional: true,

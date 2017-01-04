@@ -255,10 +255,11 @@ _.extend(StripeFunctions, {
       if (STRIPE_REQUEST.data.object.object === 'charge') {
         logger.info("Sending to DT");
         if (DT_donations.findOne({transaction_id: STRIPE_REQUEST.data.object.id})) {
-          // Send the donation change to Donor Tools. This function has a retry built
-          // in, so also pass 1 for the interval
+          // Send the donation change to Donor Tools.
           wait_for_DT_update = Utils.update_dt_donation_status( STRIPE_REQUEST );
         } else {
+          // Send the donation to Donor Tools. This function has a retry built
+          // in, so also pass 1 for the interval
           StripeFunctions.check_for_necessary_objects_before_inserting_into_dt(
             STRIPE_REQUEST.data.object.id, STRIPE_REQUEST.data.object.customer, 1);
         }

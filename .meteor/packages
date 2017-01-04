@@ -44,7 +44,6 @@ rajit:bootstrap3-datepicker
 
 underscorestring:underscore.string
 meteorhacks:aggregate
-meteorhacks:kadira
 logging@1.1.16
 reload@1.1.11
 random@1.0.10

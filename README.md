@@ -79,8 +79,6 @@ Move these to the configuration and out of the settings.json file
 
 Document Services
   Papertrail
-  TrackJS
-  Kadira
   Heap
 
 Document Setup process
