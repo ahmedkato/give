@@ -123,6 +123,31 @@ Stripe_Events = {
 
       Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, subscription_cursor.plan.interval, invoice_cursor.subscription );
+
+      if (invoice_cursor.attempt_count && invoice_cursor.attempt_count === 3) {
+        // TODO: send an email to the support address letting them know that there have been 3 failures and we need to contact the donor
+        const customerCursor = Customers.findOne({_id: stripeEvent.data.object.id});
+        const companyName = customerCursor.metadata.business_name || "";
+        const fullName = customerCursor.metadata.fname + " " + customer_cursor.metadata.lname;
+        const emailObject = {
+          to: config.OrgInfo.emails.canceledGift,
+          previewLine: companyName || fullName + "'s gift failed to process",
+          type: 'Failed Gift',
+          emailMessage: 'Person: ' + companyName || fullName +
+          '\n Gift amount: ' + (amount / 100).toFixed(2) +
+          '\n Last 4 on card: ' + + stripeEvent.data.object.source.last4 +
+          '\n Failed ' + invoice_cursor.attempt_count + ' times',
+          buttonText: 'Fix/Change the Payment Method',
+          buttonURL: Meteor.absoluteUrl('user/subscriptions/card/change?s=' + subscription_cursor.id + '&c=' + customerCursor.id)
+        };
+
+        Utils.sendEmailNotice(emailObject);
+
+        event.emailSentTo = config.OrgInfo.emails.canceledGift;
+        event.category = 'Email';
+        event.page = emailObject.buttonURL;
+        Utils.audit_event(event);
+      }
     } else {
       Utils.send_donation_email( false, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, "One Time", null );

@@ -518,32 +518,25 @@ _.extend(Utils, {
         if (type !== 'charge.failed') {
           logger.error("No donation found here, exiting.");
           return;
-        } else {
-          data_slug.template_name = config.Services.Email.failedPayment;
-          data_slug.message.global_merge_vars.push(
-            {
-              "name": "URL",
-              "content": Meteor.absoluteUrl("user/subscriptions/" + payment_type.toLowerCase() + "/change?s=" +
-                              subscription + "&c=" + subscription_cursor.customer)
-            }
-                  );
         }
+        data_slug.template_name = config.Services.Email.failedPayment;
+        data_slug.message.global_merge_vars.push({
+          "name": "URL",
+          "content": Meteor.absoluteUrl("user/subscriptions/" + payment_type.toLowerCase() + "/change?s=" +
+                        subscription + "&c=" + subscription_cursor.customer)
+        });
       } else if (type === 'charge.failed') {
         data_slug.template_name = config.Services.Email.failedPayment;
-        data_slug.message.global_merge_vars.push(
-          {
+        data_slug.message.global_merge_vars.push({
             "name": "URL",
             "content": Meteor.absoluteUrl("user/subscriptions/" + payment_type.toLowerCase() + "/change?s=" +
                           subscription + "&c=" + subscription_cursor.customer)
-          }
-              );
+          });
         if (subscription_cursor.metadata.donateTo) {
-          data_slug.message.global_merge_vars.push(
-            {
+          data_slug.message.global_merge_vars.push({
               "name": "DonateTo",
               "content": Utils.getDonateToName( subscription_cursor.metadata.donateTo )
-            }
-              );
+            });
         } else {
           logger.info("donationSplitsId: " + subscription_cursor.metadata.donationSplitsId);
           const splits = DonationSplits.findOne({_id: subscription_cursor.metadata.donationSplitsId})
