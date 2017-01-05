@@ -126,3 +126,9 @@ Template.Dashboard.onRendered(function() {
   });
   $( "[data-toggle='tooltip']" ).tooltip();
 });
+
+Template.Dashboard.onCreated(function () {
+  this.autorun(() => {
+    this.subscribe("userDoc");
+  });
+});

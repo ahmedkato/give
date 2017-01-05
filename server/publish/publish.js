@@ -429,7 +429,12 @@ Meteor.publish("wholeConfigDoc", function () {
 Meteor.publish("userDoc", function () {
   if (this.userId) {
     logger.info( "Started publish function, userDoc" );
-    let user = Meteor.users.find( { _id: this.userId } );
+    let user = Meteor.users.find( { _id: this.userId },
+      {
+        fields: {
+        services: 0
+      }
+    });
     return user;
   } else {
     this.ready();
@@ -464,7 +469,6 @@ Meteor.publish("fundraisers", function (id) {
     this.ready();
   }
 });
-
 
 Meteor.publish("fundraisersPublic", function (id) {
   check(id, Match.Optional(String));
