@@ -25,6 +25,7 @@ Stripe_Events = {
   },
   'charge.pending': function(stripeEvent) {
     logEvent( stripeEvent.type + ': event processed' );
+    const config = ConfigDoc();
 
     let subscription_cursor, invoice_cursor, subscription_id, interval, invoice_object;
 
@@ -50,9 +51,21 @@ Stripe_Events = {
 
       Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, interval, subscription_id );
+      if (config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.largeGiftThreshold) {
+        if ((stripeEvent.data.object.amount >= (config.OrgInfo.emails.largeGiftThreshold * 100 ) ) && stripeEvent.data.object.source.object === 'bank_account') {
+          Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, 'large_gift',
+            stripeEvent, interval, invoice_cursor.subscription );
+        }
+      }
     } else {
       Utils.send_donation_email(false, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, "One Time", null);
+      if (config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.largeGiftThreshold) {
+        if ((stripeEvent.data.object.amount >= (config.OrgInfo.emails.largeGiftThreshold * 100 ) ) && stripeEvent.data.object.source.object === 'bank_account') {
+          Utils.send_donation_email( false, stripeEvent.data.object.id, stripeEvent.data.object.amount, 'large_gift',
+            stripeEvent, "One Time", null );
+        }
+      }
     }
     return;
   },
@@ -80,9 +93,14 @@ Stripe_Events = {
       }
       Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, interval, invoice_cursor.subscription );
+
+      // Check to see if a large gift notice should be emailed. Make sure you only send this if the source isn't a bank_account since
+      // This notice will have already gone out for those when their status was 'pending'
       if (config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.largeGiftThreshold) {
-        if (stripeEvent.data.object.amount >= (config.OrgInfo.emails.largeGiftThreshold * 100)) {
-          send_successful_email = Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, 'large_gift',
+        if ( ( stripeEvent.data.object.amount >= (config.OrgInfo.emails && config.OrgInfo.emails.largeGiftThreshold &&
+          config.OrgInfo.emails.largeGiftThreshold * 100 ) ) &&
+          stripeEvent.data.object.source.object === 'card') {
+          const sendlargeGiftEmail = Utils.send_donation_email( true, stripeEvent.data.object.id, stripeEvent.data.object.amount, 'large_gift',
             stripeEvent, interval, invoice_cursor.subscription );
         }
       }
@@ -90,7 +108,9 @@ Stripe_Events = {
       send_successful_email = Utils.send_donation_email(false, stripeEvent.data.object.id, stripeEvent.data.object.amount, stripeEvent.type,
         stripeEvent, "One Time", null);
       if (config && config.OrgInfo && config.OrgInfo.emails && config.OrgInfo.emails.largeGiftThreshold) {
-        if ( stripeEvent.data.object.amount >= (config.OrgInfo.emails.largeGiftThreshold * 100) ) {
+        if ( ( stripeEvent.data.object.amount >= (config.OrgInfo.emails && config.OrgInfo.emails.largeGiftThreshold &&
+          config.OrgInfo.emails.largeGiftThreshold * 100 ) ) &&
+          stripeEvent.data.object.source.object === 'card') {
           Utils.send_donation_email( false, stripeEvent.data.object.id, stripeEvent.data.object.amount, 'large_gift',
             stripeEvent, "One Time", null );
         }

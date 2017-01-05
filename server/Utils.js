@@ -1234,23 +1234,25 @@ Utils = {
       Charges.update( { _id: event_body.data.object.id }, { $set: { metadata: subscription_cursor.metadata } } );
     }
   },
-  cancel_stripe_subscription( customer_id, subscription_id, reason ) {
+  cancel_stripe_subscription( customerId, subscriptionId, reason ) {
     logger.info( "Inside cancel_stripe_subscription" );
-    logger.info( customer_id + " " + " " + subscription_id + " " + reason );
+    logger.info( customerId + " " + subscriptionId + " " + reason );
 
-    const stripe_subscription = StripeFunctions.stripe_update( 'customers',
+    // Add the reason to the metadata before canceling
+    const stripeSubscription = StripeFunctions.stripe_update( 'customers',
       'updateSubscription',
-      customer_id,
-      subscription_id,
+      customerId,
+      subscriptionId,
       { metadata: { canceled_reason: reason } }
     );
 
-    const stripe_cancel = StripeFunctions.stripe_delete( 'customers',
+    // Run the delete subscription function
+    const stripeCancel = StripeFunctions.stripe_delete( 'customers',
       'cancelSubscription',
-      customer_id,
-      subscription_id
+      customerId,
+      subscriptionId
     );
-    return stripe_cancel;
+    return stripeCancel;
   },
   stripe_create_subscription( customer_id, source_id, plan, quantity, metadata ) {
     logger.info( "Inside stripe_create_subscription." );

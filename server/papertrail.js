@@ -1,4 +1,4 @@
-let config = ConfigDoc();
+const config = ConfigDoc();
 
 let host, port;
 if (config &&
@@ -9,11 +9,11 @@ if (config &&
   host = config.Services.Papertrail.host;
   port = config.Services.Papertrail.port;
 }
-//creating a global server logger
+// creating a global server logger
 logger = Winston;
 
 logger.add(Winston_Papertrail, {
-	levels: {
+  levels: {
     debug: 0,
     info: 1,
     warn: 2,

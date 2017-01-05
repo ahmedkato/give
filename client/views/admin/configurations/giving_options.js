@@ -1,4 +1,4 @@
-import { clearImage } from '/imports/miscFunctions';
+import { clearImage } from '/imports/api/miscFunctions';
 
 function reorderItems(dontFlash) {
 

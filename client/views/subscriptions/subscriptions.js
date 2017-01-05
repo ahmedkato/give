@@ -1,4 +1,4 @@
-import { setDocHeight, updateSearchVal } from '/imports/miscFunctions.js';
+import { setDocHeight, updateSearchVal, cancelRecurringGift} from '/imports/api/miscFunctions.js';
 
 Template.AdminSubscriptions.events({
   'click .addingNewPerson': function( e ) {
@@ -6,49 +6,10 @@ Template.AdminSubscriptions.events({
     const addingNew = $(".addingNewPerson").data("add");
     Session.set("addingNew", addingNew);
   },
-  'click .stop-button': function(e) {
-    console.log("Clicked stop");
-    const subscription_id = this._id;
-    const customer_id = this.customer;
-
-    $(e.currentTarget).button('Working');
-
-    swal({
-      title: "Are you sure?",
-      text: "Please let us know why you are stopping this recurring gift.",
-      type: "input",
-      showCancelButton: true,
-      confirmButtonColor: "#DD6B55",
-      confirmButtonText: "Yes, stop it!",
-      cancelButtonText: "No",
-      closeOnConfirm: false,
-      closeOnCancel: false
-    }, function(inputValue) {
-      if (inputValue === "") {
-        inputValue = "Not specified, but cancelled by an admin";
-      }
-
-      if (inputValue === false) {
-        swal("Ok, we didn't do anything.",
-          "success");
-        $(e.currentTarget).button('reset');
-      } else if (inputValue) {
-        console.log("Got to before method call with input of " + inputValue);
-        Session.set("loading", true);
-        Meteor.call("stripeCancelSubscription", customer_id, subscription_id, inputValue, function(error, response) {
-          if (error) {
-            Bert.alert(error.message, "danger");
-            Session.set("loading", false);
-            $(e.currentTarget).button('reset');
-          } else {
-            // If we're resubscribed, go ahead and confirm by returning to the
-            // subscriptions page and show the alert
-            Session.set("loading", false);
-            swal("Cancelled", "That recurring gift has been stopped.", "error");
-          }
-        });
-      }
-    });
+  'click .cancel-subscription': function(e) {
+    e.preventDefault();
+    console.log("Clicked stop button");
+    cancelRecurringGift(e, this.id);
   },
   'click .edit-button': function(e) {
     e.preventDefault();

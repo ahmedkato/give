@@ -342,7 +342,7 @@ _.extend(StripeFunctions, {
     charge_cursor.status === 'succeeded' ?
       true :
       false;
-    logger.info(check_violation);
+    logger.info("check_violation results, if true, then it did come in out of order: " + check_violation);
 
     return check_violation;
   },

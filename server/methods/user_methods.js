@@ -1,7 +1,7 @@
 Meteor.methods({
-  stripeUpdateSubscription: function (customer_id, subscription_id, token_id, status, device_type) {
+  stripeUpdateSubscription: function(customer_id, subscription_id, token_id, status, device_type) {
     logger.info("Started method stripeUpdateSubscription.");
-    if(this.userId){
+    if (this.userId) {
       // Check our arguments against their expected patterns. This is especially
       // important here because we're dealing with sensitive customer information.
       check(customer_id, String);
@@ -10,14 +10,14 @@ Meteor.methods({
       check(status, String);
       check(device_type, String);
 
-      if(status === 'canceled'){
-        var subscription_amount = Subscriptions.findOne({_id: subscription_id}).quantity;
-        var subscription_metadata = Subscriptions.findOne({_id: subscription_id}).metadata;
+      if (status === 'canceled') {
+        const subscription_amount = Subscriptions.findOne({_id: subscription_id}).quantity;
+        const subscription_metadata = Subscriptions.findOne({_id: subscription_id}).metadata;
         subscription_metadata.donateWith = "Card";
-        var subscription_plan = Subscriptions.findOne({_id: subscription_id}).plan.name;
-        var created_subscription = Utils.stripe_create_subscription(customer_id, token_id, subscription_plan, subscription_amount, subscription_metadata);
+        const subscription_plan = Subscriptions.findOne({_id: subscription_id}).plan.name;
+        const created_subscription = Utils.stripe_create_subscription(customer_id, token_id, subscription_plan, subscription_amount, subscription_metadata);
         logger.info("created_subscription: " + created_subscription);
-        if(!created_subscription.object){
+        if (!created_subscription.object) {
           return {error: created_subscription.rawType, message: created_subscription.message};
         } else {
           Subscriptions.update({_id: subscription_id}, {$set: {'metadata.replaced': true, 'metadata.replaced_with': created_subscription._id}});
@@ -29,9 +29,9 @@ Meteor.methods({
           return 'success';
         }
       } else {
-        var updated_subscription = Utils.update_stripe_customer_subscription(customer_id, subscription_id, token_id, device_type);
+        const updated_subscription = Utils.update_stripe_customer_subscription(customer_id, subscription_id, token_id, device_type);
         console.log(updated_subscription);
-        if(!updated_subscription.object){
+        if (!updated_subscription.object) {
           return {error: updated_subscription.rawType, message: updated_subscription.message};
         } else {
           Subscriptions.update({_id: updated_subscription.id}, {$set: updated_subscription});
@@ -42,10 +42,10 @@ Meteor.methods({
       return Meteor.Error(403, "Not logged in");
     }
   },
-  stripeUpdateCard: function (updated_data) {
+  stripeUpdateCard: function(updated_data) {
     logger.info("Started method stripeUpdateCard.");
 
-    if(this.userId){
+    if (this.userId) {
       // Check our arguments against their expected patterns. This is especially
       // important here because we're dealing with sensitive customer information.
       check(updated_data, {
@@ -58,16 +58,16 @@ Meteor.methods({
       });
       console.log(updated_data.status);
 
-      var subscription_amount = Subscriptions.findOne({_id: updated_data.subscription_id}).quantity;
-      var subscription_metadata = Subscriptions.findOne({_id: updated_data.subscription_id}).metadata;
+      const subscription_amount = Subscriptions.findOne({_id: updated_data.subscription_id}).quantity;
+      const subscription_metadata = Subscriptions.findOne({_id: updated_data.subscription_id}).metadata;
       subscription_metadata.donateWith = "Card";
-      var subscription_plan = Subscriptions.findOne({_id: updated_data.subscription_id}).plan.name;
+      const subscription_plan = Subscriptions.findOne({_id: updated_data.subscription_id}).plan.name;
       if (updated_data.status === 'canceled') {
         var updated_card = Utils.update_stripe_customer_card(updated_data);
         if (!updated_card.object) {
           return {error: updated_card.rawType, message: updated_card.message};
         } else {
-          var created_subscription = Utils.stripe_create_subscription(updated_data.customer_id, updated_data.card, subscription_plan, subscription_amount, subscription_metadata);
+          const created_subscription = Utils.stripe_create_subscription(updated_data.customer_id, updated_data.card, subscription_plan, subscription_amount, subscription_metadata);
           if (!created_subscription.object) {
             return {error: created_subscription.rawType, message: created_subscription.message};
           } else {
@@ -84,7 +84,7 @@ Meteor.methods({
         var updated_card = Utils.update_stripe_customer_card(updated_data);
         // Store the updated information with both the device and the customer records that use that device.
         Devices.update({_id: updated_card.id}, updated_card);
-        var result_of_update = Customers.update({_id: updated_card.customer, 'sources.data.id': updated_card.id}, {$set: {'sources.data.$': updated_card}});
+        const result_of_update = Customers.update({_id: updated_card.customer, 'sources.data.id': updated_card.id}, {$set: {'sources.data.$': updated_card}});
         Utils.update_stripe_customer_default_source(updated_card.customer, updated_card.id);
 
         if (!updated_card.object) {
@@ -96,7 +96,7 @@ Meteor.methods({
     }
     throw new Meteor.Error(403, "Not logged in");
   },
-  stripeUpdateBank: function (bank, subscription_id, save_payment) {
+  stripeUpdateBank: function(bank, subscription_id, save_payment) {
     logger.info("Started method stripeUpdateBank.");
 
     if (this.userId) {
@@ -107,33 +107,33 @@ Meteor.methods({
       check( save_payment, Boolean );
 
       try {
-        let subscription = Subscriptions.findOne( { _id: subscription_id } );
-        let subscription_amount = subscription.quantity;
-        let subscription_status = subscription.status;
-        let subscription_metadata = subscription.metadata;
+        const subscription = Subscriptions.findOne( { _id: subscription_id } );
+        const subscription_amount = subscription.quantity;
+        const subscription_status = subscription.status;
+        const subscription_metadata = subscription.metadata;
         subscription_metadata.donateWith = "Check";
-        let subscription_plan = subscription.plan.name;
-        let customer_id = subscription.customer;
-        let bank_token = bank;
+        const subscription_plan = subscription.plan.name;
+        const customer_id = subscription.customer;
+        const bank_token = bank;
 
-        if( subscription_status === 'canceled' ) {
-          var updated_bank = Utils.update_stripe_customer_bank( customer_id, bank, save_payment );
-          if( !updated_bank.object ) {
+        if ( subscription_status === 'canceled' ) {
+          const updated_bank = Utils.update_stripe_customer_bank( customer_id, bank, save_payment );
+          if ( !updated_bank.object ) {
             return {
-              error:   updated_bank.rawType,
+              error: updated_bank.rawType,
               message: updated_bank.message
             };
           } else {
-            var created_subscription = Utils.stripe_create_subscription( customer_id, bank, subscription_plan, subscription_amount, subscription_metadata );
-            if( !created_subscription.object ) {
+            const created_subscription = Utils.stripe_create_subscription( customer_id, bank, subscription_plan, subscription_amount, subscription_metadata );
+            if ( !created_subscription.object ) {
               return {
-                error:   created_subscription.rawType,
+                error: created_subscription.rawType,
                 message: created_subscription.message
               };
             } else {
               Subscriptions.update( { _id: subscription_id }, {
                 $set: {
-                  'metadata.replaced':      true,
+                  'metadata.replaced': true,
                   'metadata.replaced_with': created_subscription._id
                 }
               } );
@@ -141,13 +141,13 @@ Meteor.methods({
             }
           }
         } else {
-          let updated_bank = Utils.update_stripe_customer_bank( customer_id, bank_token );
+          const updated_bank = Utils.update_stripe_customer_bank( customer_id, bank_token );
           Utils.update_stripe_bank_metadata( customer_id, updated_bank.id, save_payment );
           Utils.update_stripe_customer_default_source( customer_id, updated_bank.id );
 
-          if( !updated_bank.object ) {
+          if ( !updated_bank.object ) {
             return {
-              error:   updated_bank.rawType,
+              error: updated_bank.rawType,
               message: updated_bank.message
             };
           } else {
@@ -159,13 +159,13 @@ Meteor.methods({
             return 'success';
           }
         }
-      } catch( e ) {
+      } catch ( e ) {
         console.log( e );
         throw new Meteor.Error( e.statusCode, e.message, e.type );
       }
     }
-      throw new Meteor.Error(403, "Not logged in");
-    },
+    throw new Meteor.Error(403, "Not logged in");
+  },
   stripeRestartBankSubscription: function(restart_data) {
     logger.info("Started method stripeRestartBankSubscription.");
 
@@ -179,22 +179,21 @@ Meteor.methods({
         bank: String
       } );
 
-      if( restart_data.status === 'canceled' ) {
-        var subscription_amount = Subscriptions.findOne( { _id: restart_data.subscription_id } ).quantity;
-        var subscription_metadata = Subscriptions.findOne( { _id: restart_data.subscription_id } ).metadata;
-        var subscription_plan = Subscriptions.findOne( { _id: restart_data.subscription_id } ).plan.name;
+      if ( restart_data.status === 'canceled' ) {
+        const subscription_amount = Subscriptions.findOne( { _id: restart_data.subscription_id } ).quantity;
+        const subscription_metadata = Subscriptions.findOne( { _id: restart_data.subscription_id } ).metadata;
+        const subscription_plan = Subscriptions.findOne( { _id: restart_data.subscription_id } ).plan.name;
 
-        var created_subscription = Utils.stripe_create_subscription( restart_data.customer_id, restart_data.bank, subscription_plan, subscription_amount, subscription_metadata );
-        if( !created_subscription.object ) {
+        const created_subscription = Utils.stripe_create_subscription( restart_data.customer_id, restart_data.bank, subscription_plan, subscription_amount, subscription_metadata );
+        if ( !created_subscription.object ) {
           return {
-            error:   created_subscription.rawType,
+            error: created_subscription.rawType,
             message: created_subscription.message
           };
-        }
-        else {
+        } else {
           Subscriptions.update( { _id: restart_data.subscription_id }, {
             $set: {
-              'metadata.replaced':      true,
+              'metadata.replaced': true,
               'metadata.replaced_with': created_subscription._id
             }
           } );
@@ -211,23 +210,22 @@ Meteor.methods({
     }
     throw new Meteor.Error(403, "Not logged in");
   },
-  stripeCancelSubscription: function (customer_id, subscription_id, reason) {
+  stripeCancelSubscription: function(customerId, subscriptionId, reason) {
     logger.info("Started method stripeCancelSubscription.");
 
     if (this.userId) {
-      check( customer_id, String );
-      check( subscription_id, String );
+      check( customerId, String );
+      check( subscriptionId, String );
       check( reason, String );
 
-      var cancel_subscription = Utils.cancel_stripe_subscription( customer_id, subscription_id, reason );
-      if( !cancel_subscription.object ) {
+      const cancelSubscription = Utils.cancel_stripe_subscription( customerId, subscriptionId, reason );
+      if ( !cancelSubscription.object ) {
         return {
-          error:   cancel_subscription.rawType,
-          message: cancel_subscription.message
+          error: cancelSubscription.rawType,
+          message: cancelSubscription.message
         };
-      } else {
-        return 'success';
       }
+      return 'success';
     }
     throw new Meteor.Error(403, "Not logged in");
   },
@@ -236,11 +234,11 @@ Meteor.methods({
     if (this.userId) {
       check( id, Match.Optional( String ) );
 
-      var userID;
+      let userID;
       this.unblock();
 
       if (id) {
-        if( Roles.userIsInRole( this.userId, ['admin'] ) ) {
+        if ( Roles.userIsInRole( this.userId, ['admin'] ) ) {
           userID = id;
         } else {
           logger.warn( "ID detected when not logged in as an admin" );
@@ -250,10 +248,10 @@ Meteor.methods({
       } else {
         userID = this.userId;
       }
-      let persona_ids = Meteor.users.findOne( { _id: userID } ) &&
+      const persona_ids = Meteor.users.findOne( { _id: userID } ) &&
         Meteor.users.findOne( { _id: userID } ).persona_ids;
 
-      let persona_id = Meteor.users.findOne( { _id: userID } ) &&
+      const persona_id = Meteor.users.findOne( { _id: userID } ) &&
         Meteor.users.findOne( { _id: userID } ).persona_id;
 
       if (persona_ids && persona_ids.length && persona_ids.length >= 1) {
@@ -285,7 +283,7 @@ Meteor.methods({
       country: Match.Optional(String),
       currency: String
     });
-    let bank = BankAccounts.insert(bankInfo);
+    const bank = BankAccounts.insert(bankInfo);
     return bank;
   },
   putProfileAddress: function(activeTab) {
@@ -295,25 +293,25 @@ Meteor.methods({
     if (this.userId) {
       let persona, persona_info, address;
 
-      if( activeTab ) {
+      if ( activeTab ) {
         persona_info = Meteor.users.findOne( { _id: this.userId } ) && Meteor.users.findOne( { _id: this.userId } ).persona_info;
         persona = _.where( persona_info, { id: Number( activeTab ) } );
       } else {
         persona_info = Meteor.users.findOne() && Meteor.users.findOne().persona_info;
-        if( persona_info && persona_info.length > 0 ) {
+        if ( persona_info && persona_info.length > 0 ) {
           persona = persona_info[0];
         }
       }
 
-      if( persona ) {
+      if ( persona ) {
         let street_address = persona.addresses[0].street_address;
         street_address = street_address.split( "\n" );
         address = {
-          city:        persona.addresses[0].city,
-          state:       persona.addresses[0].state,
+          city: persona.addresses[0].city,
+          state: persona.addresses[0].state,
           postal_code: persona.addresses[0].postal_code,
-          address_line1:       street_address[0],
-          address_line2:       street_address[1]
+          address_line1: street_address[0],
+          address_line2: street_address[1]
         };
         return Meteor.users.update( { _id: this.userId }, { $set: { 'profile.address': address } } );
       }

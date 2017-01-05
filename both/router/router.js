@@ -96,7 +96,10 @@ Router.route('', {
     Session.set('params.recurring', params.query.recurring);
 
     if (Meteor.user()) {
-      Router.go('user.give', {}, {query: params.query});
+      if (Roles.userIsInRole(Meteor.userId(), ['super-admin', 'admin', 'manager'])) {
+        return Router.go('Dashboard');
+      }
+      return Router.go('user.profile', {}, {query: params.query});
     }
     this.render('DonationForm');
   }

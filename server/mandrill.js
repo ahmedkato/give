@@ -244,23 +244,26 @@ _.extend(Utils, {
 
     const canceledReason = stripeEvent.data.object.metadata &&
       stripeEvent.data.object.metadata.canceled_reason;
-    const emailMessage = donor_name + " or the admin stopped a recurring (every " +
-      stripeEvent.data.object.plan.interval + ") gift (amount: " +
-      (stripeEvent.data.object.quantity / 100).toFixed(2) + ") that was using (a) " +
+
+    // Look for invoices with this subscription_id that haven't been paid and have an attempt count of 4
+    const fourFailedAttempts = Invoices.findOne({subscription: subscription_id, attempt_count: 4, paid: false});
+    const emailMessage = "A recurring gift with a frequency of, every " +
+      stripeEvent.data.object.plan.interval + ", was canceled. The recurring gift amount was $" +
+      (stripeEvent.data.object.quantity / 100).toFixed(2) + ". The payment method was (a) " +
       (donateWith && donateWith.toLowerCase()) + ". The gift start date was " + start_date +
       ". The last time this recurring gift charged was " + last_gift +
-      ". The gift was canceled on " + canceled_date + '. ' +
-      (canceledReason ?
-      "The reason they stopped giving was '" + canceledReason + "'." :
-      "This gift was canceled from Stripe directly either because someone " +
-      "used the Stripe dashboard, or because their gift failed to process to many times.");
+      ". The gift was canceled on " + canceled_date + '. ' + (fourFailedAttempts ?
+        "This recurring gift was canceled because it reached the failed gift retry limit." :
+        (canceledReason ? ("The reason given was '" + canceledReason + ".") :
+          "The gift was canceled from the Stripe Dashboard, not from Give."));
     const emailObject = {
       to: config.OrgInfo.emails.canceledGift,
-      previewLine: donor_name + " or the admin canceled a recurring gift.",
+      previewLine: "",
       type: 'Canceled Recurring Gift',
       emailMessage: emailMessage,
       buttonText: 'Donor Tools Person',
-      buttonURL: config.Settings.DonorTools.url + '/people/' + customer_cursor.metadata.dt_persona_id
+      buttonURL: config.Settings.DonorTools.url + (customer_cursor.metadata.dt_persona_id ? ('/people/' + customer_cursor.metadata.dt_persona_id) :
+        ("/personas?search=" + customer_cursor.email))
     };
 
     logger.info("emailObject:", emailObject);
@@ -528,15 +531,15 @@ _.extend(Utils, {
       } else if (type === 'charge.failed') {
         data_slug.template_name = config.Services.Email.failedPayment;
         data_slug.message.global_merge_vars.push({
-            "name": "URL",
-            "content": Meteor.absoluteUrl("user/subscriptions/" + payment_type.toLowerCase() + "/change?s=" +
+          "name": "URL",
+          "content": Meteor.absoluteUrl("user/subscriptions/" + payment_type.toLowerCase() + "/change?s=" +
                           subscription + "&c=" + subscription_cursor.customer)
-          });
+        });
         if (subscription_cursor.metadata.donateTo) {
           data_slug.message.global_merge_vars.push({
-              "name": "DonateTo",
-              "content": Utils.getDonateToName( subscription_cursor.metadata.donateTo )
-            });
+            "name": "DonateTo",
+            "content": Utils.getDonateToName( subscription_cursor.metadata.donateTo )
+          });
         } else {
           logger.info("donationSplitsId: " + subscription_cursor.metadata.donationSplitsId);
           const splits = DonationSplits.findOne({_id: subscription_cursor.metadata.donationSplitsId})

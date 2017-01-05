@@ -1,4 +1,4 @@
-import { setDocHeight, updateSearchVal } from '/imports/miscFunctions';
+import { setDocHeight, updateSearchVal } from '/imports/api/miscFunctions';
 
 
 AutoForm.hooks({
