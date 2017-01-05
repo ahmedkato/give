@@ -1,12 +1,10 @@
 Meteor.startup(function() {
 
   // if there is no org_domain in the settings.json file then put localhost in there
-  Meteor.settings.public.org_domain = 
-    Meteor.settings.public.org_domain ?
-      Meteor.settings.public.org_domain :
-      'localhost';
+  Meteor.settings.public.org_domain = Meteor.settings.public.org_domain ? Meteor.settings.public.org_domain : 'localhost';
 
-  if( Meteor.users.find().count() === 0 ) {
+  // Commented this fixture out, if you are just setting up, you'll want to un-comment this line to get an admin account setup
+  /*if( Meteor.users.find().count() === 0 ) {
     logger.info("Running fixtures");
 
     // CHANGE THE FIXTURE EMAIL BELOW
@@ -42,4 +40,5 @@ Meteor.startup(function() {
       Roles.addUsersToRoles(user_id, ["admin"]);
     }, 1000);
   }
+  */
 });
