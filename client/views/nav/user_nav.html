@@ -78,15 +78,17 @@
                             <a id="nav-dashboard" class="nav-bar-links" href="{{pathFor 'Dashboard'}}"><span class="fa fa-dashboard"></span> Dashboard</a>
                         </li>
                     {{/if}}
-                    <li class="">
-                        <a id="nav-profile" class="nav-bar-links" href="{{pathFor 'user.profile'}}"><span class="fa fa-history"></span> Profile & Giving History</a>
-                    </li>
-                    <li class="">
-                        <a id="nav-subscriptions" class="nav-bar-links" href="{{pathFor 'subscriptions'}}"><span class="fa fa-refresh"></span> Recurring Gifts</a>
-                    </li>
-                    <li class="">
-                        <a id="nav-give" class="nav-bar-links" href="{{pathFor 'user.give'}}"><span class="fa fa-plus-circle"></span> Give</a>
-                    </li>
+                    {{#unless noDTPersonaID}}
+                        <li class="">
+                            <a id="nav-profile" class="nav-bar-links" href="{{pathFor 'user.profile'}}"><span class="fa fa-history"></span> Profile & Giving History</a>
+                        </li>
+                        <li class="">
+                            <a id="nav-subscriptions" class="nav-bar-links" href="{{pathFor 'subscriptions'}}"><span class="fa fa-refresh"></span> Recurring Gifts</a>
+                        </li>
+                        <li class="">
+                            <a id="nav-give" class="nav-bar-links" href="{{pathFor 'user.give'}}"><span class="fa fa-plus-circle"></span> Give</a>
+                        </li>
+                    {{/unless}}
                     <li class="">
                         <a id="nav-password" class="nav-bar-links" href=""><span class="fa fa-unlock-alt"></span> Change Password</a>
                     </li>

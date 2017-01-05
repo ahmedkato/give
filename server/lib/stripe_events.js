@@ -134,12 +134,13 @@ Stripe_Events = {
         const emailMessage = ((companyName || fullName) + "'s gift of $" + (stripeEvent.data.object.amount / 100).toFixed(2) +
         " failed to process " + invoiceCursor.attempt_count + " times. " +
         "The card's last 4 digits are " + stripeEvent.data.object.source.last4 + ". " +
-        'To see this person in DonorTools click this link. ' + config.Settings.DonorTools.url + "/people/" +
+        'To contact this person click this link to their record in DonorTools. ' + config.Settings.DonorTools.url + "/people/" +
         (customerCursor && customerCursor.metadata && customerCursor.metadata.dt_persona_id) +
         ' To fix the payment method click the button below.');
+
         const emailObject = {
           to: config.OrgInfo.emails.canceledGift,
-          previewLine: ", " + companyName || fullName + "'s gift failed to process",
+          previewLine: (", " + (companyName || fullName) + "'s gift failed to process"),
           type: 'Failed Gift',
           emailMessage,
           buttonText: 'Fix/Change the Payment Method',
