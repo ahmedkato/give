@@ -154,7 +154,9 @@ Stripe_Events = {
         const emailMessage = ((companyName || fullName) + "'s gift of $" + (stripeEvent.data.object.amount / 100).toFixed(2) +
         " failed to process " + invoiceCursor.attempt_count + " times. " +
         "The card's last 4 digits are " + stripeEvent.data.object.source.last4 + ". " +
-        'To contact this person click this link to their record in DonorTools. ' + config.Settings.DonorTools.url + "/people/" +
+        "The failure code from Stripe is " + stripeEvent.data.object.failure_code +
+        ". The failure message from Stripe is " + stripeEvent.data.object.failure_message +
+        'To contact ' + (companyName || fullName) + ' click this link to their record in DonorTools. ' + config.Settings.DonorTools.url + "/people/" +
         (customerCursor && customerCursor.metadata && customerCursor.metadata.dt_persona_id) +
         ' To fix the payment method click the button below.');
 

@@ -6,7 +6,7 @@ Template.Dashboard.helpers({
     return Session.get("showFixNoUser");
   },
   completedDonorTools: function() {
-    let config = ConfigDoc();
+    const config = ConfigDoc();
 
     return config &&
       config.Settings &&
@@ -14,12 +14,12 @@ Template.Dashboard.helpers({
       config.Settings.DonorTools.url;
   },
   givingOptions: function() {
-    let config = ConfigDoc();
+    const config = ConfigDoc();
 
     return config && config.Giving && config.Giving.options;
   },
   showOtherThanConfig: function() {
-    let config = ConfigDoc();
+    const config = ConfigDoc();
 
     if (config && config.Giving && config.Giving.options &&
       config.Settings &&
@@ -112,7 +112,6 @@ Template.Dashboard.events({
     // Stop propagation prevents the form from being submitted more than once.
     e.stopPropagation();
 
-    console.log("Started merge-dt-persona");
     $('#modal_for_admin_merge_persona').modal({
       show: true,
       backdrop: 'static'
@@ -127,7 +126,7 @@ Template.Dashboard.onRendered(function() {
   $( "[data-toggle='tooltip']" ).tooltip();
 });
 
-Template.Dashboard.onCreated(function () {
+Template.Dashboard.onCreated(function() {
   this.autorun(() => {
     this.subscribe("userDoc");
   });

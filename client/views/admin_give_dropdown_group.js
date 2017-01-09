@@ -1,10 +1,10 @@
 Template.AdminGiveDropdownGroup.onRendered(function() {
   // show the datepicker if the frequency is monthly when the page loads
-  if(Session.equals('params.recurring', 'monthly')){
+  if (Session.equals('params.recurring', 'monthly')) {
     $('#calendarSection').show();
   }
 
-  var datepickerSelector = $('#start_date');
+  const datepickerSelector = $('#start_date');
   datepickerSelector.datepicker( {
     format: 'd MM, yyyy',
     startDate: '+0d',
@@ -19,31 +19,30 @@ Template.AdminGiveDropdownGroup.helpers({
   today: function() {
     return moment().format('D MMM, YYYY');
   },
-  device: function(){
-    if(!Devices.find()){
+  device: function() {
+    if (!Devices.find()) {
       Session.set("UserPaymentMethod", "Check");
     }
     return Devices.find();
   },
   selected: function() {
-    var customer = Customers.find({_id: this.customer});
-    if(this.id === customer.default_source){
+    const customer = Customers.find({_id: this.customer});
+    if (this.id === (customer && customer.default_source) ) {
       return 'selected';
-    } else{
-      return;
     }
+      return;
   },
-  brand: function(){
-    if(this.brand){
+  brand: function() {
+    if (this.brand) {
       return this.brand;
-    } else{
+    } else {
       return 'Bank Acct';
     }
   },
   customer: function() {
-    let customer = Customers.findOne({_id: this.customer});
+    const customer = Customers.findOne({_id: this.customer});
     if (customer) {
-      return " - " + customer.metadata.fname +  " " + customer.metadata.lname;
+      return " - " + customer.metadata.fname + " " + customer.metadata.lname;
     }
   }
 });
@@ -59,24 +58,24 @@ Template.AdminGiveDropdownGroup.events({
     }
   },
   'change #donateWith': function() {
-    let selectedValue = $("#donateWith").val();
+    const selectedValue = $("#donateWith").val();
     Session.set("UserPaymentMethod", selectedValue);
     if (selectedValue) {
-      if(selectedValue === 'Check'){
+      if (selectedValue === 'Check') {
         Session.set("savedDevice", false);
         Give.updateTotal();
         $("#show_total").hide();
-      } else if(selectedValue === 'Card'){
+      } else if (selectedValue === 'Card') {
         Session.set("savedDevice", false);
         Give.updateTotal();
-      } else if(selectedValue.slice(0,3) === 'car'){
+      } else if (selectedValue.slice(0, 3) === 'car') {
         Session.set("savedDevice", 'Card');
-      } else{
+      } else {
         Session.set("savedDevice", 'Check');
       }
     }
   },
-  'click #start_date_button'(){
+  'click #start_date_button'() {
     $("#start_date").select();
   }
 });
