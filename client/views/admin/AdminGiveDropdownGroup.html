@@ -1,0 +1,24 @@
+<template name="AdminGiveDropdownGroup">
+    <div class="form-group">
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6">
+                <label for="donateWith" id="donateWith_label">Pay With</label>
+                <select name="donateWith" id="donateWith"
+                        class="form-control select select-primary slim-borders"
+                        required>
+                    <option value="Card">New Card</option>
+                    <option value="Check">New Bank</option>
+                    {{#each device}}
+                        <option value="{{this.id}}" {{selected_device}}>{{brand}} - {{last4}}</option>
+                    {{/each}}
+                </select>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6">
+                {{> DonationFrequency}}
+            </div>
+        </div>
+        <div class="row">
+            {{> DonationDate}}
+        </div>
+    </div>
+</template>

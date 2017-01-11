@@ -203,15 +203,7 @@ Template.ManageUsers.events({
   }, 300),
   'click .new-gift'(e) {
     e.preventDefault();
-    //Session.set("gift_user_id", this._id);
-    Router.go('user.give', {}, {query: {userID: this._id}});
-
-    /*Meteor.setTimeout(function() {
-      $('#modal_for_admin_give_form').modal({
-        show: true,
-        backdrop: 'static'
-      });
-    }, 0);*/
+    Router.go('admin.give', {}, {query: {userID: this._id}});
   }
 });
 

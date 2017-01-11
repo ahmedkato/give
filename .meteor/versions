@@ -3,10 +3,7 @@ accounts-password@1.3.3
 alanning:roles@1.2.15
 aldeed:autoform@5.8.1
 aldeed:autoform-bs-datepicker@1.1.1
-aldeed:collection2@2.10.0
-aldeed:collection2-core@1.2.0
-aldeed:schema-deny@1.1.0
-aldeed:schema-index@1.1.1
+aldeed:collection2@2.7.1
 aldeed:simple-schema@1.5.3
 allow-deny@1.0.5
 audit-argument-checks@1.0.7
@@ -15,7 +12,7 @@ babel-compiler@6.13.0
 babel-runtime@1.0.1
 base64@1.0.10
 binary-heap@1.0.10
-blaze@2.2.0
+blaze@2.2.1
 blaze-html-templates@1.0.5
 blaze-tools@1.0.10
 boilerplate-generator@1.0.11
@@ -94,7 +91,7 @@ mizzao:tutorials@0.6.7
 mobile-experience@1.0.4
 mobile-status-bar@1.0.13
 modules@0.7.7
-modules-runtime@0.7.7
+modules-runtime@0.7.8
 momentjs:moment@2.17.1
 mongo@1.1.14
 mongo-id@1.0.6
@@ -128,7 +125,7 @@ service-configuration@1.0.11
 session@1.1.7
 sha@1.0.9
 shell-server@0.2.1
-softwarerero:accounts-t9n@1.3.6
+softwarerero:accounts-t9n@1.3.7
 spacebars@1.0.13
 spacebars-compiler@1.0.13
 srp@1.0.10

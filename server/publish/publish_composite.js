@@ -336,6 +336,7 @@ Meteor.publishComposite('charges_and_customers', function(search, limit, refunde
 
 Meteor.publishComposite("publish_for_admin_give_form", function(id) {
   check(id, String);
+  logger.info("Started publish_for_admin_give_form with id: ", id);
   if (Roles.userIsInRole(this.userId, ['admin'])) {
     return {
       find: function() {

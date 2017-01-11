@@ -1407,7 +1407,8 @@ Utils = {
             "content": Meteor.settings.dev
           }
         ]
-      }
+      },
+      "send_at": moment().add(7, "days").toISOString()
     };
     Utils.send_mandrill_email( data_slug, config.Services.Email.welcome, email, 'Welcome' );
 
