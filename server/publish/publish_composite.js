@@ -1,5 +1,5 @@
 Meteor.publishComposite('transactions', function(transfer_id) {
-  check(transfer_id, Match.Optional(String));
+  check(transfer_id, Match.Maybe(String));
   if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
     return {
       find: function() {
@@ -28,30 +28,54 @@ Meteor.publishComposite('transactions', function(transfer_id) {
                     'charge.source': 1,
                     'charge.refunded': 1,
                     'charge.refunds': 1,
-                    description: 1
-                  }
-                } );
-            } else {
-              return Charges.find(
-                { _id: transactions.source },
-                {
-                  limit: 1,
-                  fields: {
-                    id: 1,
-                    object: 1,
-                    metadata: 1,
-                    customer: 1,
-                    created: 1,
-                    payment_source: 1,
-                    source: 1,
-                    refunded: 1,
-                    refunds: 1,
-                    status: 1
+                    description: 1,
+                    balance_transaction: 1
                   }
                 } );
             }
+            return Charges.find(
+              { _id: transactions.source },
+              {
+                limit: 1,
+                fields: {
+                  id: 1,
+                  object: 1,
+                  metadata: 1,
+                  customer: 1,
+                  created: 1,
+                  payment_source: 1,
+                  source: 1,
+                  refunded: 1,
+                  refunds: 1,
+                  status: 1
+                }
+              } );
           },
           children: [
+            {
+              find: function( charges ) {
+                if (charges.object === 'refund') {
+                  return Charges.find(
+                    {_id: charges.charge.id},
+                    {
+                      limit: 1,
+                      fields: {
+                        id: 1,
+                        object: 1,
+                        metadata: 1,
+                        customer: 1,
+                        created: 1,
+                        payment_source: 1,
+                        source: 1,
+                        refunded: 1,
+                        refunds: 1,
+                        status: 1
+                      }
+                    });
+                }
+                return;
+              }
+            },
             {
               find: function( charges ) {
                 if (charges.object === 'refund') {
@@ -65,24 +89,36 @@ Meteor.publishComposite('transactions', function(transfer_id) {
                         metadata: 1
                       }
                     } );
-                } else {
-                  return Customers.find(
-                    { _id: charges.customer },
-                    {
-                      limit: 1,
-                      fields: {
-                        id: 1,
-                        email: 1,
-                        metadata: 1
-                      }
-                    } );
                 }
+                return Customers.find(
+                  { _id: charges.customer },
+                  {
+                    limit: 1,
+                    fields: {
+                      id: 1,
+                      email: 1,
+                      metadata: 1
+                    }
+                  } );
               }
             },
             {
               find: function( charges ) {
+                if (charges.object === 'refund') {
+                  console.log(charges)
+                  return DT_donations.find(
+                    {transaction_id: charges.charge.id},
+                    {
+                      limit: 1,
+                      fields: {
+                        persona_id: 1,
+                        transaction_id: 1,
+                        splits: 1
+                      }
+                    });
+                }
                 return DT_donations.find(
-                  { transaction_id: charges._id },
+                  {transaction_id: charges._id},
                   {
                     limit: 1,
                     fields: {
@@ -90,17 +126,16 @@ Meteor.publishComposite('transactions', function(transfer_id) {
                       transaction_id: 1,
                       splits: 1
                     }
-                  } );
+                  });
               }
             }
           ]
         }
       ]
     };
-  } else {
-    this.stop();
-    return;
   }
+  this.stop();
+  return;
 });
 
 Meteor.publishComposite('subscriptions_and_customers', function(search, limit) {

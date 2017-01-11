@@ -56,16 +56,16 @@
           </tr>
           {{#each transactions}}
             <tr class="responsiveFont
-            {{#if ($or $eq type "payment" $eq type "charge")}}
+            {{#if ($or ($eq type "payment") ($eq type "charge") )}}
                 {{#with charges}}
                     {{refunded}} {{failed}}
                 {{/with}}
             {{else}}
                 {{#if $eq type "refund"}}
-                    {{refund_type}}
+                    {{{refund_type}}}
                 {{/if}}
             {{/if}}">
-              {{#if ($or $eq type "payment" $eq type "charge")}}
+              {{#if ($or ($eq type "payment") ($eq type "charge") )}}
                   {{#with charges}}
                     <td style="width: 50px;">
                       <a href="{{donor_tools_site}}/donations?transaction_id={{_id}}" target="_blank">
@@ -109,20 +109,24 @@
                               class="cover-fees" {{fees_covered}} disabled>
                       </td>
                       <td class="change-td-padding">{{metadata.frequency}}</td>
-                      {{#with dt_donation}}
-                          <td class="change-td-padding">
-                              {{#each splits}}
-                                  {{{fundName}}}
-                                  <br>
-                              {{/each}}
-                          </td>
-                          <td>
-                              {{#each splits}}
-                                  ${{twoDecimalPlaces this.amount_in_cents}}
-                                  <br>
-                              {{/each}}
-                          </td>
-                      {{/with}}
+                      {{#if dt_donation}}
+                          {{#with dt_donation}}
+                              <td class="change-td-padding">
+                                  {{#each splits}}
+                                      {{{fundName}}}
+                                      <br>
+                                  {{/each}}
+                              </td>
+                              <td>
+                                  {{#each splits}}
+                                      ${{twoDecimalPlaces this.amount_in_cents}}
+                                      <br>
+                                  {{/each}}
+                              </td>
+                          {{/with}}
+                      {{else}}
+                          <td class="change-td-padding"></td>
+                      {{/if}}
                       <!--<td class="change-td-padding">{{dt_source}}</td>-->
                   {{/with}}
               {{else}}
@@ -142,7 +146,24 @@
                                  class="cover-fees" {{fees_covered}} disabled>
                       </td>
                       <td class="change-td-padding">{{charge.metadata.frequency}}</td>
-                      <td class="change-td-padding">{{getFundName charge.metadata.donateTo}}</td>
+                      {{#if dt_donation}}
+                          {{#with dt_donation}}
+                              <td class="change-td-padding">
+                                  {{#each splits}}
+                                      {{{fundName}}}
+                                      <br>
+                                  {{/each}}
+                              </td>
+                              <td>
+                                  {{#each splits}}
+                                      ${{twoDecimalPlaces this.amount_in_cents}}
+                                      <br>
+                                  {{/each}}
+                              </td>
+                          {{/with}}
+                      {{else}}
+                          <td class="change-td-padding"></td>
+                      {{/if}}
                       <!--<td class="change-td-padding">{{dt_source}}</td>-->
                   {{/with}}
               {{/if}}
@@ -154,7 +175,7 @@
             </tr>
           {{/each}}
           <tr>
-              <td class="text-right" colspan="9">Totals</td>
+              <td class="text-right" colspan="10">Totals</td>
               <td><strong>${{add amount total_fees}}</strong></td>
               <td><strong>${{twoDecimalPlaces total_fees}}</strong></td>
               <td><strong>${{twoDecimalPlaces amount}}</strong></td>

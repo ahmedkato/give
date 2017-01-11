@@ -536,6 +536,7 @@ Template.registerHelper('paramsDonateTo', function() {
 
 
 Template.registerHelper('fundName', function() {
+  console.log(this.fund_id);
   if (DT_funds.findOne({_id: this.fund_id.toString()}) && DT_funds.findOne({_id: this.fund_id.toString()}).name) {
     return DT_funds.findOne({_id: this.fund_id.toString()}).name;
   }

@@ -1,12 +1,12 @@
-/*****************************************************************************/
+/** ***************************************************************************/
 /* StripeTransferDetails: Event Handlers */
-/*****************************************************************************/
+/** ***************************************************************************/
 Template.StripeTransferDetails.events({
-  'click .previous': function () {
+  'click .previous'() {
     console.log("clicked previous with: " + this.id);
-    let loadButton = $("#previous-button").button("loading");
-    Meteor.call("get_next_or_previous_transfer", this.id, 'starting_after', function (err, result) {
-      if(err) {
+    const loadButton = $("#previous-button").button("loading");
+    Meteor.call("get_next_or_previous_transfer", this.id, 'starting_after', function(err, result) {
+      if (err) {
         console.error(err);
         Bert.alert({
           message: "Nothing older",
@@ -21,11 +21,11 @@ Template.StripeTransferDetails.events({
       }
     });
   },
-  'click .next': function () {
+  'click .next'() {
     console.log("clicked next with: " + this.id);
-    let loadButton = $("#next-button").button("loading");
-    Meteor.call("get_next_or_previous_transfer", this.id, 'ending_before', function (err, result) {
-      if(err) {
+    const loadButton = $("#next-button").button("loading");
+    Meteor.call("get_next_or_previous_transfer", this.id, 'ending_before', function(err, result) {
+      if (err) {
         console.error(err);
         Bert.alert({
           message: "Nothing newer",
@@ -40,17 +40,17 @@ Template.StripeTransferDetails.events({
       }
     });
   },
-  'click .posted': function(e){
+  'click .posted'(e) {
     let checkbox_state;
 
-    if($(e.currentTarget).hasClass('disabled')){
+    if ($(e.currentTarget).hasClass('disabled')) {
       return;
     }
     $(e.currentTarget).addClass('disabled');
 
-    let transfer_id = this.id;
-    let status = $(e.currentTarget).children('em').html();
-    if(status === 'posted') {
+    const transfer_id = this.id;
+    const status = $(e.currentTarget).children('em').html();
+    if (status === 'posted') {
       checkbox_state = 'false';
     } else {
       checkbox_state = 'true';
@@ -58,8 +58,8 @@ Template.StripeTransferDetails.events({
 
 
     Meteor.call("toggle_post_transfer_metadata_state", transfer_id,
-      checkbox_state, function(err){
-        if (err){
+      checkbox_state, function(err) {
+        if (err) {
           console.dir(err);
           $(e.currentTarget).removeClass('disabled');
           Bert.alert({
@@ -73,17 +73,17 @@ Template.StripeTransferDetails.events({
         }
       });
   },
-  'click .not-posted': function(e){
+  'click .not-posted'(e) {
     let checkbox_state;
 
-    if($(e.currentTarget).hasClass('disabled')){
+    if ($(e.currentTarget).hasClass('disabled')) {
       return;
     }
     $(e.currentTarget).addClass('disabled');
 
-    let transfer_id = this.id;
-    let status = $(e.currentTarget).children('em').html();
-    if(status === 'posted') {
+    const transfer_id = this.id;
+    const status = $(e.currentTarget).children('em').html();
+    if (status === 'posted') {
       checkbox_state = 'false';
     } else {
       checkbox_state = 'true';
@@ -91,8 +91,8 @@ Template.StripeTransferDetails.events({
 
 
     Meteor.call("toggle_post_transfer_metadata_state", transfer_id,
-      checkbox_state, function(err){
-        if (err){
+      checkbox_state, function(err) {
+        if (err) {
           console.dir(err);
           $(e.currentTarget).removeClass('disabled');
           Bert.alert({
@@ -108,129 +108,119 @@ Template.StripeTransferDetails.events({
   }
 });
 
-/*****************************************************************************/
+/** ***************************************************************************/
 /* StripeReports: Helpers */
-/*****************************************************************************/
+/** ***************************************************************************/
 Template.StripeTransferDetails.helpers({
-  transfer: function () {
+  transfer() {
     return Transfers.findOne();
   },
-  transactions: function () {
+  transactions() {
     return Transactions.find();
   },
-  customers: function () {
+  customers() {
     let charge;
 
-    if(this.source.slice(0,3) === 'pyr' || this.source.slice(0,3) === 're_'){
+    if (this.source.slice(0, 3) === 'pyr' || this.source.slice(0, 3) === 're_') {
       charge = Refunds.findOne({_id: this.source});
-      if(charge && charge.charge && charge.charge.customer){
+      if (charge && charge.charge && charge.charge.customer) {
         return Customers.findOne({_id: charge.charge.customer});
-      } else {
-        return;
       }
+      return;
     } else {
       charge = Charges.findOne({_id: this.source});
-      if(charge && charge.customer){
+      if (charge && charge.customer) {
         return Customers.findOne({_id: charge.customer});
-      } else {
-        return;
       }
+      return;
     }
-
-
   },
-  charges: function () {
+  charges() {
     return Charges.findOne({_id: this.source});
   },
-  refunds: function () {
+  refunds() {
     return Refunds.findOne({_id: this.source});
   },
-  name: function () {
-    if(this.metadata && this.metadata.business_name){
+  name() {
+    if (this.metadata && this.metadata.business_name) {
       return this.metadata.business_name;
-    } else if(this.metadata && this.metadata.fname && this.metadata.lname){
+    } else if (this.metadata && this.metadata.fname && this.metadata.lname) {
       return this.metadata.fname + " " + this.metadata.lname;
-    } else if(this.customer){
-      let customer = Customers.findOne({_id: this.customer});
+    } else if (this.customer) {
+      const customer = Customers.findOne({_id: this.customer});
       return customer.metadata.fname + " " + customer.metadata.lname;
     }
   },
-  ach_or_card: function () {
-    if(this.object && this.object === 'refund'){
-      if(this.charge &&
+  ach_or_card() {
+    if (this.object && this.object === 'refund') {
+      if (this.charge &&
         this.charge.source &&
-        this.charge.source.object === 'bank_account'){
+        this.charge.source.object === 'bank_account') {
         return "ACH";
-      } else if(this.charge &&
+      } else if (this.charge &&
         this.charge.payment_source &&
         this.charge.payment_source.object === 'bank_account') {
         return "ACH";
-      } else {
-        return "Card"
       }
-    } else if(this.source && this.source.object === 'bank_account'){
+      return "Card";
+    } else if (this.source && this.source.object === 'bank_account') {
       return "ACH";
-    } else if(this.payment_source && this.payment_source.object === 'bank_account') {
+    } else if (this.payment_source && this.payment_source.object === 'bank_account') {
       return "ACH";
-    } else {
-      return "Card"
     }
+    return "Card";
   },
-  fees_covered: function () {
-    if(this.object && this.object === 'refund'){
-      if(this.charge &&
+  fees_covered() {
+    if (this.object && this.object === 'refund') {
+      if (this.charge &&
         this.charge.metadata &&
         this.charge.metadata.coveredTheFees &&
         this.charge.metadata.coveredTheFees === 'true') {
         return 'checked';
-      } else {
-        return;
       }
-    } else if(this.object && this.object === 'charge'){
-      if(this.metadata &&
+      return;
+    } else if (this.object && this.object === 'charge') {
+      if (this.metadata &&
         this.metadata.coveredTheFees &&
-        this.metadata.coveredTheFees === 'true'){
+        this.metadata.coveredTheFees === 'true') {
         return 'checked';
-      } else {
-        return;
       }
+      return;
     }
   },
-  total_fees: function () {
-    let transactions = Transactions.find().fetch();
+  total_fees() {
+    const transactions = Transactions.find().fetch();
     let total = 0;
-    transactions.forEach(function (each_transactions){
+    transactions.forEach(function(each_transactions) {
       total += each_transactions.fee;
     });
     return total;
   },
-  dt_source: function () {
-    if(this.metadata && this.metadata.dt_source) {
+  dt_source() {
+    if (this.metadata && this.metadata.dt_source) {
       return DT_sources.findOne( { _id: this.metadata.dt_source } ).name;
-    } else if(this.charge && this.charge.metadata && this.charge.metadata.dt_source) {
+    } else if (this.charge && this.charge.metadata && this.charge.metadata.dt_source) {
       return DT_sources.findOne( { _id: this.charge.metadata.dt_source } ).name;
-    } else {
-      return;
     }
+    return;
   },
-  retrieve_dt_names: function () {
+  retrieve_dt_names() {
     if (this.object === 'charge') {
-      let dt_donation = DT_donations.findOne({'transaction_id': this._id});
+      const dt_donation = DT_donations.findOne({'transaction_id': this._id});
       if (dt_donation && dt_donation.persona_id) {
         if (!Session.get(dt_donation.persona_id)) {
-
           Meteor.call( "get_dt_name", dt_donation.persona_id,
             this.metadata && this.metadata.dt_donation_id ? this.metadata.dt_donation_id : '',
-            function ( err, result ) {
-            if( err ) {
-              console.error( err );
+            function( err, result ) {
+              if ( err ) {
+                console.error( err );
               // TODO: need to query DT for the latest version of this dt_donation record
               // it may be that the person was merged and their persona_id in this dt_donation
               // doesn't match any longer
-            } else {
-              Session.set( dt_donation.persona_id, result.recognition_name );
-            }
-          } );
+              } else {
+                Session.set( dt_donation.persona_id, result.recognition_name );
+              }
+            } );
         } else {
           return;
         }
@@ -240,8 +230,8 @@ Template.StripeTransferDetails.helpers({
           this.metadata.dt_donation_id ?
             this.metadata.dt_donation_id :
             '',
-          function ( err, result ) {
-            if( err ) {
+          function( err, result ) {
+            if ( err ) {
               console.error( err );
               // TODO: need to query DT for the latest version of this dt_donation record
               // it may be that the person was merged and their persona_id in this dt_donation
@@ -253,114 +243,113 @@ Template.StripeTransferDetails.helpers({
         );
       }
     } else {
-      let dt_donation = DT_donations.findOne({'transaction_id': this.charge.id});
+      const dt_donation = DT_donations.findOne({'transaction_id': this.charge.id});
 
-      if(dt_donation && dt_donation.persona_id){
-        if(!Session.get(dt_donation.persona_id)) {
+      if (dt_donation && dt_donation.persona_id) {
+        if (!Session.get(dt_donation.persona_id)) {
           Meteor.call( "get_dt_name",
             dt_donation.persona_id, this.charge &&
             this.charge.metadata && this.charge.metadata.dt_donation_id ?
               this.charge.metadata.dt_donation_id :
               '',
-            function ( err, result ) {
-            if( err ) {
-              console.error( err );
+            function( err, result ) {
+              if ( err ) {
+                console.error( err );
               // TODO: need to query DT for the latest version of this dt_donation record
               // it may be that the person was merged and their persona_id in this dt_donation
               // doesn't match any longer
-            } else {
-              Session.set( dt_donation.persona_id, result.recognition_name );
-            }
-          } );
+              } else {
+                Session.set( dt_donation.persona_id, result.recognition_name );
+              }
+            } );
         } else {
           return;
         }
       }
     }
   },
-  dt_names: function () {
-    if(this.type === 'charge' || this.type === 'payment') {
-      let dt_donation = DT_donations.findOne( { 'transaction_id': this._id } );
-      if( dt_donation && dt_donation.persona_id ) {
-        let persona_name = Session.get( dt_donation.persona_id );
-        if( persona_name ) {
+  dt_names() {
+    if (this.type === 'charge' || this.type === 'payment') {
+      const dt_donation = DT_donations.findOne( { 'transaction_id': this._id } );
+      if ( dt_donation && dt_donation.persona_id ) {
+        const persona_name = Session.get(dt_donation.persona_id);
+        if (persona_name) {
           return persona_name;
-        } else {
-          return;
         }
-      } else {
         return;
       }
+      return;
     } else {
-      let dt_donation = DT_donations.findOne( { 'transaction_id': this._id } );
-      if( dt_donation && dt_donation.persona_id ) {
-        let persona_name = Session.get( dt_donation.persona_id );
-        if( persona_name ) {
+      const dt_donation = DT_donations.findOne( { 'transaction_id': this._id } );
+      if ( dt_donation && dt_donation.persona_id ) {
+        const persona_name = Session.get( dt_donation.persona_id );
+        if ( persona_name ) {
           return persona_name;
         } else {
           return;
         }
-      } else {
-        return;
       }
+      return;
     }
-
   },
-  transfer_date: function () {
-    let timestamp = this.date;
+  transfer_date() {
+    const timestamp = this.date;
     return moment.utc(timestamp, 'X').format("MMMM Do, YYYY");
   },
-  posted: function () {
-    if(this.metadata && this.metadata.posted && this.metadata.posted === "true") {
-      return 'posted'
-    } else {
-      return 'not-posted'
+  posted() {
+    if (this.metadata && this.metadata.posted && this.metadata.posted === "true") {
+      return 'posted';
     }
+    return 'not-posted';
   },
-  refunded: function () {
-    if(this.refunded) {
-      return 'refunded'
-    } else if (this.description === "REFUND FOR FAILED PAYMENT"){
+  refunded() {
+    if (this.refunded) {
+      return 'refunded';
+    } else if (this.description === "REFUND FOR FAILED PAYMENT") {
       return 'failed';
-    } else if(this.status === 'failed'){
+    } else if (this.status === 'failed') {
       return 'failed';
-    } else {
-      return;
     }
+    return null;
   },
-  refund_type: function () {
-    if(this.type === "payment_failure_refund") {
-      return 'refunded'
-    } else if(this.description && this.description === "Payment failure refund"){
+  refund_type() {
+    if (this.type === "payment_failure_refund") {
+      return 'refunded';
+    } else if (this.description && (this.description === "Payment failure refund")) {
       return 'failed';
-    } else if(this.type === "refund") {
+    } else if (this.type === "refund") {
       return 'refunded';
     }
+    return 'refunded';
   },
-  failed: function () {
-    if(this.status === 'failed') {
-      return 'failed'
-    } else {
-      return;
+  failed() {
+    if (this.status === 'failed') {
+      return 'failed';
     }
+    return;
   },
-  getFundName(fundId){
+  getFundName(fundId) {
     if (isNaN(fundId)) {
       return fundId;
     }
-    let dTFund = DT_funds.findOne({_id: fundId.toString()});
+    const dTFund = DT_funds.findOne({_id: fundId.toString()});
     if (dTFund && dTFund.name) {
       return dTFund.name;
-    } else {
-      return "Fund id: " + fundId;
     }
+    return "Fund id: " + fundId;
   },
   dt_donation() {
-    return DT_donations.findOne( { 'transaction_id': this._id } ) && DT_donations.findOne( { 'transaction_id': this._id } );
-  },
+    console.log(this._id);
+    if (this._id.substring(0, 2) === 'ch') {
+      return DT_donations.findOne( { 'transaction_id': this._id } );
+    } else if (this._id.substring(0, 2) === 're') {
+      console.log(this.charge.id);
+      return DT_donations.findOne( { 'transaction_id': this.charge.id } );
+    }
+  }
 });
 
-Template.StripeTransferDetails.onCreated(function () {
+Template.StripeTransferDetails.onCreated(function() {
   this.autorun(()=>{
     this.subscribe("fundNames");
     this.subscribe('transfers', Session.get("transferId"));
