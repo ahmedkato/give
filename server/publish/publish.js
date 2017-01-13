@@ -50,7 +50,6 @@ Meteor.publish("devices", function() {
       customer_ids.push(element.id);
     });
 
-    console.log(customer_ids);
     return Devices.find({$and: [
       { 'customer': {
         $in: customer_ids}
@@ -161,7 +160,6 @@ Meteor.publish("userSubscriptions", function () {
     var customers = Customers.find({'metadata.user_id': this.userId});
     var subscriptions = [];
     customers.forEach(function(element) {
-        console.log(element.id);
         subscriptions.push(Subscriptions.find({customer: element.id}));
     });
     return subscriptions;
@@ -194,11 +192,9 @@ Meteor.publish("userDT", function (id) {
 
   if (Meteor.users.findOne({_id: userID}) && Meteor.users.findOne({_id: userID}).persona_ids) {
     var persona_ids = Meteor.users.findOne({_id: userID}).persona_ids;
-    console.log(persona_ids);
     return DT_donations.find({persona_id: {$in: persona_ids}});
   } else if(Meteor.users.findOne({_id: userID}) && Meteor.users.findOne({_id: userID}).persona_id) {
     var persona_id = Meteor.users.findOne( { _id: userID } ).persona_id;
-    console.log( persona_id );
     return DT_donations.find( { persona_id: { $in: persona_id } } );
   } else if(Meteor.users.findOne({_id: userID}) && Meteor.users.findOne({_id: userID}).persona_info){
     var persona_ids = [];
@@ -206,7 +202,6 @@ Meteor.publish("userDT", function (id) {
     persona_info.forEach(function (value) {
       persona_ids.push(value.id);
     });
-    console.log(persona_ids);
     return DT_donations.find( { persona_id: { $in: persona_ids } } );
   } else {
     this.ready();
@@ -272,7 +267,7 @@ Meteor.publish("transfersRange", function (search, limit, posted, range) {
     if( search && !isNaN( search ) ) {
       searchValue = { 'amount': search * 100 }
     } else {
-      console.log( "ID: ", search );
+      logger.info( "ID: ", search );
       let thisSearch = search ? search : '';
       searchValue = { 'id': { $regex: thisSearch } };
     }
@@ -292,7 +287,6 @@ Meteor.publish("transfersRange", function (search, limit, posted, range) {
     };
 
     if( posted === "true" ) {
-      console.log( posted );
       postedValue = { 'metadata.posted': posted }
     } else {
       postedValue = {

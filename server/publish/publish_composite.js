@@ -105,7 +105,6 @@ Meteor.publishComposite('transactions', function(transfer_id) {
             {
               find: function( charges ) {
                 if (charges.object === 'refund') {
-                  console.log(charges)
                   return DT_donations.find(
                     {transaction_id: charges.charge.id},
                     {

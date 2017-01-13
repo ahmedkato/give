@@ -2,6 +2,10 @@
     color: #F57F17;
 }
 
+.bottom-padding {
+    padding-bottom: 25px;
+}
+
 .bottom-left-corner {
     position: absolute;
     bottom: -15px;
@@ -20,9 +24,15 @@
     right: -15px;
 }
 
+.bottom-center {
+    position: relative;
+    bottom: 40px;
+    left: 36%;
+}
+
 .hr-in-well {
     display: inline-block;
-    width: 100%;
+    width: 98%;
     color: #1abc9c;
     height: 1px;
     background-color: #1abc9c;
@@ -105,6 +115,10 @@ select {
     .btn-for-mobile{
          position: absolute;
          top: -186px;
-         right: -24px;
+         right: 20px;
      }
+    .bottom-center {
+        right: auto;
+        left: 5%;
+    }
 }

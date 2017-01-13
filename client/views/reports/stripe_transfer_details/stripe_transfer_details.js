@@ -3,7 +3,6 @@
 /** ***************************************************************************/
 Template.StripeTransferDetails.events({
   'click .previous'() {
-    console.log("clicked previous with: " + this.id);
     const loadButton = $("#previous-button").button("loading");
     Meteor.call("get_next_or_previous_transfer", this.id, 'starting_after', function(err, result) {
       if (err) {
@@ -22,7 +21,6 @@ Template.StripeTransferDetails.events({
     });
   },
   'click .next'() {
-    console.log("clicked next with: " + this.id);
     const loadButton = $("#next-button").button("loading");
     Meteor.call("get_next_or_previous_transfer", this.id, 'ending_before', function(err, result) {
       if (err) {
@@ -339,11 +337,9 @@ Template.StripeTransferDetails.helpers({
     return "Fund id: " + fundId;
   },
   dt_donation() {
-    console.log(this._id);
     if (this._id.substring(0, 2) === 'ch') {
       return DT_donations.findOne( { 'transaction_id': this._id } );
     } else if (this._id.substring(0, 2) === 're') {
-      console.log(this.charge.id);
       return DT_donations.findOne( { 'transaction_id': this.charge.id } );
     }
   }
