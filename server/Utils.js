@@ -741,7 +741,7 @@ Utils = {
           auth: DONORTOOLSAUTH
         } );
       logger.info( checkPerson.data );
-      if(!checkPerson) {
+      if (!checkPerson) {
         logger.warn("No person found, not sure if this will work, but I'll attempt to insert this donation without a person with this record in DT.");
       }
 
@@ -1865,7 +1865,7 @@ Utils = {
     }
 
     try {
-      let newDonationResult = HTTP.post(config.Settings.DonorTools.url + '/donations.json', {
+      const newDonationResult = HTTP.post(config.Settings.DonorTools.url + '/donations.json', {
         data: {
           "donation": {
             "splits": splits,
@@ -1897,10 +1897,9 @@ Utils = {
       }
       logger.error("The persona ID wasn't returned from DT, or something else happened with the connection to DT.");
       throw new Meteor.Error("Couldn't get the persona_id for some reason");
-
     } catch (e) {
       logger.error(e);
-      var error = (e.response);
+      const error = (e.response);
       throw new Meteor.Error(error, e._id);
     }
   },
