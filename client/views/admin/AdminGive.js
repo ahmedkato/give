@@ -1,7 +1,6 @@
 import parsley from 'parsleyjs';
 
 Template.AdminGive.onCreated(function() {
-
   DonationFormItems = new Mongo.Collection(null);
   if (Session.get("params.note")) {
     DonationFormItems.insert( {name: 'first', memo: Session.get("params.note")} );
@@ -85,5 +84,5 @@ Template.AdminGive.events({
     Give.updateTotal();
 
     Give.process_give_form(true, customer, gift_user_id);
-  },
+  }
 });

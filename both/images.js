@@ -1,22 +1,22 @@
 import { FilesCollection } from 'meteor/ostrio:files';
-import { Random } from 'meteor/random'
+import { Random } from 'meteor/random';
 import gm from 'gm';
 
-var knox, bound, client, Request, cfdomain, createThumbnails;
+let knox, bound, client, Request, cfdomain, createThumbnails;
 
 if (Meteor.isServer) {
   // Fix CloudFront certificate issue
   // Read: https://github.com/chilts/awssum/issues/164
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
-  knox    = Npm.require('knox');
+  knox = Npm.require('knox');
   Request = Npm.require('request');
   bound = Meteor.bindEnvironment(function(callback) {
     return callback();
   });
   cfdomain = "https://" + Meteor.settings.AWS.cfdomain; // <-- Change to your Cloud Front Domain
   client = knox.createClient({
-    key:    Meteor.settings.AWS.key,
+    key: Meteor.settings.AWS.key,
     secret: Meteor.settings.AWS.secret,
     bucket: Meteor.settings.AWS.bucket,
     region: Meteor.settings.AWS.region
@@ -24,18 +24,18 @@ if (Meteor.isServer) {
 
   createThumbnails = function(collection, fileRef) {
     const cropName = fileRef.path + "__thumbnail__." + fileRef.extension;
-    var image = gm(fileRef.path);
+    const image = gm(fileRef.path);
 
-    var Future = Npm.require('fibers/future');
-    var fut = new Future();
-    var updateAndSave = function(error){
-      return bound(function(){
+    const Future = Npm.require('fibers/future');
+    const fut = new Future();
+    const updateAndSave = function(error) {
+      return bound(function() {
         if (error) console.error( error);
-        let config = ConfigDoc();
+        const config = ConfigDoc();
         const upd = {
           $set: {
             configId: config._id,
-            "versions.thumbnail" : {
+            "versions.thumbnail": {
               path: cropName,
               type: fileRef.type,
               extension: fileRef.extension
@@ -58,30 +58,29 @@ Images = new FilesCollection({
   collectionName: 'Images',
   allowClientCode: false,
   onAfterUpload: function(fileRef) {
-
-    let createdThumbnail = createThumbnails(this.collection, fileRef);
+    const createdThumbnail = createThumbnails(this.collection, fileRef);
     Meteor.setTimeout(()=>{
       // In onAfterUpload callback we will move file to AWS:S3
-      var self = this;
-      let updatedFileVersions = Images.findOne({_id: fileRef._id});
+      const self = this;
+      const updatedFileVersions = Images.findOne({_id: fileRef._id});
       _.each(updatedFileVersions.versions, function(vRef, version) {
         // We use Random.id() instead of real file's _id
         // to secure files from reverse engineering
         // As after viewing this code it will be easy
         // to get access to unlisted and protected files
-        var filePath = Meteor.settings.AWS.folder + "/" + (Random.id()) + "-" + version + "." + fileRef.extension;
+        const filePath = Meteor.settings.AWS.folder + "/" + (Random.id()) + "-" + version + "." + fileRef.extension;
         logger.info(filePath);
         client.putFile(vRef.path, filePath, function(error, res) {
           bound(function() {
-            var upd;
+            let upd;
             if (error) {
               logger.error(error);
             } else {
               upd = {
                 $set: {}
               };
-              upd['$set']["versions." + version + ".meta.pipeFrom"] = cfdomain + '/' + filePath;
-              upd['$set']["versions." + version + ".meta.pipePath"] = filePath;
+              upd.$set["versions." + version + ".meta.pipeFrom"] = cfdomain + '/' + filePath;
+              upd.$set["versions." + version + ".meta.pipePath"] = filePath;
               self.collection.update({
                 _id: fileRef._id
               }, upd, function(error) {
@@ -97,12 +96,10 @@ Images = new FilesCollection({
           });
         });
       });
-    },2000);
-
-
+    }, 2000);
   },
   interceptDownload: function(http, fileRef, version) {
-    var path, ref, ref1, ref2;
+    let path, ref, ref1, ref2;
     path = (ref = fileRef.versions) != null ? (ref1 = ref[version]) != null ? (ref2 = ref1.meta) != null ? ref2.pipeFrom : void 0 : void 0 : void 0;
     if (path) {
       // If file is moved to S3
@@ -126,13 +123,13 @@ Images = new FilesCollection({
 if (Meteor.isServer) {
   // Intercept File's collection remove method
   // to remove file from S3
-  var _origRemove = Images.remove;
+  const _origRemove = Images.remove;
 
   Images.remove = function(search) {
-    var cursor = this.collection.find(search);
+    const cursor = this.collection.find(search);
     cursor.forEach(function(fileRef) {
       _.each(fileRef.versions, function(vRef) {
-        var ref;
+        let ref;
         if (vRef != null ? (ref = vRef.meta) != null ? ref.pipePath : void 0 : void 0) {
           client.deleteFile(vRef.meta.pipePath, function(error) {
             bound(function() {

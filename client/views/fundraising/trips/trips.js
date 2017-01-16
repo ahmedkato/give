@@ -1,3 +1,3 @@
-Template.TripsDashboard.onRendered(function () {
+Template.TripsDashboard.onRendered(function() {
   $( "[data-toggle='tooltip']" ).tooltip();
 });

@@ -17,17 +17,17 @@ function checkDependantStates() {
 
 AutoForm.hooks({
   'updateSettingsSection': {
-    onSuccess: function () {
+    onSuccess: function() {
       // Send an email to all the admins letting them know about this change.
-      /*Meteor.call("sendChangeConfigNotice", 'settings', function(error, result) {
+      /* Meteor.call("sendChangeConfigNotice", 'settings', function(error, result) {
        if (result) {
        console.log("Sent");
        } else {
        console.error(error);
        }
        });*/
-      Meteor.call( "get_dt_funds", function ( error, result ) {
-        if( result ) {
+      Meteor.call( "get_dt_funds", function( error, result ) {
+        if ( result ) {
           console.log( "Got all funds" );
         } else {
           console.error( error );
@@ -53,7 +53,7 @@ AutoForm.hooks({
   }
 });
 
-Template.Settings.onRendered(function () {
+Template.Settings.onRendered(function() {
   $("[name='Settings.ach_verification_type']").attr('required', true);
   $("[name='Settings.DonorTools.url']").attr('required', true);
   $("#updateSettingsSection").parsley();
@@ -61,8 +61,8 @@ Template.Settings.onRendered(function () {
 });
 
 Template.Settings.helpers({
-  configDocument: function () {
-    let config = ConfigDoc();
+  configDocument: function() {
+    const config = ConfigDoc();
 
     if (config) {
       return config;
@@ -79,6 +79,6 @@ Template.Settings.events({
   }
 });
 
-Template.Settings.onRendered(function () {
+Template.Settings.onRendered(function() {
   checkDependantStates();
 });

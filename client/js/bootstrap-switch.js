@@ -20,11 +20,10 @@
  */
 
 (function() {
-  var slice = [].slice;
+  const slice = [].slice;
 
   (function($, window) {
-    "use strict";
-    var BootstrapSwitch;
+    let BootstrapSwitch;
     BootstrapSwitch = (function() {
       function BootstrapSwitch(element, options) {
         if (options == null) {
@@ -54,7 +53,7 @@
         this.$wrapper = $("<div>", {
           "class": (function(_this) {
             return function() {
-              var classes;
+              let classes;
               classes = ["" + _this.options.baseClass].concat(_this._getClasses(_this.options.wrapperClass));
               classes.push(_this.options.state ? _this.options.baseClass + "-on" : _this.options.baseClass + "-off");
               if (_this.options.size != null) {
@@ -101,7 +100,7 @@
         })(this));
         this.$element.on("switchChange.bootstrapSwitch", (function(_this) {
           return function(e) {
-            if (false === _this.options.onSwitchChange.apply(element, arguments)) {
+            if (_this.options.onSwitchChange.apply(element, arguments) === false) {
               if (_this.$element.is(":radio")) {
                 return $("[name='" + (_this.$element.attr('name')) + "']").trigger("previousState.bootstrapSwitch", true);
               } else {
@@ -266,7 +265,7 @@
       };
 
       BootstrapSwitch.prototype.toggleInverse = function() {
-        var $off, $on;
+        let $off, $on;
         this.$wrapper.toggleClass(this.options.baseClass + "-inverse");
         $on = this.$on.clone(true);
         $off = this.$off.clone(true);
@@ -279,7 +278,7 @@
       };
 
       BootstrapSwitch.prototype.onColor = function(value) {
-        var color;
+        let color;
         color = this.options.onColor;
         if (typeof value === "undefined") {
           return color;
@@ -293,7 +292,7 @@
       };
 
       BootstrapSwitch.prototype.offColor = function(value) {
-        var color;
+        let color;
         color = this.options.offColor;
         if (typeof value === "undefined") {
           return color;
@@ -410,7 +409,7 @@
       };
 
       BootstrapSwitch.prototype.destroy = function() {
-        var $form;
+        let $form;
         $form = this.$element.closest("form");
         if ($form.length) {
           $form.off("reset.bootstrapSwitch").removeData("bootstrap-switch");
@@ -421,7 +420,7 @@
       };
 
       BootstrapSwitch.prototype._width = function() {
-        var $handles, handleWidth;
+        let $handles, handleWidth;
         $handles = this.$on.add(this.$off);
         $handles.add(this.$label).css("width", "");
         handleWidth = this.options.handleWidth === "auto" ? Math.max(this.$on.width(), this.$off.width()) : this.options.handleWidth;
@@ -450,7 +449,7 @@
         }
         this.$container.css("margin-left", (function(_this) {
           return function() {
-            var values;
+            let values;
             values = [0, "-" + _this._handleWidth + "px"];
             if (_this.options.indeterminate) {
               return "-" + (_this._handleWidth / 2) + "px";
@@ -479,7 +478,7 @@
       };
 
       BootstrapSwitch.prototype._init = function() {
-        var init, initInterval;
+        let init, initInterval;
         init = (function(_this) {
           return function() {
             _this.setPrevOptions();
@@ -522,7 +521,7 @@
           })(this),
           "change.bootstrapSwitch": (function(_this) {
             return function(e, skip) {
-              var state;
+              let state;
               e.preventDefault();
               e.stopImmediatePropagation();
               state = _this.$element.is(":checked");
@@ -558,14 +557,14 @@
                 return;
               }
               switch (e.which) {
-                case 37:
-                  e.preventDefault();
-                  e.stopImmediatePropagation();
-                  return _this.state(false);
-                case 39:
-                  e.preventDefault();
-                  e.stopImmediatePropagation();
-                  return _this.state(true);
+              case 37:
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                return _this.state(false);
+              case 39:
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                return _this.state(true);
               }
             };
           })(this)
@@ -612,7 +611,7 @@
           })(this),
           "mousemove.bootstrapSwitch touchmove.bootstrapSwitch": (function(_this) {
             return function(e) {
-              var difference;
+              let difference;
               if (_this._dragStart == null) {
                 return;
               }
@@ -627,7 +626,7 @@
           })(this),
           "mouseup.bootstrapSwitch touchend.bootstrapSwitch": (function(_this) {
             return function(e) {
-              var state;
+              let state;
               if (!_this._dragStart) {
                 return;
               }
@@ -654,7 +653,7 @@
       };
 
       BootstrapSwitch.prototype._externalLabelHandler = function() {
-        var $externalLabel;
+        let $externalLabel;
         $externalLabel = this.$element.closest("label");
         return $externalLabel.on("click", (function(_this) {
           return function(event) {
@@ -668,7 +667,7 @@
       };
 
       BootstrapSwitch.prototype._formHandler = function() {
-        var $form;
+        let $form;
         $form = this.$element.closest("form");
         if ($form.data("bootstrap-switch")) {
           return;
@@ -685,7 +684,7 @@
       };
 
       BootstrapSwitch.prototype._getClasses = function(classes) {
-        var c, cls, i, len;
+        let c, cls, i, len;
         if (!$.isArray(classes)) {
           return [this.options.baseClass + "-" + classes];
         }
@@ -698,14 +697,13 @@
       };
 
       return BootstrapSwitch;
-
     })();
     $.fn.bootstrapSwitch = function() {
-      var args, option, ret;
-      option = arguments[0], args = 2 <= arguments.length ? slice.call(arguments, 1) : [];
+      let args, option, ret;
+      option = arguments[0], args = arguments.length >= 2 ? slice.call(arguments, 1) : [];
       ret = this;
       this.each(function() {
-        var $this, data;
+        let $this, data;
         $this = $(this);
         data = $this.data("bootstrap-switch");
         if (!data) {
@@ -740,5 +738,4 @@
       onSwitchChange: function() {}
     };
   })(window.jQuery, window);
-
 }).call(this);

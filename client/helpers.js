@@ -544,7 +544,7 @@ Template.registerHelper('fundName', function() {
 
 Template.registerHelper('noDTPersonaID', function() {
   const user = Meteor.user();
-  if(user && user.persona_ids && user.persona_ids[0]) {
+  if (user && user.persona_ids && user.persona_ids[0]) {
     return false;
   }
   return true;

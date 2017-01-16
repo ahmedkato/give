@@ -1,13 +1,13 @@
 import { setDocHeight } from '/imports/api/miscFunctions.js';
 
 Template.Timeline.helpers({
-  audits(){
+  audits() {
     return Audit_trail.find({}, {sort: {time: -1}});
   },
-  auditsExist(){
+  auditsExist() {
     return Audit_trail.findOne();
   },
-  greenBlueOrangeRed(){
+  greenBlueOrangeRed() {
     if (this.subtype === 'succeeded' ||
       this.subtype === 'account created' ||
       this.subtype === 'change') {
@@ -24,7 +24,7 @@ Template.Timeline.helpers({
       return 'danger';
     }
   },
-  auditCategoryIcon(){
+  auditCategoryIcon() {
     if (this.category === 'Stripe') {
       return 'fa fa-cc-stripe';
     }
@@ -48,12 +48,12 @@ Template.Timeline.helpers({
       return this.subtype;
     }
   },
-  auditEventTitle(){
+  auditEventTitle() {
     let story = this.relatedCollection;
     if (this.type && this.type === 'charge') {
-      let charge = Charges.findOne({_id: this.relatedDoc});
+      const charge = Charges.findOne({_id: this.relatedDoc});
       if (charge && charge.customer) {
-        let customer = Customers.findOne({_id: charge.customer});
+        const customer = Customers.findOne({_id: charge.customer});
         if (customer) {
           story = "";
           story = customer.metadata.fname + " " + customer.metadata.lname;
@@ -63,40 +63,40 @@ Template.Timeline.helpers({
             story = story + ' is pending';
           }
           if (this.subtype === 'succeeded') {
-            story = story + ' has succeeded'
+            story = story + ' has succeeded';
           }
           if (this.subtype === 'failed') {
-            story = story + ' has failed'
+            story = story + ' has failed';
           }
           if (this.subtype === 'refunded') {
-            story = story + ' has been refunded'
+            story = story + ' has been refunded';
           }
         }
       }
     }
     if (this.type && this.type === 'config') {
-      let admin = Meteor.users.findOne({_id: this.userId});
+      const admin = Meteor.users.findOne({_id: this.userId});
       if (admin) {
         story = 'A configuration change was made by an admin with the email address: ' +
-          admin.emails[0].address
+          admin.emails[0].address;
       } else {
         story = 'A configuration change was made by an admin';
       }
     }
     if (this.category === 'Email') {
-      let subtypeInfo = this.subtype ? this.subtype : '';
+      const subtypeInfo = this.subtype ? this.subtype : '';
       story = 'A ' + this.type + " " + subtypeInfo +
         ' email was sent to ' + this.emailSentTo;
     }
     if (this.category === 'System' || this.category === 'DonorTools') {
-      let subtypeInfo = this.subtype === 'account created' ? 'account was created' : '';
+      const subtypeInfo = this.subtype === 'account created' ? 'account was created' : '';
       story = 'A ' + this.type + " " + subtypeInfo;
     }
-    return story
+    return story;
   },
-  buttonTitle(){
+  buttonTitle() {
     if (this.type && this.type === 'charge') {
-      let charge = Charges.findOne( { _id: this.relatedDoc } );
+      const charge = Charges.findOne( { _id: this.relatedDoc } );
       let frequency;
       if (charge && charge.metadata && charge.metadata.frequency) {
         frequency = charge.metadata.frequency.replace( "_", " " );
@@ -107,30 +107,29 @@ Template.Timeline.helpers({
     }
     if (this.type && this.type === 'config') {
       return 'Config';
-    }
-    else {
+    } else {
       return 'See more...';
     }
   },
-  buttonLink(){
+  buttonLink() {
     if (this.page) {
       return this.page;
     }
   }
 });
 
-Template.Timeline.onCreated(function () {
+Template.Timeline.onCreated(function() {
   Session.set("documentLimit", 10);
   this.autorun(()=>{
     this.subscribe('auditTrail', Session.get("documentLimit"));
   });
 });
 
-Template.Timeline.onRendered(function () {
+Template.Timeline.onRendered(function() {
   setDocHeight();
 });
 
-Template.Timeline.onDestroyed(function (){
+Template.Timeline.onDestroyed(function() {
   Session.delete("documentLimit");
   $(window).unbind("scroll");
 });

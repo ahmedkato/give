@@ -1,26 +1,26 @@
-function groupPosition (config, id) {
-  var givingOptions = config && config.Giving && config.Giving.options;
+function groupPosition(config, id) {
+  const givingOptions = config && config.Giving && config.Giving.options;
 
-  if(givingOptions && givingOptions.length > 0) {
-    let groups = _.filter( givingOptions, function ( item ) {
-      if( item && item.groupId ) {
+  if (givingOptions && givingOptions.length > 0) {
+    const groups = _.filter( givingOptions, function( item ) {
+      if ( item && item.groupId ) {
         return item;
       }
     } );
 
-    return groups.map( function ( group ) {
+    return groups.map( function( group ) {
       return group.groupId;
     } ).indexOf( id );
   }
 }
 
-Template.DonationLanding.onCreated(function () {
+Template.DonationLanding.onCreated(function() {
   this.autorun(()=>{
     this.subscribe("uploaded");
   });
 });
 
-Template.DonationLanding.onRendered(function () {
+Template.DonationLanding.onRendered(function() {
   $('[name="donateTo"]').change();
   $('.modal').modal('hide');
   $('body').removeClass('modal-open');
@@ -29,13 +29,13 @@ Template.DonationLanding.onRendered(function () {
 
 Template.DonationLanding.helpers({
   donationGroups: function() {
-    let config = ConfigDoc();
-    let givingOptions =  config && config.Giving && config.Giving.options;
+    const config = ConfigDoc();
+    const givingOptions = config && config.Giving && config.Giving.options;
 
-    let groups = _.filter( givingOptions, function(item) {
+    const groups = _.filter( givingOptions, function(item) {
       return item && item.groupId;
     });
-    let donationGroups = groups.map(function(group) {
+    const donationGroups = groups.map(function(group) {
       group.children = _.filter(givingOptions, function(item) {
         return group.groupId === item.currentGroup;
       });
@@ -47,21 +47,20 @@ Template.DonationLanding.helpers({
     return Session.get("showDD");
   },
   configId: function() {
-    let config = ConfigDoc();
+    const config = ConfigDoc();
 
-    if( config && config._id ) {
-      var givingOptions = config && config.Giving && config.Giving.options;
+    if ( config && config._id ) {
+      const givingOptions = config && config.Giving && config.Giving.options;
 
-      if( givingOptions && givingOptions.length > 0 ) {
-
-        let groups = _.filter( givingOptions, function ( item ) {
+      if ( givingOptions && givingOptions.length > 0 ) {
+        const groups = _.filter( givingOptions, function( item ) {
           return item && item.groupId;
         } );
 
         // Setup the DD-Slick version of the individual select elements
         Meteor.setTimeout(function() {
-          groups.forEach(function(item){
-            let itemName = '#dd-' + item.groupId;
+          groups.forEach(function(item) {
+            const itemName = '#dd-' + item.groupId;
             $(itemName).ddslick({
               onSelected: function(selectedData) {
                 $("[name='donateTo']").val(selectedData.selectedData.value);
@@ -76,11 +75,10 @@ Template.DonationLanding.helpers({
 
           if ($("#mainDD")) {
             $("#mainDD").ddslick({
-              onSelected: _.debounce(function(selectedData){
-                groups.forEach(function(item){
-                  let itemName = '#dd-' + item.groupId;
-                  if( selectedData.selectedData.value !== item.groupId) {
-
+              onSelected: _.debounce(function(selectedData) {
+                groups.forEach(function(item) {
+                  const itemName = '#dd-' + item.groupId;
+                  if ( selectedData.selectedData.value !== item.groupId) {
                     $(".guide-item").removeClass("dim-area");
                     $(".guide-item").removeClass("highlight-area");
                     if ($("#dd-" + selectedData.selectedData.value + " ul li").length > 1) {
@@ -99,17 +97,16 @@ Template.DonationLanding.helpers({
             });
           }
         }, 0);
-
       }
       return config && config._id;
     }
   },
   givingGroups: function() {
-    let config = ConfigDoc();
-    let givingOptions = config && config.Giving && config.Giving.options;
+    const config = ConfigDoc();
+    const givingOptions = config && config.Giving && config.Giving.options;
 
-    if(givingOptions && givingOptions.length > 0){
-      let groups = _.filter( givingOptions, function(item) {
+    if (givingOptions && givingOptions.length > 0) {
+      const groups = _.filter( givingOptions, function(item) {
         if ( item && item.groupId) {
           return item;
         }
@@ -124,10 +121,10 @@ Template.DonationLanding.helpers({
 });
 
 Template.DonationLanding.events({
-  'click .guide-item': function (e) {
+  'click .guide-item': function(e) {
     e.preventDefault();
-    let config = ConfigDoc();
-    let index = groupPosition(config, this.groupId);
+    const config = ConfigDoc();
+    const index = groupPosition(config, this.groupId);
     $('#mainDD').ddslick('select', {index: index.toString() });
     Meteor.setTimeout(()=>{
       $(".guide-item").addClass("dim-area");
@@ -135,9 +132,8 @@ Template.DonationLanding.events({
       $(".guide-item").removeClass("highlight-area");
       $(e.currentTarget).addClass("highlight-area");
     }, 301);
-
   },
-  'click #other_ways_to_give': function (e) {
+  'click #other_ways_to_give': function(e) {
     e.preventDefault();
     $('#modal_for_other_ways_to_give').modal({
       show: true,
@@ -146,7 +142,7 @@ Template.DonationLanding.events({
   },
   'click #cardButton': function(e) {
     e.preventDefault();
-    var placeholder_value = $('#placeholder_donate_input').val();
+    const placeholder_value = $('#placeholder_donate_input').val();
     if (placeholder_value === '#depends-on-Missionary' && $('#depends-on-Missionary').val() === "") {
       $('#depends-on-Missionary > .dd-select').addClass("red-border");
       alert("Please select a missionary");
@@ -154,19 +150,19 @@ Template.DonationLanding.events({
     } else {
       if (placeholder_value === '') {
         $('[name="donateWith"]').val('Card');
-        if($('#GiveTo').val() === '1'){
+        if ($('#GiveTo').val() === '1') {
           $('[name="donateTo"]').val('WhereMostNeeded');
         }
       } else {
         $('[name="donateTo"]').val($(placeholder_value).val());
         $('[name="donateWith"]').val('Card');
       }
-      Router.go('/?'+$("#landing_form").serialize());
+      Router.go('/?' + $("#landing_form").serialize());
     }
   },
   'click #checkButton': function(e) {
     e.preventDefault();
-    var placeholder_value = $('#placeholder_donate_input').val();
+    const placeholder_value = $('#placeholder_donate_input').val();
     if (placeholder_value === '#depends-on-Missionary' && $('#depends-on-Missionary').val() === "") {
       $('#depends-on-Missionary > .dd-select').addClass("red-border");
       alert("Please select a missionary");
@@ -174,14 +170,14 @@ Template.DonationLanding.events({
     } else {
       if (placeholder_value === '') {
         $('[name="donateWith"]').val('Check');
-        if($('#GiveTo').val() === '1'){
+        if ($('#GiveTo').val() === '1') {
           $('[name="donateTo"]').val('WhereMostNeeded');
         }
       } else {
         $('[name="donateTo"]').val($(placeholder_value).val());
         $('[name="donateWith"]').val('Check');
       }
-      Router.go('/?'+$("#landing_form").serialize());
+      Router.go('/?' + $("#landing_form").serialize());
     }
   }
 });

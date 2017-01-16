@@ -11,15 +11,15 @@ Template.DonationScheduled.helpers({
     return Session.get('params.amount');
   },
   start_date: function() {
-    if (Session.get('params.startdate')){
-      if (Session.get('params.startdate') ==='today'){
+    if (Session.get('params.startdate')) {
+      if (Session.get('params.startdate') === 'today') {
         return moment().format('DD MMMM, YYYY');
       } else {
         return moment(Session.get('params.startdate') * 1000).format('DD MMMM, YYYY');
       }
     }
   },
-  one_time_language: function () {
+  one_time_language: function() {
     if (Session.get('params.frequency') &&
       Session.get('params.frequency') === 'one_time') {
       return true;
@@ -37,6 +37,6 @@ Template.DonationScheduled.onRendered(function() {
   Session.set("loading", false);
 });
 
-Template.DonationScheduled.onDestroyed(function () {
+Template.DonationScheduled.onDestroyed(function() {
   Session.delete("params.startdate");
 });

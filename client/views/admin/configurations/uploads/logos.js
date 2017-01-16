@@ -1,14 +1,14 @@
 import { clearImage } from '/imports/api/miscFunctions';
 
 Template.Logos.helpers( {
-  images: function () {
+  images: function() {
     return Images.find().count() ? Images.find() : false;
-  },
+  }
 });
 
 Template.Logos.events({
   'click .clear-image': function(e) {
-    let type = $(e.currentTarget).data('el-type');
+    const type = $(e.currentTarget).data('el-type');
     return clearImage(type);
   }
 });

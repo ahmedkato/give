@@ -1,7 +1,7 @@
 function configBasicsSetup() {
   // Not using the function 'ConfigDoc()' to assign this because this runs on both
   // the client and the server
-  let config = Config.findOne( {
+  const config = Config.findOne( {
     'OrgInfo.web.domain_name': Meteor.settings.public.org_domain
   });
 
@@ -92,10 +92,10 @@ Schema.OrgInfo = new SimpleSchema({
     type: String,
     label: "State",
     allowedValues: ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
-                    "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-                    "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-                    "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-                    "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"],
+      "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+      "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+      "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+      "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"],
     autoform: {
       afFieldInput: {
         firstOption: "(Select a State)"
@@ -452,7 +452,7 @@ Schema.Settings = new SimpleSchema({
         return !configBasicsSetup();
       }
     },
-    autoValue: function () {
+    autoValue: function() {
       if (!configBasicsSetup()) {
         return false;
       }
@@ -481,9 +481,9 @@ Schema.Settings = new SimpleSchema({
   forceACHDay: {
     type: String,
     label: "Day of month that ACH can occur on",
-    allowedValues: ['any','1','2','3','4','5','6','7','8','9','10','11','12',
-                    '13','14','15','16','17','18','19','20','21','22','23',
-                    '24','25','26','27','28'],
+    allowedValues: ['any', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12',
+      '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23',
+      '24', '25', '26', '27', '28'],
     optional: true,
     autoform: {
       defaultValue: 'any'
@@ -1159,7 +1159,7 @@ Schema.UpdateUserFormSchema = new SimpleSchema({
     type: String,
     autoform: {
       type: "select",
-      options: function () {
+      options: function() {
         return [
           {label: "enabled", value: "enabled"},
           {label: "invited", value: "invited"},
@@ -1257,13 +1257,13 @@ Schema.Fundraisers = new SimpleSchema( {
     optional: true
   },
   addedBy: {
-    type:     String,
+    type: String,
     optional: true,
     autoform: {
       afFieldInput: {
         type: "hidden"
       },
-      afFormGroup:  {
+      afFormGroup: {
         label: false
       }
     }
@@ -1287,13 +1287,13 @@ Schema.Fundraisers = new SimpleSchema( {
     regEx: SimpleSchema.RegEx.Email
   },
   fundId: {
-    type:     String,
+    type: String,
     optional: true,
     autoform: {
       afFieldInput: {
         type: "hidden"
       },
-      afFormGroup:  {
+      afFormGroup: {
         label: false
       }
     }

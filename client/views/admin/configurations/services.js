@@ -30,8 +30,8 @@ AutoForm.hooks({
 });
 
 Template.Services.helpers({
-  configDocument: function () {
-    let org_info = Config.findOne({
+  configDocument: function() {
+    const org_info = Config.findOne({
       'OrgInfo.web.domain_name': Meteor.settings.public.org_domain
     });
     if (org_info) {

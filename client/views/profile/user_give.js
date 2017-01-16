@@ -62,7 +62,7 @@ Template.UserGive.helpers({
         Session.set('tutorialEnabled', false);
       }, 1000);
     }
-  },
+  }
 });
 
 Template.UserGive.events({

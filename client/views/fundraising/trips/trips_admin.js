@@ -1,6 +1,6 @@
 AutoForm.hooks({
   'trips-form': {
-    onSuccess: function () {
+    onSuccess: function() {
       Bert.alert({
         message: "Good work",
         type: 'success',
@@ -20,12 +20,12 @@ AutoForm.hooks({
         style: 'growl-bottom-right'
       });
     },
-    onSubmit: function () {
+    onSubmit: function() {
       return this.event.preventDefault();
     }
   },
   'trips-update-form': {
-    onSuccess: function () {
+    onSuccess: function() {
       Bert.alert({
         message: "Good work",
         type: 'success',
@@ -40,13 +40,13 @@ AutoForm.hooks({
       Bert.alert({
         message: "Looks like you might be missing some required fields.",
         type: 'danger',
-        icon: 'fa-frown-o',
+        icon: 'fa-frown-o'
       });
     }
   }
 });
 
-Template.TripsAdmin.onCreated(function () {
+Template.TripsAdmin.onCreated(function() {
   Session.set('showUpdateTrip', false);
   Session.set('tripDoc', '');
   this.autorun(()=> {
@@ -54,10 +54,10 @@ Template.TripsAdmin.onCreated(function () {
     this.subscribe("travelDTSplits");
     this.subscribe("trips");
     this.subscribe("fundraisers");
-  })
+  });
 });
 
-Template.TripsAdmin.onDestroyed(function () {
+Template.TripsAdmin.onDestroyed(function() {
   Session.delete('tripDoc');
   Session.delete('showUpdateTrip');
 });
@@ -70,21 +70,21 @@ Template.TripsAdmin.helpers({
     return Session.get('tripDoc');
   },
   formType() {
-    var formType = Template.instance().formType.get();
+    const formType = Template.instance().formType.get();
     return formType;
   },
   trips() {
     return Trips.find();
   },
   name() {
-    let dtFund = DT_funds.findOne({_id: this.fundId});
+    const dtFund = DT_funds.findOne({_id: this.fundId});
     if (dtFund) {
       return dtFund.name;
     }
     return;
   },
   getParticipantNumber() {
-    let number = Fundraisers.find({'trips.id': this._id}).count();
+    const number = Fundraisers.find({'trips.id': this._id}).count();
     return number;
   }
 });
@@ -92,10 +92,10 @@ Template.TripsAdmin.helpers({
 Template.TripsAdmin.events({
   'click .see-trip'(e) {
     console.log("CLicked row" );
-    let tripId = $(e.currentTarget).attr("data-id");
+    const tripId = $(e.currentTarget).attr("data-id");
     Router.go('TripAdmin', {_id: tripId});
   },
-  'click #getFundsList'(){
+  'click #getFundsList'() {
     console.log("getFundsList button clicked");
     $("#getFundsList").button("loading");
     Meteor.call("get_dt_funds", ()=>{
@@ -103,7 +103,7 @@ Template.TripsAdmin.events({
       alert("Got the funds");
     });
   },
-  'click .edit-trip'(e){
+  'click .edit-trip'(e) {
     console.log($(e.currentTarget).data("id"));
     Session.set('showUpdateTrip', true);
     Session.set('tripDoc', Trips.findOne({_id: $(e.currentTarget).data("id")}));
@@ -111,8 +111,7 @@ Template.TripsAdmin.events({
       $("#trips-update-form").addClass("pulse-border");
     }, 100);
   },
-  'click .archive-trip'(e){
-
+  'click .archive-trip'(e) {
     console.log("remove participant clicked");
     swal({
       title: "Are you sure you want to archive this trip?",
@@ -126,7 +125,7 @@ Template.TripsAdmin.events({
       showLoaderOnConfirm: true
     }, function(isConfirm) {
       if (isConfirm) {
-        let tripUpdate = Trips.update({_id: $(e.currentTarget).data("id")}, {$set: {active: false}});
+        const tripUpdate = Trips.update({_id: $(e.currentTarget).data("id")}, {$set: {active: false}});
         if (tripUpdate) {
           Meteor.setTimeout(()=>{
             swal({
@@ -143,6 +142,6 @@ Template.TripsAdmin.events({
         }
       }
     });
-  },
+  }
 
 });

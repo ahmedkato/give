@@ -143,7 +143,7 @@ Template.SubscriptionsOverview.events({
     cancelRecurringGift(e, this.id);
 
 
-    /*e.preventDefault();
+    /* e.preventDefault();
     const subscription_id = this.id;
     const customer_id = Subscriptions.findOne({_id: subscription_id}).customer;
     console.log("Got to cancel subscription call");

@@ -1,10 +1,10 @@
 import { setDocHeight, updateSearchVal } from '/imports/api/miscFunctions.js';
 
-Template.StripeTransfers.onCreated(function () {
+Template.StripeTransfers.onCreated(function() {
   Session.set("documentLimit", 10);
 
   // Setup the range for this month if no previous session is set for "transferRange"
-  if(!Session.get("transferRange")){
+  if (!Session.get("transferRange")) {
     Session.setDefault("transferRange", {start: moment().startOf('month').format("YYYY-MM-DD"), end: moment().endOf("month").format("YYYY-MM-DD")});
   }
 
@@ -18,14 +18,14 @@ Template.StripeTransfers.onCreated(function () {
   });
 });
 
-Template.StripeTransfers.onDestroyed(function () {
+Template.StripeTransfers.onDestroyed(function() {
   Session.delete("searchValue");
   Session.delete("documentLimit");
   $(window).unbind('scroll');
 });
 
 Template.StripeTransfers.events({
-  'change #filter-posted'(e){
+  'change #filter-posted'(e) {
     console.log("Changes");
     const checked = $(e.currentTarget).is(':checked');
     if (checked) {
@@ -34,7 +34,7 @@ Template.StripeTransfers.events({
       Session.set("posted", "false");
     }
   },
-  'keyup, change .search': _.debounce(function () {
+  'keyup, change .search': _.debounce(function() {
     updateSearchVal();
   }, 300),
   'click .clear-button'() {
@@ -43,73 +43,73 @@ Template.StripeTransfers.events({
     Session.set("documentLimit", 10);
     Session.set("posted", "_false");
   },
-  'click .clickable_row': function(){
+  'click .clickable_row': function() {
     Router.go('/transfers/' + this.id);
   },
-  'click .posted': function(e, tmpl){
-    let checkbox = $(e.currentTarget);
-    let savePosted   = $(e.currentTarget).button('loading');
-    let transfer_id   = this.id;
-    let checkbox_state   = $(e.currentTarget).is(':checked');
+  'click .posted': function(e, tmpl) {
+    const checkbox = $(e.currentTarget);
+    const savePosted = $(e.currentTarget).button('loading');
+    const transfer_id = this.id;
+    let checkbox_state = $(e.currentTarget).is(':checked');
     console.log(checkbox_state);
     console.log($(e.currentTarget));
-    if(checkbox_state === false){
+    if (checkbox_state === false) {
       checkbox_state = 'false';
     } else {
       checkbox_state = 'true';
     }
 
     Meteor.call("toggle_post_transfer_metadata_state", transfer_id,
-      checkbox_state, function(err, res){
-      if (err){
-        console.dir(err);
-        savePosted.button("reset");
-        Bert.alert(err.message, "danger");
-      } else {
-        savePosted.button("reset");
-      }
-    });
+      checkbox_state, function(err, res) {
+        if (err) {
+          console.dir(err);
+          savePosted.button("reset");
+          Bert.alert(err.message, "danger");
+        } else {
+          savePosted.button("reset");
+        }
+      });
   }
 });
 
 Template.StripeTransfers.helpers({
-  transfer: function () {
+  transfer: function() {
     return Transfers.find() && Transfers.find( {}, {
       sort: { date: -1 }
     } );
   },
-  transfer_date: function () {
-    let timestamp = this.date;
+  transfer_date: function() {
+    const timestamp = this.date;
     return moment.utc(timestamp, 'X').format("MMMM Do, YYYY");
   },
-  monthRange: function () {
-    if(Session.get("transferRange")) {
-      let transferRange = Session.get( "transferRange" );
+  monthRange: function() {
+    if (Session.get("transferRange")) {
+      const transferRange = Session.get( "transferRange" );
       let transferStart = transferRange.start;
       let transferEnd = transferRange.end;
 
       transferStart = moment( transferStart ).format( "MM/DD/YYYY" );
       transferEnd = moment( transferEnd ).format( "MM/DD/YYYY" );
 
-      let today = transferStart + " - " + transferEnd;
+      const today = transferStart + " - " + transferEnd;
       return today;
     }
   },
-  orangeText: function () {
-    if(this.status && this.status === 'in_transit') {
+  orangeText: function() {
+    if (this.status && this.status === 'in_transit') {
       return 'orange-text';
     }
   },
-  posted: function () {
-    if(this.metadata && this.metadata.posted && this.metadata.posted === "true") {
-      return 'checked'
+  posted: function() {
+    if (this.metadata && this.metadata.posted && this.metadata.posted === "true") {
+      return 'checked';
     } else {
       return '';
     }
   },
-  isChecked(){
-    let checked = Session.equals( "posted", "true" );
-    if( checked === true ) {
+  isChecked() {
+    const checked = Session.equals( "posted", "true" );
+    if ( checked === true ) {
       return 'checked';
     }
     return;
@@ -117,10 +117,10 @@ Template.StripeTransfers.helpers({
 });
 
 
-Template.StripeTransfers.onRendered(function () {
+Template.StripeTransfers.onRendered(function() {
   setDocHeight();
-  let posted = Iron.Location.get().queryObject && Iron.Location.get().queryObject.posted;
-  if(posted === "_true") {
+  const posted = Iron.Location.get().queryObject && Iron.Location.get().queryObject.posted;
+  if (posted === "_true") {
     $("#filter-posted").prop( "checked", true );
   } else {
     $("#filter-posted").prop( "checked", false );

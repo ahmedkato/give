@@ -1,4 +1,4 @@
-Meteor.startup(function () {
+Meteor.startup(function() {
   Audit_trail._ensureIndex( { 'category': 1 } );
   Audit_trail._ensureIndex( { 'type': 1 } );
   Audit_trail._ensureIndex( { 'subtype': 1 } );

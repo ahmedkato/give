@@ -1,8 +1,8 @@
 function updateDoc(e, type, value) {
-  let config = ConfigDoc();
-  let id = $(e.currentTarget).data('group-id');
-  Meteor.call( "updateGuide", id, type, value, function ( err, res ) {
-    if( res ) {
+  const config = ConfigDoc();
+  const id = $(e.currentTarget).data('group-id');
+  Meteor.call( "updateGuide", id, type, value, function( err, res ) {
+    if ( res ) {
       console.log( res );
     } else {
       console.error( err );
@@ -10,7 +10,7 @@ function updateDoc(e, type, value) {
   });
 }
 
-Template.GivingGuide.onRendered(function(){
+Template.GivingGuide.onRendered(function() {
   $('[data-toggle="popover"]').popover({html: true});
   $('[role="iconpicker"]').iconpicker({iconset: 'fontawesome',
     selectedClass: 'btn-primary',
@@ -20,20 +20,20 @@ Template.GivingGuide.onRendered(function(){
 
 Template.GivingGuide.helpers({
   configId: function() {
-    let config = ConfigDoc();
+    const config = ConfigDoc();
     return config && config._id;
   },
   givingGroups: function() {
-    let config = ConfigDoc();
-    var givingOptions = config && config.Giving && config.Giving.options;
+    const config = ConfigDoc();
+    const givingOptions = config && config.Giving && config.Giving.options;
 
-    if(givingOptions && givingOptions.length > 0){
-      let groups = _.filter( givingOptions, function(item) {
+    if (givingOptions && givingOptions.length > 0) {
+      const groups = _.filter( givingOptions, function(item) {
         if ( item && item.groupId ) {
           return item;
         }
       });
-      
+
       return groups;
     }
   },
@@ -50,15 +50,15 @@ Template.GivingGuide.events({
     console.log("Checked? " + $(e.currentTarget).is(':checked'));
     updateDoc(e, 'guideShow', $(e.currentTarget).is(':checked'));
   },
-  'change .guide-icon': function (e) {
+  'change .guide-icon': function(e) {
     console.log("Change: " + e.icon);
     updateDoc(e, 'guideIcon', e.icon);
   },
-  'input .guide-title': _.debounce(function (e) {
+  'input .guide-title': _.debounce(function(e) {
     console.log("Change: " + $(e.currentTarget).val());
     updateDoc(e, 'guideTitle', $(e.currentTarget).val());
   }, 500),
-  'input .guide-description': _.debounce(function (e) {
+  'input .guide-description': _.debounce(function(e) {
     console.log("Change: " + $(e.currentTarget).val());
     updateDoc(e, 'guideDescription', $(e.currentTarget).val());
   }, 500)

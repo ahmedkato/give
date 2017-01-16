@@ -224,8 +224,8 @@ _.extend(StripeFunctions, {
     // Setup locally scoped vars for this function
     let check_for_violation,
       event,
-      wait_for_DT_update,
-      wait_for_storage;
+      waitForDTUpdate,
+      waitForStorage;
 
     // Get this event from Stripe so we know it wasn't malicious or tampered with
     const STRIPE_REQUEST = StripeFunctions.retrieve_stripe_event( request );
@@ -247,7 +247,8 @@ _.extend(StripeFunctions, {
       }
 
       // Wait for the store operation to complete
-      wait_for_storage = StripeFunctions.store_stripe_event(STRIPE_REQUEST);
+      waitForStorage = StripeFunctions.store_stripe_event(STRIPE_REQUEST);
+      logger.info("Storage status: ", waitForStorage);
 
       // Send the event to the proper event function
       event = Stripe_Events[STRIPE_REQUEST.type]( STRIPE_REQUEST );
@@ -256,7 +257,7 @@ _.extend(StripeFunctions, {
         logger.info("Sending to DT");
         if (DT_donations.findOne({transaction_id: STRIPE_REQUEST.data.object.id})) {
           // Send the donation change to Donor Tools.
-          wait_for_DT_update = Utils.update_dt_donation_status( STRIPE_REQUEST );
+          waitForDTUpdate = Utils.update_dt_donation_status( STRIPE_REQUEST );
         } else {
           // Send the donation to Donor Tools. This function has a retry built
           // in, so also pass 1 for the interval
@@ -273,7 +274,6 @@ _.extend(StripeFunctions, {
       // Return since this event either had an error, or it didn't come from Stripe
       logger.info("Exiting control flow, since the event had an error, or didn't come from Stripe");
       throw new Meteor.Error("401", "A request came in, but the event doesn't seem to have come from Stripe!");
-      return;
     }
   },
   'retrieve_stripe_event': function( webhookEvent ) {
@@ -352,20 +352,21 @@ _.extend(StripeFunctions, {
     logger.info(event_body.data.object.id);
     event_body.data.object._id = event_body.data.object.id;
 
+    let resultsOfUpdate, resultsOfUpdate1;
     switch (event_body.data.object.object) {
     case 'balance':
       logger.info("Didn't do anything with this balance event.");
       break;
     case "bank_account":
-      Devices.upsert({_id: event_body.data.object._id}, event_body.data.object);
+      resultsOfUpdate = Devices.upsert({_id: event_body.data.object._id}, event_body.data.object);
       break;
     case "card":
-      Devices.upsert({_id: event_body.data.object.id}, event_body.data.object);
-      var result_of_update = Customers.update({_id: event_body.data.object.customer,
+      resultsOfUpdate = Devices.upsert({_id: event_body.data.object.id}, event_body.data.object);
+      resultsOfUpdate1 = Customers.update({_id: event_body.data.object.customer,
         'sources.data.id': event_body.data.object.id}, {$set: {'sources.data.$': event_body.data.object}});
       break;
     case "charge":
-      Charges.upsert({_id: event_body.data.object.id}, event_body.data.object);
+      resultsOfUpdate = Charges.upsert({_id: event_body.data.object.id}, event_body.data.object);
       break;
     case "customer":
       if (event_body.data.object.metadata['balanced.customer_id']) {
@@ -373,30 +374,30 @@ _.extend(StripeFunctions, {
         delete event_body.data.object.metadata['balanced.customer_id'];
       }
       logger.info(event_body.data.object);
-      Customers.upsert({_id: event_body.data.object.id}, event_body.data.object);
+      resultsOfUpdate = Customers.upsert({_id: event_body.data.object.id}, event_body.data.object);
       break;
     case "invoice":
-      Invoices.upsert({_id: event_body.data.object.id}, event_body.data.object);
+      resultsOfUpdate = Invoices.upsert({_id: event_body.data.object.id}, event_body.data.object);
       break;
     case "payment":
-      Charges.upsert({_id: event_body.data.object.id}, event_body.data.object);
+      resultsOfUpdate = Charges.upsert({_id: event_body.data.object.id}, event_body.data.object);
       break;
     case 'plan':
       logger.info("Didn't do anything with this plan event.");
       break;
     case "refunds":
-      Refunds.upsert({_id: event_body.data.object.id}, event_body.data.object);
+      resultsOfUpdate = Refunds.upsert({_id: event_body.data.object.id}, event_body.data.object);
       break;
     case "subscription":
       const subscription = Subscriptions.findOne({_id: event_body.data.object.id});
       const subscriptionStatus = subscription.status;
       if (subscriptionStatus !== 'canceled') {
-        Subscriptions.upsert({_id: event_body.data.object.id}, event_body.data.object);
+        resultsOfUpdate = Subscriptions.upsert({_id: event_body.data.object.id}, event_body.data.object);
       }
       break;
     case 'transfer':
       logger.info(event_body);
-      Transfers.upsert({_id: event_body.data.object.id}, event_body.data.object);
+      resultsOfUpdate = Transfers.upsert({_id: event_body.data.object.id}, event_body.data.object);
       const transactions = StripeFunctions.get_transactions_from_transfer(event_body.data.object.id);
       logger.info(transactions);
       StripeFunctions.upsert_stripe_transactions(transactions, event_body.data.object.id);
@@ -404,6 +405,7 @@ _.extend(StripeFunctions, {
     default:
       logger.error("This event didn't fit any of the configured cases, go into store_stripe_event and add the appropriate case.");
     }
+    return resultsOfUpdate;
   },
   /**
    * Main method for checking if there is already a user account with this email

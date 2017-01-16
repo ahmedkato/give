@@ -1,6 +1,6 @@
 import { setDocHeight, updateSearchVal } from '/imports/api/miscFunctions.js';
 
-Template.Gifts.onCreated(function(){
+Template.Gifts.onCreated(function() {
   Session.set("documentLimit", 10);
   this.autorun(()=> {
     this.subscribe("userDTFunds");
@@ -11,26 +11,25 @@ Template.Gifts.onCreated(function(){
   });
 });
 
-Template.Gifts.onDestroyed(function () {
+Template.Gifts.onDestroyed(function() {
   Session.delete("searchValue");
   Session.delete("documentLimit");
   $(window).unbind('scroll');
 });
 
-Template.Gifts.onRendered(function () {
+Template.Gifts.onRendered(function() {
   setDocHeight();
-  let refunded = Iron.Location.get().queryObject && Iron.Location.get().queryObject.refunded;
-  if(refunded === "_true") {
+  const refunded = Iron.Location.get().queryObject && Iron.Location.get().queryObject.refunded;
+  if (refunded === "_true") {
     $("#filter-refunded").prop( "checked", true );
   } else {
     $("#filter-refunded").prop( "checked", false );
   }
   $( "[data-toggle='popover']" ).popover({html: true});
-
 });
 
 Template.Gifts.events({
-  'change #filter-refunded'(e){
+  'change #filter-refunded'(e) {
     console.log("Changes");
     const checked = $(e.currentTarget).is(':checked');
     if (checked) {
@@ -39,7 +38,7 @@ Template.Gifts.events({
       Session.set("refunded", "_false");
     }
   },
-  'keyup, change .search': _.debounce(function () {
+  'keyup, change .search': _.debounce(function() {
     updateSearchVal();
   }, 300),
   'click .clear-button'() {
@@ -48,13 +47,13 @@ Template.Gifts.events({
     Session.set("documentLimit", 10);
     Session.set("refunded", "_false");
   },
-  'click .go_to_subscription_link'(e){
-    let invoice = Invoices.findOne({_id: $(e.currentTarget).data('invoice-id')});
+  'click .go_to_subscription_link'(e) {
+    const invoice = Invoices.findOne({_id: $(e.currentTarget).data('invoice-id')});
     Router.go('/dashboard/subscriptions?sub=' + invoice.subscription);
   },
-  'click .refund-button': function (e) {
+  'click .refund-button': function(e) {
     console.log("Clicked refund");
-    let charge_id = this._id;
+    const charge_id = this._id;
 
     $(e.currentTarget).button('Working');
 
@@ -68,21 +67,20 @@ Template.Gifts.events({
       cancelButtonText: "No",
       closeOnConfirm: false,
       closeOnCancel: false
-    }, function(inputValue){
-
+    }, function(inputValue) {
       if (inputValue === "") {
         inputValue = "Not specified, but refunded by an admin";
       }
 
-      if (inputValue === false){
+      if (inputValue === false) {
         swal("Ok, we didn't do anything.",
           "success");
         $(e.currentTarget).button('reset');
       } else if (inputValue) {
         console.log("Got to before method call with input of " + inputValue);
         Session.set("loading", true);
-        Meteor.call("stripeRefundGift", charge_id, inputValue, function(error, response){
-          if (error){
+        Meteor.call("stripeRefundGift", charge_id, inputValue, function(error, response) {
+          if (error) {
             Bert.alert(error.message, "danger");
             Session.set("loading", false);
             $(e.currentTarget).button('reset');
@@ -101,31 +99,31 @@ Template.Gifts.helpers({
   charges() {
     return Charges.find({}, {sort: {created: -1}});
   },
-  status(){
+  status() {
     if (this.refunded) {
       return 'refunded';
-    } else if (this.status === 'failed'){
+    } else if (this.status === 'failed') {
       return 'failed';
     }
     return;
   },
-  refunded(){
+  refunded() {
     if (this.refunded) {
       return 'refunded';
     }
     return;
   },
-  failureMessage(){
-    if(this.status === 'failed'){
+  failureMessage() {
+    if (this.status === 'failed') {
       return this.failure_message;
     }
     return;
   },
-  thisCustomer(){
+  thisCustomer() {
     const customer = Customers.findOne({_id: this.customer});
     return customer;
   },
-  name(){
+  name() {
     let name = this.metadata && this.metadata.fname;
     if (name) {
       name = name + " " + this.metadata.lname;
@@ -133,26 +131,26 @@ Template.Gifts.helpers({
     }
     return;
   },
-  recurring(){
+  recurring() {
     if (this.invoice) {
       return true;
     }
     return;
   },
-  refundAmount(){
+  refundAmount() {
     return Session.get("refundAmount");
   },
-  isChecked(){
-    let checked = Session.equals( "refunded", "_true" );
-    if( checked === true ) {
+  isChecked() {
+    const checked = Session.equals( "refunded", "_true" );
+    if ( checked === true ) {
       return 'checked';
     }
     return;
   },
-  refundUnixDate(){
+  refundUnixDate() {
     return this.refunds.data[0].created;
   },
   dt_donation() {
     return DT_donations.findOne( { 'transaction_id': this._id } ) && DT_donations.findOne( { 'transaction_id': this._id } );
-  },
+  }
 });

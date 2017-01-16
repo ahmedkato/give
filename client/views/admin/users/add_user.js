@@ -1,6 +1,6 @@
 AutoForm.hooks({
   'new-user-form': {
-    onSuccess: function (operation, result, template) {
+    onSuccess: function(operation, result, template) {
       Session.set("addingNew", false);
       $("[type='submit']").button('reset');
       Bert.alert( 'Success', 'success', 'growl-bottom-right' );
@@ -18,18 +18,18 @@ AutoForm.hooks({
 });
 
 Template.AddUser.helpers({
-  schema: function () {
+  schema: function() {
     return Schema.CreateUserFormSchema;
   },
-  user: function () {
-    let editUserID = Router.current().params._id;
+  user: function() {
+    const editUserID = Router.current().params._id;
     return Meteor.users.findOne({_id: editUserID});
   },
-  selected: function () {
-    let editUserID = Router.current().params._id;
-    if(editUserID) {
-      let thisUser = Meteor.users.findOne({_id: editUserID});
-      if ( thisUser && thisUser.roles && thisUser.roles.indexOf( this.name ) > -1 ){
+  selected: function() {
+    const editUserID = Router.current().params._id;
+    if (editUserID) {
+      const thisUser = Meteor.users.findOne({_id: editUserID});
+      if ( thisUser && thisUser.roles && thisUser.roles.indexOf( this.name ) > -1 ) {
         return 'selected';
       }
     } else {
@@ -39,18 +39,18 @@ Template.AddUser.helpers({
 });
 
 Template.AddUser.events({
-  'click .cancel-button': function () {
+  'click .cancel-button': function() {
     console.log("Clicked cancel");
     Session.set("addingNew", false);
     Router.go("/dashboard/users");
   },
-  'click [type="submit"]': function () {
+  'click [type="submit"]': function() {
     console.log("Submitted");
     $("[type='submit']").button('loading');
   }
 });
 
-Template.AddUser.onRendered(function () {
+Template.AddUser.onRendered(function() {
   $("[name='profile.phone']").mask("(999) 999-9999");
   $("[type='submit']").attr('loading-text', "Loading...");
 });

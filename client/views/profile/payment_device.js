@@ -1,4 +1,4 @@
-Template.PaymentDevice.onRendered(function(){
+Template.PaymentDevice.onRendered(function() {
   $('#billing-card').validate({
     rules: {
       "cc-num": {
@@ -30,32 +30,32 @@ Template.PaymentDevice.onRendered(function(){
         required: "Required."
       }
     },
-    submitHandler: function(){
+    submitHandler: function() {
       // Again, we get our current user's ID so we can do our Session variable
       // trick to refresh our UI helper. Don't forget our button state, too :)
-      var currentUser      = Meteor.userId();
-      var updateCardButton = $(".update-card").button('loading');
+      const currentUser = Meteor.userId();
+      const updateCardButton = $(".update-card").button('loading');
 
       // Next, figure out whether we're adding a new card. We can check our
       // addingnewCreditCard Session var here because in addition to controlling
       // the state of our UI, it also lets us know that the user wants to add
       // a new card. Two birds, one stone, booyah!
-      var newCard = Session.get('addingNewCreditCard');
-      if (newCard){
+      const newCard = Session.get('addingNewCreditCard');
+      if (newCard) {
         // If we're adding a new card, grab the card's details...
-        var card = {
+        const card = {
           number: $('[name="cc-num"]').val(),
           exp_month: $('[name="cardExpirationMonth"]').val(),
           exp_year: $('[name="cardExpirationYear"]').val(),
           cvc: $('[name="cvc2"]').val()
-        }
+        };
         // Call to update our customer's "default" card with what they've passed.
-        Meteor.call('stripeSwapCard', card, function(error, response){
-          if (error){
+        Meteor.call('stripeSwapCard', card, function(error, response) {
+          if (error) {
             Bert.alert(error.reason.message, 'danger');
             updateCardButton.button('reset');
           } else {
-            if (response.rawType !== undefined && response.rawType === "card_error"){
+            if (response.rawType !== undefined && response.rawType === "card_error") {
               Bert.alert(response.message, "danger");
               updateCardButton.button('reset');
             } else {
@@ -68,20 +68,20 @@ Template.PaymentDevice.onRendered(function(){
         });
       } else {
         // Get our updates from the form.
-        var updates = {
+        const updates = {
           exp_month: $('[name="cardExpirationMonth"]').val(),
           exp_year: $('[name="cardExpirationYear"]').val()
         };
         // If we're just updating an existing card
-        Meteor.call('stripeUpdateCard', updates, function(error, response){
-          if (error){
+        Meteor.call('stripeUpdateCard', updates, function(error, response) {
+          if (error) {
             Bert.alert(error.reason, "danger");
             updateCardButton.button('reset');
           } else {
             // Notice here that we're looking at response.rawType instead of response.error.
             // This is because Stripe will return card error's differently than other errors.
             // This just allows us to confirm the type and alert the appropriate message.
-            if (response.rawType !== undefined && response.rawType === "card_error"){
+            if (response.rawType !== undefined && response.rawType === "card_error") {
               Bert.alert(response.message, "danger");
               updateCardButton.button('reset');
             } else {
@@ -100,7 +100,7 @@ Template.PaymentDevice.onRendered(function(){
 });
 
 Template.PaymentDevice.events({
-  'submit form': function(){
+  'submit form': function() {
     e.preventDefault();
   }
 });

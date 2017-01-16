@@ -7,10 +7,10 @@ Charges = new Mongo.Collection('charges');
 // Organization configuration
 Config = new Mongo.Collection('config');
 
-Config.before.update(function (userId, doc, fieldNames, modifier) {
+Config.before.update(function(userId, doc, fieldNames, modifier) {
   // if there is a trailing '/' remove it
   if (fieldNames && fieldNames.indexOf("Settings") !== -1) {
-    if( modifier &&
+    if ( modifier &&
       modifier.$set &&
       modifier.$set["Settings.DonorTools.url"] &&
       modifier.$set["Settings.DonorTools.url"].slice( -1 ) === '/' ) {
@@ -20,32 +20,30 @@ Config.before.update(function (userId, doc, fieldNames, modifier) {
   }
 });
 
-Config.after.update(function (userId, doc, fieldNames) {
-
+Config.after.update(function(userId, doc, fieldNames) {
   if (fieldNames && fieldNames.indexOf("Settings") !== -1) {
-    if( Meteor.isServer && userId ) {
+    if ( Meteor.isServer && userId ) {
       // Not using the function 'ConfigDoc()' to assign this because this runs on both
       // the client and the server
-      let config = Config.findOne( {
+      const config = Config.findOne( {
         'OrgInfo.web.domain_name': Meteor.settings.public.org_domain
       });
 
-      if( config && config.Services && config.Services.emailSendMethod &&
+      if ( config && config.Services && config.Services.emailSendMethod &&
         config.Services.emailSendMethod === "Mandrill") {
         return Mandrill.config( {
           username: config.OrgInfo.emails.mandrillUsername,
-          "key":    config.OrgInfo.emails.mandrillKey
+          "key": config.OrgInfo.emails.mandrillKey
         } );
-
       }
     }
   }
 });
 
-Config.after.insert(function () {
+Config.after.insert(function() {
   Meteor.setTimeout(()=>{
     Meteor.call("afterUpdateInfoSection", function(err, res) {
-      if(!err) {
+      if (!err) {
         console.log( res );
       }
     });

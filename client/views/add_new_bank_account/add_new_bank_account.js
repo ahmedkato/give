@@ -1,18 +1,18 @@
 import parsley from 'parsleyjs';
 
 Template.AddNewBankAccount.events({
-  'submit form': function (e) {
-    //prevent the default reaction to submitting this form
+  'submit form': function(e) {
+    // prevent the default reaction to submitting this form
     e.preventDefault();
     // Stop propagation prevents the form from being submitted more than once.
     e.stopPropagation();
 
-    let savePayment = $("#save_payment").is(':checked');
+    const savePayment = $("#save_payment").is(':checked');
 
     Session.set("loading", true);
-    
+
     let name;
-    if(Meteor.user().profile.business_name) {
+    if (Meteor.user().profile.business_name) {
       name = Meteor.user().profile.business_name;
     } else {
       name = Meteor.user().profile.fname + " " + Meteor.user().profile.lname;
@@ -28,20 +28,20 @@ Template.AddNewBankAccount.events({
       account_number: $('#account_number').val(),
       name: name
     }, function(status, response) {
-      if( response.error ) {
-        //error logic here
+      if ( response.error ) {
+        // error logic here
         Give.handleErrors( response.error );
       } else {
         // Call your backend
         let subscription_id = Session.get("updateSubscription");
-        if(!subscription_id) {
+        if (!subscription_id) {
           subscription_id = Session.get("sub");
         }
-        Meteor.call('stripeUpdateBank', response.id, subscription_id, savePayment, function (error, result) {
+        Meteor.call('stripeUpdateBank', response.id, subscription_id, savePayment, function(error, result) {
           if (error) {
             console.log(error);
-            //Give.handleErrors is used to check the returned error and the display a user friendly message about what happened that caused
-            //the error.
+            // Give.handleErrors is used to check the returned error and the display a user friendly message about what happened that caused
+            // the error.
             Bert.alert({
               message: error.reason,
               type: 'danger',
@@ -50,7 +50,7 @@ Template.AddNewBankAccount.events({
           } else {
             if ( result.error ) {
               console.log( result.error );
-              var send_error = {code: result.error, message: result.message};
+              const send_error = {code: result.error, message: result.message};
 
               Bert.alert({
                 title: send_error.code,
@@ -58,7 +58,6 @@ Template.AddNewBankAccount.events({
                 type: 'danger',
                 icon: 'fa-frown-o'
               });
-
             } else {
               Bert.alert('Updated', 'success');
 
@@ -81,16 +80,15 @@ Template.AddNewBankAccount.events({
             }
           }
         });
-
       }
     });
     Session.set("loading", false);
   },
-  'click #go-to-card': function (e) {
+  'click #go-to-card': function(e) {
     e.preventDefault();
     e.stopPropagation();
 
-    if(Router.current().route.getName() === "FixCardSubscription"){
+    if (Router.current().route.getName() === "FixCardSubscription") {
       $('#modal_for_add_new_bank_account').modal('hide');
       return;
     }
@@ -102,6 +100,6 @@ Template.AddNewBankAccount.events({
   }
 });
 
-Template.AddNewBankAccount.onRendered( function (){
+Template.AddNewBankAccount.onRendered( function() {
   $('#add-bank-form').parsley();
 });

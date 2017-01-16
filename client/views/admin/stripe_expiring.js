@@ -1,27 +1,27 @@
 Template.StripeExpiring.helpers({
-    customers: function () {
-      let customers =  Customers.find();
+  customers: function() {
+    const customers = Customers.find();
 
-      var returnThisValue = [];
+    const returnThisValue = [];
       // TODO: fix this so that it maps the devices and only shows the one with the index that matches the default_source (might not be index 0)
       // See the fix_bank_subscription.js file
 
-      customers.forEach(function(entry) {
-        if( entry.sources.data[0].object === 'card' ) {
-          var today = new Date();
-          var future_date = new Date( new Date( today ).setMonth( today.getMonth() + 3 ) );
-          let expires = moment( new Date( entry.sources.data[0].exp_month + '/01/' + entry.sources.data[0].exp_year ) );
-          if( expires <= future_date ) {
-            returnThisValue.push( entry );
-          }
+    customers.forEach(function(entry) {
+      if ( entry.sources.data[0].object === 'card' ) {
+        const today = new Date();
+        const future_date = new Date( new Date( today ).setMonth( today.getMonth() + 3 ) );
+        const expires = moment( new Date( entry.sources.data[0].exp_month + '/01/' + entry.sources.data[0].exp_year ) );
+        if ( expires <= future_date ) {
+          returnThisValue.push( entry );
         }
-      });
-      return returnThisValue;
-    }
+      }
+    });
+    return returnThisValue;
+  }
 });
 
 Template.StripeExpiring.events({
-  'click .expiring': function (e) {
+  'click .expiring': function(e) {
     e.preventDefault();
     // TODO: right now this doesn't always work right since [0] might not be
     // the right subscription id
@@ -32,10 +32,10 @@ Template.StripeExpiring.events({
     this.subscriptions.data[0].id + '&c=' +
     this._id);
   }
-})
+});
 
-Template.StripeExpiring.onRendered(function () {
-    /*$('.datatable').dataTable( {
+Template.StripeExpiring.onRendered(function() {
+    /* $('.datatable').dataTable( {
         "columnDefs": [
             { className: "details-control", "targets": [ 0 ] }
         ],

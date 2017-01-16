@@ -1,8 +1,8 @@
-Template.TripsMember.onCreated(function () {
+Template.TripsMember.onCreated(function() {
   this.autorun(()=> {
     this.subscribe("tripsMember");
     this.subscribe("userDTFunds");
-  })
+  });
 });
 
 Template.TripsMember.helpers({
@@ -13,14 +13,14 @@ Template.TripsMember.helpers({
     return Session.get('tripDoc');
   },
   formType() {
-    var formType = Template.instance().formType.get();
+    const formType = Template.instance().formType.get();
     return formType;
   },
   trips() {
     return Trips.find();
   },
   name() {
-    let dtFund = DT_funds.findOne({_id: this.fundId});
+    const dtFund = DT_funds.findOne({_id: this.fundId});
     if (dtFund) {
       return dtFund.name;
     }
@@ -31,7 +31,7 @@ Template.TripsMember.helpers({
 Template.TripsMember.events({
   'click .see-trip'(e) {
     console.log("CLicked row" );
-    let tripId = $(e.currentTarget).attr("data-id");
+    const tripId = $(e.currentTarget).attr("data-id");
     Router.go('TripMember', {_id: tripId});
   },
   'click #give-to-trip'() {

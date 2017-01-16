@@ -1,16 +1,15 @@
 Meteor.startup(function() {
-
   // if there is no org_domain in the settings.json file then put localhost in there
   Meteor.settings.public.org_domain = Meteor.settings.public.org_domain ? Meteor.settings.public.org_domain : 'localhost';
 
   // Commented this fixture out, if you are just setting up, you'll want to un-comment this line to get an admin account setup
-  /*if( Meteor.users.find().count() === 0 ) {
+  /* if( Meteor.users.find().count() === 0 ) {
     logger.info("Running fixtures");
 
     // CHANGE THE FIXTURE EMAIL BELOW
     let email = 'test@example.com';
     let tempPassword = 'sdie3038s,,@isT;';
-    
+
     let initRoles = ['admin', 'manager', 'trips-manager', 'trips-member'];
 
     let allRoles = Roles.getAllRoles().map(function(item) {
@@ -29,7 +28,7 @@ Meteor.startup(function() {
       email: email,
       password: tempPassword
     });
-    
+
     // Let the Roles functions run first
     Meteor.setTimeout(()=> {
 

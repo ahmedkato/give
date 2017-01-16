@@ -88,7 +88,6 @@ Template.UpdateDonation.events({
       });
       Session.set("yes_change_date", false);
     }, 0);
-
   },
   'click #start_date_button'() {
     $("#start_date").select();

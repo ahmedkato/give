@@ -21,7 +21,7 @@ Security.permit(['insert', 'update', 'remove'])
     Refunds,
     Subscriptions,
     Transactions,
-    Transfers,
+    Transfers
   ])
   .ifHasRole('admin')
   .allowInClientCode();

@@ -1,11 +1,11 @@
 DonateIndexController = RouteController.extend({
-  waitOn: function () {
+  waitOn: function() {
   },
 
-  data: function () {
+  data: function() {
   },
 
-  action: function () {
+  action: function() {
     this.render();
   }
 });

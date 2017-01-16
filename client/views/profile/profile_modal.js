@@ -1,6 +1,6 @@
 Template.ProfileModal.helpers({
-  this_persona: function () {
-    var persona_info;
+  this_persona: function() {
+    let persona_info;
     if (Session.get('params.userID')) {
       persona_info = Meteor.users.findOne({_id: Session.get('params.userID')}) &&
         Meteor.users.findOne({_id: Session.get('params.userID')}).persona_info;
@@ -16,7 +16,7 @@ Template.ProfileModal.helpers({
     }
     return;
   },
-  personaStreetAddress: function () {
+  personaStreetAddress: function() {
     let street_address = this && this[0] && this[0].addresses && this[0].addresses[0].street_address;
     if (street_address) {
       street_address = street_address.split("\n");

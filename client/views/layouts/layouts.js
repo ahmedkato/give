@@ -1,8 +1,8 @@
-function loadHead(){
-  let config = ConfigDoc();
+function loadHead() {
+  const config = ConfigDoc();
 
   if (config && config._id) {
-    let imageDoc = Images.findOne({$and: [{configId: config._id},{'favicon': "_true"}]});
+    const imageDoc = Images.findOne({$and: [{configId: config._id}, {'favicon': "_true"}]});
     if (imageDoc) {
       console.log("Got to imageDoc exists");
       $('#favicon').attr("href", imageDoc.baseUrl + imageDoc.name);
@@ -10,7 +10,7 @@ function loadHead(){
   }
 }
 
-Template.MasterLayout.onCreated(function(){
+Template.MasterLayout.onCreated(function() {
   this.autorun(() => {
     this.subscribe("config");
     this.subscribe("uploaded");
@@ -18,7 +18,7 @@ Template.MasterLayout.onCreated(function(){
   loadHead();
 });
 
-Template.AdminLayout.onCreated(function(){
+Template.AdminLayout.onCreated(function() {
   this.autorun(() => {
     this.subscribe("config");
     this.subscribe("uploaded");
@@ -26,7 +26,7 @@ Template.AdminLayout.onCreated(function(){
   loadHead();
 });
 
-Template.UserLayout.onCreated(function(){
+Template.UserLayout.onCreated(function() {
   this.autorun(() => {
     this.subscribe("config");
     this.subscribe("uploaded");

@@ -1,7 +1,7 @@
 import parsley from 'parsleyjs';
 
-var init_calendar = function(){
-  let datepickerSelector = $('#start_date');
+const init_calendar = function() {
+  const datepickerSelector = $('#start_date');
   datepickerSelector.datepicker( {
     format: 'd MM, yyyy',
     startDate: '+1d',
@@ -11,27 +11,27 @@ var init_calendar = function(){
 };
 
 Template.ACHModal.helpers({
-  amount: function () {
+  amount: function() {
     return Session.get("change_amount");
   },
-  currentDate: function () {
-    if(Session.equals("yes_change_date", true)){
-      let currentDate = moment.unix(Session.get("change_date")).format('D MMM, YYYY');
+  currentDate: function() {
+    if (Session.equals("yes_change_date", true)) {
+      const currentDate = moment.unix(Session.get("change_date")).format('D MMM, YYYY');
       return currentDate;
     } else {
       return;
     }
   },
-  changeDate: function () {
+  changeDate: function() {
     return Session.get("yes_change_date");
   },
-  changeNote: function () {
+  changeNote: function() {
     return Session.get("yes_change_note");
   },
-  changeDesignation: function () {
+  changeDesignation: function() {
     return Session.get("yes_change_designation");
   },
-  note: function () {
+  note: function() {
     return Session.get('change_not');
   }
 });
@@ -40,15 +40,15 @@ Template.ACHModal.events({
   'submit form': function(e) {
     e.preventDefault();
     console.log("Submitted event started for AdminACHModal form");
-    let donation_id = Session.get("change_donation_id");
-    let customer_id = Session.get("change_customer_id");
-    let amount = parseInt(((Give.getCleanValue('[name="amount"]').replace(/[^\d\.\-\ ]/g, '')) * 100).toFixed(0));
-    let note = $("#note").val();
-    let donationDate = $("#start_date").val() ? moment(new Date(Give.getCleanValue('#start_date'))).format('X'): '';
-    let donateToText = $("#designationSection").is(":visible") ? $('[name="donateTo"] option:selected').text() : Session.get("change_donateTo");
+    const donation_id = Session.get("change_donation_id");
+    const customer_id = Session.get("change_customer_id");
+    const amount = parseInt(((Give.getCleanValue('[name="amount"]').replace(/[^\d\.\-\ ]/g, '')) * 100).toFixed(0));
+    const note = $("#note").val();
+    const donationDate = $("#start_date").val() ? moment(new Date(Give.getCleanValue('#start_date'))).format('X') : '';
+    const donateToText = $("#designationSection").is(":visible") ? $('[name="donateTo"] option:selected').text() : Session.get("change_donateTo");
 
-    if(Session.get("change_donateTo") === donateToText && Session.get("change_amount") === amount &&
-      (Session.equals("yes_change_date", false) || !Session.get("yes_change_date"))){
+    if (Session.get("change_donateTo") === donateToText && Session.get("change_amount") === amount &&
+      (Session.equals("yes_change_date", false) || !Session.get("yes_change_date"))) {
       alert("You haven't made any changes.");
       return "No changes";
     }
@@ -73,38 +73,38 @@ Template.ACHModal.events({
     $('#designationSection').hide();
     $('#modal_for_admin_ach_change_form').modal('hide');
   },
-  'click #showCalendar': function (e) {
+  'click #showCalendar': function(e) {
     e.preventDefault();
     Session.set("yes_change_date", true);
     $('#calendarSection').show();
-    //init_calendar();
+    // init_calendar();
   },
-  'click #hideCalendar': function (e) {
+  'click #hideCalendar': function(e) {
     e.preventDefault();
     Session.set("yes_change_date", false);
     $('#calendarSection').hide();
   },
-  'click #showNote': function (e) {
+  'click #showNote': function(e) {
     e.preventDefault();
     Session.set("yes_change_note", true);
     $('#noteSection').show();
   },
-  'click #hideNote': function (e) {
+  'click #hideNote': function(e) {
     e.preventDefault();
     Session.set("yes_change_note", false);
     $('#noteSection').hide();
   },
-  'click #showDesignation': function (e) {
+  'click #showDesignation': function(e) {
     e.preventDefault();
     Session.set("yes_change_designation", true);
     $('#designationSection').show();
   },
-  'click #hideDesignation': function (e) {
+  'click #hideDesignation': function(e) {
     e.preventDefault();
     Session.set("yes_change_designation", false);
     $('#designationSection').hide();
   },
-  'click .close': function () {
+  'click .close': function() {
     Session.set("yes_change_date", false);
     Session.set("yes_change_designation", false);
     $('#calendarSection').hide();
@@ -112,13 +112,11 @@ Template.ACHModal.events({
   }
 });
 
-Template.ACHModal.onRendered(function () {
-
+Template.ACHModal.onRendered(function() {
   Session.set("yes_change_date", false);
 
   // Setup parsley form validation
   $('#subscription_change').parsley();
 
   init_calendar();
-
 });

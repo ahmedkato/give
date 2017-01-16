@@ -610,13 +610,11 @@ _.extend(Utils, {
         if (type !== 'charge.failed') {
           logger.error("No donation found here, exiting.");
           return;
-        } else {
-                // If you get to this area it means the donor would have already seen their gift
-                // failed. If there is no donation cursor that means the gift process
-                // didn't get past the initial screen and so the donor already knows
-                // their gift failed. Sending an email here would just confuse them
-          return;
         }
+        // If you get to this area it means the donor would have already seen their gift
+        // failed. If there is no donation cursor that means the gift process
+        // didn't get past the initial screen and so the donor already knows
+        // their gift failed. Sending an email here would just confuse them
       } else {
         logger.info("donateTo: " + donation_cursor.donateTo);
         if (!donation_cursor.donateTo) {

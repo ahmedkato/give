@@ -1,6 +1,6 @@
 AutoForm.hooks({
   'updateInfoSection': {
-    onSuccess: function () {
+    onSuccess: function() {
       Bert.alert({
         message: "Good work",
         type: 'success',
@@ -21,17 +21,17 @@ AutoForm.hooks({
   }
 });
 
-Template.OrgInfo.onCreated(function () {
+Template.OrgInfo.onCreated(function() {
   this.formType = new ReactiveVar('insert');
 });
-Template.OrgInfo.onRendered(function () {
+Template.OrgInfo.onRendered(function() {
   $("[name='OrgInfo.phone']").mask("(999) 999-9999");
   $("#updateInfoSection").parsley();
 });
 
 Template.OrgInfo.helpers({
-  configDocument: function () {
-    let config = ConfigDoc();
+  configDocument: function() {
+    const config = ConfigDoc();
 
     if (config) {
       Template.instance().formType.set('update');
@@ -40,7 +40,7 @@ Template.OrgInfo.helpers({
     return;
   },
   formType: function() {
-    var formType = Template.instance().formType.get();
+    const formType = Template.instance().formType.get();
     return formType;
   }
 });

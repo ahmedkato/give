@@ -1,18 +1,18 @@
 Template.DonationToDuplicates.helpers({
-  selectableDesignation(){
-    if(this.memo) {
+  selectableDesignation() {
+    if (this.memo) {
       console.log( "false" );
       return false;
     } else {
       return true;
     }
-  },
+  }
 });
 
 Template.DonationToDuplicates.events({
   'change [name="donateToDuplicate"]'(e) {
-    let config = ConfigDoc();
-    let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
+    const config = ConfigDoc();
+    const writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
 
     if (writeInDonationTypeId.indexOf(Number($('[name="donateToDuplicate"]').val())) === -1 ) {
       $('#giftNoteText').hide();

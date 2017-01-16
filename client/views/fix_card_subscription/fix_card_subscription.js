@@ -1,32 +1,30 @@
 import parsley from 'parsleyjs';
 
-Template.FixCardSubscription.onCreated(function(){
+Template.FixCardSubscription.onCreated(function() {
   this.autorun(()=>{
     this.subscribe("subscription_with_donation_splits", Session.get("sub"));
     this.subscribe("userDTFunds");
   });
 });
 
-Template.FixCardSubscription.onRendered(function(){
-
+Template.FixCardSubscription.onRendered(function() {
   Session.setDefault('isRepair', true);
   Session.set('update_this_card', Customers.findOne() && Customers.findOne().sources.data[0].id);
 
-  if(Subscriptions.findOne()){
-    if(Subscriptions.status === 'past_due' || Subscriptions.findOne().status === 'canceled'){
+  if (Subscriptions.findOne()) {
+    if (Subscriptions.status === 'past_due' || Subscriptions.findOne().status === 'canceled') {
       Session.set('addingNewCreditCard', true);
     }
   }
 
   $('#resubscribe').parsley();
-
 });
 
 Template.FixCardSubscription.events({
-  'click [name=submitCardForm]'(e){
+  'click [name=submitCardForm]'(e) {
     e.preventDefault();
 
-    var update_this = {
+    const update_this = {
       customer_id: Customers.findOne()._id,
       subscription_id: Subscriptions.findOne()._id,
       status: Subscriptions.findOne().status,
@@ -34,12 +32,12 @@ Template.FixCardSubscription.events({
       exp_month: $('[name="cardExpirationMonth"]').val(),
       exp_year: $('[name="cardExpirationYear"]').val()
     };
-    var addingNewCreditCard = Session.get('addingNewCreditCard');
-    var resubscribeButton   = $(".resubscribe").button('loading');
+    const addingNewCreditCard = Session.get('addingNewCreditCard');
+    const resubscribeButton = $(".resubscribe").button('loading');
 
-    if (addingNewCreditCard){
+    if (addingNewCreditCard) {
       // If we're adding a new card, grab our card data from the template.
-      var card = {
+      const card = {
         number: $('[name="cc-num"]').val(),
         exp_month: $('[name="cardExpirationMonth"]').val(),
         exp_year: $('[name="cardExpirationYear"]').val(),
@@ -47,47 +45,46 @@ Template.FixCardSubscription.events({
       };
 
 
-      Stripe.card.createToken(card, function(status, response){
+      Stripe.card.createToken(card, function(status, response) {
         if (response.error) {
-          //error logic here
+          // error logic here
           Give.handleErrors(response.error);
         } else {
           // Call your backend
-          var subscription_id = Subscriptions.findOne()._id;
-          var subscription_status = Subscriptions.findOne().status;
-          var customer_id = Customers.findOne()._id;
+          const subscription_id = Subscriptions.findOne()._id;
+          const subscription_status = Subscriptions.findOne().status;
+          const customer_id = Customers.findOne()._id;
 
           // Call our stripeSwipeCard method to replace our customer's existing
           // card with the new card they've specified.
           Meteor.call("stripeUpdateSubscription", customer_id, subscription_id,
-            response.id, subscription_status, 'Card', function(error){
-            if (error){
-              console.dir(error);
-              resubscribeButton.button("reset");
-              Bert.alert(error.message, "danger");
-            } else {
+            response.id, subscription_status, 'Card', function(error) {
+              if (error) {
+                console.dir(error);
+                resubscribeButton.button("reset");
+                Bert.alert(error.message, "danger");
+              } else {
               // If we're resubscribed, go ahead and confirm by returning to the
               // billing overview page and showing an alert message.
-              resubscribeButton.button("reset");
-              const queryParams = Router.current().params.query;
+                resubscribeButton.button("reset");
+                const queryParams = Router.current().params.query;
 
-              if(queryParams && queryParams.admin && queryParams.admin === 'yes'){
-                Bert.alert("Successfully updated that recurring gift.", "success");
-                Router.go('AdminSubscriptions');
-              } else {
-                Bert.alert("If you were fixing a failed gift, it might take a " +
+                if (queryParams && queryParams.admin && queryParams.admin === 'yes') {
+                  Bert.alert("Successfully updated that recurring gift.", "success");
+                  Router.go('AdminSubscriptions');
+                } else {
+                  Bert.alert("If you were fixing a failed gift, it might take a " +
                   "couple of days for the gift status to change. We have updated " +
                   "your payment method.", "success");
-                Router.go('subscriptions');
+                  Router.go('subscriptions');
+                }
               }
-            }
-          });
+            });
         }
       });
-
     } else {
-      Meteor.call("stripeUpdateCard", update_this, function(error, response){
-        if (error){
+      Meteor.call("stripeUpdateCard", update_this, function(error, response) {
+        if (error) {
           console.dir(error);
           resubscribeButton.button("reset");
           Bert.alert(error.message, "danger");
@@ -95,13 +92,13 @@ Template.FixCardSubscription.events({
           // If we're resubscribed, go ahead and confirm by returning to the
           // subscriptions page and show the alert
           resubscribeButton.button("reset");
-          if(response === 'new'){
+          if (response === 'new') {
             Bert.alert("Successfully activated your recurring gift. Thank you!", "success");
             Router.go('subscriptions');
           } else {
             const queryParams = Router.current().params.query;
 
-            if(queryParams && queryParams.admin && queryParams.admin === 'yes'){
+            if (queryParams && queryParams.admin && queryParams.admin === 'yes') {
               Bert.alert("Successfully updated that recurring gift.", "success");
               Router.go('AdminSubscriptions');
             } else {
@@ -114,65 +111,65 @@ Template.FixCardSubscription.events({
     }
     Session.set("loading", false);
   },
-  'click .add-new-card': function(){
+  'click .add-new-card': function() {
     Session.set('addingNewCreditCard', true);
   },
-  'click .cancel-new-card': function(e){
+  'click .cancel-new-card': function(e) {
     e.preventDefault();
     $('form#resubscribe').unbind('submit');
     Session.set('addingNewCreditCard', false);
   },
-  'click .btn_modal_for_add_new_bank_account': function () {
+  'click .btn_modal_for_add_new_bank_account': function() {
     $("#modal_for_add_new_bank_account").modal('show');
     Session.set('updateSubscription', this.id);
   }
 });
 
 Template.FixCardSubscription.helpers({
-    subscription: function () {
-      return Subscriptions.find();
-    },
-    customer: function () {
-      return Customers.findOne();
-    },
-    customer_device: function () {
-      var return_these = {};
-      if(Customers.findOne() && Customers.findOne().sources.data[0].brand){
-        return_these.brand = Customers.findOne().sources.data[0].brand;
-        return_these.exp_month = Customers.findOne().sources.data[0].exp_month;
-        return_these.exp_year = Customers.findOne().sources.data[0].exp_year;
-      } else {
-        return_these.brand = Customers.findOne() && Customers.findOne().sources.data[0].bank_name;
-      }
-      return_these.last4 = Customers.findOne() && Customers.findOne().sources.data[0].last4;
-      return return_these;
-    },
-    isRepair: function () {
-      return Session.get('isRepair');
-    },
-    addNewCard: function () {
-      return Session.get('addingNewCreditCard');
-    },
-    expired_class: function () {
-      if(!Customers.findOne()){
-        return;
-      }
-      if(Stripe.card.validateExpiry(Customers.findOne().sources.data[0].exp_month), Customers.findOne().sources.data[0].exp_year){
-        return;
-      } else {
-        return 'redText';
-      }
-    },
-    addNew: function () {
-      if(Session.equals('addingNewCreditCard', true)){
-        return true;
-      } else {
-        return false;
-      }
+  subscription: function() {
+    return Subscriptions.find();
+  },
+  customer: function() {
+    return Customers.findOne();
+  },
+  customer_device: function() {
+    const return_these = {};
+    if (Customers.findOne() && Customers.findOne().sources.data[0].brand) {
+      return_these.brand = Customers.findOne().sources.data[0].brand;
+      return_these.exp_month = Customers.findOne().sources.data[0].exp_month;
+      return_these.exp_year = Customers.findOne().sources.data[0].exp_year;
+    } else {
+      return_these.brand = Customers.findOne() && Customers.findOne().sources.data[0].bank_name;
     }
+    return_these.last4 = Customers.findOne() && Customers.findOne().sources.data[0].last4;
+    return return_these;
+  },
+  isRepair: function() {
+    return Session.get('isRepair');
+  },
+  addNewCard: function() {
+    return Session.get('addingNewCreditCard');
+  },
+  expired_class: function() {
+    if (!Customers.findOne()) {
+      return;
+    }
+    if (Stripe.card.validateExpiry(Customers.findOne().sources.data[0].exp_month), Customers.findOne().sources.data[0].exp_year) {
+      return;
+    } else {
+      return 'redText';
+    }
+  },
+  addNew: function() {
+    if (Session.equals('addingNewCreditCard', true)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 });
 
-Template.FixCardSubscription.onDestroyed(function(){
+Template.FixCardSubscription.onDestroyed(function() {
   Session.delete("isRepair");
   Session.delete("update_this_card");
   Session.delete("addingNewCreditCard");

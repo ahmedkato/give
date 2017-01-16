@@ -1,34 +1,34 @@
-Template.DonationTo.onCreated(function () {
+Template.DonationTo.onCreated(function() {
   this.autorun(()=>{
     this.subscribe("userDTFunds");
   });
 });
 
 Template.DonationTo.helpers({
-  selectableDesignation(){
-    if(Session.get("params.donateTo")){
-      let config = ConfigDoc();
-      var givingOptions = config && config.Giving && config.Giving.options;
+  selectableDesignation() {
+    if (Session.get("params.donateTo")) {
+      const config = ConfigDoc();
+      const givingOptions = config && config.Giving && config.Giving.options;
 
-      let members = [];
-      givingOptions.forEach(function ( item ) {
-        if(item.id) {
+      const members = [];
+      givingOptions.forEach(function( item ) {
+        if (item.id) {
           members.push(item);
         }
       });
 
-      let itemExists = $.grep(members, function(e) {
+      const itemExists = $.grep(members, function(e) {
         return e.id === (DonationFormItems.findOne( { name: 'first' } ) &&
           DonationFormItems.findOne( { name: 'first' } ).donateTo);
       }).length;
 
-      let donationSplits = DonationSplits.findOne() && DonationSplits.findOne().splits;
+      const donationSplits = DonationSplits.findOne() && DonationSplits.findOne().splits;
       let itemExistsInSplit;
-      if(donationSplits && donationSplits.length > 0){
-        itemExistsInSplit = $.grep(donationSplits, function(e) {return e.id ===  $("[name='donateTo']").val();}).length;
+      if (donationSplits && donationSplits.length > 0) {
+        itemExistsInSplit = $.grep(donationSplits, function(e) {return e.id === $("[name='donateTo']").val();}).length;
       }
 
-      if( (itemExists !== 0) || (itemExistsInSplit && itemExistsInSplit !== 0) ){
+      if ( (itemExists !== 0) || (itemExistsInSplit && itemExistsInSplit !== 0) ) {
         return true;
       } else {
         return false;
@@ -38,15 +38,15 @@ Template.DonationTo.helpers({
     }
   },
   firstMemo() {
-    let donationItem = DonationFormItems.findOne({name: "first"});
+    const donationItem = DonationFormItems.findOne({name: "first"});
     return donationItem && donationItem.memo;
   }
 });
 
 Template.DonationTo.events({
   'change [name="donateTo"]'() {
-    let config = ConfigDoc();
-    let writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
+    const config = ConfigDoc();
+    const writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
 
     if (writeInDonationTypeId.indexOf(Number($('[name="donateTo"]').val())) === -1 ) {
       Session.set('showWriteIn', 'no');
@@ -72,16 +72,16 @@ Template.DonationTo.events({
 Template.DonationTo.onRendered(function() {
   if (Session.get('params.donateTo')) {
     $('[name="donateTo"]').val(Session.get('params.donateTo'));
-	}
+  }
   if (Session.get('params.donateWith')) {
     $("#donateWith").val(Session.get('params.donateWith'));
   }
-  if(Session.get('params.donateWith') === 'Check') {
+  if (Session.get('params.donateWith') === 'Check') {
     Session.set("paymentMethod", 'Check');
   } else {
     Session.set("paymentMethod", 'Card');
   }
-  if(Session.get('params.recurring')) {
+  if (Session.get('params.recurring')) {
     $("#is_recurring").val(Session.get('params.recurring'));
   }
 });

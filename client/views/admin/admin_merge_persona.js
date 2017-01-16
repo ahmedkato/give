@@ -1,6 +1,6 @@
 import parsley from 'parsleyjs';
 
-Template.AdminMergePersona.onRendered(function () {
+Template.AdminMergePersona.onRendered(function() {
   // Setup parsley form validation
   $('#quick_move').parsley();
 });
@@ -12,7 +12,7 @@ Template.AdminMergePersona.events({
     // Stop propagation prevents the form from being submitted more than once.
     e.stopPropagation();
     Session.set("loading", true);
-    Meteor.call("merge_dt_persona", Number($("#old-persona-id").val()), Number($("#new-persona-id").val()), function (error, result) {
+    Meteor.call("merge_dt_persona", Number($("#old-persona-id").val()), Number($("#new-persona-id").val()), function(error, result) {
       if (result) {
         console.dir(result);
         $('#old-persona-id').val('');

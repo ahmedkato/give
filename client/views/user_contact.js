@@ -1,5 +1,5 @@
 Template.UserContact.helpers({
-    user: function () {
-        return Meteor.user();
-    }
+  user: function() {
+    return Meteor.user();
+  }
 });
