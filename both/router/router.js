@@ -206,7 +206,7 @@ Router.route('/transfers', {
       this.render('Loading');
     }
   },
-  name: 'stripe.transfers'
+  name: 'StripeTransfers'
 });
 
 Router.route('/expiring', {
@@ -236,7 +236,7 @@ Router.route('/transfers/:_id', {
     Session.set('transferId', id);
     this.render('StripeTransferDetails');
   },
-  name: 'transfer.details'
+  name: 'StripeTransferDetails'
 });
 
 Router.route('/user/give', {
