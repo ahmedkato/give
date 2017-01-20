@@ -1479,6 +1479,35 @@ Meteor.methods({
     }
     throw new Meteor.Error(403, "Not allowed");
   },
+  fixManualACHDonations: function() {
+    if (Roles.userIsInRole(this.userId, ['admin'])) {
+      logger.info("Started method fixManualACHDonations");
+
+      const donations = Donations.find({'method': 'manualACH', 'status': 'pending', donationSplitsId: {$exists: false}});
+      donations.forEach(function(donation) {
+        logger.info("Donation ID: " + donation._id);
+        const split = {
+          "_id": Random.id(17),
+          "name": "first",
+          "donateTo": donation.donateTo,
+          "amount": donation.amount
+        };
+        if (donation.note) {
+          split.memo = donation.note;
+        }
+        const donationSplitsId = DonationSplits.insert(
+          {
+            "createdAt": new Date().toISOString(),
+            "splits": [
+              split
+            ]
+          });
+        Donations.update({_id: donation._id}, {$set: { donationSplitsId: donationSplitsId}});
+      });
+      return "Completed Updating " + donations.count() + " records.";
+    }
+    throw new Meteor.Error(403, "Not allowed");
+  },
   getAndUpdateSubscriptions() {
     if (Roles.userIsInRole(this.userId, ['admin'])) {
       logger.info("Started method getAndUpdateSubscriptions");

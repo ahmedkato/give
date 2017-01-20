@@ -1,196 +1,202 @@
 <template name="StripeTransferDetails">
-  <div class="stripe-transfer-details">
-    <div class="col-md-12">
-        {{#with transfer}}
-            <p class="text-left">
+    <div class="stripe-transfer-details">
+        <div class="col-md-12">
+            {{#with transfer}}
+                <p class="text-left">
                 <span id="posted-span" class="status {{posted}} mouseover" title="Click to toggle the 'posted' status"
-                    data-loading-text="<i class='fa fa-spinner fa-pulse'></i>">
+                      data-loading-text="<i class='fa fa-spinner fa-pulse'></i>">
                     <em>{{posted}}</em>
                 </span>
-                <label for="posted-span small">
-                    Click to toggle the 'posted' status
-                </label>
-                <span class="status pull-right text-primary">
+                    <label for="posted-span small">
+                        Click to toggle the 'posted' status
+                    </label>
+                    <span class="status pull-right text-primary">
                     <em><a href="/transfers">Go to Transfers</a></em>
                 </span>
-            </p>
-            <p>
+                </p>
+                <p>
                 <span class="status {{status}}" title="This is the Stripe transfer status">
                     <em>{{status}}</em>
                 </span>
-                <strong> ${{twoDecimalPlaces amount}}</strong>
-                <a title="Click to go to this transfer in Stripe"
-                    href="https://dashboard.stripe.com/transfers/{{id}}"
-                    target="_blank"><span class="id">— {{id}}</span>
-                </a>
-                <span class="date">— {{transfer_date}}</span>
-                <small class="pull-right smallerHeight">
-                    Legend = <span class="refunded" title="A refund, or a refunded transaction will be orange">Refund(ed)</span> /
-                    <span class="failed" title="A failed transaction will be red"> Failed</span>
-                </small>
-            </p>
-      <table class="table table-striped">
-        <tfoot>
-          <tr>
-              <td class="text-right" colspan="14">
-                  If the amount is negative that row represents the funds reversal
-              </td>
-          </tr>
-        </tfoot>
-        <tbody>
-          <tr class="responsiveFont">
-              <th>Link</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Date</th>
-              <th>ID</th>
-              <th>Type</th>
-              <th>Fees Covered?</th>
-              <th>Frequency</th>
-              <th>DT Fund</th>
-              <!--<th>DT Source</th>-->
-              <th>Donation Split</th>
-              <th>Donation Total</th>
-              <th>Fee</th>
-              <th>Net Amount</th>
-          </tr>
-          {{#each transactions}}
-            <tr class="responsiveFont
-            {{#if ($or ($eq type "payment") ($eq type "charge") )}}
-                {{#with charges}}
-                    {{refunded}} {{failed}}
-                {{/with}}
-            {{else}}
-                {{#if $eq type "refund"}}
-                    {{{refund_type}}}
-                {{/if}}
-            {{/if}}">
-              {{#if ($or ($eq type "payment") ($eq type "charge") )}}
-                  {{#with charges}}
-                    <td style="width: 50px;">
-                      <a href="{{donor_tools_site}}/donations?transaction_id={{_id}}" target="_blank">
-                        <div class="elipsis">
-                          <i class="fa fa-link"></i>
-                        </div>
-                      </a>
-                    </td>
-                    <td class="change-td-padding" data-names="{{retrieve_dt_names}}">{{dt_names}}</td>
-                {{/with}}
-              {{else}}
-                  {{#with refunds}}
-                      <td style="width: 50px;">
-                          <a href="{{donor_tools_site}}/donations?transaction_id={{charge.id}}" target="_blank">
-                              <div class="elipsis">
-                                  <i class="fa fa-link"></i>
-                              </div>
-                          </a>
-                      </td>
-                      <td class="change-td-padding" data-names="{{retrieve_dt_names}}">{{dt_names}}</td>
-                  {{/with}}
-              {{/if}}
+                    <strong> ${{twoDecimalPlaces amount}}</strong>
+                    <a title="Click to go to this transfer in Stripe"
+                       href="https://dashboard.stripe.com/transfers/{{id}}"
+                       target="_blank"><span class="id">— {{id}}</span>
+                    </a>
+                    <span class="date">— {{transfer_date}}</span>
+                    <small class="pull-right smallerHeight">
+                        Legend = <span class="refunded" title="A refund, or a refunded transaction will be orange">Refund(ed)</span>
+                        /
+                        <span class="failed" title="A failed transaction will be red"> Failed</span>
+                    </small>
+                </p>
+                <table class="table table-striped">
+                    <tfoot>
+                    <tr>
+                        <td class="text-right" colspan="14">
+                            If the amount is negative that row represents the funds reversal
+                        </td>
+                    </tr>
+                    </tfoot>
+                    <tbody>
+                    <tr class="responsiveFont">
+                        <th>Link</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Date</th>
+                        <th>ID</th>
+                        <th>Type</th>
+                        <th>Fees Covered?</th>
+                        <th>Frequency</th>
+                        <th>DT Fund</th>
+                        <!--<th>DT Source</th>-->
+                        <th>Donation Split</th>
+                        <th>Donation Total</th>
+                        <th>Fee</th>
+                        <th>Net Amount</th>
+                    </tr>
+                    {{#each transactions}}
+                        <tr class="responsiveFont
+                            {{#if ($or ($eq type "payment") ($eq type "charge") )}}
+                                {{#with charges}}
+                                    {{refunded}} {{failed}}
+                                {{/with}}
+                            {{else}}
+                                {{#if $eq type "refund"}}
+                                    {{{refund_type}}}
+                                {{/if}}
+                            {{/if}}">
+                            {{#if ($or ($eq type "payment") ($eq type "charge") )}}
+                                {{#with charges}}
+                                    <td style="width: 50px;">
+                                        <a href="{{donor_tools_site}}/donations?transaction_id={{_id}}" target="_blank">
+                                            <div class="elipsis">
+                                                <i class="fa fa-link"></i>
+                                            </div>
+                                        </a>
+                                    </td>
+                                    <td class="change-td-padding" data-names="{{retrieve_dt_names}}">{{dt_names}}</td>
+                                {{/with}}
+                            {{else}}
+                                {{#with refunds}}
+                                    <td style="width: 50px;">
+                                        <a href="{{donor_tools_site}}/donations?transaction_id={{charge.id}}"
+                                           target="_blank">
+                                            <div class="elipsis">
+                                                <i class="fa fa-link"></i>
+                                            </div>
+                                        </a>
+                                    </td>
+                                    <td class="change-td-padding" data-names="{{retrieve_dt_names}}">{{dt_names}}</td>
+                                {{/with}}
+                            {{/if}}
 
-              {{#with customers}}
-                <td class="change-td-padding">{{email}}</td>
-              {{/with}}
-              {{#if charges}}
-                  {{#with charges}}
-                      <td class="change-td-padding">{{epochToString created}}</td>
-                      <td class="change-td-padding">
-                        <a href="https://dashboard.stripe.com/payments/{{_id}}" target="_blank">
-                            <div class="elipsis">
-                                <i class="fa fa-link"></i>
-                            </div>
-                        </a>
-                      </td>
-                      <td class="change-td-padding">{{ach_or_card}}</td>
-                      <td class="">
-                          <input type="checkbox" name="coverTheFees"
-                              id="feesCovered" data-toggle="checkbox"
-                              class="cover-fees" {{fees_covered}} disabled>
-                      </td>
-                      <td class="change-td-padding">{{metadata.frequency}}</td>
-                      {{#if dt_donation}}
-                          {{#with dt_donation}}
-                              <td class="change-td-padding">
-                                  {{#each splits}}
-                                      {{{fundName}}}
-                                      <br>
-                                  {{/each}}
-                              </td>
-                              <td>
-                                  {{#each splits}}
-                                      ${{twoDecimalPlaces this.amount_in_cents}}
-                                      <br>
-                                  {{/each}}
-                              </td>
-                          {{/with}}
-                      {{else}}
-                          <td class="change-td-padding"></td>
-                      {{/if}}
-                      <!--<td class="change-td-padding">{{dt_source}}</td>-->
-                  {{/with}}
-              {{else}}
-                  {{#with refunds}}
-                      <td class="change-td-padding">{{epochToString created}}</td>
-                      <td class="change-td-padding ellipsis">
-                          <a href="https://dashboard.stripe.com/payments/{{charge.id}}" target="_blank">
-                              <div class="elipsis">
-                                  <i class="fa fa-link"></i>
-                              </div>
-                          </a>
-                      </td>
-                      <td class="change-td-padding">{{ach_or_card}}</td>
-                      <td class="">
-                          <input type="checkbox" name="coverTheFees"
-                                 id="feesCovered" data-toggle="checkbox"
-                                 class="cover-fees" {{fees_covered}} disabled>
-                      </td>
-                      <td class="change-td-padding">{{charge.metadata.frequency}}</td>
-                      {{#if dt_donation}}
-                          {{#with dt_donation}}
-                              <td class="change-td-padding">
-                                  {{#each splits}}
-                                      {{{fundName}}}
-                                      <br>
-                                  {{/each}}
-                              </td>
-                              <td>
-                                  {{#each splits}}
-                                      ${{twoDecimalPlaces this.amount_in_cents}}
-                                      <br>
-                                  {{/each}}
-                              </td>
-                          {{/with}}
-                      {{else}}
-                          <td class="change-td-padding"></td>
-                      {{/if}}
-                      <!--<td class="change-td-padding">{{dt_source}}</td>-->
-                  {{/with}}
-              {{/if}}
+                            {{#with customers}}
+                                <td class="change-td-padding">{{email}}</td>
+                            {{/with}}
+                            {{#if charges}}
+                                {{#with charges}}
+                                    <td class="change-td-padding">{{epochToString created}}</td>
+                                    <td class="change-td-padding">
+                                        <a href="https://dashboard.stripe.com/payments/{{_id}}" target="_blank">
+                                            <div class="elipsis">
+                                                <i class="fa fa-link"></i>
+                                            </div>
+                                        </a>
+                                    </td>
+                                    <td class="change-td-padding">{{ach_or_card}}</td>
+                                    <td class="">
+                                        <input type="checkbox" name="coverTheFees"
+                                               id="feesCovered" data-toggle="checkbox"
+                                               class="cover-fees" {{fees_covered}} disabled>
+                                    </td>
+                                    <td class="change-td-padding">{{metadata.frequency}}</td>
+                                    {{#if dt_donation}}
+                                        {{#with dt_donation}}
+                                            <td class="change-td-padding">
+                                                {{#each splits}}
+                                                    {{{fundName}}}
+                                                    <br>
+                                                {{/each}}
+                                            </td>
+                                            <td>
+                                                {{#each splits}}
+                                                    ${{twoDecimalPlaces this.amount_in_cents}}
+                                                    <br>
+                                                {{/each}}
+                                            </td>
+                                        {{/with}}
+                                    {{else}}
+                                        <td class="change-td-padding"></td>
+                                    {{/if}}
+                                    <!--<td class="change-td-padding">{{dt_source}}</td>-->
+                                {{/with}}
+                            {{else}}
+                                {{#with refunds}}
+                                    <td class="change-td-padding">{{epochToString created}}</td>
+                                    <td class="change-td-padding ellipsis">
+                                        <a href="https://dashboard.stripe.com/payments/{{charge.id}}" target="_blank">
+                                            <div class="elipsis">
+                                                <i class="fa fa-link"></i>
+                                            </div>
+                                        </a>
+                                    </td>
+                                    <td class="change-td-padding">{{ach_or_card}}</td>
+                                    <td class="">
+                                        <input type="checkbox" name="coverTheFees"
+                                               id="feesCovered" data-toggle="checkbox"
+                                               class="cover-fees" {{fees_covered}} disabled>
+                                    </td>
+                                    <td class="change-td-padding">{{charge.metadata.frequency}}</td>
+                                    {{#if dt_donation}}
+                                        {{#with dt_donation}}
+                                            <td class="change-td-padding">
+                                                {{#each splits}}
+                                                    {{{fundName}}}
+                                                    <br>
+                                                {{/each}}
+                                            </td>
+                                            <td>
+                                                {{#each splits}}
+                                                    ${{twoDecimalPlaces this.amount_in_cents}}
+                                                    <br>
+                                                {{/each}}
+                                            </td>
+                                        {{/with}}
+                                    {{else}}
+                                        <td class="change-td-padding"></td>
+                                    {{/if}}
+                                    <!--<td class="change-td-padding">{{dt_source}}</td>-->
+                                {{/with}}
+                            {{/if}}
 
-              <td class="">${{twoDecimalPlaces amount}}</td>
-              <td class="">${{twoDecimalPlaces fee}}</td>
-              <td class="">${{twoDecimalPlaces net}}
-              </td>
-            </tr>
-          {{/each}}
-          <tr>
-              <td class="text-right" colspan="10">Totals</td>
-              <td><strong>${{add amount total_fees}}</strong></td>
-              <td><strong>${{twoDecimalPlaces total_fees}}</strong></td>
-              <td><strong>${{twoDecimalPlaces amount}}</strong></td>
-          </tr>
-        </tbody>
+                            <td class="">${{twoDecimalPlaces amount}}</td>
+                            <td class="">${{twoDecimalPlaces fee}}</td>
+                            <td class="">${{twoDecimalPlaces net}}
+                            </td>
+                        </tr>
+                    {{/each}}
+                    <tr>
+                        <td class="text-right" colspan="10">Totals</td>
+                        <td><strong>${{add amount total_fees}}</strong></td>
+                        <td><strong>${{twoDecimalPlaces total_fees}}</strong></td>
+                        <td><strong>${{twoDecimalPlaces amount}}</strong></td>
+                    </tr>
+                    </tbody>
 
 
-      </table>
-        <nav>
-          <ul class="pager">
-            <li class="previous mouseover"><a id="previous-button" data-loading-text="<i class='fa fa-spinner fa-pulse'></i>"><span aria-hidden="true">&larr;</span> Older transfer</a></li>
-            <li class="next mouseover"><a id="next-button" data-loading-text="<i class='fa fa-spinner fa-pulse'></i>">Newer transfer <span aria-hidden="true">&rarr;</span></a></li>
-          </ul>
-        </nav>
-        {{/with}}
-      </div>
+                </table>
+                <nav>
+                    <ul class="pager">
+                        <li class="previous mouseover"><a id="previous-button"
+                                                          data-loading-text="<i class='fa fa-spinner fa-pulse'></i>"><span
+                                aria-hidden="true">&larr;</span> Older transfer</a></li>
+                        <li class="next mouseover"><a id="next-button"
+                                                      data-loading-text="<i class='fa fa-spinner fa-pulse'></i>">Newer
+                            transfer <span aria-hidden="true">&rarr;</span></a></li>
+                    </ul>
+                </nav>
+            {{/with}}
+        </div>
     </div>
 </template>

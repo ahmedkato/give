@@ -337,9 +337,9 @@ Template.StripeTransferDetails.helpers({
     return "Fund id: " + fundId;
   },
   dt_donation() {
-    if (this._id.substring(0, 2) === 'ch') {
+    if (this.object === 'charge') {
       return DT_donations.findOne( { 'transaction_id': this._id } );
-    } else if (this._id.substring(0, 2) === 're') {
+    } else if (this.object === 'refund') {
       return DT_donations.findOne( { 'transaction_id': this.charge.id } );
     }
   }
