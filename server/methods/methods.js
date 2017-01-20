@@ -1439,26 +1439,67 @@ Meteor.methods({
     if (Roles.userIsInRole(this.userId, ['admin'])) {
       logger.info("Started method fixSubscriptions");
 
-      const subscriptions = Subscriptions.find({$and: [{'metadata.donateTo': {$exists: true}}, {'metadata.donationSplitsId': {$exists: false}}, {$or: [{status: 'active'}, {status: 'past_due'}]}]});
+      const subscriptions = Subscriptions.find({
+        $and: [
+          {'metadata.donateTo': {$exists: true}},
+          {'metadata.donationSplitsId': {$exists: false}},
+          {
+            $or: [
+              {status: 'active'},
+              {status: 'past_due'}
+            ]
+          }
+        ]
+      });
       subscriptions.forEach(function(subscription) {
         logger.info("Subscription ID: " + subscription._id);
+        const split = {
+          "_id": Random.id(17),
+          "name": "first",
+          "donateTo": subscription.metadata.donateTo,
+          "amount": subscription.quantity
+        };
+        if (subscription.metadata && subscription.metadata.note) {
+          split.memo = subscription.metadata.note;
+        }
         const donationSplitsId = DonationSplits.insert(
           {
             "createdAt": new Date().toISOString(),
             "splits": [
-              {
-                "_id": Random.id(17),
-                "name": "first",
-                "donateTo": subscription.metadata.donateTo,
-                "amount": subscription.quantity
-              }
+              split
             ],
             "subscription_id": subscription._id
           });
 
         StripeFunctions.stripe_update('customers', 'updateSubscription', subscription.customer, subscription._id, {
-          metadata: {donationSplitsId, donateTo: null, amount: null, send_scheduled_email: null}
+          metadata: {donationSplitsId, donateTo: null, amount: null, send_scheduled_email: null, note: null}
         });
+      });
+      return "Completed Updating " + subscriptions.count() + " records.";
+    }
+    throw new Meteor.Error(403, "Not allowed");
+  },
+  getAndUpdateSubscriptions() {
+    if (Roles.userIsInRole(this.userId, ['admin'])) {
+      logger.info("Started method getAndUpdateSubscriptions");
+
+      const subscriptions = Subscriptions.find({
+        $and: [
+          {'metadata.donateTo': {$exists: true}},
+          {'metadata.donationSplitsId': {$exists: false}},
+          {
+            $or: [
+              {status: 'active'},
+              {status: 'past_due'}
+            ]
+          }
+        ]
+      });
+      subscriptions.forEach(function(subscription) {
+        logger.info("Subscription ID: " + subscription._id);
+        const stripeSubscriptonData = StripeFunctions.stripe_retrieve('subscriptions', 'retrieve', subscription._id, '');
+        console.log(stripeSubscriptonData);
+        Subscriptions.update({_id: stripeSubscriptonData.id}, stripeSubscriptonData);
       });
       return "Completed Updating " + subscriptions.count() + " records.";
     }

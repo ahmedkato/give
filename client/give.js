@@ -431,7 +431,6 @@ Give = {
   updateSplitTotal() {
     const donationItems = DonationFormItems.find().fetch();
     const sum = donationItems.reduce(function(num, donation) {
-      console.log(donation.amount);
       return num + donation.amount;
     }, 0);
     const displaySum = (sum / 100).toFixed(2);
@@ -441,14 +440,14 @@ Give = {
     return sum;
   },
   updateTotal: function() {
-    function getCloneAmounts() {
+    const getCloneAmounts = () => {
       const amountsArray = [];
       $( '[name="splitAmount"]' ).map(function(index, item) {amountsArray.push(Number($(item).val()));});
       const sum = amountsArray.reduce(
           function(total, num) { return total + num; }
           , 0);
       return sum;
-    }
+    };
 
     const data = Session.get( 'paymentMethod' );
     let donationAmount = $( '[name="amount"]' ).val();

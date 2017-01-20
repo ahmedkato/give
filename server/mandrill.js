@@ -323,9 +323,13 @@ _.extend(Utils, {
     };
 
     if (type !== 'large_gift') {
-        // Audit the charge event
+      // Audit the charge event
       Utils.audit_event(event);
     }
+
+    // TODO: for failed gifts we need to change the event.page it should be more like this
+    // Meteor.absoluteUrl("user/subscriptions/" + payment_type.toLowerCase() + "/change?s=" +
+    // subscription + "&c=" + subscription_cursor.customer
 
     const charge_cursor = Charges.findOne({_id: id});
     logger.info(charge_cursor);

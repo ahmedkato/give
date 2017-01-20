@@ -77,9 +77,9 @@ Router.onBeforeAction(function() {
   only: ['TripsMember', 'TripMember', 'Trips']
 });
 
-Router.route('', {
+Router.route('/', {
   name: 'donation.form',
-  path: '',
+  path: '/',
   action: function() {
     const params = this.params;
     Session.set('params.amount', params.query.amount);
@@ -406,7 +406,8 @@ Router.route('FixCardSubscription', {
     } else {
       this.render('Loading');
     }
-  }
+  },
+  name: 'fixCardSubscription'
 });
 
 Router.route('FixBankSubscription', {
@@ -428,7 +429,8 @@ Router.route('FixBankSubscription', {
     } else {
       this.render('Loading');
     }
-  }
+  },
+  name: 'fixBankSubscription'
 });
 
 Router.route('/dashboard/giving_options', {
