@@ -44,7 +44,7 @@ Template.DonationTo.helpers({
 });
 
 Template.DonationTo.events({
-  'change [name="donateTo"]'() {
+  'change [name="donateTo"]': _.debounce(function() {
     const config = ConfigDoc();
     const writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
 
@@ -66,7 +66,7 @@ Template.DonationTo.events({
       });
     }
     Session.set('params.donateTo', $('[name="donateTo"]').val());
-  }
+  }, 300)
 });
 
 Template.DonationTo.onRendered(function() {
