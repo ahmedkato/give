@@ -7,7 +7,8 @@
   "globals": {
     "Meteor": true,
     "Template": true,
-    "Session": true
+    "Session": true,
+    "Match": true
   },
   "ecmaFeatures": {
     "arrowFunctions": true,
@@ -149,7 +150,8 @@
       "afterColon": true
     }],
     "new-cap": [2, {                 // http://eslint.org/docs/rules/new-cap
-      "newIsCap": true
+      "newIsCap": true,
+      "capIsNewExceptions": ["Maybe", "OneOf"]
     }],
     "no-multiple-empty-lines": [2, { // http://eslint.org/docs/rules/no-multiple-empty-lines
       "max": 2

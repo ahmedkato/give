@@ -48,8 +48,8 @@
                         <th>Type</th>
                         <th>Fees Covered?</th>
                         <th>Frequency</th>
+                        <th>DT Source</th>
                         <th>DT Fund</th>
-                        <!--<th>DT Source</th>-->
                         <th>Donation Split</th>
                         <th>Donation Total</th>
                         <th>Fee</th>
@@ -111,6 +111,11 @@
                                                class="cover-fees" {{fees_covered}} disabled>
                                     </td>
                                     <td class="change-td-padding">{{metadata.frequency}}</td>
+                                    {{#if dt_source}}
+                                        <td class="change-td-padding">{{dt_source}}</td>
+                                    {{else}}
+                                        <td class="change-td-padding"></td>
+                                    {{/if}}
                                     {{#if dt_donation}}
                                         {{#with dt_donation}}
                                             <td class="change-td-padding">
@@ -129,7 +134,6 @@
                                     {{else}}
                                         <td class="change-td-padding"></td>
                                     {{/if}}
-                                    <!--<td class="change-td-padding">{{dt_source}}</td>-->
                                 {{/with}}
                             {{else}}
                                 {{#with refunds}}
@@ -148,6 +152,11 @@
                                                class="cover-fees" {{fees_covered}} disabled>
                                     </td>
                                     <td class="change-td-padding">{{charge.metadata.frequency}}</td>
+                                    {{#if dt_source}}
+                                        <td class="change-td-padding">{{dt_source}}</td>
+                                    {{else}}
+                                        <td class="change-td-padding"></td>
+                                    {{/if}}
                                     {{#if dt_donation}}
                                         {{#with dt_donation}}
                                             <td class="change-td-padding">
@@ -166,7 +175,6 @@
                                     {{else}}
                                         <td class="change-td-padding"></td>
                                     {{/if}}
-                                    <!--<td class="change-td-padding">{{dt_source}}</td>-->
                                 {{/with}}
                             {{/if}}
 
@@ -177,7 +185,7 @@
                         </tr>
                     {{/each}}
                     <tr>
-                        <td class="text-right" colspan="10">Totals</td>
+                        <td class="text-right" colspan="11">Totals</td>
                         <td><strong>${{add amount total_fees}}</strong></td>
                         <td><strong>${{twoDecimalPlaces total_fees}}</strong></td>
                         <td><strong>${{twoDecimalPlaces amount}}</strong></td>

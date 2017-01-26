@@ -197,17 +197,17 @@ Utils = {
       customer: {
         fname: String,
         lname: String,
-        org: Match.Optional( String ),
+        org: Match.Maybe( String ),
         email_address: String,
-        phone_number: Match.Optional( String ),
+        phone_number: Match.Maybe( String ),
         address_line1: String,
-        address_line2: Match.Optional( String ),
+        address_line2: Match.Maybe( String ),
         region: String,
         city: String,
         postal_code: String,
-        country: Match.Optional( String ),
+        country: Match.Maybe( String ),
         created_at: Number,
-        id: Match.Optional( String )
+        id: Match.Maybe( String )
       },
       sessionId: String
     } );
@@ -240,8 +240,8 @@ Utils = {
   updateTripFunds: function(dateStart, dateEnd) {
     logger.info("Started updateTripFunds Utils method (not method call)");
 
-    check(dateStart, Match.Optional(String));
-    check(dateEnd, Match.Optional(String));
+    check(dateStart, Match.Maybe(String));
+    check(dateEnd, Match.Maybe(String));
     try {
       const fundsList = Trips.find().map( function( trip ) {
         return trip.fundId;
@@ -871,7 +871,7 @@ Utils = {
           "persona_id": dtPersonaId,
           "splits": splits,
           "donation_type_id": config.Settings.DonorTools.achFundIDForNonStripe,
-          "received_on": moment( new Date( donationCursor.created_at * 1000 ) ).format( "YYYY/MM/DD hh:mma" ),
+          "received_on": moment( new Date( (donationCursor.nextDonationDate ? donationCursor.nextDonationDate : donationCursor.created_at) * 1000 ) ).format( "YYYY/MM/DD hh:mma" ),
           "source_id": sourceId,
           "payment_status": 'succeeded',
           "transaction_id": donationId

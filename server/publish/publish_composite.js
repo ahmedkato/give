@@ -108,7 +108,7 @@ Meteor.publishComposite('transactions', function(transfer_id) {
                   return DT_donations.find(
                     {transaction_id: charges.charge.id},
                     {
-                      limit: 1,
+                      limit: 2,
                       fields: {
                         persona_id: 1,
                         transaction_id: 1,
@@ -119,7 +119,7 @@ Meteor.publishComposite('transactions', function(transfer_id) {
                 return DT_donations.find(
                   {transaction_id: charges._id},
                   {
-                    limit: 1,
+                    limit: 2,
                     fields: {
                       persona_id: 1,
                       transaction_id: 1,

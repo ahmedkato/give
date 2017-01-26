@@ -1,6 +1,3 @@
-/** ***************************************************************************/
-/* StripeTransferDetails: Event Handlers */
-/** ***************************************************************************/
 Template.StripeTransferDetails.events({
   'click .previous'() {
     const loadButton = $("#previous-button").button("loading");
@@ -105,10 +102,6 @@ Template.StripeTransferDetails.events({
       });
   }
 });
-
-/** ***************************************************************************/
-/* StripeReports: Helpers */
-/** ***************************************************************************/
 Template.StripeTransferDetails.helpers({
   transfer() {
     return Transfers.findOne();
@@ -196,11 +189,11 @@ Template.StripeTransferDetails.helpers({
   },
   dt_source() {
     if (this.metadata && this.metadata.dt_source) {
-      return DT_sources.findOne( { _id: this.metadata.dt_source } ).name;
+      return DT_sources.findOne( { _id: this.metadata.dt_source } ) && DT_sources.findOne( { _id: this.metadata.dt_source } ).name;
     } else if (this.charge && this.charge.metadata && this.charge.metadata.dt_source) {
-      return DT_sources.findOne( { _id: this.charge.metadata.dt_source } ).name;
+      return DT_sources.findOne( { _id: this.charge.metadata.dt_source } ) && DT_sources.findOne( { _id: this.metadata.dt_source } ).name;
     }
-    return;
+    return false;
   },
   retrieve_dt_names() {
     if (this.object === 'charge') {
@@ -208,7 +201,7 @@ Template.StripeTransferDetails.helpers({
       if (dt_donation && dt_donation.persona_id) {
         if (!Session.get(dt_donation.persona_id)) {
           Meteor.call( "get_dt_name", dt_donation.persona_id,
-            this.metadata && this.metadata.dt_donation_id ? this.metadata.dt_donation_id : '',
+            (this.metadata && this.metadata.dt_donation_id ? this.metadata.dt_donation_id : ''),
             function( err, result ) {
               if ( err ) {
                 console.error( err );
@@ -242,14 +235,13 @@ Template.StripeTransferDetails.helpers({
       }
     } else {
       const dt_donation = DT_donations.findOne({'transaction_id': this.charge.id});
-
       if (dt_donation && dt_donation.persona_id) {
         if (!Session.get(dt_donation.persona_id)) {
           Meteor.call( "get_dt_name",
-            dt_donation.persona_id, this.charge &&
+            dt_donation.persona_id, (this.charge &&
             this.charge.metadata && this.charge.metadata.dt_donation_id ?
               this.charge.metadata.dt_donation_id :
-              '',
+              ''),
             function( err, result ) {
               if ( err ) {
                 console.error( err );
@@ -267,28 +259,22 @@ Template.StripeTransferDetails.helpers({
     }
   },
   dt_names() {
-    if (this.type === 'charge' || this.type === 'payment') {
-      const dt_donation = DT_donations.findOne( { 'transaction_id': this._id } );
-      if ( dt_donation && dt_donation.persona_id ) {
-        const persona_name = Session.get(dt_donation.persona_id);
-        if (persona_name) {
-          return persona_name;
-        }
-        return;
-      }
-      return;
-    } else {
-      const dt_donation = DT_donations.findOne( { 'transaction_id': this._id } );
-      if ( dt_donation && dt_donation.persona_id ) {
-        const persona_name = Session.get( dt_donation.persona_id );
-        if ( persona_name ) {
-          return persona_name;
-        } else {
-          return;
-        }
+    const donationId = this.object === 'charge' ? this._id : (this.charge && this.charge.id ? this.charge.id : null);
+    if (!donationId) return;
+    const dt_donations = DT_donations.find( { 'transaction_id': donationId } );
+    const dt_donation = DT_donations.findOne( { 'transaction_id': donationId } );
+    if (dt_donations.count() > 1) {
+      alert("There are more than one records for the same transaction found in the local database. " +
+        "Please ask the admin to resolve this for the DT Person with persona id of: " + dt_donation.persona_id);
+    }
+    if ( dt_donation && dt_donation.persona_id ) {
+      const persona_name = Session.get(dt_donation.persona_id);
+      if (persona_name) {
+        return persona_name;
       }
       return;
     }
+    return;
   },
   transfer_date() {
     const timestamp = this.date;

@@ -2,6 +2,9 @@ Template.Dashboard.helpers({
   showGetStripeEvent: function() {
     return Session.get("showGetStripeEvent");
   },
+  showUpdateDTDonation: function() {
+    return Session.get("showUpdateDTDonation");
+  },
   showFixNoUser: function() {
     return Session.get("showFixNoUser");
   },
@@ -47,6 +50,17 @@ Template.Dashboard.events({
       Session.set("showGetStripeEvent", true);
       Meteor.setTimeout(()=>{
         $("html, body").animate({ scrollTop: ($("#get_event_form").offset().top - 100) }, "slow");
+      }, 100);
+    }
+  },
+  'click #show-update-dt-donation': function(evt) {
+    evt.preventDefault();
+    if (Session.equals("showUpdateDTDonation", true)) {
+      Session.set("showUpdateDTDonation", false);
+    } else {
+      Session.set("showUpdateDTDonation", true);
+      Meteor.setTimeout(()=>{
+        $("html, body").animate({ scrollTop: ($("#update_dt_donation_form").offset().top - 100) }, "slow");
       }, 100);
     }
   },

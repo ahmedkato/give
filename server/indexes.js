@@ -39,6 +39,7 @@ Meteor.startup(function() {
   Donations._ensureIndex( { 'customer_id': 1 } );
   Donations._ensureIndex( { 'method': 1 } );
   Donations._ensureIndex( { 'status': 1 } );
+  Donations._ensureIndex( { 'nextDonationDate': 1 } );
 
   DonationSplits._ensureIndex( { 'subscription_id': 1} );
   DonationSplits._ensureIndex( { 'charge_id': 1} );

@@ -524,6 +524,84 @@ Meteor.methods({
       return;
     }
   },
+  updateDTDonation: function(donationId) {
+    logger.info( "Started method updateDTDonation." );
+
+    check(donationId, String);
+    if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
+      const config = ConfigDoc();
+
+      logger.info("Updating donation: " + donationId);
+
+      // Get the donation from DT
+      let dTDonation = Utils.http_get_donortools('/donations/' + donationId + '.json');
+
+      logger.info("DT Donation data: ");
+      logger.info(dTDonation.data.donation);
+
+
+      // Check that the response from the DT server is of the expected format
+      if (dTDonation && dTDonation.data && dTDonation.data.donation && dTDonation.data.donation.persona_id) {
+        dTDonation = dTDonation.data.donation;
+        let donationSplitDoc = DonationSplits.findOne({charge_id: dTDonation.transaction_id});
+        if (donationSplitDoc && donationSplitDoc.splits.length > 0) {
+          let newDonationSplits = [];
+
+          dTDonation.splits.forEach(function(split, i) {
+            const newSplitObject = {
+              "_id": Random.id(17),
+              "donateTo": String(split.fund_id),
+              "amount": split.amount_in_cents,
+              "memo": split.memo
+            };
+            if (i === 0) {
+              newSplitObject.name = 'first';
+            } else {
+              newSplitObject.item = i - 1;
+            }
+            newDonationSplits.push(newSplitObject);
+          });
+          DonationSplits.update({charge_id: dTDonation.transaction_id}, {$set: {splits: newDonationSplits}});
+        } else {
+          const charge = Charges.findOne({_id: dTDonation.transaction_id});
+          if(charge && charge.invoice){
+            const invoice = Invoices.findOne({_id: charge && charge.invoice});
+            const subscriptionId = invoice && invoice.subscription;
+            donationSplitDoc = DonationSplits.findOne({subscription_id: subscriptionId});
+            if (donationSplitDoc && donationSplitDoc.splits.length > 0) {
+              let newDonationSplits = [];
+
+              dTDonation.splits.forEach(function(split, i) {
+                const newSplitObject = {
+                  "_id": Random.id(17),
+                  "donateTo": split.fund_id,
+                  "amount": split.amount_in_cents,
+                  "memo": split.memo
+                };
+                if (i === 0) {
+                  newSplitObject.name = 'first';
+                } else {
+                  newSplitObject.item = i - 1;
+                }
+                newDonationSplits.push(newSplitObject);
+              });
+              DonationSplits.update({charge_id: dTDonation.transaction_id}, {$set: {splits: newDonationSplits.splits}});
+            } else {
+              logger.warn("The split wasn't found and this is a recurring gift");
+            }
+          } else {
+            logger.warn("The split wasn't found and this isn't a recurring gift");
+          }
+        }
+        return DT_donations.upsert({_id: dTDonation.id}, dTDonation);
+      }
+      logger.error("There is no donation with that ID in DonorTools or there is no connection to DT.");
+      throw new Meteor.Error("There is no donation with that ID in DonorTools.");
+    } else {
+      logger.info("You aren't an admin, you can't do that");
+      throw new Meteor.Error("You are not allowed to run this tool, ask your admin to check your permissions.");
+    }
+  },
   GetStripeEvent: function(id, process) {
     logger.info("Started GetStripeEvent");
 
@@ -574,7 +652,7 @@ Meteor.methods({
   get_dt_name: function(id, dtDonationId) {
     logger.info("Started get_dt_name method id: ", id, " dtDonationId: ", dtDonationId);
     check(id, Number);
-    check(dtDonationId, Match.Optional(String));
+    check(dtDonationId, Match.Maybe(String));
 
     if (Roles.userIsInRole(this.userId, ['super-admin', 'admin', 'manager'])) {
       this.unblock();
@@ -582,7 +660,10 @@ Meteor.methods({
         if (dtDonationId && !DT_donations.findOne({_id: Number(dtDonationId)})) {
           // Get the donation from DT
           const donation = Utils.http_get_donortools( '/donations/' + dtDonationId + '.json' );
-          console.log(donation);
+          logger.info(donation);
+          /*if (donation && donation.data) {
+            DT_donations.upsert({_id: Number(dtDonationId)}, donation.data);
+          }*/
         }
 
         // Get the persona from DT
@@ -792,35 +873,37 @@ Meteor.methods({
       }
     }
   },
-  edit_donation: function(donationId, total_amount, trial_end) {
-    check(donationId, String);
-    check(total_amount, Match.Maybe(Number));
-    check(trial_end, Match.Maybe(String));
-
+  edit_donation: function(donationId, totalAmount, nextDonationDate) {
     logger.info("Started edit_donation method");
-    logger.info(donationId, total_amount, trial_end);
+    check(donationId, String);
+    check(totalAmount, Match.Maybe(Number));
+    check(nextDonationDate, Match.Maybe(String));
+
+    logger.info(donationId, totalAmount, nextDonationDate);
 
     this.unblock();
     const donationDoc = Donations.findOne({_id: donationId});
+    const updateToThis = {$set: {total_amount: totalAmount}};
+    if (nextDonationDate) {
+      updateToThis.$set.nextDonationDate = nextDonationDate;
+    }
+
     if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
-      Donations.update({_id: donationId}, {$set: {
-        total_amount
-      }});
+      Donations.update({_id: donationId}, updateToThis);
       return "Edited that recurring gift";
     } else if (this.userId) {
       const userEmail = Meteor.users.findOne({_id: this.userId}).emails[0].address;
       const customerEmail = Customers.findOne({_id: donationDoc.customer_id}).metadata.email;
+
       if (userEmail === customerEmail) {
-        Donations.update({_id: donationId}, {$set: {
-          total_amount
-        }});
+        Donations.update({_id: donationId}, updateToThis);
         return "Edited that recurring gift";
-      } else {
-        throw new Meteor.Error("403", "Unathorized");
       }
+      throw new Meteor.Error("403", "Unathorized");
     }
   },
   editDonationSplits(DonationSplitId, DonationFormItems) {
+    logger.info("Started editDonationSplits method");
     check(DonationSplitId, String);
     check(DonationFormItems, [{
       _id: String,
@@ -830,7 +913,6 @@ Meteor.methods({
       item: Match.Maybe(Number)
     }]);
 
-    logger.info("Started editDonationSplits method");
     logger.info(DonationSplitId);
     logger.info(DonationFormItems);
     DonationSplits.update({_id: DonationSplitId}, { $set: { splits: DonationFormItems } });
@@ -1069,27 +1151,27 @@ Meteor.methods({
       throw new Meteor.Error(e);
     }*/
   },
-  manual_gift_processed: function(donation_id) {
+  manual_gift_processed: function(donationId) {
     logger.info("Started manual_gift_processed method");
-    check(donation_id, String);
+    check(donationId, String);
 
     try {
       this.unblock();
       if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
-        const customer_id = Donations.findOne({_id: donation_id}).customer_id;
+        const customer_id = Donations.findOne({_id: donationId}).customer_id;
         const email = Customers.findOne({_id: customer_id}).email;
         const dt_persona_match_id = Utils.find_dt_persona_flow( email, customer_id );
 
         Utils.update_stripe_customer_dt_persona_id(customer_id, dt_persona_match_id);
 
         // Send this manually processed gift to DT
-        Utils.insert_manual_gift_into_donor_tools(donation_id, customer_id, dt_persona_match_id);
+        Utils.insert_manual_gift_into_donor_tools(donationId, customer_id, dt_persona_match_id);
 
         // if this is frequency !== one_time then insert a copy of this
         // donation with the date set for created_at + 1 month also set the iterationCount to +1,
         // if it doesn't exist then set it to 2 (non-zero based count, so this would be the 2nd donation)
-        if (Donations.findOne({_id: donation_id}).frequency !== 'one_time') {
-          const newDonation = Donations.find({_id: donation_id}).fetch()[0];
+        if (Donations.findOne({_id: donationId}).frequency !== 'one_time') {
+          const newDonation = Donations.find({_id: donationId}).fetch()[0];
           delete newDonation._id;
           delete newDonation.pendingSetup;
           delete newDonation.sessionId;
@@ -1097,9 +1179,17 @@ Meteor.methods({
           newDonation.status = 'pending';
           // Add 1 month to the created date of this recurring gift and replace
           // the current created_at date
-          const newDate = moment(newDonation.created_at * 1000)
+          const newDate = moment((newDonation.nextDonationDate
+              ? newDonation.nextDonationDate
+              : ((newDonation.start_date
+              && newDonation.start_date !== 'today'
+              && newDonation.start_date > newDonation.created_at)
+                ? newDonation.start_date
+                : newDonation.created_at)) * 1000)
             .add(1, 'months').unix();
-          newDonation.created_at = newDate;
+          newDonation.nextDonationDate = newDate;
+          delete newDonation.created_at;
+
           if (newDonation.iterationCount) {
             newDonation.iterationCount++;
           } else {
@@ -1107,7 +1197,7 @@ Meteor.methods({
           }
           Donations.insert(newDonation);
         }
-        Donations.update({_id: donation_id}, {$set: {
+        Donations.update({_id: donationId}, {$set: {
           status: 'succeeded'
         }});
         return "Done";
@@ -1154,8 +1244,12 @@ Meteor.methods({
         if ( trip && trip._id ) {
           doc.trips = [{id: trip._id}];
         }
-        const fundraiserInsert = Fundraisers.insert( doc );
-        return fundraiserInsert && 'success';
+        try {
+          const fundraiserInsert = Fundraisers.insert( doc );
+          return fundraiserInsert && 'success';
+        } catch (e) {
+          throw new Meteor.Error(500, "Internal database error");
+        }
       }
     }
   },

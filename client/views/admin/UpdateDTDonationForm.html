@@ -1,0 +1,18 @@
+<template name="UpdateDTDonationForm">
+    <form class="form-horizontal" id="update_dt_donation_form">
+        <fieldset>
+
+            <!-- Event ID to get from Stripe -->
+            <div class="text-center well well-lg form-group">
+                <label class="control-label" for="donation-id">Donation ID of donation to update from DonorTools.</label>
+                <input id='donation-id' type="text" class="form-control slim-borders" required>
+            </div>
+
+            <div class="form-group padBottom">
+                <div class="col-sm-offset-2 col-sm-8">
+                    <button name="submit_get_event" type="submit" class="btn btn-block btn-hg btn-primary"> <span class="fa fa-refresh"></span> Update Donation</button>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</template>

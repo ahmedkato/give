@@ -1,3 +1,7 @@
+// TODO: change ACH to use only nextDonationDate for the date listed on the ACH page. Use the start_date only for recording the date
+// the recurring gift was first setup (stop using 'today')
+// When the donation is inserted for the next gift, add 1 month, but make sure this always gets added from the nextDonationDate
+
 function updateSearchVal() {
   console.log("Got to updateSearchVal function");
   let searchValue = $(".search").val();
@@ -26,7 +30,7 @@ Template.ACH.helpers({
   donations() {
     const searchValue = Session.get("searchValue");
     if (!searchValue) {
-      return Donations.find({}, { sort: { created_at: 1} });
+      return Donations.find({}, { sort: { nextDonationDate: 1} });
     }
     const customers = Customers.find({
       $or: [
@@ -74,18 +78,28 @@ Template.ACH.helpers({
     return (this.total_amount / 100).toFixed(2);
   },
   donationDate() {
-    if (this.start_date === 'today') {
-      return moment(this.created_at * 1000).format("MM/DD/YYYY");
+    if (this.nextDonationDate) {
+      return moment.unix(this.nextDonationDate).format("MM/DD/YYYY");
     }
-    return this.start_date > this.created_at ?
-      moment(new Date(this.start_date * 1000)).format("MM/DD/YYYY") :
-      moment(new Date(this.created_at * 1000)).format("MM/DD/YYYY");
+    if (this.start_date === 'today') {
+      return moment.unix(this.created_at).format("MM/DD/YYYY");
+    }
+    return moment.unix(this.start_date).format("MM/DD/YYYY");
+
+
+    //return moment.unix(this.nextDonationDate).format("MM/DD/YYYY");
+    /*return this.start_date > this.created_at ?
+      moment.unix(this.start_date).format("MM/DD/YYYY") :
+      moment.unix(this.created_at).format("MM/DD/YYYY");*/
+
+    //return moment.unix(this.start_date).format("MM/DD/YYYY");
   },
   disableSendIfNotReady() {
-    if (this.start_date === 'today') {
+    /*if (this.start_date === 'today') {
       return;
-    }
-    const dateToUse = this.start_date > this.created_at ? this.start_date : this.created_at;
+    }*/
+    //const dateToUse = this.start_date > this.created_at ? this.start_date : this.created_at;
+    const dateToUse = this.nextDonationDate;
     return (dateToUse > (new Date().getTime() / 1000 | 0)) ? 'disabled' : '';
   },
   routingNumber() {

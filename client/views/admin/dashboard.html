@@ -265,6 +265,16 @@
                                     <h5>Move Gift</h5>
                                 </a>
                             </div>
+                            <div class="col-sm-2"
+                                 data-toggle="tooltip"
+                                 title="If a gift was changed in DonorTools, then you'll want to change it here too.">
+                                <a id="show-update-dt-donation" class="quick-button backgroundColor primary" href="">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-refresh"></i>
+                                    </span>
+                                    <h5>Update Donation from DT</h5>
+                                </a>
+                            </div>
                         {{/if}}
                         {{#if isInRole 'super-admin'}}
                             <div class="col-sm-2"
@@ -307,6 +317,13 @@
         </div>
     {{/if}}
 
+    {{#if showUpdateDTDonation}}
+        <div class="row">
+            <div class="jumbotron">
+                {{> UpdateDTDonationForm}}
+            </div>
+        </div>
+    {{/if}}
     {{#if showGetStripeEvent}}
         <div class="row">
             <div class="jumbotron">

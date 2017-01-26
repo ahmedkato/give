@@ -33,6 +33,7 @@ Template.UpdateDonation.onRendered(function() {
       autoclose: true
     });
     Session.set("yes_change_date", false);
+    Give.updateTotal();
   }, 1000);
   this.autorun(()=>{
     const DonationSplitsData = DonationSplits && DonationSplits.findOne();
@@ -118,13 +119,13 @@ Template.UpdateDonation.events({
           Bert.alert( error.message, "danger" );
           $(':submit').button( 'reset' );
         } else {
-          Meteor.call( "editDonationSplits", DonationSplitId, DonationFormItems.find().fetch(), function( error, response ) {
-            if ( error ) {
-              console.error( error, error.message);
+          Meteor.call( "editDonationSplits", DonationSplitId, DonationFormItems.find().fetch(), function( err, res ) {
+            if ( err ) {
+              console.error( err, err.message);
             } else {
-              console.log( response );
+              console.log( res );
               if (!dateAndAmountChanged) {
-                Bert.alert( response, "success" );
+                Bert.alert( res, "success" );
               }
               if (Roles.userIsInRole(Meteor.userId(), ['admin', 'super-admin'])) {
                 Router.go("admin.ach");
