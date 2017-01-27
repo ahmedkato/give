@@ -461,55 +461,57 @@ Utils = {
           matched_id = orgMatch.persona.id;
           // return the matched DT persona id
           return matched_id;
-        } else {
-          // Create new company in DT, since this one didn't match what they gave us
-          return null;
         }
-      } else {
-        // Create new company in DT, since this one (or these) didn't match what they gave us
+        // Create new company in DT, since this one didn't match what they gave us
         return null;
       }
-    } else {
-      orgMatch = _.find( personResult.data, function( value ) {
-        return value.persona.is_company;
-      } );
+      // Create new company in DT, since this one (or these) didn't match what they gave us
+      return null;
+    }
+    orgMatch = _.find( personResult.data, function( value ) {
+      return value.persona.is_company;
+    } );
 
-      if ( !orgMatch ) {
-        personMatch = _.find( personResult.data, function( el ) {
-          if ( el.persona.names.some( function( value ) {
-            logger.info( "Person names from DT here: " );
+    if ( !orgMatch ) {
+      personMatch = _.find( personResult.data, function( el ) {
+        if ( el.persona.names.some( function( value ) {
+          logger.info( "Person names from DT here: " );
+          logger.info( value );
+          logger.info( "Stripe metadata here: " );
+          logger.info( metadata );
+          logger.info( "Data trimmed and split based on '&': " );
+          logger.info( value.first_name.toLowerCase().split('&')[0].trim(),
+              metadata.fname.toLowerCase().split('&')[0].trim(),
+              value.last_name.toLowerCase().split('&')[0].trim(),
+              metadata.lname.toLowerCase().split('&')[0].trim() );
+          logger.info( "Data trimmed and split based on ' and ': " );
+          logger.info( value.first_name.toLowerCase().split(' and ')[0].trim(),
+              metadata.fname.toLowerCase().split(' and ')[0].trim(),
+              value.last_name.toLowerCase().split(' and ')[0].trim(),
+              metadata.lname.toLowerCase().split(' and ')[0].trim() );
+
+          if ( (value.first_name.toLowerCase().split('&')[0].trim() === metadata.fname.toLowerCase().split('&')[0].trim()
+              && value.last_name.toLowerCase().split('&')[0].trim() === metadata.lname.toLowerCase().split('&')[0].trim())
+            || (value.first_name.toLowerCase().split(' and ')[0].trim() === metadata.fname.toLowerCase().split(' and ')[0].trim()
+            && value.last_name.toLowerCase().split(' and ')[0].trim() === metadata.lname.toLowerCase().split(' and ')[0].trim())) {
+            logger.info( "Person who's name matches: " );
             logger.info( value );
-            logger.info( "Stripe metadata here: " );
-            logger.info( metadata );
-            logger.info( "Data trimmed and split: " );
-            logger.info( value.first_name.toLowerCase().split('&')[0].trim(),
-                metadata.fname.toLowerCase().split('&')[0].trim(),
-                value.last_name.toLowerCase().split('&')[0].trim(),
-                metadata.lname.toLowerCase().split('&')[0].trim() );
-
-            if ( value.first_name.toLowerCase().split('&')[0].trim() === metadata.fname.toLowerCase().split('&')[0].trim()
-                && value.last_name.toLowerCase().split('&')[0].trim() === metadata.lname.toLowerCase().split('&')[0].trim() ) {
-              logger.info( "Person who's name matches: " );
-              logger.info( value );
-                // returning true here tells the function that this is the record inside which the correct name is found
-              return true;
-            }
-          } ) ) {
-            // Looked through all of the name arrays inside of all of the persona's and there was a match
+            // returning true here tells the function that this is the record inside which the correct name is found
             return true;
           }
-        } );
-        // return the matched DT persona id if it exists, else return null since there was no name match here.
-        if ( personMatch ) {
-          return personMatch.persona.id;
-        } else {
-          return null;
+        } ) ) {
+          // Looked through all of the name arrays inside of all of the persona's and there was a match
+          return true;
         }
-      } else {
-        // Create new person in DT, since this one (or these) didn't match what they gave us
-        return null;
+      } );
+      // return the matched DT persona id if it exists, else return null since there was no name match here.
+      if ( personMatch ) {
+        return personMatch.persona.id;
       }
+      return null;
     }
+    // Create new person in DT, since this one (or these) didn't match what they gave us
+    return null;
   },
   check_for_dt_user(email, checkThisDTID, use_id, customer_id) {
     console.log( email );
@@ -864,6 +866,12 @@ Utils = {
       } );
       throw new Meteor.Error( e );
     }
+    const receivedOn = (donationCursor.nextDonationDate
+        ? donationCursor.nextDonationDate
+        : (donationCursor.start_date === 'today'
+        ? donationCursor.created_at
+        : (donationCursor.start_date > donationCursor.created_at
+          ? donationCursor.start_date : donationCursor.created_at)) * 1000);
 
     const newDonationResult = HTTP.post( config.Settings.DonorTools.url + '/donations.json', {
       data: {
@@ -871,7 +879,7 @@ Utils = {
           "persona_id": dtPersonaId,
           "splits": splits,
           "donation_type_id": config.Settings.DonorTools.achFundIDForNonStripe,
-          "received_on": moment( new Date( (donationCursor.nextDonationDate ? donationCursor.nextDonationDate : donationCursor.created_at) * 1000 ) ).format( "YYYY/MM/DD hh:mma" ),
+          "received_on": moment( new Date(receivedOn)).format( "YYYY/MM/DD hh:mma"),
           "source_id": sourceId,
           "payment_status": 'succeeded',
           "transaction_id": donationId
