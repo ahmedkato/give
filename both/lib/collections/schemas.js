@@ -533,7 +533,7 @@ Schema.Settings = new SimpleSchema({
   },
   "DonorTools.customDataTypeId": {
     type: Number,
-    label: "Custom Data Type ID for Give",
+    label: "Custom Data Type ID for Give Donations",
     optional: true,
     autoform: {
       placeholder: "Go to your Donor Tools page and then to /settings/donation_type to find or create the ID"
@@ -549,7 +549,7 @@ Schema.Settings = new SimpleSchema({
   },
   "DonorTools.defaultFundId": {
     type: Number,
-    label: "Default Fund ID",
+    label: "Default Fund ID (We suggest creating a special “No Match Found” fund)",
     optional: true,
     autoform: {
       placeholder: "The fund ID you'd like to use if no other match can be found"

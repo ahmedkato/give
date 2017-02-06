@@ -3,14 +3,14 @@ Meteor.startup(function() {
   Meteor.settings.public.org_domain = Meteor.settings.public.org_domain ? Meteor.settings.public.org_domain : 'localhost';
 
   // Commented this fixture out, if you are just setting up, you'll want to un-comment this line to get an admin account setup
-  /* if( Meteor.users.find().count() === 0 ) {
+  if( Meteor.users.find().count() === 0 ) {
     logger.info("Running fixtures");
 
     // CHANGE THE FIXTURE EMAIL BELOW
-    let email = 'test@example.com';
+    let email = 'support@trashmountain.com';
     let tempPassword = 'sdie3038s,,@isT;';
 
-    let initRoles = ['admin', 'manager', 'trips-manager', 'trips-member'];
+    let initRoles = ['admin', 'manager'];
 
     let allRoles = Roles.getAllRoles().map(function(item) {
       return item.name;
@@ -39,5 +39,4 @@ Meteor.startup(function() {
       Roles.addUsersToRoles(user_id, ["admin"]);
     }, 1000);
   }
-  */
 });
