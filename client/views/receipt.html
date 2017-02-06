@@ -105,8 +105,8 @@
                         {{#with charges}}
                             {{#if $gt metadata.fees 0}}
                                 <tr>
-                                    <td style="text-align: right;">Covered fees:</td>
-                                    <td>${{calculateFees this.metadata.fees}}</td>
+                                    <td style="text-align: right;"></td>
+                                    <td>Covered fees:&nbsp;&nbsp;&nbsp; ${{calculateFees this.metadata.fees}}</td>
                                 </tr>
                             {{/if}}
                         {{/with}}

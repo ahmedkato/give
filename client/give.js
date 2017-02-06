@@ -442,7 +442,7 @@ Give = {
   updateTotal: function() {
     const getCloneAmounts = () => {
       const amountsArray = [];
-      $( '[name="splitAmount"]' ).map(function(index, item) {amountsArray.push(Number($(item).val()));});
+      $( '[name="splitAmount"]' ).map(function(index, item) { amountsArray.push(Number($(item).val()));});
       const sum = amountsArray.reduce(
           function(total, num) { return total + num; }
           , 0);
@@ -475,8 +475,8 @@ Give = {
       } else {
         if ( $.isNumeric( donationAmount ) ) {
           donationAmount = Number(donationAmount) + Number(splitAmounts);
-          if ( $( '#coverTheFees' ).prop( 'checked' ) ) {
-            $( "#show_total" ).show();
+          if ( $( '#coverTheFees' ).is( ":checked" ) ) {
+            //$( "#show_total" ).show();
             Session.set( "coverTheFees", true );
             const feeAndTotal = Give.get_fee( donationAmount );
             const fee = feeAndTotal.fee - donationAmount;
@@ -491,7 +491,7 @@ Give = {
             Session.set( "coverTheFees", false );
             $( "#total_amount" ).val( donationAmount && donationAmount.toFixed(2) );
             Session.set("giftAmount", donationAmount && donationAmount.toFixed(2));
-            $( "#show_total" ).hide();
+            //$( "#show_total" ).hide();
             $( "#fee" ).val("");
             return $( "#total_amount_display" ).text( "" ).css( {
               'color': '#34495e'

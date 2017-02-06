@@ -698,8 +698,13 @@ Utils = {
     if (donationSplitsId) {
       logger.info("donationSplitsId: " + donationSplitsId);
       const donationSplits = DonationSplits.findOne({_id: donationSplitsId});
-      donationSplits.splits.forEach(function( split ) {
-        splits.push({amount_in_cents: split.amount, fund_id: Number(split.donateTo), memo: getMemo(split.donateTo, split.memo, chargeId, customer_id, metadata)});
+      donationSplits.splits.forEach(function( split, index ) {
+        let newSplitAmount;
+        if (index === 0 && metadata.fees > 0) {
+          newSplitAmount = split.amount + Number(metadata.fees);
+        }
+        newSplitAmount = newSplitAmount ? newSplitAmount : split.amount;
+        splits.push({amount_in_cents: newSplitAmount, fund_id: Number(split.donateTo), memo: getMemo(split.donateTo, split.memo, chargeId, customer_id, metadata)});
       });
     } else {
       throw new Meteor.Error( "Couldn't find the donationSplitsId inside of insert_gift_into_donor_tools with charge.id: " + chargeCursor.id );
@@ -1860,7 +1865,12 @@ Utils = {
       logger.info("donationSplitsId: " + donationSplitsId);
       const donationSplits = DonationSplits.findOne({_id: donationSplitsId});
       donationSplits.splits.forEach(function( split ) {
-        splits.push({amount_in_cents: split.amount, fund_id: Number(split.donateTo), memo: getMemo(split.donateTo, split.memo, charge.id, customer.id, metadata)});
+        let newSplitAmount;
+        if (index === 0 && metadata.fees > 0) {
+          newSplitAmount = split.amount + Number(metadata.fees);
+        }
+        newSplitAmount = newSplitAmount ? newSplitAmount : split.amount;
+        splits.push({amount_in_cents: newSplitAmount, fund_id: Number(split.donateTo), memo: getMemo(split.donateTo, split.memo, charge.id, customer.id, metadata)});
       });
     } else {
       throw new Meteor.Error( "Couldn't find the donationSplitsId inside of insert_donation_and_donor_into_dt with charge.id: " + charge.id );

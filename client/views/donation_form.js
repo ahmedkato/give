@@ -113,18 +113,6 @@ Template.DonationForm.events({
 });
 
 Template.DonationForm.helpers({
-  giftTotal() {
-    const total = Session.get("giftAmount");
-    if (total) {
-      return total;
-    }
-  },
-  showGiftTotal() {
-    if (DonationFormItems.find() && DonationFormItems.find().count() > 1) {
-      return true;
-    }
-    return false;
-  },
   paymentQuestionIcon: function() {
     if (Session.equals('paymentMethod', 'Check')) {
       return "<i class='makeRightOfInput fa fa-question-circle' data-toggle='popover' " +

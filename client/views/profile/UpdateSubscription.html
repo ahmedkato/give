@@ -1,4 +1,7 @@
 <template name="UpdateSubscription">
+    {{#if showGiftTotal}}
+        <div class="amount-dialog text-center">Total Gift Amount: ${{giftTotal}}</div>
+    {{/if}}
     <div class="col-lg-8 col-md-8 col-md-offset-2">
         {{#if isInRole 'admin, super-admin, manager'}}
             <h4 class="text-center" style="border: solid; border-color: red; border-width: 2px;">Editing a recurring gift from: {{subscribersName}}</h4>

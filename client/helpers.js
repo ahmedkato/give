@@ -549,3 +549,19 @@ Template.registerHelper('noDTPersonaID', function() {
   }
   return true;
 });
+
+Template.registerHelper('giftTotal', function() {
+  const total = Session.get("giftAmount");
+  if (total) {
+    return total;
+  }
+});
+Template.registerHelper('showGiftTotal', function() {
+  if (DonationFormItems.find() && DonationFormItems.find().count() > 1) {
+    return true;
+  }
+  if ( Session.get("coverTheFees") ) {
+    return true;
+  }
+  return false;
+});

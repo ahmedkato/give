@@ -12,7 +12,8 @@ Template.Amount.helpers({
 
 Template.Amount.events({
   'change #coverTheFees': function() {
-    return Give.updateTotal();
+    //Session.set("coverTheFees", $( '#coverTheFees' ).is( ":checked" ));
+    Give.updateTotal();
   },
   'click #cloneButton'() {
     DonationFormItems.insert({item: $(".clonedInput").length++, amount: ""});
@@ -37,6 +38,7 @@ Template.Amount.events({
       }
     });
     Give.updateSplitTotal();
+    Give.updateTotal();
   },
   'keyup [name="splitAmount"], change [name="splitAmount"], blur [name="amount"]'(e) {
     DonationFormItems.update( {_id: this._id}, {
@@ -45,6 +47,7 @@ Template.Amount.events({
       }
     });
     Give.updateSplitTotal();
+    Give.updateTotal();
   },
   'change [name="donateTo"]'(e) {
     if (DonationFormItems && DonationFormItems.findOne()) {
