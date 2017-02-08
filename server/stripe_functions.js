@@ -463,11 +463,11 @@ _.extend(StripeFunctions, {
   'check_for_necessary_objects_before_inserting_into_dt': function(charge_id, customer_id, interval) {
     logger.info("Started check_for_necessary_objects_before_inserting_into_dt with charge_id: " + charge_id + " and interval of: " + interval);
 
-    let chargeCursor, customerCursor, stripeCustomerRecord, dtPersonaId;
+    let stripeCustomerRecord, dtPersonaId;
 
-    chargeCursor = Charges.findOne({_id: charge_id});
+    const chargeCursor = Charges.findOne({_id: charge_id});
 
-    customerCursor = Customers.findOne({_id: customer_id});
+    const customerCursor = Customers.findOne({_id: customer_id});
     logger.info("Metadata: ", customerCursor.metadata);
 
     if (chargeCursor && customerCursor.metadata && customerCursor.metadata.dt_persona_id) {

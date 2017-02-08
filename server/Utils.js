@@ -694,13 +694,20 @@ Utils = {
     const metadata = getMetadata(chargeCursor);
 
     const splits = [];
-    const donationSplitsId = metadata && metadata.donationSplitsId;
+    let donationSplitsId = metadata && metadata.donationSplitsId;
+    logger.info(donationSplitsId);
+    if (!donationSplitsId && (chargeCursor && chargeCursor.metadata && chargeCursor.metadata.donationSplitsId)) {
+      logger.info(chargeCursor);
+
+      donationSplitsId = chargeCursor.metadata.donationSplitsId;
+    }
+    logger.info(donationSplitsId);
     if (donationSplitsId) {
       logger.info("donationSplitsId: " + donationSplitsId);
       const donationSplits = DonationSplits.findOne({_id: donationSplitsId});
       donationSplits.splits.forEach(function( split, index ) {
         let newSplitAmount;
-        if (index === 0 && metadata.fees > 0) {
+        if (index === 0 && donationSplits.splits.length > 1 && metadata.fees > 0) {
           newSplitAmount = split.amount + Number(metadata.fees);
         }
         newSplitAmount = newSplitAmount ? newSplitAmount : split.amount;
@@ -712,7 +719,7 @@ Utils = {
 
     const source_id = getSourceId(customerCursor, metadata);
 
-    logger.info( "Persona ID is: ", customerCursor.metadata.dt_persona_id );
+    logger.info( "Persona ID is:", customerCursor.metadata.dt_persona_id );
 
     let amount = chargeCursor.amount;
 
@@ -755,7 +762,7 @@ Utils = {
 
       const data = {
         "donation": {
-          "persona_id": customerCursor.metadata.dt_persona_id,
+          "persona_id": Number(customerCursor.metadata.dt_persona_id),
           "splits": splits,
           "donation_type_id": config.Settings.DonorTools.customDataTypeId,
           "received_on": moment( new Date( chargeCursor.created * 1000 ) ).format( "YYYY/MM/DD hh:mma" ),
@@ -764,13 +771,15 @@ Utils = {
           "transaction_id": chargeId
         }
       };
+      logger.info("Donation data, prior to HTTP.post to DT");
+      logger.info(data);
       newDonationResult = HTTP.post( config.Settings.DonorTools.url + '/donations.json', {
         data: data,
         auth: DONORTOOLSAUTH
       } );
     } catch ( e ) {
-      logger.error( "No Person with the DT ID of " +
-        customerCursor.metadata.dt_persona_id + " found in DT" );
+      logger.error( "There was a problem while looking at the data or trying to post it to DonorTools, here is the Persona ID: " +
+        customerCursor.metadata.dt_persona_id);
       const to = config && config.OrgInfo &&
         config.OrgInfo.emails && config.OrgInfo.emails &&
         config.OrgInfo.emails.support;
@@ -1866,7 +1875,7 @@ Utils = {
       const donationSplits = DonationSplits.findOne({_id: donationSplitsId});
       donationSplits.splits.forEach(function( split ) {
         let newSplitAmount;
-        if (index === 0 && metadata.fees > 0) {
+        if (index === 0 && donationSplits.splits.length > 1 && metadata.fees > 0) {
           newSplitAmount = split.amount + Number(metadata.fees);
         }
         newSplitAmount = newSplitAmount ? newSplitAmount : split.amount;
