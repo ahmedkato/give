@@ -55,7 +55,8 @@
             <![endif]-->        
             <input {{attributes_Input_Email_Address}}
                     class="form-control email slim-borders"
-                    value="{{logged_in 'email'}}" >
+                    value="{{logged_in 'email'}}"
+                    data-parsley-error-message="Please enter your email address." >
         </div>
     </div>
     <!-- email address input verify-->
@@ -146,7 +147,8 @@
                    pattern="(\d{5}([\-]\d{4})?)"
                    required
                    title="Postal code"
-                   value="{{logged_in 'postal_code'}}">
+                   value="{{logged_in 'postal_code'}}"
+                   data-parsley-error-message="Please enter your zip/postal code.">
         </div>
     </div>
     <!-- country select -->
