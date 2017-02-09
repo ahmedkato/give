@@ -169,7 +169,7 @@ Template.DonationForm.onRendered(function() {
   const writeInDonationTypeId = config.Settings.DonorTools.writeInDonationTypeId;
 
   // Setup parsley form validation
-  $('#donation_form').parsley();
+  $('#donation_form').parsley({triggerAfterFailure: 'keyup'});
 
   // Set the checkboxes to unchecked
   $(':checkbox').radiocheck('uncheck');
@@ -212,24 +212,6 @@ Template.DonationForm.onRendered(function() {
   $('[name="splitAmount"]').change();
 });
 
-Template.checkPaymentInformation.helpers({
-  attributes_Input_AccountNumber: function() {
-    return {
-      type: "text",
-      id: "account_number",
-      placeholder: "Bank Account Number",
-      required: true
-    };
-  },
-  attributes_Input_RoutingNumber: function() {
-    return {
-      type: "text",
-      id: "routing_number",
-      placeholder: "Routing numbers are 9 digits long",
-      required: true
-    };
-  }
-});
 // Check Payment Template mods
 Template.checkPaymentInformation.onRendered(function() {
   $('[data-toggle="popover"]').popover();
