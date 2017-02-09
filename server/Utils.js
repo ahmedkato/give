@@ -721,12 +721,16 @@ Utils = {
 
     logger.info( "Persona ID is:", customerCursor.metadata.dt_persona_id );
 
-    let amount = chargeCursor.amount;
+    // let amount = chargeCursor.amount;
 
     if ( chargeCursor.refunded ) {
       logger.warn("charge is showing refunded");
 
-      amount = 0;
+      splits.forEach(function(split) {
+        split.amount_in_cents = split.amount_in_cents * -1;
+      });
+
+      // amount = 0;
       const createdDate = moment.unix( chargeCursor.created ).format( "YYYY/MM/DD hh:mma" );
       const refundedAmount = (chargeCursor.refunds.data[0].amount / 100).toFixed(2);
 
@@ -736,7 +740,11 @@ Utils = {
     }
 
     if ( chargeCursor.status === 'failed' ) {
-      amount = 0;
+      logger.warn("charge is showing refunded");
+
+      splits.forEach(function(split) {
+        split.amount_in_cents = 0;
+      });
       const createdDate = moment.unix( chargeCursor.created ).format( "YYYY/MM/DD hh:mma" );
       const failedAmount = (chargeCursor.amount / 100).toFixed(2);
 
@@ -771,6 +779,10 @@ Utils = {
           "transaction_id": chargeId
         }
       };
+      if ( chargeCursor.status === 'failed' || chargeCursor.refunded ) {
+        data.donation.memo = memo;
+      }
+
       logger.info("Donation data, prior to HTTP.post to DT");
       logger.info(data);
       newDonationResult = HTTP.post( config.Settings.DonorTools.url + '/donations.json', {
