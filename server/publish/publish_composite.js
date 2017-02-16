@@ -440,7 +440,7 @@ Meteor.publishComposite('ach', function() {
 });
 
 Meteor.publishComposite("travelDTSplits", function(tripId) {
-  check(tripId, Match.Optional(String));
+  check(tripId, Match.Maybe(String));
 
   if (Roles.userIsInRole(this.userId, ['admin', 'trips-manager', 'trips-member'])) {
     logger.info("Inside correct role section of travelDTSplits");
@@ -603,7 +603,7 @@ Meteor.publishComposite("donation_with_donation_splits", function(donationId) {
 
 Meteor.publishComposite("tripsMember", function(id) {
   logger.info( "Started publish function, tripsMember" );
-  check(id, Match.Optional(String));
+  check(id, Match.Maybe(String));
 
   if ( this.userId ) {
     const user = Meteor.users.findOne({_id: this.userId});

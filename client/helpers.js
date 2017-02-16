@@ -447,7 +447,10 @@ Template.registerHelper('calculateFees', function(fees) {
 
 
 Template.registerHelper('paymentWithCard', function() {
-  return Session.equals("paymentMethod", "Card");
+  if(Session.get("paymentMethod")){
+    return Session.get("paymentMethod") === 'Card' || Session.get("paymentMethod").slice(0, 3) === 'car';
+  }
+  return;
 });
 
 /*

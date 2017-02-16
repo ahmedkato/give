@@ -70,9 +70,9 @@ Template.DonationForm.events({
     const selectedValue = $("[name=donateWith]").val();
     Session.set("paymentMethod", selectedValue);
     if (Session.equals("paymentMethod", "Check")) {
-      Give.updateTotal();
-      $("#show_total").hide();
       $("#fee").val("");
+      Session.set("coverTheFees", false);
+      Give.updateTotal();
     }
   },
   // keypress input detection for autofilling form with test data
@@ -234,5 +234,6 @@ Template.cardPaymentInformation.onRendered(function() {
 Template.DonationForm.onDestroyed( function() {
   $(window).unbind('beforeunload');
   Session.delete("giftAmount");
+  Session.delete("coverTheFees");
   DonationFormItems.remove({});
 });

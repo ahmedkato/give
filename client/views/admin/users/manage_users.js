@@ -21,20 +21,82 @@ AutoForm.hooks({
   }
 });
 
-Template.ManageUsers.helpers({
-  users: function() {
-    const searchValue = Session.get("searchValue");
-    let matchingUsers;
-    if (!searchValue) {
-      return Meteor.users.findFromPublication('all_users', {}, { sort: { createdAt: -1} });
-    } else {
-      matchingUsers = Meteor.users.findFromPublication('all_users', {}, { sort: { createdAt: -1} });
-      if (matchingUsers.count()) {
-        return matchingUsers;
+Template.ManageUsers.onCreated(function() {
+  Session.set("documentLimit", 10);
+
+  this.autorun(()=> {
+    if (Session.get("params.userID")) {
+      if ( Meteor.users.findOne( { _id: Session.get( "params.userID" ) } ) &&
+        Meteor.users.findOne( { _id: Session.get( "params.userID" ) } ).persona_info ) {
+        Session.set( "persona_info_exists", true );
+        try {
+          const selectedUser = Meteor.users.find({_id: Session.get("params.userID")});
+
+          const selectedPersonaInfo = selectedUser && selectedUser.persona_info;
+          const selectedPersonaIds = selectedUser && selectedUser.persona_ids;
+
+          if (!selectedPersonaInfo || !selectedPersonaIds ||
+            ( selectedPersonaInfo && selectedPersonaInfo.length < 1 ) ||
+            ( selectedPersonaInfo && selectedPersonaInfo.length <
+            ( selectedPersonaIds && selectedPersonaIds.length ) ) ||
+            ( selectedPersonaInfo && selectedPersonaInfo.length <
+            ( selectedUser && selectedUser.persona_id && selectedUser.persona_id.length ) ) && !Session.get("got_all_donations") ) {
+            console.log("Got here");
+            Meteor.call('update_user_document_by_adding_persona_details_for_each_persona_id', Session.get("params.userID"), function(error, result) {
+              if (result) {
+                if (result === 'Not a DT user') {
+                  Session.set("NotDTUser", true);
+                  return;
+                }
+                console.log(result);
+                Session.set("got_all_donations", true);
+                // Hack here to reload the page. I'm not sure why the reactivity isn't
+                // showing the new information, when the persona_info is pulled down
+                // for now we just reload the page and the problem is resolved.
+                // location.reload();
+              } else {
+                console.log(error);
+                throw new Meteor.Error("400", "Couldn't retrieve any Donor Tools information for this user.");
+              }
+            });
+          }
+          Meteor.call("get_all_donations_for_this_donor", Session.get("params.userID"), function(error, result) {
+            if (result) {
+              console.log(result);
+              Session.set("got_all_donations", true);
+            } else {
+              console.log(error);
+            }
+          });
+        } catch (e) {
+          throw new Meteor.Error(500, e);
+        }
       } else {
-        return false;
+        Session.set( "persona_info_exists", false );
       }
+      Session.set("showSingleUserDashboard", true);
+    } else {
+      Session.set('params.userID', '');
+      Session.set("showSingleUserDashboard", false);
     }
+
+    this.subscribe( 'all_users', Session.get('params.userID'), Session.get("searchValue"), Session.get("documentLimit") );
+    this.subscribe('roles');
+    this.subscribe('userStripeData', Session.get('params.userID'));
+    this.subscribe('userDTFunds');
+  });
+});
+
+Template.ManageUsers.onRendered(function() {
+  setDocHeight();
+});
+
+Template.ManageUsers.helpers({
+  user: function() {
+    return Meteor.users.findOne({_id: Session.get("params.userID")});
+  },
+  users: function() {
+    return Meteor.users.find();
   },
   schema: function() {
     return Schema.UpdateUserFormSchema;
@@ -148,8 +210,17 @@ Template.ManageUsers.events({
     Session.set("addingNew", addingNew);
   },
   'click .edit-user': function() {
-    // setup modal for entering give toward information
-    Session.set('params.userID', this._id);
+    if (Meteor.users.findOne({_id: this._id}) && ( (
+      Meteor.users.findOne({_id: this._id}).persona_ids
+      && Meteor.users.findOne({_id: this._id}).persona_ids.length > 0)
+      || ( Meteor.users.findOne({_id: this._id}).persona_info && Meteor.users.findOne({_id: this._id}).persona_info.length > 0 ) ) ) {
+      Router.go('/dashboard/user/' + this._id);
+    } else {
+      Session.set("params.userID", this._id);
+      Session.set("showSingleUserDashboard", true);
+      Session.set("NotDTUser", true);
+      $(window).unbind('scroll');
+    }
   },
   'click .forgot-password': function(e) {
     const resetButton = $(e.currentTarget).button('loading');
@@ -168,12 +239,9 @@ Template.ManageUsers.events({
       showLoaderOnConfirm: true
     }, function(isConfirm) {
       if (isConfirm) {
-        Accounts.forgotPassword(
-          {
-            email: self.emails[0].address
-          }, function( err, res ) {
-          if (res) swal("Sent", "The user was sent a password reset email.", 'success');
-          else console.error(err);
+        Accounts.forgotPassword({email: self.emails[0].address}, function( err ) {
+          if (err) console.error(err);
+          else swal("Sent", "The user was sent a password reset email.", 'success');
           resetButton.button( 'reset' );
         } );
       } else {
@@ -182,14 +250,14 @@ Template.ManageUsers.events({
     });
   },
   'click .cancel-button': function() {
-    console.log("Clicked cancel");
+    setDocHeight();
+    Session.delete("params.userID");
     Session.delete("activeTab");
 
     if (Router.current().params.query && Router.current().params.query.userID) {
       Router.go('ManageUsers');
     }
     Session.set("addingNew", false);
-    Session.delete("params.userID");
     Session.delete("showSingleUserDashboard");
     Session.delete("got_all_donations");
     Session.delete("NotDTUser");
@@ -205,39 +273,6 @@ Template.ManageUsers.events({
     e.preventDefault();
     Router.go('admin.give', {}, {query: {userID: this._id}});
   }
-});
-
-Template.ManageUsers.onCreated(function() {
-  Session.set("documentLimit", 10);
-
-  this.autorun(()=> {
-    if (Session.get("params.userID")) {
-      if ( Meteor.users.findOne( { _id: Session.get( "params.userID" ) } ) &&
-        Meteor.users.findOne( { _id: Session.get( "params.userID" ) } ).persona_info ) {
-        Session.set( "persona_info_exists", true );
-      } else {
-        Session.set( "persona_info_exists", false );
-      }
-      Session.set("showSingleUserDashboard", true);
-      return [Meteor.subscribe( 'all_users', Session.get('params.userID') ),
-        Meteor.subscribe('roles'),
-        Meteor.subscribe('userStripeData', Session.get('params.userID')),
-        Meteor.subscribe('userDT', Session.get('params.userID')),
-        Meteor.subscribe('userDTFunds')];
-    } else {
-      Session.set('params.userID', '');
-      Session.set("showSingleUserDashboard", false);
-
-      return [
-        Meteor.subscribe( 'all_users', null, Session.get("searchValue"), Session.get("documentLimit") ),
-        Meteor.subscribe('roles')
-      ];
-    }
-  });
-});
-
-Template.ManageUsers.onRendered(function() {
-  setDocHeight();
 });
 
 Template.ManageUsers.onDestroyed(function() {

@@ -86,3 +86,9 @@ Template.AdminGive.events({
     Give.process_give_form(true, customer, gift_user_id);
   }
 });
+
+Template.AdminGive.onDestroyed(function() {
+  Session.delete("params.userID");
+  Session.delete("savedDevice", "Check");
+  Session.delete("paymentMethod");
+});

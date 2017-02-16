@@ -458,7 +458,6 @@ Give = {
       if ( $.isNumeric( donationAmount ) ) {
         donationAmount = Number(donationAmount) + Number(splitAmounts);
         $( "#total_amount" ).val(donationAmount.toFixed(2));
-        $( "#show_total" ).hide();
         $( "#total_amount_display" ).text( "$" + donationAmount ).css( {
           'color': '#34495e'
         } );
@@ -467,43 +466,37 @@ Give = {
       return $( "#total_amount_display" ).text( "Please enter a number in the amount field." ).css( {
         'color': 'red'
       } );
-    } else {
-      if ( donationAmount < 1 && $.isNumeric( donationAmount ) ) {
-        return $( "#total_amount_display" ).text( "Amount cannot be lower than $1." ).css( {
-          'color': 'red'
-        } );
-      } else {
-        if ( $.isNumeric( donationAmount ) ) {
-          donationAmount = Number(donationAmount) + Number(splitAmounts);
-          if ( $( '#coverTheFees' ).is( ":checked" ) ) {
-            //$( "#show_total" ).show();
-            Session.set( "coverTheFees", true );
-            const feeAndTotal = Give.get_fee( donationAmount );
-            const fee = feeAndTotal.fee - donationAmount;
-            const roundedAmount = (+donationAmount + (+fee)).toFixed( 2 );
-            $( "#total_amount_display" ).text( "Fee calculation: $" + donationAmount + " + $" + fee.toFixed( 2 ) + " = $" + roundedAmount ).css( {
-              'color': '#34495e'
-            } );
-            $( "#total_amount" ).val( roundedAmount );
-            Session.set("giftAmount", roundedAmount);
-            return Session.set( "amount", roundedAmount );
-          } else {
-            Session.set( "coverTheFees", false );
-            $( "#total_amount" ).val( donationAmount && donationAmount.toFixed(2) );
-            Session.set("giftAmount", donationAmount && donationAmount.toFixed(2));
-            //$( "#show_total" ).hide();
-            $( "#fee" ).val("");
-            return $( "#total_amount_display" ).text( "" ).css( {
-              'color': '#34495e'
-            } );
-          }
-        } else {
-          return $( "#total_amount_display" ).text( "Please enter a number in the amount field" ).css( {
-            'color': 'red'
-          } );
-        }
-      }
     }
+    if ( donationAmount < 1 && $.isNumeric( donationAmount ) ) {
+      return $( "#total_amount_display" ).text( "Amount cannot be lower than $1." ).css( {
+        'color': 'red'
+      } );
+    }
+    if ( $.isNumeric( donationAmount ) ) {
+      donationAmount = Number(donationAmount) + Number(splitAmounts);
+      if ( $( '#coverTheFees' ).is( ":checked" ) ) {
+        Session.set( "coverTheFees", true );
+        const feeAndTotal = Give.get_fee( donationAmount );
+        const fee = feeAndTotal.fee - donationAmount;
+        const roundedAmount = (+donationAmount + (+fee)).toFixed( 2 );
+        $( "#total_amount_display" ).text( "Fee calculation: $" + donationAmount + " + $" + fee.toFixed( 2 ) + " = $" + roundedAmount ).css( {
+          'color': '#34495e'
+        } );
+        $( "#total_amount" ).val( roundedAmount );
+        Session.set("giftAmount", roundedAmount);
+        return Session.set( "amount", roundedAmount );
+      }
+      Session.set( "coverTheFees", false );
+      $( "#total_amount" ).val( donationAmount && donationAmount.toFixed(2) );
+      Session.set("giftAmount", donationAmount && donationAmount.toFixed(2));
+      $( "#fee" ).val("");
+      return $( "#total_amount_display" ).text( "" ).css( {
+        'color': '#34495e'
+      } );
+    }
+    return $( "#total_amount_display" ).text( "Please enter a number in the amount field" ).css( {
+      'color': 'red'
+    } );
   },
   fillForm: function( form ) {
     if ( form === 'main' ) {

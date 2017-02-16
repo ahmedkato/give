@@ -1,5 +1,23 @@
 import { setDocHeight, updateSearchVal, cancelRecurringGift} from '/imports/api/miscFunctions.js';
 
+Template.AdminSubscriptions.onCreated( function() {
+  Session.set("documentLimit", 10);
+  this.autorun(()=> {
+    this.subscribe("subscriptions_and_customers", Session.get("searchValue"), Session.get("documentLimit"));
+    this.subscribe("userDTFunds");
+  });
+});
+
+Template.AdminSubscriptions.onRendered(function() {
+  setDocHeight();
+  Meteor.setTimeout(function() {
+    $('[data-toggle="popover"]').popover();
+  }, 500);
+  Meteor.setTimeout(function() {
+    $('[data-toggle="popover"]').popover();
+  }, 5000);
+});
+
 Template.AdminSubscriptions.events({
   'click .addingNewPerson': function( e ) {
     e.preventDefault();
@@ -8,12 +26,10 @@ Template.AdminSubscriptions.events({
   },
   'click .cancel-subscription': function(e) {
     e.preventDefault();
-    console.log("Clicked stop button");
     cancelRecurringGift(e, this.id);
   },
   'click .edit-button': function(e) {
     e.preventDefault();
-    console.log("Clicked edit");
     Router.go('UpdateSubscription', {}, {query: {subscription: this._id}});
   },
   'keyup, change .search': _.debounce(function() {
@@ -78,24 +94,6 @@ Template.AdminSubscriptions.helpers({
       return "trialing-subscription";
     }
   }
-});
-
-Template.AdminSubscriptions.onCreated( function() {
-  Session.set("documentLimit", 10);
-  this.autorun(()=> {
-    this.subscribe("subscriptions_and_customers", Session.get("searchValue"), Session.get("documentLimit"));
-    this.subscribe("userDTFunds");
-  });
-});
-
-Template.AdminSubscriptions.onRendered(function() {
-  setDocHeight();
-  Meteor.setTimeout(function() {
-    $('[data-toggle="popover"]').popover();
-  }, 500);
-  Meteor.setTimeout(function() {
-    $('[data-toggle="popover"]').popover();
-  }, 5000);
 });
 
 Template.AdminSubscriptions.onDestroyed(function() {

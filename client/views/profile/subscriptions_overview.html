@@ -21,14 +21,14 @@
                                 </li>
                             {{/if}}
                             {{#if equals status "active"}}
-                            <li class="list-group-item list-group-item-success" data-subscription-id="{{id}}">
-                              Status: Active
-                            </li>
+                                <li class="list-group-item list-group-item-success" data-subscription-id="{{id}}">
+                                  Status: Active
+                                </li>
                             {{/if}}
                             {{#if equals status "canceled"}}
-                            <li class="list-group-item list-group-item-danger" data-subscription-id="{{id}}">
-                              Status: Cancelled
-                            </li>
+                                <li class="list-group-item list-group-item-danger" data-subscription-id="{{id}}">
+                                  Status: Cancelled
+                                </li>
                             {{/if}}
                             {{#if equals status "past_due"}}
                                 <li class="list-group-item list-group-item-danger" data-subscription-id="{{id}}">
@@ -40,7 +40,6 @@
                                     Charged every: <strong>{{capitalize planInterval}}</strong>
                               </div>
                             </li>
-                              <!--<span class="bm-block-label">Payment<strong>{{type}}</strong> {{lastFour}}</span>-->
                             <li class="list-group-item bm-block">To: <strong>{{donateTo}}</strong></li>
                             <li class="list-group-item bm-block">With: <strong>{{show_donate_with}}</strong></li>
                             <li class="list-group-item bm-block">Amount: <strong>${{centsToDollars quantity}}</strong></li>
@@ -50,9 +49,9 @@
                                 <li class="list-group-item bm-block">Ended on: <strong>{{epochToString ended_at}}</strong></li>
                             {{/unless}}
                             {{#if equals status "canceled"}}
-                            <li class="list-group-item bm-block">
-                                <span>Canceled Reason: {{canceled_reason}}</span>
-                            </li>
+                                <li class="list-group-item bm-block">
+                                    <span>Canceled Reason: {{canceled_reason}}</span>
+                                </li>
                             {{/if}}
                             {{#if equals status "active"}}
                                 <li class="list-group-item bm-block button-blocks">

@@ -227,7 +227,7 @@ Utils = {
     fundsList.forEach( function( fundId ) {
       Utils.getFundHistory( fundId, dateStart, dateEnd );
     } );
-    console.log( "Got all funds history" );
+    logger.info( "Got all funds history" );
     return;
   },
   /**
@@ -695,20 +695,16 @@ Utils = {
 
     const splits = [];
     let donationSplitsId = metadata && metadata.donationSplitsId;
-    logger.info(donationSplitsId);
     if (!donationSplitsId && (chargeCursor && chargeCursor.metadata && chargeCursor.metadata.donationSplitsId)) {
-      logger.info(chargeCursor);
-
       donationSplitsId = chargeCursor.metadata.donationSplitsId;
     }
-    logger.info(donationSplitsId);
     if (donationSplitsId) {
       logger.info("donationSplitsId: " + donationSplitsId);
       const donationSplits = DonationSplits.findOne({_id: donationSplitsId});
       donationSplits.splits.forEach(function( split, index ) {
         let newSplitAmount;
-        if (index === 0 && donationSplits.splits.length > 1 && metadata.fees > 0) {
-          newSplitAmount = split.amount + Number(metadata.fees);
+        if (index === 0 && (metadata.fees > 0 || donationSplits.fees > 0)) {
+          newSplitAmount = split.amount + Number(metadata.fees || donationSplits.fees);
         }
         newSplitAmount = newSplitAmount ? newSplitAmount : split.amount;
         splits.push({amount_in_cents: newSplitAmount, fund_id: Number(split.donateTo), memo: getMemo(split.donateTo, split.memo, chargeId, customer_id, metadata)});
@@ -1883,12 +1879,11 @@ Utils = {
     const splits = [];
     const donationSplitsId = metadata && metadata.donationSplitsId;
     if (donationSplitsId) {
-      logger.info("donationSplitsId: " + donationSplitsId);
       const donationSplits = DonationSplits.findOne({_id: donationSplitsId});
-      donationSplits.splits.forEach(function( split ) {
+      donationSplits.splits.forEach(function( split, index ) {
         let newSplitAmount;
-        if (index === 0 && donationSplits.splits.length > 1 && metadata.fees > 0) {
-          newSplitAmount = split.amount + Number(metadata.fees);
+        if (index === 0 && (metadata.fees > 0 || donationSplits.fees > 0)) {
+          newSplitAmount = split.amount + Number(metadata.fees || donationSplits.fees);
         }
         newSplitAmount = newSplitAmount ? newSplitAmount : split.amount;
         splits.push({amount_in_cents: newSplitAmount, fund_id: Number(split.donateTo), memo: getMemo(split.donateTo, split.memo, charge.id, customer.id, metadata)});

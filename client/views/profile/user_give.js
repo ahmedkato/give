@@ -33,6 +33,13 @@ Template.UserGive.helpers({
     }
     return;
   },
+  showCardInputs: function() {
+    const userPaymentMethod = Session.get("UserPaymentMethod");
+    if (userPaymentMethod) {
+      return userPaymentMethod === 'Card' || userPaymentMethod.slice(0, 3) === 'car';
+    }
+    return;
+  },
   paymentWithCheck: function() {
     const userPaymentMethod = Session.get("UserPaymentMethod");
     if (userPaymentMethod) {
@@ -90,10 +97,12 @@ Template.UserGive.events({
   'change [name=donateWith]': function() {
     const selectedValue = $("#donateWith").val();
     Session.set("paymentMethod", selectedValue);
-    if (selectedValue === 'Check') {
+
+    if (Session.equals("paymentMethod", "Check")) {
+      $("#fee").val("");
+      Session.set("coverTheFees", false);
       Session.set("savedDevice", false);
       Give.updateTotal();
-      $("#show_total").hide();
     } else if (selectedValue === 'Card') {
       Session.set("savedDevice", false);
       Give.updateTotal();

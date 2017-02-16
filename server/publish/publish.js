@@ -67,6 +67,8 @@ Meteor.publish("devices", function() {
 });
 
 Meteor.publish("customer", function (customer) {
+  logger.info("Started customer subscription");
+
   //Check the subscription_id that came from the client
   check(customer, String);
 
@@ -90,8 +92,8 @@ Meteor.publish("customer", function (customer) {
 });
 
 Meteor.publish("userStripeData", function(id) {
-  logger.info("Started userStripeData");
-  check(id, Match.Optional(String));
+  logger.info("Started userStripeData with id: " + id);
+  check(id, Match.Maybe(String));
 
   var userID;
 
@@ -168,29 +170,89 @@ Meteor.publish("userSubscriptions", function () {
 	}
 });
 
+Meteor.publish('DTDonationsForOneUser', function(search, limit) {
+  check(search, Match.Maybe(String));
+  check(limit, Match.Maybe(Number));
+
+  // Publish the nearly expired or expired card data to the admin dashboard
+  if (Roles.userIsInRole(this.userId, ['super-admin', 'admin', 'manager'])) {
+    const limitValue = limit ? limit : 0;
+    const searchValue = search ? search : '';
+    const options = {
+      sort: {created: -1},
+      limit: limitValue
+    };
+    return DT_donations.find( {
+          $and: [{
+            $or: [
+              { status: 'active' },
+              { status: 'trialing' },
+              { status: 'past_due' }
+            ]
+          }, {
+            $or: [
+              {
+                'metadata.fname': {
+                  $regex: searchValue, $options: 'i'
+                }
+              },
+              {
+                'metadata.lname': {
+                  $regex: searchValue, $options: 'i'
+                }
+              },
+              {
+                'metadata.business_name': {
+                  $regex: searchValue,
+                  $options: 'i'
+                }
+              },
+              {
+                'metadata.email': {
+                  $regex: searchValue,
+                  $options: 'i'
+                }
+              },
+              {
+                'id': {
+                  $regex: searchValue
+                }
+              }
+            ]
+          }]
+        }, options );
+  }
+  this.ready();
+});
+
+
 Meteor.publish("userDT", function (id) {
-  logger.info("Started userDT subscription");
-  check(id, Match.Optional(String));
+  check(id, Match.Maybe(String));
 
-  var userID;
-
-  if (this.userId) {
-    if (id) {
-      if (Roles.userIsInRole(this.userId, ['super-admin', 'admin'])) {
-        userID = id;
-      } else {
-        logger.warn('This user: ' + this.userId + ' attempted to use an id to ' +
-          'view Donor Tools data inside the userDT publication');
-        this.ready();
-      }
-    } else {
-      userID = this.userId;
-    }
-	} else {
+  if (!this.userId) {
     this.ready();
   }
+  logger.info("Started userDT subscription with id:", id);
 
-  if (Meteor.users.findOne({_id: userID}) && Meteor.users.findOne({_id: userID}).persona_ids) {
+  let userID;
+
+  if (id) {
+    if (Roles.userIsInRole(this.userId, ['super-admin', 'admin'])) {
+      userID = id;
+    } else {
+      logger.warn('This user: ' + this.userId + ' attempted to use an id to ' +
+        'view Donor Tools data inside the userDT publication');
+      this.ready();
+    }
+  } else {
+    userID = this.userId;
+  }
+  const persona_ids = Meteor.users.findOne({_id: userID}) && Meteor.users.findOne({_id: userID}).persona_ids;
+  logger.info("persona_ids: " + persona_ids);
+  return DT_donations.find({persona_id: {$in: persona_ids || []}});
+
+
+  /*if (Meteor.users.findOne({_id: userID}) && Meteor.users.findOne({_id: userID}).persona_ids) {
     var persona_ids = Meteor.users.findOne({_id: userID}).persona_ids;
     return DT_donations.find({persona_id: {$in: persona_ids}});
   } else if(Meteor.users.findOne({_id: userID}) && Meteor.users.findOne({_id: userID}).persona_id) {
@@ -204,8 +266,8 @@ Meteor.publish("userDT", function (id) {
     });
     return DT_donations.find( { persona_id: { $in: persona_ids } } );
   } else {
-    this.ready();
-  }
+    this.next();
+  }*/
 });
 
 Meteor.publish("userDTFunds", function () {
@@ -331,11 +393,11 @@ Meteor.publish("adminSubscriptions", function (_id) {
   }
 });
 
-FindFromPublication.publish("all_users", function (_id, searchValue, limit) {
+Meteor.publish("all_users", function (_id, searchValue, limit) {
   check(_id, Match.Maybe(String));
   check(searchValue, Match.Maybe(String));
   check(limit, Match.Maybe(Number));
-  logger.info("Got to all_users sub");
+  logger.info("Got to all_users sub with value");
   let all_users;
   const SEARCH = {
     $or: [
@@ -377,7 +439,6 @@ Meteor.publish("roles", function () {
     this.ready();
   }
 });
-
 
 Meteor.publish("config", function () {
   return Config.find({

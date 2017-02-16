@@ -10,6 +10,7 @@ Template.UpdateSubscription.onCreated(function() {
   DonationFormItems = new Mongo.Collection(null);
   this.autorun(()=>{
     this.subscribe("userDTFunds");
+    this.subscribe('customer', Session.get("customer"));
     this.subscribe('subscription_with_donation_splits', Session.get("subscription"));
     this.subscribe('userDoc');
   });
@@ -40,6 +41,13 @@ Template.UpdateSubscription.onRendered(function() {
       if (subscription && subscription.metadata && subscription.metadata.donateTo) {
         DonationFormItems.upsert({name: 'first'}, {name: 'first', donateTo: subscription.metadata.donateTo, amount: subscription.quantity });
       }
+    }
+    const customer = Customers.findOne();
+    if (customer && customer.default_source_type === "bank_account") {
+      Session.set("paymentMethod", "Check");
+    }
+    if (customer && customer.default_source_type === "card") {
+      Session.set("paymentMethod", "Card");
     }
   });
 });
@@ -86,13 +94,18 @@ Template.UpdateSubscription.events({
     $("#start_date").select();
   },
   'submit form': function(e) {
+    // TODO: when a user changes their selection on 'cover the fees' what are we doing?
+    // Looks like nothing right now, need to fix that
+
     e.preventDefault();
     console.log("Submitted event started for UpdateSubscription form");
-    const subscription_id = Session.get("subscription");
-    const subscriptionDoc = Subscriptions.findOne({_id: subscription_id});
+    const subscriptionId = Session.get("subscription");
+    const subscriptionDoc = Subscriptions.findOne({_id: subscriptionId});
     const totalAmount = parseInt( (Give.getCleanValue( '#total_amount' ) * 100).toFixed( 0 ), 10 );
-    let trial_end = $("#start_date").val() ? moment(new Date(Give.getCleanValue('#start_date'))).format('X') : '';
-    Session.get("yes_change_date") ? trial_end : trial_end = null;
+    const coverTheFees = $( '#coverTheFees' ).is( ":checked" );
+    const fees = parseInt( ( Give.getCleanValue( "#fee" ) * 100).toFixed( 0 ), 10 );
+    let trialEnd = $("#start_date").val() ? moment(new Date(Give.getCleanValue('#start_date'))).format('X') : '';
+    Session.get("yes_change_date") ? trialEnd : trialEnd = null;
     const DonationSplitId = DonationSplits.findOne()._id;
     let dateAndAmountChanged = true;
     if (!DonationSplitId) {
@@ -103,9 +116,9 @@ Template.UpdateSubscription.events({
     }
     $(':submit').button('loading');
 
-    console.log(subscription_id, totalAmount, trial_end);
+    console.log(subscriptionId, totalAmount, trialEnd);
     if (dateAndAmountChanged) {
-      Meteor.call( "edit_subscription", subscription_id, totalAmount, trial_end, function( error, response ) {
+      Meteor.call( "edit_subscription", subscriptionId, totalAmount, trialEnd, coverTheFees, fees, function( error, response ) {
         if ( error ) {
           console.error( error, error.message);
           Bert.alert( error.message, "danger" );
@@ -116,7 +129,7 @@ Template.UpdateSubscription.events({
         }
       } );
     }
-    Meteor.call( "editDonationSplits", DonationSplitId, DonationFormItems.find().fetch(), function( error, response ) {
+    Meteor.call( "editDonationSplits", DonationSplitId, DonationFormItems.find().fetch(), coverTheFees, fees, function( error, response ) {
       if ( error ) {
         console.error( error, error.message);
       } else {

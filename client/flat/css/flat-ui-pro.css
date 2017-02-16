@@ -3864,9 +3864,13 @@ fieldset[disabled] .input-group-btn .btn-default.active {
   }
 .table-striped > tbody > tr:nth-child(even) {
   background-color: transparent;
-  }
+}
+/*.table-striped > tbody > tr:hover {
+  background-color: #48c9b0;
+  color: white;
+  }*/
 .table-hover > tbody > tr:hover {
-  background-color: #f9fafb;
+  background-color: #48c9b0;
   }
 .table > thead > tr > td.active,
 .table > tbody > tr > td.active,
@@ -3887,7 +3891,7 @@ fieldset[disabled] .input-group-btn .btn-default.active {
 .table-hover > tbody > tr.active:hover > td,
 .table-hover > tbody > tr:hover > .active,
 .table-hover > tbody > tr.active:hover > th {
-  background-color: #f2f5f8;
+  background-color: #48c9b0;
   }
 .table > thead > tr > td.success,
 .table > tbody > tr > td.success,

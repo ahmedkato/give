@@ -1,11 +1,22 @@
 import parsley from 'parsleyjs';
 
+Template.OtherUserProfile.onCreated(function() {
+  this.autorun(()=>{
+    this.subscribe('roles');
+    this.subscribe('userStripeData', Session.get('params.userID'));
+    this.subscribe('userDTFunds');
+    this.subscribe('userDT', Session.get('params.userID'));
+  });
+
+  Meteor.setTimeout(function() {
+    $('#myTabs a:first').tab('show');
+    $('#myTabs li:first').addClass('active');
+  }, 1000);
+});
+
 Template.OtherUserProfile.helpers({
   user: function() {
     return Meteor.users.findOne({_id: Session.get("params.userID")});
-  },
-  showHistory: function() {
-    return Session.get("showHistory");
   },
   donation: function() {
     return Donations.find({}, {sort: {created_at: 1}});
@@ -92,8 +103,10 @@ Template.OtherUserProfile.helpers({
     }
   },
   personas: function() {
-    return Meteor.users.findOne({_id: Session.get("params.userID")}) &&
-      Meteor.users.findOne({_id: Session.get("params.userID")}).persona_info;
+    if (Session.get("params.userID")) {
+      return Meteor.users.findOne({_id: Session.get("params.userID")}) &&
+        Meteor.users.findOne({_id: Session.get("params.userID")}).persona_info;
+    }
   },
   company_or_name: function() {
     // TODO: need to fix this to look at the persona info, not the profile info
@@ -135,6 +148,90 @@ Template.OtherUserProfile.helpers({
 });
 
 Template.OtherUserProfile.events({
+  'click .disable-enable-user': function() {
+    console.log("got remove");
+
+    const self = this;
+
+    let toggleState;
+
+    if (self.state && self.state.status && self.state.status === 'disabled') {
+      toggleState = 'enabled';
+    } else {
+      toggleState = 'disabled';
+    }
+
+    swal({
+      title: "Are you sure?",
+      text: "Are you sure you want to " + toggleState.slice(0, -1) + " this user?",
+      type: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#DD6B55",
+      confirmButtonText: "Yes",
+      cancelButtonText: "Nevermind",
+      closeOnConfirm: false,
+      closeOnCancel: true,
+      showLoaderOnConfirm: true
+    }, function(isConfirm) {
+      if (isConfirm) {
+        Meteor.call( 'set_user_state', self._id, toggleState, function( error, response ) {
+          if ( error ) {
+            console.log(error);
+            swal("Error", "Something went wrong", "error");
+          } else {
+            console.log(response);
+            swal({title: "Done", text: "The user was " + toggleState + ".", type: 'success'}, function() {
+              // self.state.status === 'enabled' because self is a copy of the
+              // data that was set when we started this call
+              if (self.state.status === 'enabled' &&
+                Session.equals("showSingleUserDashboard", true)) {
+                $(".cancel-button").click();
+              }
+            });
+          }
+        });
+      }
+    });
+  },
+  'click .forgot-password': function(e) {
+    const resetButton = $(e.currentTarget).button('loading');
+    const self = this;
+
+    swal({
+      title: "Are you sure?",
+      text: "Are you sure you want to send a password reset to this user?",
+      type: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#DD6B55",
+      confirmButtonText: "Yes, send it!",
+      cancelButtonText: "Nevermind",
+      closeOnConfirm: false,
+      closeOnCancel: true,
+      showLoaderOnConfirm: true
+    }, function(isConfirm) {
+      if (isConfirm) {
+        Accounts.forgotPassword({email: self.emails[0].address}, function( err ) {
+          if (err) console.error(err);
+          else swal("Sent", "The user was sent a password reset email.", 'success');
+          resetButton.button( 'reset' );
+        } );
+      } else {
+        resetButton.button( 'reset' );
+      }
+    });
+  },
+  'click .cancel-button': function() {
+    console.log("Clicked cancel");
+    Session.delete("params.userID");
+    Session.delete("activeTab");
+    Router.go('ManageUsers');
+
+    Session.set("addingNew", false);
+    Session.delete("showSingleUserDashboard");
+    Session.delete("got_all_donations");
+    Session.delete("NotDTUser");
+    Session.delete("persona_info_exists");
+  },
   'click #viewHistory': function() {
     Session.set("showHistory", false);
   },
@@ -262,11 +359,9 @@ Template.OtherUserProfile.onRendered(function() {
 
   $('[data-toggle="popover"]').popover({html: true});
 
-  $('#myTabs li:first').addClass('active');
-
-  // $("a[href='" + Session.get('activeTab') + "' ]").addClass('active');
 
   $('.tab-pane:first').addClass('active');
 
   Session.set('activeTab', $('.active a').attr('value'));
 });
+

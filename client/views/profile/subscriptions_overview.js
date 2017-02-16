@@ -27,6 +27,23 @@ const subscriptionsTutorialSteps = function() {
   return return_tutorials;
 };
 
+Template.SubscriptionsOverview.onRendered(function() {
+  if (Roles.userIsInRole(Meteor.userId(), 'no-dt-person')) {
+    Router.go("Dashboard");
+  }
+  Session.setDefault('paymentMethod', 'default');
+  Session.setDefault('subscription_cursor', 0);
+  Session.delete("params.donateTo");
+});
+
+Template.SubscriptionsOverview.onCreated(function() {
+  this.autorun(()=>{
+    this.subscribe('userDTFunds');
+    this.subscribe('subscriptions');
+    this.subscribe('userDoc');
+  });
+});
+
 Template.SubscriptionsOverview.helpers({
   subscriptions: function() {
     const subscription_page = Session.get('subscription_cursor');
@@ -141,57 +158,6 @@ Template.SubscriptionsOverview.events({
     console.log("Clicked stop button");
 
     cancelRecurringGift(e, this.id);
-
-
-    /* e.preventDefault();
-    const subscription_id = this.id;
-    const customer_id = Subscriptions.findOne({_id: subscription_id}).customer;
-    console.log("Got to cancel subscription call");
-    console.log("subscription id: " + subscription_id);
-    console.log("Customer id: " + customer_id);
-    $(e.currentTarget).button('loading');
-
-    swal({
-      title: "Are you sure?",
-      text: "Please let us know why you are stopping your gift. (optional)",
-      type: "input",
-      showCancelButton: true,
-      confirmButtonColor: "#DD6B55",
-      confirmButtonText: "Yes, stop it!",
-      cancelButtonText: "No",
-      closeOnConfirm: false,
-      closeOnCancel: false
-    }, function(inputValue) {
-      if (inputValue === "") {
-        inputValue = "Not specified";
-      }
-
-      if (inputValue === false) {
-        swal("Ok, we didn't do anything.", "Your recurring gift is still active :)",
-            "success");
-        $(e.currentTarget).button('reset');
-      } else if (inputValue) {
-        Session.set("loading", true);
-        $(".confirm").button("loading");
-        console.log("Got to before method call with input of " + inputValue);
-        Meteor.call("stripeCancelSubscription", customer_id, subscription_id, inputValue, function(error, response) {
-          if (error) {
-            confirm.button("reset");
-            $(".confirm").button("reset");
-
-            Session.set("loading", false);
-            Bert.alert(error.message, "danger");
-            $(e.currentTarget).button('reset');
-          } else {
-            // If we're resubscribed, go ahead and confirm by returning to the
-            // subscriptions page and show the alert
-            console.log(response);
-            Session.set("loading", false);
-            swal("Cancelled", "Your recurring gift has been stopped.", "error");
-          }
-        });
-      }
-    });*/
   },
   'click .previous': function(evt) {
     evt.preventDefault();
@@ -224,21 +190,4 @@ Template.SubscriptionsOverview.events({
     }
     Router.go('UpdateSubscription', {}, {query});
   }
-});
-
-Template.SubscriptionsOverview.onRendered(function() {
-  if (Roles.userIsInRole(Meteor.userId(), 'no-dt-person')) {
-    Router.go("Dashboard");
-  }
-  Session.setDefault('paymentMethod', 'default');
-  Session.setDefault('subscription_cursor', 0);
-  Session.delete("params.donateTo");
-});
-
-Template.SubscriptionsOverview.onCreated(function() {
-  this.autorun(()=>{
-    this.subscribe("userDTFunds");
-    this.subscribe('subscriptions');
-    this.subscribe('userDoc');
-  });
 });

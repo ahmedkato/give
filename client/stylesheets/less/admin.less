@@ -3273,9 +3273,13 @@
   .table-bordered > tfoot > tr > td {
     border: 1px solid #e1e6ef;
   }
-  .table-striped > tbody > tr:nth-child(odd) > td,
+  /*.table-striped > tbody > tr:nth-child(odd) > td,
   .table-striped > tbody > tr:nth-child(odd) > th {
     background-color: #f5f7fa;
+  }*/
+  .table-hover > tbody > tr:nth-child(odd):hover > td,
+  .table-hover > tbody > tr:nth-child(odd):hover > th {
+    background-color: #48c9b0;
   }
   .weather.widget .today {
     padding-bottom: 20px;

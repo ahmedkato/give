@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 const config = ConfigDoc();
 
 Meteor.methods({
@@ -171,7 +172,8 @@ Meteor.methods({
 
       const donationSplitsId = DonationSplits.insert({
         createdAt: new Date(),
-        splits: data.paymentInformation.splits
+        splits: data.paymentInformation.splits,
+        fees: data.paymentInformation.fees
       });
 
       if (!data.customer.id) {
@@ -358,7 +360,7 @@ Meteor.methods({
   update_user_document_by_adding_persona_details_for_each_persona_id: function(id) {
     logger.info("Started update_user_document_by_adding_persona_details_for_each_persona_id");
 
-    check(id, Match.Optional(String));
+    check(id, Match.Maybe(String));
 
     let userID;
     if (this.userId) {
@@ -390,9 +392,7 @@ Meteor.methods({
       if (!persona_ids && persona_id) {
         logger.info("No persona_ids, but did find persona_id");
         persona_ids = persona_id;
-      }
-
-      if (persona_ids && persona_ids.length) {
+      } else if (persona_ids && persona_ids.length > 0) {
         // The persona_ids let is an array
         logger.info( "persona_ids found: ", persona_ids );
 
@@ -438,6 +438,15 @@ Meteor.methods({
         // add the dt_account_id to the user array using $addToSet so that only
         // unique array values exist.
         Meteor.users.update( {_id: userID}, { $addToSet: { persona_ids: dt_account_id } } );
+        const personaResult = Utils.http_get_donortools("/people/" + dt_account_id + ".json");
+        set_this_array.push( personaResult.data.persona );
+      } else if (Meteor.users.findOne({_id: userID}) && Meteor.users.findOne({_id: userID}).persona_info) {
+        persona_ids = _.pluck(Meteor.users.findOne({_id: userID}).persona_info, 'id');
+        _.forEach(persona_ids, function(each_persona_id) {
+          const personaResult = Utils.http_get_donortools("/people/" + each_persona_id + ".json");
+          set_this_array.push( personaResult.data.persona );
+        });
+        Meteor.users.update({_id: userID}, {$set: {persona_ids}});
       } else {
         console.log("Not a DT user");
         return 'Not a DT user';
@@ -692,7 +701,6 @@ Meteor.methods({
         if (dtDonationId && !DT_donations.findOne({_id: Number(dtDonationId)})) {
           // Get the donation from DT
           const donation = Utils.http_get_donortools( '/donations/' + dtDonationId + '.json' );
-          console.log(donation);
           DT_donations.upsert({_id: Number(dtDonationId)}, {$set: donation.data.donation});
           return donation.data.donation.id;
         }
@@ -836,10 +844,12 @@ Meteor.methods({
       return;
     }
   },
-  edit_subscription: function(subscription_id, quantity, trial_end) {
+  edit_subscription: function(subscription_id, quantity, trial_end, coveredTheFees, fees) {
     check(subscription_id, String);
     check(quantity, Match.Optional(Number));
     check(trial_end, Match.Maybe(String));
+    check(coveredTheFees, Boolean);
+    check(fees, Match.Maybe(Number));
 
     logger.info("Started edit_subscription method");
     logger.info(subscription_id, quantity, trial_end);
@@ -848,6 +858,15 @@ Meteor.methods({
     quantity && quantity !== 0 ? fields.quantity = quantity : null;
     quantity && quantity !== 0 ? fields.prorate = false : trial_end ? fields.prorate = false : null;
     trial_end ? fields.trial_end = trial_end : null;
+    if (coveredTheFees) {
+      fields.metadata = {};
+      fields.metadata.fees = fees;
+      fields.metadata.coveredTheFees = true;
+    } else {
+      fields.metadata = {};
+      fields.metadata.fees = null;
+      fields.metadata.coveredTheFees = false;
+    }
     logger.info("fields: ");
     logger.info(fields);
     this.unblock();
@@ -872,6 +891,7 @@ Meteor.methods({
         throw new Meteor.Error("403", "Unathorized");
       }
     }
+    throw new Meteor.Error("403", "Unathorized");
   },
   edit_donation: function(donationId, totalAmount, nextDonationDate) {
     logger.info("Started edit_donation method");
@@ -902,7 +922,7 @@ Meteor.methods({
       throw new Meteor.Error("403", "Unathorized");
     }
   },
-  editDonationSplits(DonationSplitId, DonationFormItems) {
+  editDonationSplits(DonationSplitId, DonationFormItems, coverTheFees, fees) {
     logger.info("Started editDonationSplits method");
     check(DonationSplitId, String);
     check(DonationFormItems, [{
@@ -912,10 +932,14 @@ Meteor.methods({
       name: Match.Maybe(String),
       item: Match.Maybe(Number)
     }]);
+    check(coverTheFees, Boolean);
+    check(fees, Match.Maybe(Number));
 
     logger.info(DonationSplitId);
     logger.info(DonationFormItems);
-    DonationSplits.update({_id: DonationSplitId}, { $set: { splits: DonationFormItems } });
+    DonationSplits.update({_id: DonationSplitId}, { $set: { splits: DonationFormItems, fees} });
+
+
     // The return text is really just for the case where the user doesn't change the amount or date
     // in that case this text will be used to show the user their changes went through
     return "Edited that recurring gift";
@@ -1060,8 +1084,8 @@ Meteor.methods({
   },
   update_user_roles: function(roles, user_id) {
     logger.info("Started update_user_roles method");
-    console.log("roles: ", roles );
-    console.log("user_id: ", user_id );
+    logger.info("roles: ", roles );
+    logger.info("user_id: ", user_id );
 
     check(roles, Match.Maybe([String]));
     check(user_id, String);
@@ -1528,104 +1552,5 @@ Meteor.methods({
       return Customers.upsert({_id: customerId}, customer);
     }
     throw new Meteor.Error(403, "Not logged in");
-  },
-  fixSubscriptions: function() {
-    if (Roles.userIsInRole(this.userId, ['admin'])) {
-      logger.info("Started method fixSubscriptions");
-
-      const subscriptions = Subscriptions.find({
-        $and: [
-          {'metadata.donateTo': {$exists: true}},
-          {'metadata.donationSplitsId': {$exists: false}},
-          {
-            $or: [
-              {status: 'active'},
-              {status: 'past_due'}
-            ]
-          }
-        ]
-      });
-      subscriptions.forEach(function(subscription) {
-        logger.info("Subscription ID: " + subscription._id);
-        const split = {
-          "_id": Random.id(17),
-          "name": "first",
-          "donateTo": subscription.metadata.donateTo,
-          "amount": subscription.quantity
-        };
-        if (subscription.metadata && subscription.metadata.note) {
-          split.memo = subscription.metadata.note;
-        }
-        const donationSplitsId = DonationSplits.insert(
-          {
-            "createdAt": new Date().toISOString(),
-            "splits": [
-              split
-            ],
-            "subscription_id": subscription._id
-          });
-
-        StripeFunctions.stripe_update('customers', 'updateSubscription', subscription.customer, subscription._id, {
-          metadata: {donationSplitsId, donateTo: null, amount: null, send_scheduled_email: null, note: null}
-        });
-      });
-      return "Completed Updating " + subscriptions.count() + " records.";
-    }
-    throw new Meteor.Error(403, "Not allowed");
-  },
-  fixManualACHDonations: function() {
-    if (Roles.userIsInRole(this.userId, ['admin'])) {
-      logger.info("Started method fixManualACHDonations");
-
-      const donations = Donations.find({'method': 'manualACH', 'status': 'pending', donationSplitsId: {$exists: false}});
-      donations.forEach(function(donation) {
-        logger.info("Donation ID: " + donation._id);
-        const split = {
-          "_id": Random.id(17),
-          "name": "first",
-          "donateTo": donation.donateTo,
-          "amount": donation.amount
-        };
-        if (donation.note) {
-          split.memo = donation.note;
-        }
-        const donationSplitsId = DonationSplits.insert(
-          {
-            "createdAt": new Date().toISOString(),
-            "splits": [
-              split
-            ]
-          });
-        Donations.update({_id: donation._id}, {$set: { donationSplitsId: donationSplitsId}});
-      });
-      return "Completed Updating " + donations.count() + " records.";
-    }
-    throw new Meteor.Error(403, "Not allowed");
-  },
-  getAndUpdateSubscriptions() {
-    if (Roles.userIsInRole(this.userId, ['admin'])) {
-      logger.info("Started method getAndUpdateSubscriptions");
-
-      const subscriptions = Subscriptions.find({
-        $and: [
-          {'metadata.donateTo': {$exists: true}},
-          {'metadata.donationSplitsId': {$exists: false}},
-          {
-            $or: [
-              {status: 'active'},
-              {status: 'past_due'}
-            ]
-          }
-        ]
-      });
-      subscriptions.forEach(function(subscription) {
-        logger.info("Subscription ID: " + subscription._id);
-        const stripeSubscriptonData = StripeFunctions.stripe_retrieve('subscriptions', 'retrieve', subscription._id, '');
-        console.log(stripeSubscriptonData);
-        Subscriptions.update({_id: stripeSubscriptonData.id}, stripeSubscriptonData);
-      });
-      return "Completed Updating " + subscriptions.count() + " records.";
-    }
-    throw new Meteor.Error(403, "Not allowed");
   }
 });

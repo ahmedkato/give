@@ -87,7 +87,8 @@
                 {{else}}
                     <br>
                     {{#if not_dt_user}}
-                        {{#autoForm collection=Meteor.users schema=schema id="edit-user-form" type="method-update" meteormethod="updateUser" doc=this}}
+                        {{#with user}}
+                            {{#autoForm collection=Meteor.users schema=schema id="edit-user-form" type="method-update" meteormethod="updateUser" doc=this}}
                             <div class="content has-header overflow-scroll">
                                 <button type="button" class="btn btn-danger btn-raised cancel-button">Cancel</button>
                                 <button type="submit" class="btn btn-success btn-raised">Submit</button>
@@ -137,11 +138,7 @@
 
                             </div>
                         {{/autoForm}}
-                    {{/if}}
-                    {{#if persona_info}}
-                        {{> OtherUserProfile}}
-                    {{else}}
-                        {{> OtherUserProfile}}
+                        {{/with}}
                     {{/if}}
                 {{/unless}}
             {{/if}}

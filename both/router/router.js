@@ -176,7 +176,6 @@ Router.route('/user', function() {
 
   this.wait([
     Meteor.subscribe('userStripeData'),
-    Meteor.subscribe('userDT'),
     Meteor.subscribe('userDTFunds')
   ]);
   if (this.ready()) {
@@ -407,7 +406,7 @@ Router.route('FixCardSubscription', {
       this.render('Loading');
     }
   },
-  name: 'fixCardSubscription'
+  name: 'FixCardSubscription'
 });
 
 Router.route('FixBankSubscription', {
@@ -430,7 +429,7 @@ Router.route('FixBankSubscription', {
       this.render('Loading');
     }
   },
-  name: 'fixBankSubscription'
+  name: 'FixBankSubscription'
 });
 
 Router.route('/dashboard/giving_options', {
@@ -494,24 +493,17 @@ Router.route('/dashboard/users', {
   layoutTemplate: 'AdminLayout',
   name: 'ManageUsers',
   where: 'client',
-  template: 'ManageUsers',
+  template: 'ManageUsers'
+});
+
+Router.route('/dashboard/user/:id', {
+  layoutTemplate: 'AdminLayout',
+  name: 'ManageUser',
+  where: 'client',
+  template: 'OtherUserProfile',
   waitOn: function() {
-    const query = this.params.query;
-    const id = query.userID;
-    if (id) {
-      Session.set( 'params.userID', id );
-      Session.set( "showSingleUserDashboard", true );
-    }
-  },
-  data: function() {
-    const query = this.params.query;
-    const id = query.userID;
-    if (id) {
-      return Meteor.users.findOne({_id: id});
-    } else if (Session.get('params.userID')) {
-      return Meteor.users.findOne({_id: Session.get('params.userID')});
-    }
-    return Meteor.users.find();
+    const id = this.params.id;
+    Session.set( 'params.userID', id );
   }
 });
 

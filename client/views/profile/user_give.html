@@ -1,4 +1,7 @@
 <template name="UserGive">
+    {{#if showGiftTotal}}
+        <div class="amount-dialog text-center">Total Gift Amount: ${{giftTotal}}</div>
+    {{/if}}
     {{#if Template.subscriptionsReady}}
         {{#if tutorialEnabled}}
             {{> tutorial options}}
@@ -14,7 +17,6 @@
                         <fieldset>
 
                             {{> Amount}}
-                            <br>
                             <!-- Show give form -->
                             {{> GiveDropdownGroup}}
                             {{#if paymentWithCard}}

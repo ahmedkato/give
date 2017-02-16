@@ -199,8 +199,19 @@ Template.UserProfile.events({
   }
 });
 
+Template.UserProfile.onCreated(function() {
+  this.autorun(()=> {
+    const selectedUser = Meteor.users.findOne();
+    const selectedPersonaIds = selectedUser && selectedUser.persona_ids;
+
+    if (selectedPersonaIds && Meteor.user()) {
+      this.subscribe('userDT');
+    }
+  });
+});
+
 Template.UserProfile.onRendered(function() {
-  const selectedUser = Meteor.user();
+  const selectedUser = Meteor.users.findOne();
 
   const selectedPersonaInfo = selectedUser && selectedUser.persona_info;
   const selectedPersonaIds = selectedUser && selectedUser.persona_ids;
@@ -221,7 +232,7 @@ Template.UserProfile.onRendered(function() {
         // Hack here to reload the page. I'm not sure why the reactivity isn't
         // showing the new information, when the persona_info is pulled down
         // for now we just reload the page and the problem is resolved.
-        location.reload();
+        // location.reload();
       } else {
         console.log( error );
         throw new Meteor.Error("400", "Couldn't retrieve any Donor Tools information for this user.");
@@ -257,7 +268,10 @@ Template.UserProfile.onRendered(function() {
 
   $('[data-toggle="popover"]').popover({html: true});
 
-  $('#myTabs li:first').addClass('active');
+  Meteor.setTimeout(function() {
+    $('#myTabs a:first').tab('show');
+    $('#myTabs li:first').addClass('active');
+  }, 1000);
 
   $("a[href='" + Session.get('activeTab') + "' ]").addClass('active');
 
