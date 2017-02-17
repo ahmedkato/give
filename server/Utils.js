@@ -227,7 +227,7 @@ Utils = {
     fundsList.forEach( function( fundId ) {
       Utils.getFundHistory( fundId, dateStart, dateEnd );
     } );
-    logger.info( "Got all funds history" );
+    logg.er.log( "Got all funds history" );
     return;
   },
   /**
@@ -399,7 +399,7 @@ Utils = {
 
       get_dt_donation.data[0].donation.payment_status = 'refunded';
       get_dt_donation.data[0].donation.splits[0].amount_in_cents = 0;
-      const createdDate = moment.unix( event_object.data.object.created ).format( "YYYY/MM/DD hh:mma" );
+      const createdDate = moment.unix( event_object.data.object.refunds.data[0].created ).format( "YYYY/MM/DD hh:mma" );
       const refundedAmount = event_object.data.object.amount_refunded / 100;
 
       const donationMemo = "The charge was refunded on " + createdDate +
