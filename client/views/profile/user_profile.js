@@ -271,13 +271,13 @@ Template.UserProfile.onRendered(function() {
   Meteor.setTimeout(function() {
     $('#myTabs a:first').tab('show');
     $('#myTabs li:first').addClass('active');
+    Session.set('activeTab', $('.active a').attr('value'));
   }, 1000);
 
   $("a[href='" + Session.get('activeTab') + "' ]").addClass('active');
 
   $('.tab-pane:first').addClass('active');
 
-  Session.set('activeTab', $('.active a').attr('value'));
 });
 
 Template.UserProfile.onDestroyed(function() {

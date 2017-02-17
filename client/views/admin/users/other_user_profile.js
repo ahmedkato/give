@@ -1,5 +1,26 @@
 import parsley from 'parsleyjs';
 
+
+AutoForm.hooks({
+  'edit-user-form': {
+    onSuccess: function(operation, result) {
+      Session.set("addingNew", false);
+      Bert.alert( result, 'success', 'growl-bottom-right' );
+      Router.go("/dashboard/users");
+    },
+
+    onError: function(operation, error) {
+      console.log(error);
+      console.log(operation);
+
+      Bert.alert( error.message, 'danger', 'growl-bottom-right' );
+    },
+    onSubmit: function() {
+      return this.event.preventDefault();
+    }
+  }
+});
+
 Template.OtherUserProfile.onCreated(function() {
   this.autorun(()=>{
     this.subscribe('roles');
@@ -11,10 +32,18 @@ Template.OtherUserProfile.onCreated(function() {
   Meteor.setTimeout(function() {
     $('#myTabs a:first').tab('show');
     $('#myTabs li:first').addClass('active');
+    Session.set('activeTab', $('.active a').attr('value'));
   }, 1000);
 });
 
 Template.OtherUserProfile.helpers({
+
+  schema: function() {
+    return Schema.UpdateUserFormSchema;
+  },
+  roles: function() {
+    return Meteor.roles.find();
+  },
   user: function() {
     return Meteor.users.findOne({_id: Session.get("params.userID")});
   },
@@ -255,21 +284,23 @@ Template.OtherUserProfile.events({
 
     $(':submit').button('loading');
 
-    Meteor.call('update_customer',
-      fields,
-      Number(Session.get('activeTab')),
-      Session.get('params.userID'), function(error, result) {
-        if (result) {
-          $('#modal_for_address_change').modal('hide');
-          $(':submit').button("reset");
-          Bert.alert("This user is being updated now.", "success");
-        } else {
-          console.log(error);
-          $(':submit').button("reset");
-          Bert.alert("That didn't work. Please try again. If it still doesn't work, " +
-          "then please let us know, we'll check into this error." + error, "danger");
-        }
-      });
+    if (Session.get('activeTab')) {
+      Meteor.call('update_customer',
+        fields,
+        Number(Session.get('activeTab')),
+        Session.get('params.userID'), function(error, result) {
+          if (result) {
+            $('#modal_for_address_change').modal('hide');
+            $(':submit').button("reset");
+            Bert.alert("This user is being updated now.", "success");
+          } else {
+            console.log(error);
+            $(':submit').button("reset");
+            Bert.alert("That didn't work. Please try again. If it still doesn't work, " +
+              "then please let us know, we'll check into this error." + error, "danger");
+          }
+        });
+    }
   },
   'click .previous': function(evt) {
     evt.preventDefault();
@@ -365,3 +396,10 @@ Template.OtherUserProfile.onRendered(function() {
   Session.set('activeTab', $('.active a').attr('value'));
 });
 
+Template.OtherUserProfile.onDestroyed(function() {
+  Session.delete("params.userID");
+  Session.delete("NotDTUser");
+  Session.delete("addingNew");
+  Session.delete("showHistory");
+  Session.delete("dt_donations_cursor");
+});

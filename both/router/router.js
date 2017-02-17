@@ -490,7 +490,7 @@ Router.route('/dashboard/subscriptions', {
 });
 
 Router.route('/dashboard/users', {
-  layoutTemplate: 'AdminLayout',
+  layoutTemplate: 'UserLayout',
   name: 'ManageUsers',
   where: 'client',
   template: 'ManageUsers'

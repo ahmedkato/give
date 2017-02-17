@@ -232,7 +232,7 @@ Meteor.methods({
   get_all_donations_for_this_donor: function(id) {
     logger.info( "Started method get_all_donations_for_this_donor." );
     if (this.userId) {
-      check( id, Match.Optional( String ) );
+      check( id, Match.Maybe( String ) );
 
       let userID;
       this.unblock();
@@ -272,15 +272,15 @@ Meteor.methods({
       name: String,
       account_holder_name: String,
       account_holder_type: String,
-      account_type: Match.Optional(String),
+      account_type: Match.Maybe(String),
       account_number: String,
       routing_number: String,
       address_line1: String,
-      address_line2: Match.Optional(String),
+      address_line2: Match.Maybe(String),
       address_city: String,
       address_state: String,
       address_zip: String,
-      country: Match.Optional(String),
+      country: Match.Maybe(String),
       currency: String
     });
     const bank = BankAccounts.insert(bankInfo);
@@ -289,7 +289,7 @@ Meteor.methods({
   putProfileAddress: function(activeTab) {
     logger.info("Started method get_all_donations_for_this_donor.");
 
-    check(activeTab, Match.Optional(String));
+    check(activeTab, Match.Maybe(String));
     if (this.userId) {
       let persona, persona_info, address;
 

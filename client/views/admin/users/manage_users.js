@@ -1,85 +1,9 @@
 import { setDocHeight, updateSearchVal } from '/imports/api/miscFunctions';
 
-
-AutoForm.hooks({
-  'edit-user-form': {
-    onSuccess: function(operation, result) {
-      Session.set("addingNew", false);
-      Bert.alert( result, 'success', 'growl-bottom-right' );
-      Router.go("/dashboard/users");
-    },
-
-    onError: function(operation, error) {
-      console.log(error);
-      console.log(operation);
-
-      Bert.alert( error.message, 'danger', 'growl-bottom-right' );
-    },
-    onSubmit: function() {
-      return this.event.preventDefault();
-    }
-  }
-});
-
 Template.ManageUsers.onCreated(function() {
   Session.set("documentLimit", 10);
 
   this.autorun(()=> {
-    if (Session.get("params.userID")) {
-      if ( Meteor.users.findOne( { _id: Session.get( "params.userID" ) } ) &&
-        Meteor.users.findOne( { _id: Session.get( "params.userID" ) } ).persona_info ) {
-        Session.set( "persona_info_exists", true );
-        try {
-          const selectedUser = Meteor.users.find({_id: Session.get("params.userID")});
-
-          const selectedPersonaInfo = selectedUser && selectedUser.persona_info;
-          const selectedPersonaIds = selectedUser && selectedUser.persona_ids;
-
-          if (!selectedPersonaInfo || !selectedPersonaIds ||
-            ( selectedPersonaInfo && selectedPersonaInfo.length < 1 ) ||
-            ( selectedPersonaInfo && selectedPersonaInfo.length <
-            ( selectedPersonaIds && selectedPersonaIds.length ) ) ||
-            ( selectedPersonaInfo && selectedPersonaInfo.length <
-            ( selectedUser && selectedUser.persona_id && selectedUser.persona_id.length ) ) && !Session.get("got_all_donations") ) {
-            console.log("Got here");
-            Meteor.call('update_user_document_by_adding_persona_details_for_each_persona_id', Session.get("params.userID"), function(error, result) {
-              if (result) {
-                if (result === 'Not a DT user') {
-                  Session.set("NotDTUser", true);
-                  return;
-                }
-                console.log(result);
-                Session.set("got_all_donations", true);
-                // Hack here to reload the page. I'm not sure why the reactivity isn't
-                // showing the new information, when the persona_info is pulled down
-                // for now we just reload the page and the problem is resolved.
-                // location.reload();
-              } else {
-                console.log(error);
-                throw new Meteor.Error("400", "Couldn't retrieve any Donor Tools information for this user.");
-              }
-            });
-          }
-          Meteor.call("get_all_donations_for_this_donor", Session.get("params.userID"), function(error, result) {
-            if (result) {
-              console.log(result);
-              Session.set("got_all_donations", true);
-            } else {
-              console.log(error);
-            }
-          });
-        } catch (e) {
-          throw new Meteor.Error(500, e);
-        }
-      } else {
-        Session.set( "persona_info_exists", false );
-      }
-      Session.set("showSingleUserDashboard", true);
-    } else {
-      Session.set('params.userID', '');
-      Session.set("showSingleUserDashboard", false);
-    }
-
     this.subscribe( 'all_users', Session.get('params.userID'), Session.get("searchValue"), Session.get("documentLimit") );
     this.subscribe('roles');
     this.subscribe('userStripeData', Session.get('params.userID'));
@@ -92,6 +16,11 @@ Template.ManageUsers.onRendered(function() {
 });
 
 Template.ManageUsers.helpers({
+  checkForAdminRole() {
+    if (Roles.userIsInRole(Meteor.user(), 'super-admin')) {
+      return true;
+    }
+  },
   user: function() {
     return Meteor.users.findOne({_id: Session.get("params.userID")});
   },
@@ -210,17 +139,7 @@ Template.ManageUsers.events({
     Session.set("addingNew", addingNew);
   },
   'click .edit-user': function() {
-    if (Meteor.users.findOne({_id: this._id}) && ( (
-      Meteor.users.findOne({_id: this._id}).persona_ids
-      && Meteor.users.findOne({_id: this._id}).persona_ids.length > 0)
-      || ( Meteor.users.findOne({_id: this._id}).persona_info && Meteor.users.findOne({_id: this._id}).persona_info.length > 0 ) ) ) {
-      Router.go('/dashboard/user/' + this._id);
-    } else {
-      Session.set("params.userID", this._id);
-      Session.set("showSingleUserDashboard", true);
-      Session.set("NotDTUser", true);
-      $(window).unbind('scroll');
-    }
+    Router.go('/dashboard/user/' + this._id);
   },
   'click .forgot-password': function(e) {
     const resetButton = $(e.currentTarget).button('loading');
@@ -278,5 +197,6 @@ Template.ManageUsers.events({
 Template.ManageUsers.onDestroyed(function() {
   Session.delete("gift_user_id");
   Session.delete("searchValue");
+  Session.delete("NotDTUser");
   $(window).unbind('scroll');
 });

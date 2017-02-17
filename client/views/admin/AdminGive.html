@@ -1,4 +1,7 @@
 <template name="AdminGive">
+    {{#if showGiftTotal}}
+        <div class="amount-dialog text-center">Total Gift Amount: ${{giftTotal}}</div>
+    {{/if}}
     {{#if Template.subscriptionsReady}}
         {{#if $and notDTUser ($not userIDParam)}}
             {{> DonationForm}}

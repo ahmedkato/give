@@ -142,7 +142,60 @@
                     </div>
 
                 {{else}}
-                    <h3>No Gifts Found</h3>
+                    {{#with user}}
+                    <div class="tab-content">
+                        {{#autoForm collection=Meteor.users schema=schema id="edit-user-form" type="method-update" meteormethod="updateUser" doc=this}}
+                            <div class="content has-header overflow-scroll">
+                                <button type="button" class="btn btn-danger btn-raised cancel-button">Cancel</button>
+                                <button type="submit" class="btn btn-success btn-raised">Submit</button>
+                                <button type="button" {{disabledIfDisabled}} class="btn btn-primary forgot-password pull-right"
+                                        title="Send Password Reset Link"
+                                        data-loading-text="<i class='fa fa-spinner fa-spin'></i>">
+                                    <i class="fa fa-paper-plane"></i>
+                                </button>
+                                <button type="button" {{disableIfAdmin _id}}
+                                        title="{{toggleUserText}}"
+                                        class="btn btn-primary disable-enable-user pull-right"
+                                        data-loading-text="<i class='fa fa-spinner fa-spin'></i>"
+                                        data-_id="{{_id}}"
+                                        aria-expanded="true">
+                                    {{{disabledUserFA}}}
+                                </button>
+                                <div class="padding">
+                                    <br>
+                                    <fieldset>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                {{> afQuickFields omitFields="roles, email, state, persona_ids, persona_id, persona_info" style="color: black;" }}
+                                            </div>
+                                            <div class="col-md-6">
+                                                {{> afQuickField name="emails.0.address" label="Email Address"}}
+                                                {{> afQuickField name="emails.0.verified" value=true type="hidden" }}
+                                                {{#unless isCurrentUser}}
+                                                {{else}}
+                                                    {{> afQuickField name="state.status" }}
+                                                {{/unless}}
+                                                <div class="col-md-6">
+                                                    <label for="roles" class="control-label">Roles</label>
+                                                    <div class="form-group">
+                                                        <select name="roles" data-schema-key="roles" class="lowercase" multiple title='Choose at least one of the following...'>
+                                                            {{#each roles}}
+                                                                <option {{selected}} value="{{name}}">{{name}}</option>
+                                                            {{/each}}
+                                                        </select>
+                                                    </div>
+                                                    <span class="help-block">Hold down the Ctrl (windows) / Command (Mac) button to select multiple roles.</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <button type="submit" class="btn btn-success btn-raised">Submit</button>
+
+                            </div>
+                        {{/autoForm}}
+                    </div>
+                    {{/with}}
                 {{/unless}}
             </div>
         </div>
