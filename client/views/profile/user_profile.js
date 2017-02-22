@@ -21,6 +21,17 @@ const userProfileTutorialSteps = [
   }
 ];
 
+Template.UserProfile.onCreated(function() {
+  this.autorun(()=> {
+    const selectedUser = Meteor.users.findOne();
+    const selectedPersonaIds = selectedUser && (selectedUser.persona_ids || selectedUser.persona_id);
+
+    if (selectedPersonaIds && Meteor.user()) {
+      this.subscribe('userDT');
+    }
+  });
+});
+
 Template.UserProfile.helpers({
   user: function() {
     return Meteor.user();
@@ -109,9 +120,8 @@ Template.UserProfile.helpers({
   personas: function() {
     if (Meteor.user() && Meteor.user().persona_info) {
       return Meteor.user().persona_info;
-    } else {
-      return;
     }
+    return;
   },
   company_or_name: function() {
     const user = Meteor.user();
@@ -199,17 +209,6 @@ Template.UserProfile.events({
   }
 });
 
-Template.UserProfile.onCreated(function() {
-  this.autorun(()=> {
-    const selectedUser = Meteor.users.findOne();
-    const selectedPersonaIds = selectedUser && selectedUser.persona_ids;
-
-    if (selectedPersonaIds && Meteor.user()) {
-      this.subscribe('userDT');
-    }
-  });
-});
-
 Template.UserProfile.onRendered(function() {
   const selectedUser = Meteor.users.findOne();
 
@@ -241,7 +240,6 @@ Template.UserProfile.onRendered(function() {
   } else if (!Session.equals("got_all_donations", true)) {
     Meteor.call( "get_all_donations_for_this_donor", function( error, result ) {
       if ( result ) {
-        console.log( result );
         Session.set( "got_all_donations", true );
       } else {
         console.log( error );

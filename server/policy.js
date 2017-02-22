@@ -12,8 +12,6 @@ const trusted = [
   'q.stripe.com',
   'checkout.stripe.com',
   Meteor.settings.public.org_domain,
-  'kadira.io',
-  'enginex.kadira.io',
   'use.typekit.net',
   'p.typekit.net',
   'cdn.heapanalytics.com',

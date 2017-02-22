@@ -126,7 +126,7 @@ Template.UserGive.onRendered(function() {
   const selectedUser = Meteor.user();
 
   const selectedPersonaInfo = selectedUser && selectedUser.persona_info;
-  const selectedPersonaIds = selectedUser && selectedUser.persona_ids;
+  const selectedPersonaIds = selectedUser && (selectedUser.persona_ids || selectedUser.persona_id);
   if (!selectedPersonaInfo ||
     ( selectedPersonaInfo && selectedPersonaInfo.length < 1 ) ||
     ( selectedPersonaInfo && selectedPersonaInfo.length <

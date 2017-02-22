@@ -83,9 +83,9 @@ Images = new FilesCollection({
               upd.$set["versions." + version + ".meta.pipePath"] = filePath;
               self.collection.update({
                 _id: fileRef._id
-              }, upd, function(error) {
-                if (error) {
-                  logger.error(error);
+              }, upd, function(e) {
+                if (e) {
+                  logger.error(e);
                 } else {
                   // Unlink original files from FS
                   // after successful upload to AWS:S3

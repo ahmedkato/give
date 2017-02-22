@@ -247,27 +247,9 @@ Meteor.publish("userDT", function (id) {
   } else {
     userID = this.userId;
   }
-  const persona_ids = Meteor.users.findOne({_id: userID}) && Meteor.users.findOne({_id: userID}).persona_ids;
+  const persona_ids = Meteor.users.findOne({_id: userID}) && (Meteor.users.findOne({_id: userID}).persona_ids || Meteor.users.findOne({_id: userID}).persona_id);
   logger.info("persona_ids: " + persona_ids);
   return DT_donations.find({persona_id: {$in: persona_ids || []}});
-
-
-  /*if (Meteor.users.findOne({_id: userID}) && Meteor.users.findOne({_id: userID}).persona_ids) {
-    var persona_ids = Meteor.users.findOne({_id: userID}).persona_ids;
-    return DT_donations.find({persona_id: {$in: persona_ids}});
-  } else if(Meteor.users.findOne({_id: userID}) && Meteor.users.findOne({_id: userID}).persona_id) {
-    var persona_id = Meteor.users.findOne( { _id: userID } ).persona_id;
-    return DT_donations.find( { persona_id: { $in: persona_id } } );
-  } else if(Meteor.users.findOne({_id: userID}) && Meteor.users.findOne({_id: userID}).persona_info){
-    var persona_ids = [];
-    var persona_info = Meteor.users.findOne({_id: userID}).persona_info;
-    persona_info.forEach(function (value) {
-      persona_ids.push(value.id);
-    });
-    return DT_donations.find( { persona_id: { $in: persona_ids } } );
-  } else {
-    this.next();
-  }*/
 });
 
 Meteor.publish("userDTFunds", function () {
