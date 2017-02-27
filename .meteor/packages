@@ -5,25 +5,25 @@
 
 meteor-base@1.0.4             # Packages every Meteor app needs to have
 mobile-experience@1.0.4       # Packages for a great mobile UX
-mongo@1.1.14                   # The database Meteor supports right now
+mongo@1.1.15                   # The database Meteor supports right now
 blaze-html-templates@1.0.4    # Compile .html files into Meteor Blaze views
 session@1.1.7                 # Client-side reactive dictionary for your app
 jquery@1.11.10                  # Helpful client-side library
-tracker@1.1.1                 # Meteor's client-side reactive programming library
+tracker@1.1.2                 # Meteor's client-side reactive programming library
 
-ecmascript@0.6.1
+ecmascript@0.6.3
 reactive-var@1.0.11
 
 email@1.1.18
-http@1.2.10
+http@1.2.11
 pfafman:font-awesome-4
-less@2.7.8
+less@2.7.9
 iron:router
 useraccounts:bootstrap
 useraccounts:iron-routing
-accounts-password@1.3.3
+accounts-password@1.3.4
 zimme:iron-router-active
-browser-policy@1.0.9
+browser-policy@1.1.0
 
 audit-argument-checks@1.0.7
 sacha:spin
@@ -44,7 +44,7 @@ rajit:bootstrap3-datepicker
 
 underscorestring:underscore.string
 meteorhacks:aggregate
-logging@1.1.16
+logging@1.1.17
 reload@1.1.11
 random@1.0.10
 ejson@1.0.13
@@ -58,10 +58,10 @@ mizzao:tutorials
 raix:handlebar-helpers
 cfs:graphicsmagick
 matb33:collection-hooks
-standard-minifier-css@1.3.2
-standard-minifier-js@1.2.1
+standard-minifier-css@1.3.3
+standard-minifier-js@1.2.2
 meteorhacks:ssr
-shell-server@0.2.1
+shell-server@0.2.2
 ostrio:files
 meteortoys:allthings
 msavin:mongol
