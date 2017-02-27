@@ -508,7 +508,18 @@ Meteor.publishComposite("subscriptions", function() {
         {
           find: function( customers ) {
             // Find the subscriptions associated with this customer
-            return Subscriptions.find({$and: [{'customer': customers._id}, {'metadata.replaced': {$ne: true}}]});
+            return Subscriptions.find({
+              $and: [
+                {'customer': customers._id},
+                {'metadata.replaced': {$ne: true}},
+                {
+                  $or: [
+                    {canceled_at: null},
+                    {canceled_at: {$gte: Math.floor(moment(new Date()).subtract(60, "days") / 1000)}}
+                  ]
+                }
+              ]
+            });
           },
           children: [
             {
