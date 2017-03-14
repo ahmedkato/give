@@ -1272,6 +1272,7 @@ Meteor.methods({
           const fundraiserInsert = Fundraisers.insert( doc );
           return fundraiserInsert && 'success';
         } catch (e) {
+          logger.error(e);
           throw new Meteor.Error(500, "Internal database error");
         }
       }
