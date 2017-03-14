@@ -483,7 +483,8 @@ Meteor.publish("trips", function (id) {
   if (id) {
     return Trips.find({_id: id});
   }
-  return Trips.find({active: true, show: true}, {
+  const today = new Date();
+  return Trips.find({active: true, show: true, expires: {$gt: today}}, {
     fields: {
       fundTotal: 0,
       startDate: 0,
