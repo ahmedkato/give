@@ -367,35 +367,37 @@ if (Meteor.isServer) {
   Router.route( '/webhooks/stripe', function() {
     // Receive an event, check that it contains a data.object object and send along to appropriate function
     const request = this.request.body;
+    let response = this.response;
     let dtStatus;
-
     // This shouldn't be considered a security precaution since anyone can forge these headers
     // we just use it here to weed out any traffic that hits the URL without trying to forge
     // a Stripe origin header
     // Every request here always gets verified by Stripe and we use the verified
     // response inside the app
-    this.response.setHeader( 'access-control-allow-origin', 'https://stripe.com' );
+    response.setHeader( 'access-control-allow-origin', 'https://stripe.com' );
 
     if ( request.data && request.data.object ) {
-      Meteor.call( "checkDonorTools", function( err, res ) {
+      Meteor.call( "checkDonorTools", ( err, res ) =>{
         if ( res && res === true ) {
           dtStatus = true;
         } else {
           logger.info( "DT connection is down" );
           dtStatus = false;
         }
-      } );
-      if ( dtStatus ) {
-        // Got it, let the Stripe server go
-        this.response.statusCode = 200;
-        this.response.end( 'Oh hai Stripe!\n' );
+        if ( dtStatus ) {
+          // Process this event, but first check that it actually came from Stripe
+          StripeFunctions.control_flow_of_stripe_event_processing( request );
 
-        // Process this event, but first check that it actually came from Stripe
-        StripeFunctions.control_flow_of_stripe_event_processing( request );
-      } else {
-        this.response.statusCode = 500;
-        this.response.end( 'Sorry, no connection to DonorTools available!' );
-      }
+          logger.info( "Sending 200 to Stripe" );
+          // Got it, let the Stripe server go
+          response.statusCode = 200;
+          response.end( 'Oh hai Stripe!\n' );
+        } else {
+          response.statusCode = 500;
+          response.end( 'Sorry, no connection to DonorTools available!' );
+        }
+      } );
+
     } else {
       this.response.statusCode = 400;
       this.response.end( 'Oh hai Stripe!\n\n' );

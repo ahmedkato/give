@@ -522,8 +522,8 @@ _.extend(StripeFunctions, {
           dtPersonaId = Utils.find_dt_persona_flow(customerCursor.metadata.email, customer_id);
           logger.info("dtPersonaId : ", dtPersonaId );
           if (!dtPersonaId) {
-            logger.error(500, "Couldn't find a charge id on the previous invoice, this is probably a scheduled recurring transaction");
-            throw new Meteor.Error(500, "Couldn't find a charge id on the previous invoice, this is probably a scheduled recurring transaction");
+            logger.error(500, `Couldn't find a charge id on the previous invoice, this is probably a scheduled recurring transaction`);
+            throw new Meteor.Error(500, `Couldn't find a charge id on the previous invoice, this is probably a scheduled recurring transaction`);
           }
         }
         const customerUpdate = Customers.update({_id: customer_id}, { $set: { 'metadata.dt_persona_id': dtPersonaId } });

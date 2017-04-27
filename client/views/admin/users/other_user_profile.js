@@ -1,6 +1,5 @@
 import parsley from 'parsleyjs';
 
-
 AutoForm.hooks({
   'edit-user-form': {
     onSuccess: function(operation, result) {
@@ -343,57 +342,60 @@ Template.OtherUserProfile.events({
 });
 
 Template.OtherUserProfile.onRendered(function() {
-  const selected_user = Meteor.users.findOne({_id: Session.get("params.userID")});
-  if (!selected_user) {
-    return;
-  }
+  this.autorun(()=> {
+    const userId = Session.get("params.userID");
+    const user = Meteor.users.findOne({_id: userId});
+    if (!user) {
+      return;
+    }
 
-  if (!selected_user.persona_info ||
-    ( selected_user && selected_user.persona_info && selected_user.persona_info.length < 1 ) ||
-    ( selected_user && selected_user.persona_info && selected_user.persona_info.length <
-    ( selected_user && selected_user.persona_ids && selected_user.persona_ids.length ) ) ||
-    ( selected_user && selected_user.persona_info && selected_user.persona_info.length <
-    ( selected_user && selected_user.persona_id && selected_user.persona_id.length ) ) ) {
-    Meteor.call( 'update_user_document_by_adding_persona_details_for_each_persona_id', Session.get("params.userID"), function( error, result ) {
-      if ( result ) {
-        if (result === 'Not a DT user') {
-          Session.set("NotDTUser", true);
-          return;
+    if (!user.persona_info ||
+      ( user && user.persona_info && user.persona_info.length < 1 ) ||
+      ( user && user.persona_info && user.persona_info.length <
+      ( user && user.persona_ids && user.persona_ids.length ) ) ||
+      ( user && user.persona_info && user.persona_info.length <
+      ( user && user.persona_id && user.persona_id.length ) )) {
+      Meteor.call('update_user_document_by_adding_persona_details_for_each_persona_id', userId, function(error, result) {
+        if (result) {
+          if (result === 'Not a DT user') {
+            Session.set("NotDTUser", true);
+            return;
+          }
+          Session.set("got_all_donations", true);
+          Meteor.setTimeout(function() {
+            Session.set("showSingleUserDashboard", true);
+          }, 0);
+          Session.set("showSingleUserDashboard", false);
+        } else {
+          console.log(error);
         }
-        Session.set("got_all_donations", true);
-        Meteor.setTimeout(function() {
-          Session.set( "showSingleUserDashboard", true);
-        }, 0);
-        Session.set("showSingleUserDashboard", false);
-      } else {
-        console.log( error );
-      }
-    } );
-  } else if (!Session.equals("got_all_donations", true)) {
-    Meteor.call("get_all_donations_for_this_donor", Session.get("params.userID"), function(error, result) {
-      if ( result ) {
-        Session.set("got_all_donations", true);
-      } else {
-        console.log( error );
-      }
-    });
-  }
+      });
+    } else if (!Session.equals("got_all_donations", true)) {
+      Meteor.call("get_all_donations_for_this_donor", Session.get("params.userID"), function(error, result) {
+        if (result) {
+          Session.set("got_all_donations", true);
+        } else {
+          console.log(error);
+        }
+      });
+    }
 
-  Session.setDefault('dt_donations_cursor', 0);
-  Session.set("showHistory", true);
+    Session.setDefault('dt_donations_cursor', 0);
+    Session.set("showHistory", true);
 
-  // Make sure the user can't enter anything, except what would go in a phone number field
-  $("[name='profile.phone']").mask("(999)999-9999");
+    // Make sure the user can't enter anything, except what would go in a phone number field
+    $("[name='profile.phone']").mask("(999)999-9999");
 
-  // Setup parsley form validation
-  $('#userAddressForm').parsley();
+    // Setup parsley form validation
+    $('#userAddressForm').parsley();
 
-  $('[data-toggle="popover"]').popover({html: true});
+    $('[data-toggle="popover"]').popover({html: true});
 
 
-  $('.tab-pane:first').addClass('active');
+    $('.tab-pane:first').addClass('active');
 
-  Session.set('activeTab', $('.active a').attr('value'));
+    Session.set('activeTab', $('.active a').attr('value'));
+  });
 });
 
 Template.OtherUserProfile.onDestroyed(function() {

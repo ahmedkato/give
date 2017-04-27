@@ -13,7 +13,6 @@ Meteor.methods({
   updateGuide: function(groupId, type, value) {
     logger.info( "Started method updateGuide." );
     if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
-      console.log( groupId, type, value );
       const config = ConfigDoc();
 
       check( groupId, String );
@@ -59,16 +58,16 @@ Meteor.methods({
   checkDonorTools: function() {
     logger.info( "Started method checkDonorTools." );
 
-    this.unblock();
     try {
       if (config && config.Settings && config.Settings.DonorTools && config.Settings.DonorTools.url) {
         const result = Utils.http_get_donortools("/settings/name_types.json");
         if (result) {
+          console.log('returning true from checkDonorTools');
           return true;
         }
+        return false;
       }
       logger.error("No DonorTools url set.");
-      return;
     } catch (e) {
       throw new Meteor.Error(500, "No connection to DT found.");
     }

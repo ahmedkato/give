@@ -435,21 +435,20 @@ Utils = {
   find_dt_persona_flow( email, customer_id ) {
     logger.info( "Started find_dt_persona_flow" );
 
-    let personResult, matched_id, metadata, orgMatch, personMatch;
+    let personResult, matched_id, orgMatch, personMatch;
 
     // Get all the ids that contain this email address.
     personResult = Utils.http_get_donortools(
       "/people.json?search=" + email + "&fields=email_address"
     );
 
-    logger.info("personResult from DT: ", personResult);
+    logger.info("personResult from DT: ", (personResult && personResult.data));
     if ( personResult && personResult.data && personResult.data.length === 0 ) {
-      // Step 1a
+      // Didn't find a DT person
       // Schedule welcome email
       Utils.send_welcome_email(email);
     }
-    metadata = Customers.findOne( { _id: customer_id } ).metadata;
-    // Step 1b
+    const metadata = Customers.findOne( { _id: customer_id } ).metadata;
     if ( metadata.business_name ) {
       orgMatch = _.find( personResult.data, function( value ) {
         return value.persona.company_name;
@@ -892,8 +891,8 @@ Utils = {
         ? donationCursor.nextDonationDate
         : (donationCursor.start_date === 'today'
         ? donationCursor.created_at
-        : (donationCursor.start_date > donationCursor.created_at
-          ? donationCursor.start_date : donationCursor.created_at)) * 1000);
+        : ((donationCursor.start_date > donationCursor.created_at)
+          ? donationCursor.start_date : donationCursor.created_at)));
 
     const newDonationResult = HTTP.post( config.Settings.DonorTools.url + '/donations.json', {
       data: {
@@ -901,7 +900,7 @@ Utils = {
           "persona_id": dtPersonaId,
           "splits": splits,
           "donation_type_id": config.Settings.DonorTools.achFundIDForNonStripe,
-          "received_on": moment( new Date(receivedOn)).format( "YYYY/MM/DD hh:mma"),
+          "received_on": moment.unix( new Date(receivedOn)).format( "YYYY/MM/DD hh:mma"),
           "source_id": sourceId,
           "payment_status": 'succeeded',
           "transaction_id": donationId

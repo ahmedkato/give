@@ -9,33 +9,7 @@
                         </div>
                         <div class="panel-body">
                             <div class="row" style="background-color: lightgray;">
-                                <div class="col-lg-offset-2 col-lg-2 text-center">
-                                    <p>Favicon</p>
-                                    <span class="align-upload">
-                                        {{#unless imageExists 'favicon'}}
-                                            <div data-toggle='popover'
-                                                 data-trigger='hover focus'
-                                                 data-container='body'
-                                                 data-content='Click here to select your favicon. width: 96px, height: 96px, PNG.'>
-                                                {{> uploadForm imageType='favicon'}}
-                                            </div>
-                                        {{else}}
-                                            <a href="" title="" class="image">
-                                            <img class="logoImage" src="{{imageSrc 'favicon'}}">
-                                            </a>
-                                            <div class="logo-overlay-admin">
-                                                <div class="inner">
-                                                    <a class="clear-image" data-el-type="favicon"
-                                                       href="">
-                                                        <i class="large fa fa-times indianred">
-                                                        </i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        {{/unless}}
-                                    </span>
-                                </div>
-                                <div class="col-lg-2 text-center">
+                                <div class="col-lg-4 text-center">
                                     <p>Logo</p>
                                     <span class="align-upload">
                                         {{#unless imageExists 'logo'}}
@@ -63,7 +37,7 @@
                                         {{/unless}}
                                     </span>
                                 </div>
-                                <div class="col-lg-2 text-center">
+                                <div class="col-lg-4 text-center">
                                     <p>Email Logo</p>
                                     <span class="align-upload">
                                         {{#unless imageExists 'emailLogo'}}
@@ -89,7 +63,7 @@
                                         {{/unless}}
                                     </span>
                                 </div>
-                                <div class="col-lg-2 text-center">
+                                <div class="col-lg-4 text-center">
                                     <p>Receipt Image</p>
                                     <span class="align-upload">
                                         {{#unless imageExists 'receiptImage'}}
