@@ -13,10 +13,12 @@ function reorderItems(dontFlash) {
     let orderOfOptions = $("#selectedGivingOptionsDiv").sortable("toArray"),
       newOptionsOrder = [],
       currentGroup;
-    const givingOptions = config && config.Giving && config.Giving.options;
+    //const givingOptions = config && config.Giving && config.Giving.options;
+    const givingOptions = Session.get("givingOptionsChecked");
+
 
     orderOfOptions.forEach(function(id, index) {
-      const thisOption = _.map(givingOptions, function(item) {
+      givingOptions.map((item)=> {
         if (item.type === 'group') {
           currentGroup = item.groupId;
         } else {
@@ -29,13 +31,14 @@ function reorderItems(dontFlash) {
       });
     });
 
+
     Config.update({_id: config._id}, {
       $set: {
         'Giving.options': newOptionsOrder
       }
     });
-
     Session.set("givingOptionsChecked", newOptionsOrder);
+
     if (!dontFlash) {
       $(".sortable").sortable("cancel");
     }
@@ -88,7 +91,9 @@ function sortableFunction() {
           ui.item.remove();
         }
       },
-      update() {
+      update(e, ui) {
+        console.log(e);
+        console.log(ui);
         reorderItems();
       },
       cancel: ".disable-sort"
@@ -154,6 +159,9 @@ Template.GivingOptions.events({
         }
       }
     });
+
+    Session.set("givingOptionsChecked", Config.findOne().Giving.options);
+    reorderItems(true);
   },
   'click #addTripsOption': function(e) {
     e.preventDefault();
@@ -171,6 +179,8 @@ Template.GivingOptions.events({
         }
       }
     });
+    Session.set("givingOptionsChecked", Config.findOne().Giving.options);
+    reorderItems(true);
   },
   'click #updateDropdown': function(e) {
     e.preventDefault();
@@ -298,6 +308,7 @@ Template.GivingOptions.events({
         "Giving.options": updateOperator
       }
     });
+    Session.set("givingOptionsChecked", Config.findOne().Giving.options);
 
     // Now that we have removed an item we need to update the positions of the
     // remaining options
@@ -308,7 +319,7 @@ Template.GivingOptions.events({
     const dtId = $(e.target).val();
     const config = ConfigDoc();
 
-    Config.update({_id: config._id}, {
+    const updateConfig = Config.update({_id: config._id}, {
       $addToSet: {
         "Giving.options": {
           id: dtId,
@@ -320,6 +331,8 @@ Template.GivingOptions.events({
         }
       }
     });
+    Session.set("givingOptionsChecked", Config.findOne().Giving.options);
+    reorderItems();
   },
   'click .clear-image': function(e) {
     const type = $( e.currentTarget ).data( 'el-type' );
@@ -330,7 +343,7 @@ Template.GivingOptions.events({
 Template.GivingOptions.helpers({
   dt_funds: function() {
     const config = ConfigDoc();
-    let selectedGivingOptions = config ? config.Giving.options : null;
+    let selectedGivingOptions = Session.get("givingOptionsChecked");
     if (selectedGivingOptions) {
       selectedGivingOptions = selectedGivingOptions.map(function(val) { return val.id; });
       if ( selectedGivingOptions ) {
@@ -340,13 +353,17 @@ Template.GivingOptions.helpers({
     return DT_funds.find({}, {sort: { name: 1 } });
   },
   givingOptions: function() {
-    const config = ConfigDoc();
-    const givingOptions = config && config.Giving && config.Giving.options;
-    return _.sortBy(givingOptions, 'position');
+    const givingOptions = Session.get("givingOptionsChecked");
+    if(givingOptions){
+      givingOptions.sort(function(a, b) {
+        return a.position - b.position;
+      });
+      return givingOptions;
+    }
+    return null;
   },
   donationGroups: function() {
-    const config = ConfigDoc();
-    const givingOptions = config && config.Giving && config.Giving.options;
+    const givingOptions = Session.get("givingOptionsChecked");
 
     const groups = _.filter( givingOptions, function(item) {
       return item && item.groupId;
@@ -380,10 +397,9 @@ Template.GivingOptions.onCreated(function() {
     }
   });
 
-  const self = this;
-  self.autorun(function() {
-    self.subscribe('wholeConfigDoc');
-    self.subscribe('userDTFunds');
+  this.autorun(() => {
+    this.subscribe('wholeConfigDoc');
+    this.subscribe('userDTFunds');
   });
 });
 
@@ -400,6 +416,7 @@ Template.GivingOptions.onRendered(function() {
   }
 
   const givingOptions = config && config.Giving && config.Giving.options;
+  Session.set("givingOptionsChecked", givingOptions);
 
   if (givingOptions && givingOptions.length > 0) {
     Session.set("givingOptionsChecked", givingOptions);
