@@ -1,7 +1,7 @@
 import { setDocHeight, updateSearchVal } from '/imports/api/miscFunctions';
 
 Template.ManageUsers.onCreated(function() {
-  Session.set("documentLimit", 10);
+  Session.set("documentLimit", 25);
 
   this.autorun(()=> {
     this.subscribe( 'all_users', Session.get('params.userID'), Session.get("searchValue"), Session.get("documentLimit") );

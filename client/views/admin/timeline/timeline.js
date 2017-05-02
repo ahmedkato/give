@@ -119,7 +119,7 @@ Template.Timeline.helpers({
 });
 
 Template.Timeline.onCreated(function() {
-  Session.set("documentLimit", 10);
+  Session.set("documentLimit", 25);
   this.autorun(()=>{
     this.subscribe('auditTrail', Session.get("documentLimit"));
   });

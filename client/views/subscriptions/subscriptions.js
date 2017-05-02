@@ -1,7 +1,7 @@
 import { setDocHeight, updateSearchVal, cancelRecurringGift} from '/imports/api/miscFunctions.js';
 
 Template.AdminSubscriptions.onCreated( function() {
-  Session.set("documentLimit", 10);
+  Session.set("documentLimit", 25);
   this.autorun(()=> {
     this.subscribe("subscriptions_and_customers", Session.get("searchValue"), Session.get("documentLimit"));
     this.subscribe("userDTFunds");
@@ -38,7 +38,7 @@ Template.AdminSubscriptions.events({
   'click .clear-button': function() {
     $(".search").val("").change();
     Session.set("searchValue", "");
-    Session.set( "documentLimit", 10);
+    Session.set( "documentLimit", 25);
   },
   'click #btn_modal_for_add_new_bank_account': function() {
     $("#modal_for_add_new_bank_account").modal('show');

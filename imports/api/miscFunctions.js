@@ -28,7 +28,7 @@ const setDocHeight = () => {
       console.log( "bottom!" );
       $('[data-toggle="popover"]').popover();
       let documentLimit = Session.get( "documentLimit" );
-      Session.set( "documentLimit", documentLimit += 10 );
+      Session.set( "documentLimit", documentLimit += 25 );
     }
   } );
 };

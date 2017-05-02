@@ -1,7 +1,7 @@
 import { setDocHeight, updateSearchVal } from '/imports/api/miscFunctions.js';
 
 Template.Gifts.onCreated(function() {
-  Session.set("documentLimit", 10);
+  Session.set("documentLimit", 25);
   this.autorun(()=> {
     this.subscribe("userDTFunds");
     this.subscribe("charges_and_customers",
@@ -44,7 +44,7 @@ Template.Gifts.events({
   'click .clear-button'() {
     $(".search").val("").change();
     Session.set("searchValue", "");
-    Session.set("documentLimit", 10);
+    Session.set("documentLimit", 25);
     Session.set("refunded", "_false");
   },
   'click .go_to_subscription_link'(e) {

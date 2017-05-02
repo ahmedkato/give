@@ -1,7 +1,7 @@
 import { setDocHeight, updateSearchVal } from '/imports/api/miscFunctions.js';
 
 Template.StripeTransfers.onCreated(function() {
-  Session.set("documentLimit", 10);
+  Session.set("documentLimit", 25);
 
   // Setup the range for this month if no previous session is set for "transferRange"
   if (!Session.get("transferRange")) {
@@ -40,7 +40,7 @@ Template.StripeTransfers.events({
   'click .clear-button'() {
     $(".search").val("").change();
     Session.set("searchValue", "");
-    Session.set("documentLimit", 10);
+    Session.set("documentLimit", 25);
     Session.set("posted", "_false");
   },
   'click .clickable_row': function() {
