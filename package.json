@@ -18,6 +18,7 @@
     "moment": "^2.16.0",
     "parsleyjs": "^2.6.0",
     "request": "^2.78.0",
+    "simpl-schema": "^0.2.3",
     "spawn-sync": "^1.0.15",
     "stripe": "^4.15.0",
     "try-thread-sleep": "^1.0.0"

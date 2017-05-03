@@ -1,6 +1,6 @@
 <template name="Settings">
     <div class="container settings-section">
-        {{> quickForm collection="Config" schema="Schema.SettingsForm" doc=configDocument
+        {{> quickForm collection="Config" schema=settingsSchema doc=configDocument
         id="updateSettingsSection" type='update' template="bootstrap3"}}
     </div>
 </template>

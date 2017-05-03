@@ -1,4 +1,7 @@
 import parsley from 'parsleyjs';
+import Autoform from 'meteor/aldeed:autoform';
+import SimpleSchema from 'simpl-schema';
+
 
 function checkDependantStates() {
   if (AutoForm.getFieldValue("Settings.ach_verification_type", "updateSettingsSection") === 'manual') {
@@ -58,16 +61,18 @@ Template.Settings.onRendered(function() {
   $("[name='Settings.DonorTools.url']").attr('required', true);
   $("#updateSettingsSection").parsley();
   $("[data-toggle='switch']").bootstrapSwitch();
+  checkDependantStates();
+
 });
 
 Template.Settings.helpers({
   configDocument: function() {
-    const config = ConfigDoc();
-
-    if (config) {
-      return config;
-    }
-    return;
+    return Config.findOne({
+      'OrgInfo.web.domain_name': Meteor.settings.public.org_domain
+    }).Settings;
+  },
+  settingsSchema: function() {
+    return Schema.SettingsForm;
   }
 });
 
@@ -77,8 +82,4 @@ Template.Settings.events({
   'change [name="Settings.ach_verification_type"]': function() {
     checkDependantStates();
   }
-});
-
-Template.Settings.onRendered(function() {
-  checkDependantStates();
 });

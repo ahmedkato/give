@@ -1,3 +1,6 @@
+import SimpleSchema from 'simpl-schema';
+SimpleSchema.extendOptions(['autoform']);
+
 function configBasicsSetup() {
   // Not using the function 'ConfigDoc()' to assign this because this runs on both
   // the client and the server
@@ -163,7 +166,7 @@ Schema.OrgInfo = new SimpleSchema({
     optional: true
   },
   "emails.largeGiftThreshold": {
-    type: Number,
+    type: SimpleSchema.Integer,
     optional: true,
     autoform: {
       placeholder: "Any gift at or above this gift amount will trigger the large gift email"
@@ -259,7 +262,7 @@ Schema.Giving = new SimpleSchema({
     }
   },
   "options.$.position": {
-    type: Number,
+    type: SimpleSchema.Integer,
     optional: true,
     autoform: {
       omit: true
@@ -401,7 +404,7 @@ Schema.Services = new SimpleSchema({
     regEx: SimpleSchema.RegEx.Domain
   },
   "Papertrail.port": {
-    type: Number,
+    type: SimpleSchema.Integer,
     label: "Port",
     optional: true
   },
@@ -532,7 +535,7 @@ Schema.Settings = new SimpleSchema({
     regEx: SimpleSchema.RegEx.Url
   },
   "DonorTools.customDataTypeId": {
-    type: Number,
+    type: SimpleSchema.Integer,
     label: "Custom Data Type ID for Give Donations",
     optional: true,
     autoform: {
@@ -540,7 +543,7 @@ Schema.Settings = new SimpleSchema({
     }
   },
   "DonorTools.achFundIDForNonStripe": {
-    type: Number,
+    type: SimpleSchema.Integer,
     label: "If not using Stripe for ACH, enter the data type ID for ACH",
     optional: true,
     autoform: {
@@ -548,7 +551,7 @@ Schema.Settings = new SimpleSchema({
     }
   },
   "DonorTools.defaultFundId": {
-    type: Number,
+    type: SimpleSchema.Integer,
     label: "Default Fund ID (We suggest creating a special “No Match Found” fund)",
     optional: true,
     autoform: {
@@ -556,7 +559,7 @@ Schema.Settings = new SimpleSchema({
     }
   },
   "DonorTools.defaultSourceIdForIndividualDonor": {
-    type: Number,
+    type: SimpleSchema.Integer,
     label: "Default Individual Source ID",
     optional: true,
     autoform: {
@@ -564,7 +567,7 @@ Schema.Settings = new SimpleSchema({
     }
   },
   "DonorTools.defaultSourceIdForOrganizationDonor": {
-    type: Number,
+    type: SimpleSchema.Integer,
     label: "Default Organization Source ID",
     optional: true,
     autoform: {
@@ -572,7 +575,7 @@ Schema.Settings = new SimpleSchema({
     }
   },
   "DonorTools.failedDonationTypeId": {
-    type: Number,
+    type: SimpleSchema.Integer,
     label: "Failed Data Type ID",
     autoform: {
       placeholder: "If a gift fails it will be updated with this data type ID"
@@ -580,12 +583,25 @@ Schema.Settings = new SimpleSchema({
     optional: true
   },
   "DonorTools.writeInDonationTypeId": {
-    type: [Number],
+    type: Array,
+  },
+  "DonorTools.writeInDonationTypeId.$": {
+    type: SimpleSchema.Integer,
     label: "Donation fund(s) used to prompt user to add a note",
     autoform: {
       placeholder: "Might use for 'other'"
     },
     optional: true
+  },
+  "DonorTools.showElectronicYearEndCheckbox": {
+    type: Boolean,
+    optional: true,
+    label: "Show a checkbox on the user's profile page which asks them if they want to receive their year end statements electronically.",
+    autoform: {
+      'data-toggle': 'switch',
+      'data-on-text': 'Yes',
+      'data-off-text': 'No',
+    }
   },
   Stripe: {
     type: Object,
@@ -661,7 +677,6 @@ Schema.Trips = new SimpleSchema({
   fundTotal: {
     type: Number,
     optional: true,
-    decimal: true,
     autoform: {
       afFieldInput: {
         type: "hidden"
@@ -955,7 +970,7 @@ Schema.User = new SimpleSchema({
     }
   },
   "persona_ids.$": {
-    type: Number,
+    type: SimpleSchema.Integer,
     optional: true,
     autoform: {
       afFieldInput: {
@@ -974,7 +989,7 @@ Schema.User = new SimpleSchema({
     }
   },
   "persona_id.$": {
-    type: Number,
+    type: SimpleSchema.Integer,
     optional: true,
     autoform: {
       afFieldInput: {

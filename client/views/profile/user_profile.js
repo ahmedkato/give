@@ -147,6 +147,13 @@ Template.UserProfile.helpers({
         Session.set('tutorialEnabled', false);
       }, 1000);
     }
+  },
+  hasReceiveYearEndEleectronicStatementsTag() {
+    const personaTags = this.tag_list;
+    if (personaTags && (personaTags.length > 0) && (personaTags.indexOf("Email Year End Receipt") > -1)) {
+      return 'checked';
+    }
+    return null;
   }
 });
 
@@ -206,6 +213,18 @@ Template.UserProfile.events({
   },
   'click #myTabs a': function() {
     Session.set('activeTab', this.id);
+  },
+  'change #receiveEndOfYearElectronically'() {
+    const choice = $('#receiveEndOfYearElectronically').is(":checked");
+    Meteor.call("updateTag", this.id, "Email Year End Receipt", choice, function (err, res) {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(res);
+        Bert.alert("Got it, thanks.", "success");
+      }
+      Meteor.call('update_user_document_by_adding_persona_details_for_each_persona_id');
+    });
   }
 });
 
@@ -275,7 +294,6 @@ Template.UserProfile.onRendered(function() {
   $("a[href='" + Session.get('activeTab') + "' ]").addClass('active');
 
   $('.tab-pane:first').addClass('active');
-
 });
 
 Template.UserProfile.onDestroyed(function() {

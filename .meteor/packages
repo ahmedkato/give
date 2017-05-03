@@ -5,23 +5,23 @@
 
 meteor-base@1.0.4             # Packages every Meteor app needs to have
 mobile-experience@1.0.4       # Packages for a great mobile UX
-mongo@1.1.16                   # The database Meteor supports right now
+mongo@1.1.17                   # The database Meteor supports right now
 blaze-html-templates@1.0.4    # Compile .html files into Meteor Blaze views
 session@1.1.7                 # Client-side reactive dictionary for your app
 jquery@1.11.10                  # Helpful client-side library
-tracker@1.1.2                 # Meteor's client-side reactive programming library
+tracker@1.1.3                 # Meteor's client-side reactive programming library
 
-ecmascript@0.7.2
+ecmascript@0.7.3
 reactive-var@1.0.11
 
-email@1.2.0
+email@1.2.1
 http@1.2.12
 pfafman:font-awesome-4
 less@2.7.9
 iron:router
 useraccounts:bootstrap
 useraccounts:iron-routing
-accounts-password@1.3.5
+accounts-password@1.3.6
 zimme:iron-router-active
 browser-policy@1.1.0
 
@@ -37,7 +37,7 @@ wylio:mandrill
 twbs:bootstrap
 
 eskan:chosen
-aldeed:collection2
+aldeed:collection2-core
 aldeed:autoform
 aldeed:autoform-bs-datepicker
 rajit:bootstrap3-datepicker
@@ -65,4 +65,3 @@ shell-server@0.2.3
 ostrio:files
 meteortoys:allthings
 msavin:mongol
-react-template-helper
