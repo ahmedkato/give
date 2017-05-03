@@ -1,7 +1,7 @@
 <template name="AddUser">
     <div class="profile">
         <button type="button" class="btn btn-danger btn-raised cancel-button">Cancel</button>
-        {{> quickForm schema=schema id="new-user-form" type="method"
-        meteormethod="createUserMethod"}}
+        {{> quickForm schema="Schema.CreateUserFormSchema" id="new-user-form" type="method"
+            fields="email, profile.fname, profile.lname, profile.address, profile.business_name, profile.phone, state.status, roles" meteormethod="createUserMethod"}}
     </div>
 </template>

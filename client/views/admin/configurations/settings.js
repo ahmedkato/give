@@ -1,7 +1,8 @@
 import parsley from 'parsleyjs';
 import Autoform from 'meteor/aldeed:autoform';
 import SimpleSchema from 'simpl-schema';
-
+SimpleSchema.debug = true;
+AutoForm.debug();
 
 function checkDependantStates() {
   if (AutoForm.getFieldValue("Settings.ach_verification_type", "updateSettingsSection") === 'manual') {
@@ -66,14 +67,11 @@ Template.Settings.onRendered(function() {
 });
 
 Template.Settings.helpers({
-  configDocument: function() {
+  configDocument() {
     return Config.findOne({
       'OrgInfo.web.domain_name': Meteor.settings.public.org_domain
-    }).Settings;
+    });
   },
-  settingsSchema: function() {
-    return Schema.SettingsForm;
-  }
 });
 
 Template.Settings.events({

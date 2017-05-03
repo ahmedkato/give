@@ -1,4 +1,7 @@
 import SimpleSchema from 'simpl-schema';
+import { Tracker } from 'meteor/tracker';
+
+// Required AutoForm setup
 SimpleSchema.extendOptions(['autoform']);
 
 function configBasicsSetup() {
@@ -584,6 +587,11 @@ Schema.Settings = new SimpleSchema({
   },
   "DonorTools.writeInDonationTypeId": {
     type: Array,
+    label: "Donation fund(s) used to prompt user to add a note",
+    autoform: {
+      placeholder: "Might use for 'other'"
+    },
+    optional: true
   },
   "DonorTools.writeInDonationTypeId.$": {
     type: SimpleSchema.Integer,

@@ -24,6 +24,7 @@ AutoForm.hooks({
 Template.OrgInfo.onCreated(function() {
   this.formType = new ReactiveVar('insert');
 });
+
 Template.OrgInfo.onRendered(function() {
   $("[name='OrgInfo.phone']").mask("(999) 999-9999");
   $("#updateInfoSection").parsley();
@@ -42,5 +43,10 @@ Template.OrgInfo.helpers({
   formType: function() {
     const formType = Template.instance().formType.get();
     return formType;
+  },
+  fields(){
+    return "OrgInfo.name,OrgInfo.full_name,OrgInfo.logoURL," +
+    "OrgInfo.phone,OrgInfo.is_501c3, OrgInfo.ein,OrgInfo.mission_statement," +
+    "OrgInfo.address,OrgInfo.emails, OrgInfo.web"
   }
 });

@@ -34,9 +34,6 @@ Template.Services.helpers({
     const org_info = Config.findOne({
       'OrgInfo.web.domain_name': Meteor.settings.public.org_domain
     });
-    if (org_info) {
-      return org_info;
-    }
-    return;
+    return org_info;
   }
 });

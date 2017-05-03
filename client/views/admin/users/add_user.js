@@ -18,9 +18,6 @@ AutoForm.hooks({
 });
 
 Template.AddUser.helpers({
-  schema: function() {
-    return Schema.CreateUserFormSchema;
-  },
   user: function() {
     const editUserID = Router.current().params._id;
     return Meteor.users.findOne({_id: editUserID});

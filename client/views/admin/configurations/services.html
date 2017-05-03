@@ -8,7 +8,8 @@
         </p>
     </div>
     <div class="container services-section">
-        {{> quickForm collection="Config" schema="Schema.ServicesForm" omitFields="Services.Email.newFundraiser"
+        {{> quickForm collection="Config" schema="Schema.Config" fields="Services.Email, Services.Papertrail, Services.Analytics" omitFields="Services.Email.newFundraiser"
                 doc=configDocument id="updateServicesSection" type='update' template="bootstrap3" }}
+
     </div>
 </template>

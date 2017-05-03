@@ -1,6 +1,7 @@
 <template name="Settings">
     <div class="container settings-section">
-        {{> quickForm collection="Config" schema=settingsSchema doc=configDocument
+        {{> quickForm collection="Config" schema="Schema.Config" doc=configDocument
+                fields="Settings.ach_verification_type, Settings.showDonatePage, Settings.doNotAllowOneTimeACH, Settings.collectBankAccountType, Settings.forceACHDay, Settings.DonorTools"
         id="updateSettingsSection" type='update' template="bootstrap3"}}
     </div>
 </template>
