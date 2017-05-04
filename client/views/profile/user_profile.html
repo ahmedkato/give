@@ -53,8 +53,10 @@
                                     </p>
                                     <div class="col-xs-12 divider text-center">
                                         <p style="margin-top: 10px;">
-                                            <input type="checkbox" id="receiveEndOfYearElectronically" checked="{{hasReceiveYearEndEleectronicStatementsTag}}">
-                                            <label for="receiveEndOfYearElectronically">I want to receive end of year statements electronically</label>
+                                            {{#if showYearEndCheckbox}}
+                                                <input type="checkbox" id="receiveEndOfYearElectronically" checked="{{hasReceiveYearEndEleectronicStatementsTag}}">
+                                                <label for="receiveEndOfYearElectronically">I want to receive end of year statements electronically</label>
+                                            {{/if}}
                                         <ul class="nav nav-list">
                                             <li class="nav-header text-left"><br>Lifetime Giving Stats</li>
                                             <li class="active text-left">

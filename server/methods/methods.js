@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import SimpleSchema from 'simpl-schema';
+import get from 'lodash.get';
 
 const config = ConfigDoc();
 const DONORTOOLSAUTH = Meteor.settings.donor_tools_user + ':' + Meteor.settings.donor_tools_password;
@@ -1562,20 +1563,19 @@ Meteor.methods({
    * @param {String} nameOfTag - what is the name of the tag you want to edit?
    * @param {String} addTag - add the tag? If false, remove it.
    */
-  updateTag(personaId, nameOfTag, addTag) {
+  updateTag(personaId, addTag) {
     // TODO: need to audit this change
     check(personaId, Number);
-    check(nameOfTag, String);
     check(addTag, Boolean);
     logger.info(`Started updateTag method with 
       personaId: ${personaId}
-      tag: ${nameOfTag}
       addTag: ${addTag}`);
 
     const config = ConfigDoc();
     const personaResult = Utils.http_get_donortools("/people/" + personaId + ".json");
     const persona = personaResult.data.persona;
     const tags = persona.tag_list;
+    const nameOfTag = get(Config.findOne(), 'Settings.DonorTools.electronicYearEndTagName');
     const matchingTagIndex = tags.indexOf(nameOfTag);
 
     const newPersona = {id: personaId, tag_list: tags};

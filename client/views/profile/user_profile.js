@@ -1,4 +1,5 @@
 import parsley from 'parsleyjs';
+import get from 'lodash.get';
 
 const userProfileTutorialSteps = [
   {
@@ -154,6 +155,9 @@ Template.UserProfile.helpers({
       return 'checked';
     }
     return null;
+  },
+  showYearEndCheckbox() {
+    return get(Config.findOne(), 'Settings.DonorTools.showElectronicYearEndCheckbox');
   }
 });
 
@@ -216,7 +220,7 @@ Template.UserProfile.events({
   },
   'change #receiveEndOfYearElectronically'() {
     const choice = $('#receiveEndOfYearElectronically').is(":checked");
-    Meteor.call("updateTag", this.id, "Email Year End Receipt", choice, function (err, res) {
+    Meteor.call("updateTag", this.id, choice, function (err, res) {
       if (err) {
         console.error(err);
       } else {

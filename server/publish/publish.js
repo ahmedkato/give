@@ -450,6 +450,7 @@ Meteor.publish("config", function () {
       'Settings.collectBankAccountType': 1,
       'Settings.forceACHDay': 1,
       'Settings.DonorTools.url': 1,
+      'Settings.DonorTools.showElectronicYearEndCheckbox': 1,
       'Giving.options': 1
     }
   });

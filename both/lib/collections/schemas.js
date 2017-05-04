@@ -611,6 +611,14 @@ Schema.Settings = new SimpleSchema({
       'data-off-text': 'No',
     }
   },
+  "DonorTools.electronicYearEndTagName": {
+    type: String,
+    label: "URL",
+    optional: true,
+    autoform: {
+      label: "Paste the name of the tag here. This DonorTools tag should be associated with donors who want to receive year end statements electronically"
+    }
+  },
   Stripe: {
     type: Object,
     optional: true,
