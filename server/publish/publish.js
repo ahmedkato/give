@@ -451,6 +451,8 @@ Meteor.publish("config", function () {
       'Settings.forceACHDay': 1,
       'Settings.DonorTools.url': 1,
       'Settings.DonorTools.showElectronicYearEndCheckbox': 1,
+      'Settings.DonorTools.showElectronicYearEndQuestionPopup': 1,
+      'Settings.DonorTools.electronicYearEndTagName': 1,
       'Giving.options': 1
     }
   });
@@ -554,3 +556,19 @@ Meteor.publish('DonationSplits', function (chargeId) {
   }
   return DonationSplits.find({charge_id: chargeId});
 });
+
+Meteor.publish('dtPersonaEmails', function () {
+  if( this.userId ) {
+    const email = Meteor.users.findOne(this.userId).emails[0].address;
+    console.log(email);
+    const personas =  DT_personas.find(
+      {'email_addresses.email_address': email}, {
+        fields: {
+          recognition_name: 1,
+          email_addresses: 1,
+        }
+      });
+    console.log(personas.fetch());
+    return personas;
+  }
+})

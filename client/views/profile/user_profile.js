@@ -1,6 +1,9 @@
 import parsley from 'parsleyjs';
 import get from 'lodash.get';
 
+// TODO: don't show the question modals if they have already answered this, or if we have not checked the box for showing
+// the question inside their profile
+
 const userProfileTutorialSteps = [
   {
     template: Template.tutorial_user_profile_step1,
@@ -298,6 +301,21 @@ Template.UserProfile.onRendered(function() {
   $("a[href='" + Session.get('activeTab') + "' ]").addClass('active');
 
   $('.tab-pane:first').addClass('active');
+
+
+  const user = Meteor.user();
+  if (get(Config.findOne(), 'Settings.DonorTools.showElectronicYearEndQuestionPopup') && get(Config.findOne(), 'Settings.DonorTools.electronicYearEndTagName')) {
+    if (user && user.answered) {
+      if (user.answered.endOfYearStatement) {
+        console.log("Don't show showElectronicYearEndCheckbox modal");
+      } else {
+        $('#question-modal').modal({show: true});
+      }
+    } else {
+      $('#question-modal').modal({show: true});
+    }
+  }
+
 });
 
 Template.UserProfile.onDestroyed(function() {

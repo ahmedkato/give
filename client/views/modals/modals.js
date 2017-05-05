@@ -7,13 +7,6 @@ Template.Modals.onCreated(function() {
 
 Template.Modals.events({
   'click #write_in_save': function() {
-    // TODO: update this to use the new memo on the split functionality
-    // TODO: need to change the give function, it now needs to get the memo from the DonationFormItems and not
-    // the form itself
-    // TODO: then find the area on the method on the server where this same change needs to be made (if at all)
-
-    // If there is a memo added and they change the designation, we need to remove that split memo before starting the change
-
     if ($('#writeIn').val() === "") {
       return;
     }

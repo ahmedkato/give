@@ -28,16 +28,20 @@
                                     <h5 id="profile_section">{{names.[0].first_name}} {{names.[0].last_name}}</h5>
                                     <p>
                                         <strong>Address: </strong>  <i class="fa fa-pencil edit_address green-icons"></i><br>
-                                        {{street_address.[0]}}<br>
-                                        {{#if street_address.[1]}}
-                                            {{street_address.[1]}}<br>
+                                        {{#if street_address.[0]}}
+                                            {{street_address.[0]}}<br>
+                                            {{#if street_address.[1]}}
+                                                {{street_address.[1]}}<br>
+                                            {{/if}}
+                                            {{addresses.[0].city}}, {{addresses.[0].state}} {{addresses.[0].postal_code}}<br>
+                                            {{addresses.[0].country}}
                                         {{/if}}
-                                        {{addresses.[0].city}}, {{addresses.[0].state}} {{addresses.[0].postal_code}}<br>
-                                        {{addresses.[0].country}}
                                     </p>
                                     <p>
                                         <strong>Phone:  </strong> <i class="fa fa-pencil edit_address green-icons"></i><br>
-                                        {{phone_numbers.[0].phone_number}} <br>
+                                        {{#if phone_numbers.[0].phone_number}}
+                                            {{phone_numbers.[0].phone_number}} <br>
+                                        {{/if}}
                                     </p>
                                     <p>
                                         <strong>Email:  </strong> <br>
@@ -52,11 +56,13 @@
                                         <a href="/user/give" class="btn btn-primary btn-block" role="button"><span class="fa fa-plus-circle"></span> Give </a>
                                     </p>
                                     <div class="col-xs-12 divider text-center">
-                                        <p style="margin-top: 10px;">
+                                        <p id="tag-selections" style="margin-top: 10px; border : 5px solid transparent;">
                                             {{#if showYearEndCheckbox}}
                                                 <input type="checkbox" id="receiveEndOfYearElectronically" checked="{{hasReceiveYearEndEleectronicStatementsTag}}">
                                                 <label for="receiveEndOfYearElectronically">I want to receive end of year statements electronically</label>
                                             {{/if}}
+                                        </p>
+                                        <p>
                                         <ul class="nav nav-list">
                                             <li class="nav-header text-left"><br>Lifetime Giving Stats</li>
                                             <li class="active text-left">
@@ -125,5 +131,6 @@
         </div>
     </div>
         {{> ProfileModal}}
+        {{> QuestionModal}}
     </div><!--UserCSS-->
 </template>

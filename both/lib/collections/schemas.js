@@ -619,6 +619,16 @@ Schema.Settings = new SimpleSchema({
       label: "Paste the name of the tag here. This DonorTools tag should be associated with donors who want to receive year end statements electronically"
     }
   },
+  "DonorTools.showElectronicYearEndQuestionPopup": {
+    type: Boolean,
+    optional: true,
+    label: "Show your users a pop-up on the profile page asking them if they would like to receive year end statements electronically.",
+    autoform: {
+      'data-toggle': 'switch',
+      'data-on-text': 'Yes',
+      'data-off-text': 'No',
+    }
+  },
   Stripe: {
     type: Object,
     optional: true,
@@ -1077,6 +1087,37 @@ Schema.User = new SimpleSchema({
   },
   "emailSubscriptions.$.frequency": {
     type: String,
+    optional: true,
+    autoform: {
+      afFieldInput: {
+        type: "hidden"
+      },
+      afFormGroup: {
+        label: false
+      }
+    }
+  },
+  answered: {
+    type: Object,
+    optional: true,
+    autoform: {
+      omit: true
+    }
+  },
+  'answered.endOfYearStatement':{
+    type: Boolean,
+    optional: true,
+    autoform: {
+      afFieldInput: {
+        type: "hidden"
+      },
+      afFormGroup: {
+        label: false
+      }
+    }
+  },
+  'answered.otherQuestion':{
+    type: Boolean,
     optional: true,
     autoform: {
       afFieldInput: {

@@ -66,7 +66,7 @@ Meteor.methods({
       if (config && config.Settings && config.Settings.DonorTools && config.Settings.DonorTools.url) {
         const result = Utils.http_get_donortools("/settings/name_types.json");
         if (result) {
-          console.log('returning true from checkDonorTools');
+          logger.info('returning true from checkDonorTools');
           return true;
         }
         return false;
@@ -1418,14 +1418,12 @@ Meteor.methods({
    * @param {String} fundraiserId - The fundraiser's _id
    */
   toggleEmailSubscription(fundId, fundraiserId) {
-    console.log(fundId, fundraiserId);
     check(fundId, String);
     check(fundraiserId, String);
 
     const fundraiserEmail = Fundraisers.findOne({_id: fundraiserId}) &&
         Fundraisers.findOne({_id: fundraiserId}).email;
     const userEmail = Meteor.users.findOne({_id: this.userId}).emails[0].address;
-    console.log(userEmail);
 
     let updateTo;
     // Make sure that this user can update the email subscription for this fundraiser
@@ -1560,51 +1558,121 @@ Meteor.methods({
   /**
    * @method updateTag - Edit a persona's tags
    * @param {String} personaId - this person's id
-   * @param {String} nameOfTag - what is the name of the tag you want to edit?
    * @param {String} addTag - add the tag? If false, remove it.
    */
   updateTag(personaId, addTag) {
+    // TODO: ** if you resuse this method, you need to change it to a generic version, right now it is specific to the electronicYearEndTagName
     // TODO: need to audit this change
     check(personaId, Number);
     check(addTag, Boolean);
     logger.info(`Started updateTag method with 
       personaId: ${personaId}
       addTag: ${addTag}`);
+    if ( this.userId ) {
+      const config = ConfigDoc();
+      const personaResult = Utils.http_get_donortools("/people/" + personaId + ".json");
+      const persona = personaResult.data.persona;
+      const tags = persona.tag_list;
+      const nameOfTag = get(Config.findOne(), 'Settings.DonorTools.electronicYearEndTagName');
+      const matchingTagIndex = tags.indexOf(nameOfTag);
 
-    const config = ConfigDoc();
-    const personaResult = Utils.http_get_donortools("/people/" + personaId + ".json");
-    const persona = personaResult.data.persona;
-    const tags = persona.tag_list;
-    const nameOfTag = get(Config.findOne(), 'Settings.DonorTools.electronicYearEndTagName');
-    const matchingTagIndex = tags.indexOf(nameOfTag);
+      const newPersona = {id: personaId, tag_list: tags};
 
-    const newPersona = {id: personaId, tag_list: tags};
-
-    if (matchingTagIndex > -1) {
-      if (!addTag) {
-        newPersona.tag_list.splice(matchingTagIndex, 1);
-        const updatePersona = HTTP.call( "PUT", config.Settings.DonorTools.url + '/people/' + personaId + '.json',
+      if (matchingTagIndex > -1) {
+        if (!addTag) {
+          newPersona.tag_list.splice(matchingTagIndex, 1);
+          const updatePersona = HTTP.call("PUT", config.Settings.DonorTools.url + '/people/' + personaId + '.json',
+            {
+              data: {"persona": newPersona},
+              auth: DONORTOOLSAUTH
+            });
+          return "removed tag";
+        }
+      } else if (addTag) {
+        newPersona.tag_list.push(nameOfTag);
+        const updatePersona = HTTP.call("PUT", config.Settings.DonorTools.url + '/people/' + personaId + '.json',
           {
-            data: { "persona": newPersona },
+            data: {"persona": newPersona},
             auth: DONORTOOLSAUTH
-          } );
-        return "removed tag";
+          }, function (err, res) {
+            if (err) {
+              logger.error(err);
+            } else {
+              logger.info(res);
+            }
+          });
+        return "added tag";
       }
-    } else if (addTag) {
-      newPersona.tag_list.push(nameOfTag);
-      const updatePersona = HTTP.call( "PUT", config.Settings.DonorTools.url + '/people/' + personaId + '.json',
-        {
-          data: { "persona": newPersona },
-          auth: DONORTOOLSAUTH
-        }, function(err, res) {
-          if (err) {
-            logger.error(err);
-          } else {
-            logger.info(res);
-          }
-        } );
-      return "added tag";
+      return "No Change needed";
     }
-    return "No Change needed";
+  },
+  /**
+   * @method updateDTPersonas - Get the latest persona object(s) from DT for this user
+   */
+  updateDTPersonas() {
+    logger.info(`Started updateDTPersonas method`);
+    if (this.userId) {
+      const persona_ids = Meteor.user() && Meteor.user().persona_ids;
+      persona_ids.forEach((id)=>{
+        const persona = Utils.http_get_donortools("/people/" + id + ".json");
+        DT_personas.upsert({_id: id}, persona.data.persona);
+      });
+    }
+  },
+  /**
+   * @method makeTheseMainEmails - Update these email addresses in DT by making them the 'main' emails.
+   * @param {[String]} emailIds - the ids that the user selected to be their primary emails
+   */
+  makeTheseMainEmails(emailIds) {
+    logger.info(`Started updateDTPersonas method with ${emailIds}`);
+    check(emailIds, [String]);
+    if (this.userId) {
+      const config = ConfigDoc();
+      emailIds.forEach(function (id) {
+        const numberId = Number(id);
+        const persona = DT_personas.findOne({'email_addresses.id': numberId});
+
+        persona.email_addresses.forEach(function (email) {
+          if (email.id === numberId){
+            email.address_type_id = 5;
+          } else if(email.address_type_id === 5) {
+            email.address_type_id = null;
+          }
+        });
+        const newPersona = {id: persona.id, 'email_addresses': persona.email_addresses};
+        const updatePersona = HTTP.call("PUT", config.Settings.DonorTools.url + '/people/' + persona.id + '.json',
+          {
+            data: {"persona": newPersona},
+            auth: DONORTOOLSAUTH
+          }, function (err, res) {
+            if (err) {
+              logger.error(err);
+            } else {
+              //logger.info(res);
+            }
+          });
+      });
+      return "updated";
+    }
+  },
+  /**
+   * @method setAnsweredTrue - Inside the users document set one of the answers to true
+   * @param {String} question - this is the question which we are setting the answer to true
+   */
+  setAnsweredTrue(question) {
+    logger.info(`Started setAnsweredTrue method with ${question}`);
+    check(question, String);
+    if (this.userId) {
+      const setParameterReference = {
+        $set: {
+          answered: {
+            [question]: true
+          }
+        }
+      };
+
+      Meteor.users.update({_id: this.userId}, setParameterReference);
+      return "updated";
+    }
   }
 });

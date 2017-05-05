@@ -1,0 +1,62 @@
+<template name="QuestionModal">
+    <div class="modal fade" id="question-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">Interested in receiving your end-of-year giving statement electronically, rather than via USPS, in January?</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        This saves {{org_name}} money on printing and postage, while allowing you to receive your statement sooner and print it at your convenience.
+                    </p>
+                    <p>
+                        Have Questions? You can email: <a href="mailto:{{support_address}}?Subject=Year End Statements Question">{{support_address}}</a><br/> or call
+                        <a href="tel:+1{{org_phone}}">{{org_phone}}</a>.
+                    </p>
+                </div>
+                <div class="alert alert-warning">
+                    <p><button class="btn btn-primary answer" id="yes-button">Yes, I'd like my giving statement via email in January</button></p>
+                    <p><button class="btn answer" id="no-button">No, please send me a paper statement</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="primary-email-modal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">Check the box next to your primary email address.</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        This is the one at which you would like to receive communication from us.
+                    </p>
+                    <div class="row text-center primary-email-question">
+                        {{#each dtPersona}}
+                            <div class="col">
+                                <div class="alert alert-info">
+                                    <h4>{{recognition_name}}</h4>
+                                    {{#each email_addresses}}
+                                        <p>
+                                            <label>
+                                                <input name={{../_id}} type="radio" class="email-checkbox" value={{id}} {{mainEmail}}>
+                                                {{email_address}}
+                                            </label>
+                                        </p>
+                                    {{/each}}
+                                </div>
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="save-primary-email">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
