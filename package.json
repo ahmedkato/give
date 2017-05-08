@@ -24,7 +24,9 @@
     "stripe": "^4.15.0",
     "try-thread-sleep": "^1.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "jest": "^20.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/c316/give.git"
