@@ -306,9 +306,7 @@ Template.UserProfile.onRendered(function() {
   const user = Meteor.user();
   if (get(Config.findOne(), 'Settings.DonorTools.showElectronicYearEndQuestionPopup') && get(Config.findOne(), 'Settings.DonorTools.electronicYearEndTagName')) {
     if (user && user.answered) {
-      if (user.answered.endOfYearStatement) {
-        console.log("Don't show showElectronicYearEndCheckbox modal");
-      } else {
+      if (!user.answered.endOfYearStatement) {
         $('#question-modal').modal({show: true});
       }
     } else {
