@@ -249,18 +249,6 @@ Template.registerHelper('cleanupString', function(string) {
 });
 
 /*
- * Subtract
- * Take the two passed values, subtract them, and divide by 100 to return dollar amount.
- */
-Template.registerHelper('subtract', function(v1, v2) {
-  // Don't want to divide by 0 or a negative
-  if (v1 <= v2) {
-    return;
-  }
-  return ( v1 - v2 ) / 100;
-});
-
-/*
  * Add
  * Take the two passed values, add them, and divide by 100 to return dollar amount.
  */
