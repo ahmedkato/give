@@ -2,6 +2,7 @@
   "name": "give",
   "scripts": {
     "start": "meteor --settings settings.json"
+    "test": "jest"
   },
   "version": "1.1.0",
   "description": "A webapp for Non-profits using DonorTools and Stripe http://c316.github.io/give",
