@@ -41,13 +41,11 @@ Config.after.update(function (userId, doc, fieldNames) {
 });
 
 Config.after.insert(function () {
-  Meteor.setTimeout(() => {
-    Meteor.call("afterUpdateInfoSection", function (err, res) {
-      if (!err) {
-        console.log(res);
-      }
-    });
-  }, 2000);
+  Meteor.call("afterUpdateInfoSection", function (err, res) {
+    if (!err) {
+      console.log(res);
+    }
+  });
 });
 
 Customers = new Mongo.Collection('customers');
