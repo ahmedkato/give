@@ -513,7 +513,6 @@ Utils = {
     return null;
   },
   check_for_dt_user(email, checkThisDTID, use_id, customer_id) {
-    console.log( email );
 
     try {
       // This function is used to get all of the persona_id (there might be many)
@@ -523,7 +522,6 @@ Utils = {
 
       let personResult, matched_id, getPersonasAndMatchedId, personaMatchData, personaData;
       if ( use_id ) {
-        console.log( "Using found ID" );
         personResult = Utils.http_get_donortools( "/people/" + checkThisDTID + ".json" );
         personaData = Utils.split_dt_persona_info( email, personResult );
         return {
@@ -532,16 +530,15 @@ Utils = {
           matched_id: 'not used'
         };
       } else {
-        console.log( "Inside the no id section" );
         if ( Audit_trail.findOne( { _id: customer_id } ) && Audit_trail.findOne( { _id: customer_id } ).flow_checked ) {
-          console.log( "Checked for and found a audit record for this customer creation flow, skipping the account creation." );
+          logger.info( "Checked for and found a audit record for this customer creation flow, skipping the account creation." );
           return;
         } else {
-          console.log( "Checked for and didn't find an audit record for this customer creation flow." );
+          logger.info( "Checked for and didn't find an audit record for this customer creation flow." );
 
           Audit_trail.upsert( { _id: customer_id }, { $set: { flow_checked: true } } );
           getPersonasAndMatchedId = Utils.find_dt_persona_flow( email, customer_id );
-          console.dir( getPersonasAndMatchedId );
+          logger.info( getPersonasAndMatchedId );
           personaMatchData = getPersonasAndMatchedId.personResult;
           matched_id = getPersonasAndMatchedId.matched_id;
 
@@ -862,7 +859,7 @@ Utils = {
         dtPersonaId + '.json', {
           auth: DONORTOOLSAUTH
         } );
-      console.log( checkPerson.data );
+      logger.info( checkPerson.data );
     } catch ( e ) {
       logger.error( "No Person with the DT ID of " +
         dtPersonaId + " found in DT" );
@@ -1157,13 +1154,13 @@ Utils = {
       return customer.id;
     } );
     if ( customers.length > -1 ) {
-      console.log( "Got at least one customer" );
+      logger.info( "Got at least one customer" );
     } else {
       throw new Meteor.Error( 500, "Not customers with that DT ID were found" );
     }
 
     customers.forEach( function( customer_id ) {
-      console.log( customer_id );
+      logger.info( customer_id );
 
       StripeFunctions.stripe_update( 'customers',
         'update', customer_id, '', {
@@ -1199,7 +1196,7 @@ Utils = {
   },
   update_stripe_customer_bank(customer_id, bank) {
     logger.info( "Inside update_stripe_customer_bank." );
-    console.log( customer_id, bank );
+    logger.info( customer_id, bank );
 
     const stripeBankUpdate = StripeFunctions.stripe_update( 'customers', 'createSource', customer_id, '', { source: bank } );
     return stripeBankUpdate;
@@ -1374,11 +1371,12 @@ Utils = {
 
     let toAddresses = [];
     let bccAddress;
-    toAddresses.push( config.OrgInfo.emails.support );
-    toAddresses = toAddresses.concat( config.OrgInfo.emails.otherSupportAddresses );
+    toAddresses.push( {"email": config.OrgInfo.emails.support } );
+    toAddresses.push( {"email": config.OrgInfo.emails.otherSupportAddresses } );
+
     bccAddress = config.OrgInfo.emails.bccAddress;
     const sendObject = {
-      from: config.OrgInfo.emails.support,
+      from_email: config.OrgInfo.emails.support,
       to: toAddresses,
       bcc: bccAddress,
       subject: "DT Account inserted.",
@@ -1483,13 +1481,13 @@ Utils = {
       "/people/" + personaID + "'>" + personaID + "</a></p>";
 
     let toAddresses = [];
-    toAddresses.push( config.OrgInfo.emails.support );
+    toAddresses.push( {"email": config.OrgInfo.emails.support } );
     if ( config.OrgInfo.emails.otherSupportAddresses ) {
       toAddresses = toAddresses.concat( config.OrgInfo.emails.otherSupportAddresses );
     }
 
     const emailObject = {
-      from: config.OrgInfo.emails.support,
+      from_email: config.OrgInfo.emails.support,
       to: toAddresses,
       subject: "Give Account inserted.",
       html: html
@@ -1535,7 +1533,7 @@ Utils = {
 
     const admins = Roles.getUsersInRole( 'admin' );
     const adminEmails = admins.map( function( item ) {
-      return item.emails[0].address;
+      return {"email": item.emails[0].address};
     } );
 
     // Create the HTML content for the email.
@@ -1548,6 +1546,7 @@ Utils = {
 
     const emailObject = {
       from: config.OrgInfo.name + "<" + config.OrgInfo.emails.support + ">",
+      from_email: config.OrgInfo.emails.support,
       to: adminEmails,
       subject: Meteor.settings.dev + "A configuration change was made",
       html: html
@@ -1745,7 +1744,7 @@ Utils = {
 
         // Check for existing id array
         if ( user_id.persona_id && !user_id.persona_info ) {
-          console.log( "post_donation.js: This is the persona_id : ", user_id.persona_id );
+          logger.info( "post_donation.js: This is the persona_id : ", user_id.persona_id );
           // check dt for user, persona_ids will be an array of 0 to many persona_ids
           persona_result = Utils.check_for_dt_user( email_address, user_id.persona_id, true );
         } else {
@@ -1822,21 +1821,21 @@ Utils = {
 
     if ( id_or_info && id_or_info.length ) {
       if ( id_or_info[0].id ) {
-        console.log( user_id );
+        logger.info( user_id );
 
         // Start from scratch
         const updateThisThing = Meteor.users.update( { _id: user_id._id }, { $set: { 'persona_info': [] } } );
-        console.log( updateThisThing );
+        logger.info( updateThisThing );
 
         // forEach of the persona ids stored in the array run the insert_persona_info_into_user function
         id_or_info.forEach( function( element ) {
-          console.log( element.id );
+          logger.info( element.id );
           HTTP.call( "GET", config.Settings.DonorTools.url + "/people/" + element.id + ".json",
             { auth: DONORTOOLSAUTH },
             function( error ) {
               if ( !error ) {
-                console.log( "No error, moving to insert" );
-                console.log( "element.id: " + element.id );
+                logger.info( "No error, moving to insert" );
+                logger.info( "element.id: " + element.id );
                 Utils.insert_persona_info_into_user( user_id, element );
               } else {
                 Utils.remove_persona_info_from_user( user_id, element );
@@ -1999,7 +1998,7 @@ Utils = {
   insert_persona_info_into_user(user_id, persona_info) {
     // Insert the donor tools persona id into the user record
     logger.info( "Started insert_persona_info_into_user" );
-    console.log( persona_info );
+    logger.info( persona_info );
 
     if ( Meteor.users.findOne( {
       _id: user_id._id,
@@ -2183,7 +2182,7 @@ Utils = {
       return_to_called.persona_info = [];
 
       if ( !personResultInSplit.data.length ) {
-        console.log( "Not an array of data" );
+        logger.info( "Not an array of data" );
         personResult.data = [personResult.data];
       }
       personResultInSplit.data.forEach( function( element ) {
@@ -2234,7 +2233,9 @@ Utils = {
 
     Mandrill.config( {
       username: config.Services.Email.mandrillUsername,
-      "key": config.Services.Email.mandrillKey
+      "key": config.Services.Email.mandrillKey,
+      port: 587,
+      host: "smtps.mandrillapp.com"
     } );
   },
   /**
@@ -2260,12 +2261,15 @@ Utils = {
     if ( config.OrgInfo.emails.bccAddress ) {
       bccAddress = config.OrgInfo.emails.bccAddress;
     }
-    Email.send( {
-      from: emailObject.from,
-      to: emailObject.to,
-      bcc: bccAddress,
-      subject: emailObject.subject,
-      html: emailObject.html
+    Mandrill.messages.send( {
+      message: {
+        from_name: emailObject.from,
+        from_email: config.OrgInfo.emails.support,
+        to: emailObject.to,
+        bcc: bccAddress,
+        subject: emailObject.subject,
+        html: emailObject.html,
+      }
     } );
   },
   /**

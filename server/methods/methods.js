@@ -48,8 +48,8 @@ Meteor.methods({
   sendChangeConfigNotice: function(from) {
     logger.info( "Started method sendChangeConfigNotice." );
     check(from, String);
-    this.unblock();
     if (Roles.userIsInRole(this.userId, 'admin')) {
+      this.unblock();
       Utils.send_change_email_notice_to_admins( this.userId, from );
     }
     return 'Done';
@@ -79,7 +79,6 @@ Meteor.methods({
   get_dt_funds: function() {
     logger.info( "Started method get_dt_funds." );
     try {
-      this.unblock();
       // check to see that the user is the admin user
       if (Roles.userIsInRole(this.userId, ['admin', 'manager', 'trips-manager'])) {
         let fundResults;
@@ -367,7 +366,6 @@ Meteor.methods({
 
     let userID;
     if (this.userId) {
-      this.unblock();
       if (id) {
         if (Roles.userIsInRole(this.userId, ['admin'])) {
           userID = id;
@@ -620,7 +618,7 @@ Meteor.methods({
     check(id, String);
     check(process, Boolean);
     if (Roles.userIsInRole(this.userId, ['super-admin', 'admin'])) {
-      /* try {*/
+       try {
 
       if (process) {
         const thisRequest = {id: id};
@@ -631,11 +629,11 @@ Meteor.methods({
         Stripe_Events[stripeEvent.type]( stripeEvent );
         return stripeEvent;
       }
-      /* } catch (e) {
+       } catch (e) {
         logger.info(e);
         var error = (e.response);
         throw new Meteor.Error(error, e._id);
-      }*/
+      }
     } else {
       logger.info("You aren't an admin, you can't do that");
       return;
@@ -872,7 +870,6 @@ Meteor.methods({
     }
     logger.info("fields: ");
     logger.info(fields);
-    this.unblock();
 
     const subscription = Subscriptions.findOne({_id: subscription_id});
     if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
@@ -904,7 +901,6 @@ Meteor.methods({
 
     logger.info(donationId, totalAmount, nextDonationDate);
 
-    this.unblock();
     const donationDoc = Donations.findOne({_id: donationId});
     const updateToThis = {$set: {total_amount: totalAmount}};
     if (nextDonationDate) {
@@ -1108,13 +1104,13 @@ Meteor.methods({
       throw new Meteor.Error(e);
     }
   },
-  afterUpdateInfoSection: function() {
+  afterUpdateInfoSection: function () {
     logger.info("Started afterUpdateInfoSection method");
 
-    /* try {*/
-    this.unblock();
-    if ( Roles.userIsInRole( this.userId, ['admin', 'manager'] ) ) {
-      const config = ConfigDoc();
+    try {
+      if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
+        this.unblock();
+        const config = ConfigDoc();
 
         // We store our DonorTools username and password in our Meteor.settings
         // We store out Stripe keys in the Meteor.settings as well
@@ -1122,69 +1118,73 @@ Meteor.methods({
         // This way we can show certain states from within the app, both to admins and
         // guests
 
-      if (config) {
-        if (!(config && config.Settings && config.Settings.DonorTools)) {
-          config.Settings.DonorTools = {};
-        }
+        if (config) {
+          if (!(config && config.Settings && config.Settings.DonorTools)) {
+            config.Settings.DonorTools = {};
+          }
 
-        if (!(config && config.Settings && config.Settings.Stripe)) {
-          config.Settings.Stripe = {};
-        }
+          if (!(config && config.Settings && config.Settings.Stripe)) {
+            config.Settings.Stripe = {};
+          }
 
-        if (Meteor.settings.donor_tools_user) {
-          config.Settings.DonorTools.usernameExists = true;
-        } else {
-          config.Settings.DonorTools.usernameExists = false;
-        }
-        if (Meteor.settings.donor_tools_password) {
-          config.Settings.DonorTools.passwordExists = true;
-        } else {
-          config.Settings.DonorTools.passwordExists = false;
-        }
-        if (Meteor.settings.stripe.secret) {
-          config.Settings.Stripe.keysPublishableExists = true;
-        } else {
-          config.Settings.Stripe.keysPublishableExists = false;
-        }
-        if (Meteor.settings.public.stripe_publishable) {
-          config.Settings.Stripe.keysSecretExists = true;
-        } else {
-          config.Settings.Stripe.keysSecretExists = false;
-        }
-        const waitForConfigUpdate = Config.update({_id: config._id}, {$set: config});
+          if (Meteor.settings.donor_tools_user) {
+            config.Settings.DonorTools.usernameExists = true;
+          } else {
+            config.Settings.DonorTools.usernameExists = false;
+          }
 
-        if (config &&
+          if (Meteor.settings.donor_tools_password) {
+            config.Settings.DonorTools.passwordExists = true;
+          } else {
+            config.Settings.DonorTools.passwordExists = false;
+          }
+
+          if (Meteor.settings.stripe.secret) {
+            config.Settings.Stripe.keysPublishableExists = true;
+          } else {
+            config.Settings.Stripe.keysPublishableExists = false;
+          }
+
+          if (Meteor.settings.public.stripe_publishable) {
+            config.Settings.Stripe.keysSecretExists = true;
+          } else {
+            config.Settings.Stripe.keysSecretExists = false;
+          }
+
+          const waitForConfigUpdate = Config.update({_id: config._id}, {$set: config});
+
+          if (config &&
             config.Settings &&
             config.Settings.Stripe &&
             config.Settings.Stripe.keysSecretExists &&
             config.Settings.Stripe.keysPublishableExists) {
             // If the necessary Stripe keys exist then create the Stripe plans needed for Give
-          Utils.create_stripe_plans();
-        }
+            Utils.create_stripe_plans();
+          }
 
-        if (config && config.Settings && config.Settings.DonorTools &&
+          if (config && config.Settings && config.Settings.DonorTools &&
             config.Settings.DonorTools.usernameExists && config.Settings.DonorTools.passwordExists) {
             // TODO: write the function that will go out to DT and setup the necessary funds, types,
             // and sources
+          }
         }
+      } else {
+        logger.error("You aren't an admin, you can't do that");
+        return;
       }
-    } else {
-      logger.error("You aren't an admin, you can't do that");
       return;
-    }
-    return;
-    /* } catch(e) {
+    } catch (e) {
       console.log(e);
       throw new Meteor.Error(e);
-    }*/
+    }
   },
   manual_gift_processed: function(donationId) {
     logger.info("Started manual_gift_processed method");
     check(donationId, String);
 
     try {
-      this.unblock();
       if (Roles.userIsInRole(this.userId, ['admin', 'manager'])) {
+        this.unblock();
         const customer_id = Donations.findOne({_id: donationId}).customer_id;
         const email = Customers.findOne({_id: customer_id}).email;
         const dt_persona_match_id = Utils.find_dt_persona_flow( email, customer_id );
