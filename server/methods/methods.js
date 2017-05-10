@@ -1613,10 +1613,14 @@ Meteor.methods({
     logger.info(`Started updateDTPersonas method`);
     if (this.userId) {
       const persona_ids = Meteor.user() && Meteor.user().persona_ids;
-      persona_ids.forEach((id)=>{
-        const persona = Utils.http_get_donortools("/people/" + id + ".json");
-        DT_personas.upsert({_id: id}, persona.data.persona);
-      });
+      if(persona_ids && persona_ids.length > 0){
+        persona_ids.forEach((id)=>{
+          const persona = Utils.http_get_donortools("/people/" + id + ".json");
+          DT_personas.upsert({_id: id}, persona.data.persona);
+        });
+      } else {
+        logger.error("No persona_ids found for user with _id:", this.userId);
+      }
     }
   },
   /**

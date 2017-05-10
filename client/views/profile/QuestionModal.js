@@ -42,10 +42,16 @@ Template.QuestionModal.events({
         showEmailModal = true;
       }
     });
-    Meteor.call('update_user_document_by_adding_persona_details_for_each_persona_id');
+
+    // Since we are attempting to update DT, we will want to wait to call the update document function.
+    Meteor.setTimeout(function () {
+      Meteor.call('update_user_document_by_adding_persona_details_for_each_persona_id');
+    }, 500);
 
     if (showEmailModal) {
       $( '#primary-email-modal' ).modal( { show: true } );
+    } else {
+      Meteor.call("setAnsweredTrue", "endOfYearStatement");
     }
   },
   'click #no-button'(){
@@ -57,6 +63,7 @@ Template.QuestionModal.events({
     });
     $("html, body").animate({ scrollTop: ($("#receiveEndOfYearElectronically").offset().top - 50) }, "slow");
     $('#tag-selections').css({border: 'solid #48c9b0'}).animate({borderWidth: 4}, 500).animate({borderWidth: 0}, 1000);
+    Meteor.call("setAnsweredTrue", "endOfYearStatement");
   },
   'click .answer'(){
     $('#question-modal').modal('hide');
