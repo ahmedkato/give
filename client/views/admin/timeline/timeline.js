@@ -55,7 +55,6 @@ Template.Timeline.helpers({
       if (charge && charge.customer) {
         const customer = Customers.findOne({_id: charge.customer});
         if (customer) {
-          story = "";
           story = customer.metadata.fname + " " + customer.metadata.lname;
           story = story + "'s gift of $";
           story = story + (charge.amount / 100);
@@ -84,9 +83,17 @@ Template.Timeline.helpers({
       }
     }
     if (this.category === 'Email') {
+      let emailSentTo = "";
+      if((typeof this.emailSentTo) === "string") {
+        emailSentTo = this.emailSentTo;
+      } else {
+        emailSentTo = this.emailSentTo.map(function(item) {
+          return item['email'];
+        });
+        emailSentTo = (emailSentTo.toString()).replace(/(^,)|(,$)/g, "");
+      }
       const subtypeInfo = this.subtype ? this.subtype : '';
-      story = 'A ' + this.type + " " + subtypeInfo +
-        ' email was sent to ' + this.emailSentTo;
+      story = 'A ' + this.type + " " + subtypeInfo + ' email was sent to ' + emailSentTo;
     }
     if (this.category === 'System' || this.category === 'DonorTools') {
       const subtypeInfo = this.subtype === 'account created' ? 'account was created' : '';
