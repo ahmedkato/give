@@ -63,6 +63,7 @@ Meteor.methods({
     logger.info( "Started method checkDonorTools." );
 
     try {
+      const config = Config.findOne({'OrgInfo.web.domain_name': Meteor.settings.public.org_domain});
       if (config && config.Settings && config.Settings.DonorTools && config.Settings.DonorTools.url) {
         const result = Utils.http_get_donortools("/settings/name_types.json");
         if (result) {
@@ -360,7 +361,7 @@ Meteor.methods({
     }
   },
   update_user_document_by_adding_persona_details_for_each_persona_id: function(id) {
-    logger.info("Started update_user_document_by_adding_persona_details_for_each_persona_id");
+    logger.info("Started update_user_document_by_adding_persona_details_for_each_persona_id with id:", id);
 
     check(id, Match.Maybe(String));
 
@@ -421,7 +422,7 @@ Meteor.methods({
       } else if (persona_ids) {
         logger.info("Single persona_id found: ", persona_ids);
         const personaResult = Utils.http_get_donortools("/people/" + persona_ids + ".json");
-        console.log(personaResult.data.persona);
+        logger.info(personaResult.data.persona);
         set_this_array.push(personaResult.data.persona);
       } else if (!Meteor.users.findOne({_id: userID}).persona_info &&
         Customers.findOne({'metadata.user_id': userID})) {
@@ -1561,7 +1562,7 @@ Meteor.methods({
    * @param {String} addTag - add the tag? If false, remove it.
    */
   updateTag(personaId, addTag) {
-    // TODO: ** if you resuse this method, you need to change it to a generic version, right now it is specific to the electronicYearEndTagName
+    // TODO: ** if you reuse this method, you need to change it to a generic version, right now it is specific to the electronicYearEndTagName
     // TODO: need to audit this change
     check(personaId, Number);
     check(addTag, Boolean);

@@ -247,9 +247,10 @@ Meteor.publish("userDT", function (id) {
   } else {
     userID = this.userId;
   }
-  const persona_ids = Meteor.users.findOne({_id: userID}) && (Meteor.users.findOne({_id: userID}).persona_ids || Meteor.users.findOne({_id: userID}).persona_id);
+  const persona_ids = Meteor.users.findOne({_id: userID})
+    && (Meteor.users.findOne({_id: userID}).persona_ids || Meteor.users.findOne({_id: userID}).persona_id);
   logger.info("persona_ids: " + persona_ids);
-  return DT_donations.find({persona_id: {$in: persona_ids || []}});
+  return DT_donations.find({persona_id: {$in: (persona_ids || [])}});
 });
 
 Meteor.publish("userDTFunds", function () {
@@ -436,6 +437,7 @@ Meteor.publish("config", function () {
       'OrgInfo.ein': 1,
       'OrgInfo.address': 1,
       'OrgInfo.mission_statement': 1,
+      'OrgInfo.legalStatement': 1,
       'OrgInfo.emails.contact': 1,
       'OrgInfo.emails.support': 1,
       'Services.Analytics.heapId': 1,
@@ -557,15 +559,21 @@ Meteor.publish('DonationSplits', function (chargeId) {
   return DonationSplits.find({charge_id: chargeId});
 });
 
-Meteor.publish('dtPersonaEmails', function () {
+Meteor.publish('DTPersona', function () {
   if( this.userId ) {
     const email = Meteor.users.findOne(this.userId).emails[0].address;
     console.log(email);
     const personas =  DT_personas.find(
       {'email_addresses.email_address': email}, {
         fields: {
+          company_name: 1,
+          id: 1,
+          names: 1,
+          addresses: 1,
+          phone_numbers: 1,
           recognition_name: 1,
           email_addresses: 1,
+          tag_list: 1
         }
       });
     console.log(personas.fetch());

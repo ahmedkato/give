@@ -1,8 +1,4 @@
 Template.QuestionModal.onCreated(function(){
-  this.autorun(()=>{
-    this.subscribe('dtPersonaEmails');
-  });
-
   // update personas here
   Meteor.call("updateDTPersonas");
 });
@@ -64,6 +60,20 @@ Template.QuestionModal.events({
     $("html, body").animate({ scrollTop: ($("#receiveEndOfYearElectronically").offset().top - 50) }, "slow");
     $('#tag-selections').css({border: 'solid #48c9b0'}).animate({borderWidth: 4}, 500).animate({borderWidth: 0}, 1000);
     Meteor.call("setAnsweredTrue", "endOfYearStatement");
+
+    const personas = DT_personas.find();
+    personas.forEach((persona) =>{
+      Meteor.call("updateTag", persona._id, false, function (err, res) {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log(res);
+        }
+      });
+      if(persona.email_addresses.length > 1) {
+        showEmailModal = true;
+      }
+    });
   },
   'click .answer'(){
     $('#question-modal').modal('hide');

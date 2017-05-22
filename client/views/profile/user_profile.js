@@ -27,6 +27,7 @@ const userProfileTutorialSteps = [
 
 Template.UserProfile.onCreated(function() {
   this.autorun(()=> {
+    this.subscribe('DTPersona');
     const selectedUser = Meteor.users.findOne();
     const selectedPersonaIds = selectedUser && (selectedUser.persona_ids || selectedUser.persona_id);
 
@@ -122,8 +123,8 @@ Template.UserProfile.helpers({
     }
   },
   personas: function() {
-    if (Meteor.user() && Meteor.user().persona_info) {
-      return Meteor.user().persona_info;
+    if (DT_personas.findOne() && DT_personas.findOne().id) {
+      return DT_personas.find();
     }
     return;
   },
@@ -153,11 +154,15 @@ Template.UserProfile.helpers({
     }
   },
   hasReceiveYearEndEleectronicStatementsTag() {
+    const emailTag = Config.findOne()
+      && Config.findOne().Settings
+      && Config.findOne().Settings.DonorTools
+      && Config.findOne().Settings.DonorTools.electronicYearEndTagName;
     const personaTags = this.tag_list;
-    if (personaTags && (personaTags.length > 0) && (personaTags.indexOf("Email Year End Receipt") > -1)) {
-      return 'checked';
+    if (personaTags && (personaTags.length > 0) && (personaTags.indexOf(emailTag) > -1)) {
+      return {checked: true}
     }
-    return null;
+    return {checked: false}
   },
   showYearEndCheckbox() {
     return get(Config.findOne(), 'Settings.DonorTools.showElectronicYearEndCheckbox');
@@ -313,7 +318,6 @@ Template.UserProfile.onRendered(function() {
       $('#question-modal').modal({show: true});
     }
   }
-
 });
 
 Template.UserProfile.onDestroyed(function() {

@@ -124,6 +124,18 @@ Schema.OrgInfo = new SimpleSchema({
       }
     }
   },
+  "legalStatement": {
+    type: String,
+    label: "Legal Statements",
+    optional: true,
+    autoform: {
+      placeholder: "This text will appear at the bottom of all of your pages. You might use it for any required legal statements.",
+      afFieldInput: {
+        type: "textarea",
+        rows: 5
+      }
+    }
+  },
   "emails": {
     type: Object,
     label: "Emails used for below scenarios",

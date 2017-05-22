@@ -1,12 +1,13 @@
 const later = require('later');
-
-const config = ConfigDoc();
-const DONORTOOLSAUTH = Meteor.settings.donor_tools_user + ':' + Meteor.settings.donor_tools_password;
-const DONORTOOLSINDVSOURCEID = config &&
+var config = Config.findOne({
+  'OrgInfo.web.domain_name': Meteor.settings.public.org_domain
+});
+var DONORTOOLSAUTH = Meteor.settings.donor_tools_user + ':' + Meteor.settings.donor_tools_password;
+var DONORTOOLSINDVSOURCEID = config &&
   config.Settings &&
   config.Settings.DonorTools &&
   config.Settings.DonorTools.defaultSourceIdForIndividualDonor;
-const DONORTOOLSORGSOURCEID = config &&
+var DONORTOOLSORGSOURCEID = config &&
   config.Settings &&
   config.Settings.DonorTools &&
   config.Settings.DonorTools.defaultSourceIdForOrganizationDonor;
@@ -712,8 +713,6 @@ Utils = {
     const source_id = getSourceId(customerCursor, metadata);
 
     logger.info( "Persona ID is:", customerCursor.metadata.dt_persona_id );
-
-    // let amount = chargeCursor.amount;
 
     if ( chargeCursor.refunded ) {
       logger.warn("charge is showing refunded");

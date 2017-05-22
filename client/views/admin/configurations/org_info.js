@@ -46,7 +46,7 @@ Template.OrgInfo.helpers({
   },
   fields(){
     return "OrgInfo.name,OrgInfo.full_name,OrgInfo.logoURL," +
-    "OrgInfo.phone,OrgInfo.is_501c3, OrgInfo.ein,OrgInfo.mission_statement," +
+    "OrgInfo.phone,OrgInfo.is_501c3, OrgInfo.ein,OrgInfo.mission_statement, OrgInfo.legalStatement," +
     "OrgInfo.address,OrgInfo.emails, OrgInfo.web"
   }
 });
