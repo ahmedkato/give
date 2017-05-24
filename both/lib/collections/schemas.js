@@ -680,13 +680,15 @@ Schema.Settings = new SimpleSchema({
   }
 });
 
-Schema.Trips = new SimpleSchema({
+Trips.schema = new SimpleSchema({
   active: {
     type: Boolean,
     optional: true,
     autoform: {
       defaultValue: true,
-      type: "hidden"
+      afFieldInput: {
+        type: "hidden"
+      },
     }
   },
   fundId: {

@@ -1243,10 +1243,10 @@ Meteor.methods({
    * @param {Object} doc - The form values passed by AutoForm
    */
   insertTrip: function(doc) {
-    logger.info( "Started method insertTrip." );
+    logger.info( "Started method insertTrip with doc:" );
+    Trips.schema.validate(doc, {check});
     if ( Roles.userIsInRole( this.userId, ['admin', 'trips-manager'] ) ) {
-      check( doc, Schema.Trips);
-      this.unblock();
+      logger.info( doc );
 
       doc.fundAdmin = this.userId;
       Trips.insert(doc);
@@ -1262,8 +1262,9 @@ Meteor.methods({
    * @param {Object} doc - The form values passed by AutoForm
    */
   insertFundraisersWithTrip: function(doc) {
-    logger.info( "Started method insertFundraisersWithTrip." );
+    logger.info( "Started method insertFundraisersWithTrip with doc:" );
     if ( Roles.userIsInRole( this.userId, ['admin', 'trips-manager'] ) ) {
+      logger.info( doc );
       check( doc, Schema.Fundraisers );
       this.unblock();
       doc.addedBy = this.userId;
@@ -1292,8 +1293,9 @@ Meteor.methods({
    * @param doc.email - User's email address
    */
   updateFundraiserName: function(doc) {
-    logger.info( "Started method updateFundraiserName." );
+    logger.info( "Started method updateFundraiserName with doc:" );
     if ( Roles.userIsInRole( this.userId, ['admin', 'trips-manager'] ) ) {
+      logger.info( doc );
       check( doc, Schema.Fundraisers );
       logger.info( "Check passed with this doc: " + doc );
       const fundraiserInsert = Fundraisers.update( {email: doc.email }, {$set: {fname: doc.fname, lname: doc.lname } } );
